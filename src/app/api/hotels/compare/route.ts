@@ -37,8 +37,42 @@ export interface ComparedHotel {
   };
 }
 
-// Multi-tier global hotel database across price categories with accurately matched photos
+// Multi-tier global hotel database using locally hosted, guaranteed verified property photos
 const GLOBAL_HOTELS_DB = [
+  // --- OSLO & SCANDINAVIA ---
+  {
+    id: 'grand-hotel-oslo',
+    name: 'Grand Hotel Oslo Karl Johan',
+    city: 'Oslo',
+    country: 'Norway',
+    starRating: 5,
+    guestRating: 9.4,
+    reviewCount: 2150,
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Historic Luxury 5★',
+    image: '/images/hotels/grand-hotel-oslo.jpg',
+    roomType: 'Nobel Peace Prize Suite Level',
+    amenities: ['Palmen Restaurant', 'Artesia Spa', 'Eight Rooftop Bar', 'Karl Johans gate 31 Landmark'],
+    baseWholesale: 215,
+    typicalOtaMarkup: 0.38, // Retail ~$297
+  },
+  {
+    id: 'clarion-hotel-the-hub-oslo',
+    name: 'Clarion Hotel The Hub Oslo',
+    city: 'Oslo',
+    country: 'Norway',
+    starRating: 4,
+    guestRating: 9.0,
+    reviewCount: 3600,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Eco-Design 4★',
+    image: '/images/hotels/clarion-hotel-the-hub-oslo.jpg',
+    roomType: 'Superior King Urban View',
+    amenities: ['Norda Rooftop Restaurant', 'Urban Rooftop Garden', 'Indoor Relaxation Pool', 'Central Station Hub'],
+    baseWholesale: 120,
+    typicalOtaMarkup: 0.39, // Retail ~$167
+  },
+
   // --- LAS VEGAS ---
   {
     id: 'bellagio-las-vegas',
@@ -50,7 +84,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 4120,
     category: 'ultra-luxury' as const,
     categoryLabel: 'Ultra-Luxury 5★',
-    image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80', // Vegas Strip iconic night skyline & fountains
+    image: '/images/hotels/bellagio-las-vegas.jpg',
     roomType: 'Fountain View King Suite',
     amenities: ['Fountain Views', 'VIP Casino Lounge', 'Pool Oasis', 'Fine Dining by Wolfgang Puck', 'Spa & Wellness'],
     baseWholesale: 198,
@@ -66,7 +100,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 3890,
     category: 'luxury-resort' as const,
     categoryLabel: 'Luxury Resort 5★',
-    image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80', // Luxury modern high-rise resort architecture
+    image: '/images/hotels/wynn-las-vegas.jpg',
     roomType: 'Tower Suite King',
     amenities: ['Championship Golf', 'Michelin-starred Dining', 'Private Cabana Pool', 'Luxury Concierge'],
     baseWholesale: 245,
@@ -82,7 +116,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 2950,
     category: 'upscale-boutique' as const,
     categoryLabel: 'Upscale Boutique 4★',
-    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80', // Contemporary upscale hotel suite interior
+    image: '/images/hotels/park-mgm-las-vegas.jpg',
     roomType: 'Park King Non-Smoking Suite',
     amenities: ['100% Smoke-Free Resort', 'Dolby Live Venue', 'Bavette’s Steakhouse', '3 Heated Outdoor Pools'],
     baseWholesale: 112,
@@ -98,7 +132,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 3340,
     category: 'smart-value' as const,
     categoryLabel: 'Smart Value 3-4★',
-    image: 'https://images.unsplash.com/photo-1506059612708-99d6c258160e?auto=format&fit=crop&w=1200&q=80', // Vegas central strip night architecture
+    image: '/images/hotels/horseshoe-las-vegas.jpg',
     roomType: 'Resort King Strip Central',
     amenities: ['Center Strip Location', 'Monorail Connected', 'Deep End Pool', 'Jack Binion’s Steak'],
     baseWholesale: 68,
@@ -116,7 +150,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 1940,
     category: 'ultra-luxury' as const,
     categoryLabel: 'Ultra-Luxury 5★ Palace',
-    image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80', // Parisian luxury grand palace facade
+    image: '/images/hotels/ritz-paris.jpg',
     roomType: 'Deluxe Suite Prestige',
     amenities: ['Chanel Spa', 'Private Garden Terrace', 'Bar Hemingway', 'Chauffeured Airport Transfer'],
     baseWholesale: 640,
@@ -132,7 +166,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 2210,
     category: 'luxury-resort' as const,
     categoryLabel: 'Luxury Palace 5★',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', // French luxury grand suite & chandeliers
+    image: '/images/hotels/four-seasons-george-v-paris.jpg',
     roomType: 'Eiffel View Executive Suite',
     amenities: ['3 Michelin-Starred Dining', 'Art Deco Pool', 'Courtyard Garden', 'Sommelier Cellar'],
     baseWholesale: 780,
@@ -148,7 +182,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 1680,
     category: 'upscale-boutique' as const,
     categoryLabel: 'Upscale Boutique 4★',
-    image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80', // Modern boutique hotel bedroom
+    image: '/images/hotels/citizenm-paris-champs-elysees.jpg',
     roomType: 'King Room with Champs-Élysées Views',
     amenities: ['Rooftop Cloud Bar', 'XL King Beds', 'MoodPad Automation', '24/7 CanteenM'],
     baseWholesale: 145,
@@ -164,7 +198,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 2150,
     category: 'smart-value' as const,
     categoryLabel: 'Smart Value 3-4★',
-    image: 'https://images.unsplash.com/photo-1509299349698-dd22323b5963?auto=format&fit=crop&w=1200&q=80', // Parisian urban district street view
+    image: '/images/hotels/ibis-styles-paris-eiffel.jpg',
     roomType: 'Standard Double Eiffel District',
     amenities: ['Walk to Eiffel Tower', 'Complimentary Buffet Breakfast', 'Metro Connected', 'High Speed Wi-Fi'],
     baseWholesale: 88,
@@ -182,7 +216,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 3100,
     category: 'ultra-luxury' as const,
     categoryLabel: 'Ultra-Luxury 7★ Icon',
-    image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80', // Iconic Burj Al Arab sail tower
+    image: '/images/hotels/burj-al-arab-dubai.jpg',
     roomType: 'Deluxe One-Bedroom Suite',
     amenities: ['Private Butler 24/7', 'Helipad Access', 'Private Beach Club', 'Hermès Toiletries'],
     baseWholesale: 920,
@@ -198,7 +232,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 2780,
     category: 'luxury-resort' as const,
     categoryLabel: 'Luxury Resort 5★',
-    image: 'https://images.unsplash.com/photo-1580835239846-5bb9ce03c8c3?auto=format&fit=crop&w=1200&q=80', // Dubai Palm Jumeirah luxury resort architecture
+    image: '/images/hotels/atlantis-the-royal-dubai.jpg',
     roomType: 'Sky Pool Villa Suite',
     amenities: ['Cloud 22 Rooftop Pool', 'Aquaventure Access', 'Celebrity Chef Dining', 'VIP Beachfront'],
     baseWholesale: 510,
@@ -214,7 +248,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 4200,
     category: 'smart-value' as const,
     categoryLabel: 'Smart Value 4★',
-    image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=80', // Downtown Dubai skyline modern building
+    image: '/images/hotels/rove-downtown-dubai.jpg',
     roomType: 'Rover Room Burj Khalifa View',
     amenities: ['Burj Khalifa Views', 'Reel Boutique Cinema', 'Outdoor Pool', '24/7 Laundromat & Gym'],
     baseWholesale: 74,
@@ -232,7 +266,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 4500,
     category: 'ultra-luxury' as const,
     categoryLabel: 'Ultra-Luxury 5★ Landmark',
-    image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80', // Classic grand NYC palace hotel interior
+    image: '/images/hotels/the-plaza-new-york.jpg',
     roomType: 'Central Park View Suite',
     amenities: ['Central Park Access', 'Palm Court High Tea', 'Guerlain Spa', 'White-Glove Butler'],
     baseWholesale: 480,
@@ -248,7 +282,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 3100,
     category: 'upscale-boutique' as const,
     categoryLabel: 'Upscale Boutique 4.5★',
-    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=1200&q=80', // Modern Manhattan boutique hotel
+    image: '/images/hotels/the-standard-high-line-nyc.jpg',
     roomType: 'Hudson River King Room',
     amenities: ['Floor-to-Ceiling Hudson Views', 'Le Bain Rooftop', 'Boom Boom Room', 'Standard Grill'],
     baseWholesale: 230,
@@ -264,81 +298,11 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 4800,
     category: 'smart-value' as const,
     categoryLabel: 'Smart Value 3-4★',
-    image: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=1200&q=80', // Manhattan urban city scene
+    image: '/images/hotels/pod-times-square-nyc.jpg',
     roomType: 'Pod Queen with City View',
     amenities: ['Times Square Walkable', 'Rooftop Lounge', 'Tiki Chick Bar', 'Compact Micro-Luxury Design'],
     baseWholesale: 98,
     typicalOtaMarkup: 0.46, // Retail ~$143
-  },
-
-  // --- OSLO & SCANDINAVIA (AUTHENTIC NORDIC / EUROPEAN GRAND HOTEL IMAGES) ---
-  {
-    id: 'grand-hotel-oslo',
-    name: 'Grand Hotel Oslo Karl Johan',
-    city: 'Oslo',
-    country: 'Norway',
-    starRating: 5,
-    guestRating: 9.4,
-    reviewCount: 2150,
-    category: 'luxury-resort' as const,
-    categoryLabel: 'Historic Luxury 5★',
-    image: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1200&q=80', // Grand neoclassical European luxury hotel suite & chandeliers (Nobel Banquet style)
-    roomType: 'Nobel Peace Prize Suite Level',
-    amenities: ['Palmen Restaurant', 'Artesia Spa', 'Eight Rooftop Bar', 'Royal Palace Proximity'],
-    baseWholesale: 215,
-    typicalOtaMarkup: 0.38, // Retail ~$297
-  },
-  {
-    id: 'clarion-hotel-the-hub-oslo',
-    name: 'Clarion Hotel The Hub Oslo',
-    city: 'Oslo',
-    country: 'Norway',
-    starRating: 4,
-    guestRating: 9.0,
-    reviewCount: 3600,
-    category: 'upscale-boutique' as const,
-    categoryLabel: 'Upscale Eco-Design 4★',
-    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80', // Contemporary Nordic glass & steel architectural hotel
-    roomType: 'Superior King Urban View',
-    amenities: ['Norda Rooftop Restaurant', 'Urban Rooftop Garden', 'Indoor Relaxation Pool', 'Central Station Hub'],
-    baseWholesale: 120,
-    typicalOtaMarkup: 0.39, // Retail ~$167
-  },
-
-  // --- BALI ---
-  {
-    id: 'mandapa-ritz-carlton-bali',
-    name: 'Mandapa, a Ritz-Carlton Reserve Ubud',
-    city: 'Bali',
-    country: 'Indonesia',
-    starRating: 5,
-    guestRating: 9.9,
-    reviewCount: 1650,
-    category: 'ultra-luxury' as const,
-    categoryLabel: 'Ultra-Luxury Sanctuary 5★',
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80', // Real Ubud Bali lush jungle valley & private infinity villa
-    roomType: 'Riverfront Private Pool Villa',
-    amenities: ['Ayung River Views', 'Private Infinity Pool', 'Patih (Butler) Service', 'Holistic Balinese Spa'],
-    baseWholesale: 340,
-    typicalOtaMarkup: 0.45, // Retail ~$493
-  },
-
-  // --- TOKYO ---
-  {
-    id: 'aman-tokyo',
-    name: 'Aman Tokyo Otemachi',
-    city: 'Tokyo',
-    country: 'Japan',
-    starRating: 5,
-    guestRating: 9.9,
-    reviewCount: 1420,
-    category: 'ultra-luxury' as const,
-    categoryLabel: 'Ultra-Luxury 5★ Sanctuary',
-    image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80', // Tokyo skyline & minimalist Japanese architecture
-    roomType: 'Imperial Garden Suite',
-    amenities: ['Traditional Onsen Spa', 'Panoramic Fuji Views', '30m Sky Pool', 'Omakase Dining'],
-    baseWholesale: 720,
-    typicalOtaMarkup: 0.39, // Retail ~$1,001
   },
 
   // --- LONDON ---
@@ -352,7 +316,7 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 3650,
     category: 'luxury-resort' as const,
     categoryLabel: 'Luxury Heritage 5★',
-    image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80', // Classic London architectural heritage & Thames
+    image: '/images/hotels/the-savoy-london.jpg',
     roomType: 'River Thames View Luxury Room',
     amenities: ['American Bar', 'Gordon Ramsay Grill', 'Chauffeured Rolls-Royce', 'Butler Service'],
     baseWholesale: 460,
@@ -368,11 +332,47 @@ const GLOBAL_HOTELS_DB = [
     reviewCount: 4100,
     category: 'upscale-boutique' as const,
     categoryLabel: 'Upscale Boutique 4★',
-    image: 'https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?auto=format&fit=crop&w=1200&q=80', // London urban street & modern boutique hotel
+    image: '/images/hotels/citizenm-tower-of-london.jpg',
     roomType: 'King Room with Tower Bridge Views',
     amenities: ['cloudM Rooftop Bar', 'Direct Tube Access', 'Power Showers', 'Apple TV & Superfast Wi-Fi'],
     baseWholesale: 135,
     typicalOtaMarkup: 0.42, // Retail ~$192
+  },
+
+  // --- TOKYO ---
+  {
+    id: 'aman-tokyo',
+    name: 'Aman Tokyo Otemachi',
+    city: 'Tokyo',
+    country: 'Japan',
+    starRating: 5,
+    guestRating: 9.9,
+    reviewCount: 1420,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 5★ Sanctuary',
+    image: '/images/hotels/aman-tokyo.jpg',
+    roomType: 'Imperial Garden Suite',
+    amenities: ['Traditional Onsen Spa', 'Panoramic Fuji Views', '30m Sky Pool', 'Omakase Dining'],
+    baseWholesale: 720,
+    typicalOtaMarkup: 0.39, // Retail ~$1,001
+  },
+
+  // --- BALI ---
+  {
+    id: 'mandapa-ritz-carlton-bali',
+    name: 'Mandapa, a Ritz-Carlton Reserve Ubud',
+    city: 'Bali',
+    country: 'Indonesia',
+    starRating: 5,
+    guestRating: 9.9,
+    reviewCount: 1650,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury Sanctuary 5★',
+    image: '/images/hotels/mandapa-ritz-carlton-bali.jpg',
+    roomType: 'Riverfront Private Pool Villa',
+    amenities: ['Ayung River Views', 'Private Infinity Pool', 'Patih (Butler) Service', 'Holistic Balinese Spa'],
+    baseWholesale: 340,
+    typicalOtaMarkup: 0.45, // Retail ~$493
   }
 ];
 
@@ -411,7 +411,7 @@ export async function GET(request: Request) {
         reviewCount: 2150,
         category: 'ultra-luxury' as const,
         categoryLabel: 'Ultra-Luxury 5★ Palace',
-        image: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/hotels/the-plaza-new-york.jpg',
         roomType: 'Executive Presidential Penthouse Suite',
         amenities: ['Panoramic Views', 'VIP Private Concierge', 'Michelin-Tier Dining', 'Heated Indoor Pool'],
         baseWholesale: 380,
@@ -427,7 +427,7 @@ export async function GET(request: Request) {
         reviewCount: 1680,
         category: 'luxury-resort' as const,
         categoryLabel: 'Luxury Resort 5★',
-        image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/hotels/wynn-las-vegas.jpg',
         roomType: 'Deluxe Oasis King Suite with Balcony',
         amenities: ['Resort Pool Cabanas', 'Holistic Wellness Spa', 'Cocktail Lounge', 'Complimentary Valet'],
         baseWholesale: 220,
@@ -443,7 +443,7 @@ export async function GET(request: Request) {
         reviewCount: 1240,
         category: 'upscale-boutique' as const,
         categoryLabel: 'Upscale Boutique 4★',
-        image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/hotels/the-standard-high-line-nyc.jpg',
         roomType: 'Signature Urban King',
         amenities: ['City Center Walkability', 'Rooftop Garden Bar', 'Artisan Coffee Bar', 'Ultra-Fast Fiber Wi-Fi'],
         baseWholesale: 125,
@@ -459,7 +459,7 @@ export async function GET(request: Request) {
         reviewCount: 1890,
         category: 'smart-value' as const,
         categoryLabel: 'Smart Value 3-4★',
-        image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
+        image: '/images/hotels/pod-times-square-nyc.jpg',
         roomType: 'Comfort Queen City Hub',
         amenities: ['Central Transit Access', 'Free Hot Breakfast', '24/7 Fitness Center', 'Soundproof Rooms'],
         baseWholesale: 72,
