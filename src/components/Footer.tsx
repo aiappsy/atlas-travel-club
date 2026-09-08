@@ -174,19 +174,53 @@ export default function Footer() {
                   How ATLAS Works
                 </Link>
               </li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 className="font-bold text-white text-xs uppercase tracking-wider mb-4">
+              Legal & Compliance
+            </h5>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link href="/terms" className="hover:text-white transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-white transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/rate-parity-compliance" className="hover:text-white transition-colors">
+                  Rate Parity Exemption
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/banking-disclosures" className="hover:text-white transition-colors">
+                  Banking & Card Terms
+                </Link>
+              </li>
               <li>
                 <Link href="/admin" className="text-sky-400 hover:underline">
-                  Master Admin Console
+                  Admin Console
                 </Link>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-slate-900 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
+        <div className="border-t border-slate-900 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
           <p>© 2026 ATLAS VIP Platform Inc. All rights reserved. Registered closed-loop wholesale charter.</p>
-          <div className="flex items-center gap-1 mt-2 sm:mt-0">
-            <span>Powered by Stripe Issuing, Hotelbeds & Google Cloud</span>
+          <div className="flex items-center gap-4 text-slate-500">
+            <Link href="/terms" className="hover:underline">Terms</Link>
+            <span>•</span>
+            <Link href="/privacy" className="hover:underline">Privacy</Link>
+            <span>•</span>
+            <Link href="/legal/rate-parity-compliance" className="hover:underline">Parity Compliance</Link>
+            <span>•</span>
+            <Link href="/legal/banking-disclosures" className="hover:underline">Disclosures</Link>
           </div>
         </div>
       </div>

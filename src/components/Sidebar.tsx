@@ -264,6 +264,16 @@ export default function Sidebar() {
           isExternalDownload: true,
         },
         {
+          name: 'Terms of Service',
+          href: '/terms',
+          icon: Scale,
+        },
+        {
+          name: 'Privacy Policy',
+          href: '/privacy',
+          icon: ShieldCheck,
+        },
+        {
           name: 'Admin Command Console',
           href: '/admin',
           icon: Shield,
