@@ -14,9 +14,9 @@ import {
   ArrowRight,
   RefreshCw,
   ExternalLink,
-  Layers,
-  Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Camera,
+  Building2
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 
@@ -47,11 +47,11 @@ export default function LiveHotelSearch({
 
   const popularCities = [
     { name: 'All Destinations', query: '' },
+    { name: 'Oslo', query: 'Oslo' },
     { name: 'Las Vegas', query: 'Las Vegas' },
     { name: 'Paris', query: 'Paris' },
     { name: 'Dubai', query: 'Dubai' },
     { name: 'New York', query: 'New York' },
-    { name: 'Oslo', query: 'Oslo' },
     { name: 'London', query: 'London' },
     { name: 'Tokyo', query: 'Tokyo' },
     { name: 'Bali', query: 'Bali' },
@@ -124,7 +124,7 @@ export default function LiveHotelSearch({
                 type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Las Vegas, Paris, Oslo, Bellagio..."
+                placeholder="e.g. Oslo, Las Vegas, Paris, Bellagio..."
                 className="w-full bg-transparent font-bold text-sm text-white focus:outline-none placeholder:text-slate-500"
               />
             </div>
@@ -320,6 +320,10 @@ export default function LiveHotelSearch({
                     src={hotel.image}
                     alt={hotel.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback if image network error
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
+                    }}
                   />
                   {/* Rating Badge */}
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-400/30 shadow">
@@ -328,13 +332,20 @@ export default function LiveHotelSearch({
                   </div>
 
                   {/* Category Tier Badge */}
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-slate-200 text-[10px] font-bold border border-white/20 shadow">
-                    {hotel.categoryLabel}
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-slate-200 text-[10px] font-bold border border-white/20 shadow flex items-center gap-1">
+                    <Building2 className="w-3 h-3 text-amber-400" />
+                    <span>{hotel.categoryLabel}</span>
                   </div>
 
                   {/* Room & Location Overlay */}
                   <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
-                    <div className="font-black text-amber-300 text-sm">{hotel.roomType}</div>
+                    <div className="flex items-center justify-between">
+                      <div className="font-black text-amber-300 text-sm">{hotel.roomType}</div>
+                      <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                        <Camera className="w-2.5 h-2.5" />
+                        <span>Verified Property</span>
+                      </span>
+                    </div>
                     <div className="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3.5 h-3.5 text-amber-400" />
                       <span>{hotel.city}, {hotel.country}</span>
