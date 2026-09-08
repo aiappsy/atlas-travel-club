@@ -24,76 +24,86 @@ import {
   Zap,
   CreditCard,
   MapPin,
-  Compass
+  Compass,
+  BookOpen,
+  Download,
+  Award
 } from 'lucide-react';
 
 const FEATURED_ESCAPES = [
   {
-    id: 'bellagio-las-vegas',
-    name: 'The Grand Bellagio & Casino Resort',
-    location: 'Las Vegas Strip, NV',
+    id: 'bellagio-vegas',
+    name: 'The Bellagio Resort & Luxury Casino',
+    city: 'Las Vegas, NV',
+    image: 'https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=800&q=80',
+    stars: 5,
+    rating: 9.4,
+    retailPrice: 389,
+    wholesalePrice: 198,
+    savings: '49%',
+    category: 'Luxury Casino Resort'
+  },
+  {
+    id: 'ritz-paris',
+    name: 'Ritz Paris Place Vendôme',
+    city: 'Paris, France',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
+    stars: 5,
+    rating: 9.8,
+    retailPrice: 1120,
+    wholesalePrice: 640,
+    savings: '43%',
+    category: 'Palace Suite'
+  },
+  {
+    id: 'atlantis-the-royal',
+    name: 'Atlantis The Royal Palm',
+    city: 'Dubai, UAE',
     image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-    publicPrice: 389,
-    netPrice: 198,
-    savingsPct: 49,
-    tag: '5★ Luxury Resort',
-    link: '/hotels/bellagio-las-vegas'
+    stars: 5,
+    rating: 9.6,
+    retailPrice: 890,
+    wholesalePrice: 510,
+    savings: '43%',
+    category: 'Ultra-Luxury Beachfront'
   },
   {
-    id: 'cancun-all-inclusive',
-    name: 'Moon Palace All-Inclusive Luxury Resort',
-    location: 'Cancun, Mexico',
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
-    publicPrice: 510,
-    netPrice: 235,
-    savingsPct: 54,
-    tag: 'All-Inclusive Family',
-    link: '/hotels/cancun-all-inclusive'
-  },
-  {
-    id: 'st-barts-villa',
-    name: 'Villa L’Étoile & Private Beach Estate',
-    location: 'St. Barts, Caribbean',
-    image: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
-    publicPrice: 5800,
-    netPrice: 3200,
-    savingsPct: 45,
-    tag: 'French Chef & Butler',
-    link: '/villas'
-  },
-  {
-    id: 'nomad-lisbon',
-    name: 'Outsite Oceanfront Coliving & Studio',
-    location: 'Lisbon, Portugal',
-    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
-    publicPrice: 2100,
-    netPrice: 1150,
-    savingsPct: 45,
-    tag: '1Gbps Fiber Wi-Fi',
-    link: '/nomads'
+    id: 'faena-miami',
+    name: 'Faena Hotel Miami Beach',
+    city: 'Miami Beach, FL',
+    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=800&q=80',
+    stars: 5,
+    rating: 9.5,
+    retailPrice: 740,
+    wholesalePrice: 390,
+    savings: '47%',
+    category: 'Oceanfront Art Deco'
   }
 ];
 
 const MEMBER_POSTCARDS = [
   {
-    name: 'Marcus & Victoria V.',
-    location: 'St. Barts Vacation',
-    saved: '$18,200',
-    quote: 'Our French gourmet chef, butler, and airport buggy were all included. We saved over $18,000 on our New Year’s villa stay.',
-    tier: 'Platinum Elite'
+    name: 'Christian V.',
+    location: 'Zurich, Switzerland',
+    hotel: 'The Ritz-Carlton, Kyoto',
+    saved: '$1,840',
+    quote: 'Booked 5 nights in Kyoto. Saved $1,840 compared to Booking.com. The concierge had Japanese green tea waiting in our suite.',
+    tier: 'Platinum Nomad'
   },
   {
-    name: 'Elena R.',
-    location: 'Lisbon & Bali Coliving',
-    saved: '$950 / mo',
-    quote: 'The 1Gbps fiber Wi-Fi is rock-solid. Plus, the Schengen Sentinel saved me from an accidental overstay fine.',
-    tier: 'Nomad Passport'
+    name: 'Elena & Marcus B.',
+    location: 'London, UK',
+    hotel: 'Faena Hotel Miami Beach',
+    saved: '$1,420',
+    quote: 'We used the 0% FX Visa card across Miami and saved 3% on every meal, plus $350/night off our oceanfront suite.',
+    tier: 'Gold VIP'
   },
   {
-    name: 'The Richardson Family',
-    location: 'Cancun All-Inclusive',
-    saved: '$2,070',
-    quote: 'Booked a 2-bedroom family suite for $235/night instead of $510 on Expedia. Our kids loved the waterpark.',
+    name: 'Henrik & Silje T.',
+    location: 'Oslo, Norway',
+    hotel: 'Villa D’Este, Lake Como',
+    saved: '$2,350',
+    quote: 'Raw wholesale prices with no retail markups. 3 nights at Lake Como paid for our annual membership 10x over.',
     tier: 'Gold VIP'
   }
 ];
@@ -104,35 +114,35 @@ export default function HomePage() {
   const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
 
   return (
-    <div className="space-y-24 pb-24 font-sans text-slate-900 bg-white">
-      {/* Clean, Elegant Hero Section */}
-      <section className="relative pt-12 pb-24 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white">
+    <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
+      {/* 1. High-Impact Luxury Hero Section */}
+      <section className="relative pt-12 pb-24 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800 shadow-2xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
-          {/* Top Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold tracking-wide border border-amber-500/30">
-            <Compass className="w-3.5 h-3.5 text-amber-400" />
+          {/* Top Pill Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30 shadow-sm">
+            <Compass className="w-4 h-4 text-amber-400 animate-spin-slow" />
             <span>The Private Wholesale Travel & Sovereign Banking Club</span>
           </div>
 
-          {/* Clean Large Title */}
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight max-w-4xl mx-auto">
+          {/* Large Hero Title */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight max-w-5xl mx-auto">
             Travel at Raw Wholesale. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
               0% Retail Markup.
             </span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            Public booking portals add a 20%+ retail ad markup. <strong>ATLAS</strong> lets you compare real live rates across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank wholesale prices.
+          <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
+            Public booking portals add an 18%–25% retail ad markup. <strong>ATLAS</strong> lets you compare real-time prices across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank clearing rates.
           </p>
 
           {/* Standard Live Travel Search & Real Multi-OTA Price Checker */}
-          <div className="pt-2 text-left">
+          <div className="pt-2 text-left max-w-5xl mx-auto">
             <LiveHotelSearch initialDestination="Las Vegas" />
           </div>
 
           {/* 3 Core Value Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto pt-6 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-5xl mx-auto pt-6 text-left">
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
               <div className="text-amber-400 font-black text-sm flex items-center gap-1.5">
                 <Building2 className="w-4 h-4" /> 1,000,000+ Hotels & Villas
@@ -157,12 +167,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 2: Featured Wholesale Deals (Clean 4-Card Grid) */}
+      {/* 2. Featured Wholesale Deals Grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-2">
           <div>
             <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              Trending This Week
+              Curated Escapes
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
               Featured Wholesale Member Rates
@@ -170,7 +180,7 @@ export default function HomePage() {
           </div>
           <Link
             href="/hotels"
-            className="mt-3 sm:mt-0 inline-flex items-center gap-1 text-sm font-bold text-sky-600 hover:text-sky-700"
+            className="inline-flex items-center gap-1 text-sm font-bold text-sky-600 hover:text-sky-700"
           >
             <span>Explore All 1,000,000+ Properties</span>
             <ArrowRight className="w-4 h-4" />
@@ -178,64 +188,66 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FEATURED_ESCAPES.map((deal) => (
-            <Link
-              key={deal.id}
-              href={deal.link}
-              className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group transform hover:-translate-y-1"
+          {FEATURED_ESCAPES.map((hotel) => (
+            <div
+              key={hotel.id}
+              className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between group"
             >
-              {/* Photo */}
               <div className="relative h-48 overflow-hidden">
                 <img
-                  src={deal.image}
-                  alt={deal.name}
+                  src={hotel.image}
+                  alt={hotel.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-2.5 left-2.5 bg-emerald-600 text-white font-black text-[11px] px-2.5 py-0.5 rounded-full shadow">
-                  SAVE {deal.savingsPct}%
+                <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
+                  {hotel.category}
                 </div>
-                <div className="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {deal.tag}
+                <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2 py-0.5 rounded-full shadow">
+                  SAVE {hotel.savings}
                 </div>
               </div>
 
-              {/* Info */}
-              <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                <div>
-                  <div className="text-[11px] text-slate-400 font-semibold flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-slate-400" />
-                    <span>{deal.location}</span>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-1">
+                  <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{hotel.city}</span>
                   </div>
-                  <h3 className="font-extrabold text-sm text-slate-900 mt-1 line-clamp-1 group-hover:text-amber-600 transition-colors">
-                    {deal.name}
+                  <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors">
+                    {hotel.name}
                   </h3>
                 </div>
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
                   <div>
                     <div className="text-[10px] text-slate-400 line-through">
-                      Expedia: ${deal.publicPrice}
+                      Expedia: ${hotel.retailPrice}/nt
                     </div>
-                    <div className="text-base font-black text-emerald-600">
-                      ${deal.netPrice} <span className="text-[10px] font-normal text-slate-400">/nt</span>
+                    <div className="text-lg font-black text-slate-900 font-mono">
+                      ${hotel.wholesalePrice}
+                      <span className="text-xs font-normal text-slate-500"> /nt</span>
                     </div>
                   </div>
-                  <span className="py-1.5 px-3 rounded-xl bg-slate-900 text-white text-xs font-bold group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
-                    View
-                  </span>
+
+                  <Link
+                    href="/hotels"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors"
+                  >
+                    View Rate
+                  </Link>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Section 3: The 3-Step Wholesale Machine (Clean Layout) */}
+      {/* 3. How ATLAS Works (3 Clean Steps) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-slate-50 rounded-3xl p-8 sm:p-12 border border-slate-200">
-          <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
             <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              The 360° Advantage
+              The Sovereign Process
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
               How ATLAS Works in 3 Simple Steps
@@ -243,7 +255,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-black text-base flex items-center justify-center">
                 1
               </div>
@@ -253,7 +265,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 font-black text-base flex items-center justify-center">
                 2
               </div>
@@ -263,7 +275,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-black text-base flex items-center justify-center">
                 3
               </div>
@@ -276,12 +288,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 4: Interactive Savings Calculator */}
+      {/* 4. Interactive Savings Calculator */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SavingsCalculator />
       </section>
 
-      {/* Section 5: Real Member Testimonials (Clean 3-Column) */}
+      {/* 5. Real Member Testimonials */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-xl mx-auto space-y-2">
           <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
@@ -300,28 +312,30 @@ export default function HomePage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-500">{post.location}</span>
-                  <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  <div>
+                    <h4 className="font-extrabold text-sm text-slate-900">{post.name}</h4>
+                    <div className="text-[11px] text-slate-500">{post.location}</div>
+                  </div>
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">
                     Saved {post.saved}
                   </span>
                 </div>
-                <p className="text-xs text-slate-700 italic leading-relaxed">
+                <div className="text-xs font-bold text-amber-600">{post.hotel}</div>
+                <p className="text-xs text-slate-600 italic leading-relaxed">
                   "{post.quote}"
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-900">{post.name}</span>
-                <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                  {post.tier}
-                </span>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <span>Verified Member</span>
+                <span className="font-semibold text-slate-700">{post.tier}</span>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Section 6: Membership Tiers (Digital Pass vs Cardholder Edition) */}
+      {/* 6. Membership Plans (Digital Pass vs Cardholder Edition) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
@@ -335,25 +349,25 @@ export default function HomePage() {
           </p>
 
           {/* Interactive Edition Switcher */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200 mt-2">
+          <div className="inline-flex p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm mt-2">
             <button
               type="button"
               onClick={() => setEditionType('digital')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 editionType === 'digital'
-                  ? 'bg-white text-slate-950 shadow-md font-black'
+                  ? 'bg-slate-900 text-white shadow-md font-black'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>📱 Digital Pass (Pay with Any Card / PayPal)</span>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded-full">
                 $0 Card Fee
               </span>
             </button>
             <button
               type="button"
               onClick={() => setEditionType('card')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 editionType === 'card'
                   ? 'bg-slate-900 text-amber-300 shadow-md font-black'
                   : 'text-slate-600 hover:text-slate-900'
@@ -402,7 +416,6 @@ export default function HomePage() {
                     </div>
                   ))}
 
-                  {/* Dynamic perk based on Digital vs Card edition */}
                   <div className="flex items-start gap-2 pt-1 border-t border-slate-200/20 text-xs font-semibold text-emerald-400">
                     <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                     <span>
@@ -432,35 +445,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 7: Final Clean CTA */}
+      {/* 7. Rate Parity Academic Case Study Spotlight */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-slate-950 text-white rounded-3xl p-8 sm:p-12 text-center space-y-6 border border-amber-500/30 shadow-2xl">
-          <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center mx-auto font-black shadow-lg">
-            <Compass className="w-6 h-6" />
+        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-8 sm:p-12 border border-amber-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30">
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              Economic Research & Case Study
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black">
+              Unmasking Rate Parity: The Invisible Hand of Travel Pricing
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Read our full 6-chapter deep dive into the $1.2 Trillion OTA cartel, the 2015 French Loi Macron parity ban, and the mathematical proof of closed-loop wholesale arbitrage.
+            </p>
           </div>
-          <h3 className="text-2xl sm:text-4xl font-black">
-            Stop Paying the 25% Retail Travel Tax.
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
-            Taking just 1 single trip pays for your entire annual Gold VIP membership. Join thousands of sovereign travelers who never pay retail markups again.
-          </p>
-          <div className="pt-2 flex flex-wrap justify-center gap-3">
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
             <Link
-              href="/membership"
-              className="py-3.5 px-7 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-lg transition-all"
+              href="/case-study"
+              className="py-3 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs shadow-lg transition-all"
             >
-              Join ATLAS VIP Club
+              Read Full Case Study
             </Link>
-            <Link
-              href="/proof"
-              className="py-3.5 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm border border-slate-700 transition-all"
+            <a
+              href="/ATLAS_Case_Study_Rate_Parity.pdf"
+              download="ATLAS_Case_Study_Rate_Parity.pdf"
+              className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs transition-all flex items-center gap-1.5"
             >
-              See Live Rate Proof
-            </Link>
+              <Download className="w-3.5 h-3.5" />
+              <span>Download PDF</span>
+            </a>
           </div>
         </div>
       </section>
 
+      {/* Auth Modal */}
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
