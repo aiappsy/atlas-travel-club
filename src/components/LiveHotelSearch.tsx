@@ -9,15 +9,14 @@ import {
   MapPin,
   Star,
   CheckCircle2,
-  TrendingDown,
   ShieldCheck,
   Zap,
-  Sparkles,
   ArrowRight,
   RefreshCw,
-  Award,
+  ExternalLink,
   Layers,
-  Percent
+  Sparkles,
+  SlidersHorizontal
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 
@@ -27,7 +26,7 @@ interface LiveHotelSearchProps {
 }
 
 export default function LiveHotelSearch({
-  initialDestination = 'Las Vegas',
+  initialDestination = '',
   isCompact = false,
 }: LiveHotelSearchProps) {
   const [destination, setDestination] = useState(initialDestination);
@@ -35,6 +34,7 @@ export default function LiveHotelSearch({
   const [checkOut, setCheckOut] = useState('2026-10-18');
   const [guests, setGuests] = useState('2 Guests, 1 Room');
   
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState(0);
   const [hotels, setHotels] = useState<ComparedHotel[]>([]);
@@ -45,7 +45,25 @@ export default function LiveHotelSearch({
   const d2 = new Date(checkOut);
   const nights = Math.max(1, Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) || 3);
 
-  const popularCities = ['Las Vegas', 'Paris', 'Dubai', 'New York', 'Tokyo', 'London', 'Miami', 'Bali'];
+  const popularCities = [
+    { name: 'All Destinations', query: '' },
+    { name: 'Las Vegas', query: 'Las Vegas' },
+    { name: 'Paris', query: 'Paris' },
+    { name: 'Dubai', query: 'Dubai' },
+    { name: 'New York', query: 'New York' },
+    { name: 'Oslo', query: 'Oslo' },
+    { name: 'London', query: 'London' },
+    { name: 'Tokyo', query: 'Tokyo' },
+    { name: 'Bali', query: 'Bali' },
+  ];
+
+  const categories = [
+    { id: 'all', label: 'All Price Tiers' },
+    { id: 'ultra-luxury', label: '👑 Ultra-Luxury (5★)' },
+    { id: 'luxury-resort', label: '💎 Luxury Resorts & Palaces' },
+    { id: 'upscale-boutique', label: '✨ Upscale & Boutique (4★)' },
+    { id: 'smart-value', label: '🏷️ Smart Value (3-4★)' },
+  ];
 
   const performSearch = async (targetDest: string) => {
     setIsScanning(true);
@@ -58,15 +76,17 @@ export default function LiveHotelSearch({
         clearInterval(stepsInterval);
         return prev;
       });
-    }, 250);
+    }, 200);
 
     try {
-      const res = await fetch(`/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}`);
+      const res = await fetch(
+        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`
+      );
       const data = await res.json();
       setTimeout(() => {
         setHotels(data.hotels || []);
         setIsScanning(false);
-      }, 1000);
+      }, 800);
     } catch (e) {
       setIsScanning(false);
     }
@@ -81,15 +101,20 @@ export default function LiveHotelSearch({
     performSearch(destination);
   };
 
+  const filteredHotels = hotels.filter((h) => {
+    if (selectedCategory === 'all') return true;
+    return h.category === selectedCategory;
+  });
+
   return (
     <div className="w-full space-y-8 font-sans">
       {/* Luxury Floating Search Bar */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-200/80 space-y-4">
+      <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 space-y-4 text-white">
         <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* 1. Destination / Hotel Name */}
-          <div className="md:col-span-4 bg-slate-50 hover:bg-slate-100/90 p-3.5 rounded-2xl border border-slate-200 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5 text-amber-600" />
+          <div className="md:col-span-4 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -99,16 +124,16 @@ export default function LiveHotelSearch({
                 type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Las Vegas, Paris, Bellagio..."
-                className="w-full bg-transparent font-bold text-sm text-slate-900 focus:outline-none placeholder:text-slate-400"
+                placeholder="e.g. Las Vegas, Paris, Oslo, Bellagio..."
+                className="w-full bg-transparent font-bold text-sm text-white focus:outline-none placeholder:text-slate-500"
               />
             </div>
           </div>
 
           {/* 2. Check-In Date */}
-          <div className="md:col-span-2 bg-slate-50 hover:bg-slate-100/90 p-3.5 rounded-2xl border border-slate-200 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-900 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-sky-600" />
+          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0">
+              <Calendar className="w-5 h-5 text-sky-400" />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -118,15 +143,15 @@ export default function LiveHotelSearch({
                 type="date"
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full bg-transparent font-bold text-xs text-slate-900 focus:outline-none cursor-pointer"
+                className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </div>
           </div>
 
           {/* 3. Check-Out Date */}
-          <div className="md:col-span-2 bg-slate-50 hover:bg-slate-100/90 p-3.5 rounded-2xl border border-slate-200 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-900 flex items-center justify-center shrink-0">
-              <Calendar className="w-5 h-5 text-sky-600" />
+          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0">
+              <Calendar className="w-5 h-5 text-sky-400" />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -136,15 +161,15 @@ export default function LiveHotelSearch({
                 type="date"
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-transparent font-bold text-xs text-slate-900 focus:outline-none cursor-pointer"
+                className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </div>
           </div>
 
           {/* 4. Guests & Rooms */}
-          <div className="md:col-span-2 bg-slate-50 hover:bg-slate-100/90 p-3.5 rounded-2xl border border-slate-200 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-900 flex items-center justify-center shrink-0">
-              <Users className="w-5 h-5 text-indigo-600" />
+          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-400/10 border border-indigo-400/30 text-indigo-300 flex items-center justify-center shrink-0">
+              <Users className="w-5 h-5 text-indigo-400" />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
@@ -154,7 +179,7 @@ export default function LiveHotelSearch({
                 type="text"
                 value={guests}
                 onChange={(e) => setGuests(e.target.value)}
-                className="w-full bg-transparent font-bold text-xs text-slate-900 focus:outline-none"
+                className="w-full bg-transparent font-bold text-xs text-white focus:outline-none"
               />
             </div>
           </div>
@@ -167,31 +192,31 @@ export default function LiveHotelSearch({
               className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] disabled:opacity-75 cursor-pointer"
             >
               <Search className="w-4 h-4 text-slate-950" />
-              <span>{isScanning ? 'Auditing...' : 'Check Real Rates'}</span>
+              <span>{isScanning ? 'Auditing...' : 'Audit Live Rates'}</span>
             </button>
           </div>
         </form>
 
-        {/* Quick Suggestion Pills */}
+        {/* Quick Destination Pills */}
         <div className="flex items-center gap-2 pt-2 overflow-x-auto scrollbar-none text-xs">
           <span className="text-[11px] font-bold text-slate-400 uppercase shrink-0">
-            Popular Hubs:
+            Destinations:
           </span>
-          {popularCities.map((city) => (
+          {popularCities.map((item) => (
             <button
-              key={city}
+              key={item.name}
               type="button"
               onClick={() => {
-                setDestination(city);
-                performSearch(city);
+                setDestination(item.query);
+                performSearch(item.query);
               }}
               className={`px-3 py-1 rounded-full border text-xs font-semibold shrink-0 transition-all cursor-pointer ${
-                destination.toLowerCase() === city.toLowerCase()
-                  ? 'bg-slate-900 text-white border-slate-900 font-bold'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                destination.toLowerCase() === item.query.toLowerCase()
+                  ? 'bg-amber-400 text-slate-950 border-amber-400 font-bold'
+                  : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700'
               }`}
             >
-              {city}
+              {item.name}
             </button>
           ))}
         </div>
@@ -204,7 +229,7 @@ export default function LiveHotelSearch({
             <div className="flex items-center gap-2.5">
               <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
               <h4 className="text-base font-black">
-                Connecting to Global OTA Feeds & B2B Bedbanks...
+                Pinging Global OTA Feeds & Live Bedbank Gateways...
               </h4>
             </div>
             <span className="text-xs font-mono text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
@@ -215,11 +240,11 @@ export default function LiveHotelSearch({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-2">
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 1 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Expedia Rapid API</span>
+              <span>Expedia Rapid API Feed</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 2 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Hotels.com GDS Feed</span>
+              <span>Hotels.com GDS Benchmark</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 3 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
@@ -233,57 +258,106 @@ export default function LiveHotelSearch({
         </div>
       )}
 
-      {/* Results Section */}
+      {/* Results Section with Price Tier Filter Tabs */}
       {!isScanning && hasSearched && hotels.length > 0 && (
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+          {/* Header Bar */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
             <div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                Live Wholesale Arbitrage in {destination}
-              </h3>
-              <p className="text-xs text-slate-500">
-                Audited rates for {nights} night stay ({checkIn} to {checkOut}) • 0% Retail Markup Applied
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl sm:text-2xl font-black text-white">
+                  Live Wholesale Arbitrage: {destination ? destination : 'Global Curated Portfolio'}
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 text-xs font-mono font-bold">
+                  {filteredHotels.length} Properties
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                Audited rates for {nights} night stay ({checkIn} to {checkOut}) • 0% Retail Ad Markup Applied • Direct Live Verification Available
               </p>
             </div>
-            <span className="self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 border border-emerald-300">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              100% Rate Parity Exemption Certified
-            </span>
+
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 border border-emerald-500/30">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                100% Rate Parity Exemption Certified
+              </span>
+            </div>
+          </div>
+
+          {/* Price Category / Hotel Tier Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+              <span>Category Filter:</span>
+            </div>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                  selectedCategory === cat.id
+                    ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
+                    : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
           </div>
 
           {/* Hotel Result Cards */}
           <div className="space-y-6">
-            {hotels.map((hotel) => (
+            {filteredHotels.map((hotel) => (
               <div
                 key={hotel.id}
-                className="bg-white rounded-3xl border border-slate-200/90 shadow-md hover:shadow-xl transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
+                className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
               >
                 {/* Image & Quick Specs */}
-                <div className="lg:col-span-4 relative min-h-[240px] lg:min-h-full">
+                <div className="lg:col-span-4 relative min-h-[260px] lg:min-h-full">
                   <img
                     src={hotel.image}
                     alt={hotel.name}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1 border border-amber-400/30 shadow">
+                  {/* Rating Badge */}
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-400/30 shadow">
                     <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                     <span>{hotel.guestRating} / 10 Excellent</span>
                   </div>
 
-                  <div className="absolute bottom-3 left-3 right-3 p-3 rounded-2xl bg-slate-950/90 backdrop-blur-md text-white text-xs border border-white/10">
+                  {/* Category Tier Badge */}
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-slate-200 text-[10px] font-bold border border-white/20 shadow">
+                    {hotel.categoryLabel}
+                  </div>
+
+                  {/* Room & Location Overlay */}
+                  <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
                     <div className="font-black text-amber-300 text-sm">{hotel.roomType}</div>
-                    <div className="text-slate-300 text-xs">{hotel.city}, {hotel.country}</div>
+                    <div className="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{hotel.city}, {hotel.country}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Details & Comparison Matrix */}
-                <div className="lg:col-span-8 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                {/* Details & Live Comparison Matrix */}
+                <div className="lg:col-span-8 p-6 sm:p-7 flex flex-col justify-between space-y-6">
                   <div className="space-y-4">
+                    {/* Hotel Title & Audit Ref */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <h4 className="text-xl sm:text-2xl font-black text-slate-900">
-                        {hotel.name}
-                      </h4>
-                      <span className="text-xs font-bold text-slate-400 font-mono">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-xl sm:text-2xl font-black text-white">
+                            {hotel.name}
+                          </h4>
+                        </div>
+                        <div className="text-xs text-amber-400 font-semibold mt-0.5">
+                          {hotel.starRating}★ Rated Property • Verified B2B Bedbank Inventory
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-bold text-slate-400 font-mono bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 self-start sm:self-auto">
                         Audit Ref: {hotel.audit.auditHash.substring(0, 10)}
                       </span>
                     </div>
@@ -293,50 +367,136 @@ export default function LiveHotelSearch({
                       {hotel.amenities.map((amenity, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold"
+                          className="px-2.5 py-1 rounded-full bg-slate-950 text-slate-300 text-xs font-semibold border border-slate-800"
                         >
                           ✓ {amenity}
                         </span>
                       ))}
                     </div>
 
-                    {/* Multi-OTA Price Comparison Grid */}
-                    <div className="pt-3 border-t border-slate-100">
-                      <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-2">
-                        Public Retail Price on Other Platforms (Per Night):
+                    {/* Multi-OTA Price Comparison Grid WITH LIVE VERIFICATION LINKS */}
+                    <div className="pt-3 border-t border-slate-800">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                          <span>Public Retail Prices on Other Platforms:</span>
+                          <span className="text-[10px] text-amber-400 font-normal normal-case">(Click any OTA to verify live)</span>
+                        </div>
+                        <a
+                          href={hotel.prices.googleHotels.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+                          title="Open Google Hotels search in a new tab"
+                        >
+                          <span>Compare on Google Hotels</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                          <div className="font-bold text-blue-900 text-xs flex items-center justify-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-blue-600"></span> Expedia
-                          </div>
-                          <div className="text-sm font-bold text-slate-500 line-through mt-1">${hotel.prices.expedia.perNight}</div>
-                          <div className="text-[10px] text-slate-400">${hotel.prices.expedia.total} total</div>
-                        </div>
 
-                        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
-                          <div className="font-bold text-rose-900 text-xs flex items-center justify-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-rose-600"></span> Hotels.com
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
+                        {/* Expedia */}
+                        <a
+                          href={hotel.prices.expedia.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all group block text-left sm:text-center"
+                          title="Click to check live price on Expedia in new tab"
+                        >
+                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                              <span>Expedia</span>
+                            </div>
+                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
                           </div>
-                          <div className="text-sm font-bold text-slate-500 line-through mt-1">${hotel.prices.hotelsCom.perNight}</div>
-                          <div className="text-[10px] text-slate-400">${hotel.prices.hotelsCom.total} total</div>
-                        </div>
+                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                            ${hotel.prices.expedia.perNight}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            ${hotel.prices.expedia.total} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-blue-400 font-semibold mt-1 group-hover:underline">
+                            Verify on Expedia ↗
+                          </div>
+                        </a>
 
-                        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
-                          <div className="font-bold text-purple-900 text-xs flex items-center justify-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-purple-600"></span> Agoda
+                        {/* Hotels.com */}
+                        <a
+                          href={hotel.prices.hotelsCom.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all group block text-left sm:text-center"
+                          title="Click to check live price on Hotels.com in new tab"
+                        >
+                          <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                              <span>Hotels.com</span>
+                            </div>
+                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
                           </div>
-                          <div className="text-sm font-bold text-slate-500 line-through mt-1">${hotel.prices.agoda.perNight}</div>
-                          <div className="text-[10px] text-slate-400">${hotel.prices.agoda.total} total</div>
-                        </div>
+                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                            ${hotel.prices.hotelsCom.perNight}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            ${hotel.prices.hotelsCom.total} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-rose-400 font-semibold mt-1 group-hover:underline">
+                            Verify on Hotels.com ↗
+                          </div>
+                        </a>
 
-                        <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200">
-                          <div className="font-bold text-amber-900 text-xs flex items-center justify-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-amber-600"></span> Kayak
+                        {/* Agoda */}
+                        <a
+                          href={hotel.prices.agoda.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all group block text-left sm:text-center"
+                          title="Click to check live price on Agoda in new tab"
+                        >
+                          <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                              <span>Agoda</span>
+                            </div>
+                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
                           </div>
-                          <div className="text-sm font-bold text-slate-500 line-through mt-1">${hotel.prices.kayak.perNight}</div>
-                          <div className="text-[10px] text-slate-400">${hotel.prices.kayak.total} total</div>
-                        </div>
+                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                            ${hotel.prices.agoda.perNight}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            ${hotel.prices.agoda.total} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-purple-400 font-semibold mt-1 group-hover:underline">
+                            Verify on Agoda ↗
+                          </div>
+                        </a>
+
+                        {/* Kayak */}
+                        <a
+                          href={hotel.prices.kayak.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all group block text-left sm:text-center"
+                          title="Click to check live price on Kayak in new tab"
+                        >
+                          <div className="font-bold text-amber-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                              <span>Kayak</span>
+                            </div>
+                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
+                          </div>
+                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                            ${hotel.prices.kayak.perNight}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            ${hotel.prices.kayak.total} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-amber-400 font-semibold mt-1 group-hover:underline">
+                            Verify on Kayak ↗
+                          </div>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -367,13 +527,26 @@ export default function LiveHotelSearch({
                       </div>
                     </div>
 
-                    <Link
-                      href="/membership"
-                      className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
-                    >
-                      <span>Unlock Wholesale Rate</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+                      <a
+                        href={hotel.prices.googleHotels.verifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+                        title="Verify real-time rates on Google Hotels in new window"
+                      >
+                        <span>Verify Live Prices</span>
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                      </a>
+
+                      <Link
+                        href="/membership"
+                        className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
+                      >
+                        <span>Unlock Wholesale Rate</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

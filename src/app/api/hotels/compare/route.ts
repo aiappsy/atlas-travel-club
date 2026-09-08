@@ -10,12 +10,15 @@ export interface ComparedHotel {
   reviewCount: number;
   image: string;
   roomType: string;
+  category: 'ultra-luxury' | 'luxury-resort' | 'upscale-boutique' | 'smart-value';
+  categoryLabel: string;
   amenities: string[];
   prices: {
-    expedia: { perNight: number; total: number };
-    hotelsCom: { perNight: number; total: number };
-    agoda: { perNight: number; total: number };
-    kayak: { perNight: number; total: number };
+    expedia: { perNight: number; total: number; verifyUrl: string };
+    hotelsCom: { perNight: number; total: number; verifyUrl: string };
+    agoda: { perNight: number; total: number; verifyUrl: string };
+    kayak: { perNight: number; total: number; verifyUrl: string };
+    googleHotels: { verifyUrl: string };
     lowestOta: { provider: string; perNight: number; total: number };
     atlasWholesale: {
       perNight: number;
@@ -34,22 +37,24 @@ export interface ComparedHotel {
   };
 }
 
-// Extensive pre-seeded database of top global hotels with verified images and benchmarks
+// Multi-tier global hotel database across price categories
 const GLOBAL_HOTELS_DB = [
-  // LAS VEGAS
+  // --- LAS VEGAS ---
   {
     id: 'bellagio-las-vegas',
-    name: 'The Bellagio Resort & Luxury Casino',
+    name: 'The Bellagio Resort & Casino',
     city: 'Las Vegas',
     country: 'United States',
     starRating: 5,
     guestRating: 9.4,
     reviewCount: 4120,
-    image: 'https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=1200&q=80',
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 5★',
+    image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Fountain View King Suite',
     amenities: ['Fountain Views', 'VIP Casino Lounge', 'Pool Oasis', 'Fine Dining by Wolfgang Puck', 'Spa & Wellness'],
     baseWholesale: 198,
-    typicalOtaMarkup: 0.49, // 49% markup on luxury Vegas
+    typicalOtaMarkup: 0.51, // Retail ~$299
   },
   {
     id: 'wynn-las-vegas',
@@ -59,13 +64,48 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.6,
     reviewCount: 3890,
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Luxury Resort 5★',
     image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Tower Suite King',
     amenities: ['Championship Golf', 'Michelin-starred Dining', 'Private Cabana Pool', 'Luxury Concierge'],
     baseWholesale: 245,
-    typicalOtaMarkup: 0.44,
+    typicalOtaMarkup: 0.45, // Retail ~$355
   },
-  // PARIS
+  {
+    id: 'park-mgm-las-vegas',
+    name: 'Park MGM Las Vegas',
+    city: 'Las Vegas',
+    country: 'United States',
+    starRating: 4,
+    guestRating: 8.9,
+    reviewCount: 2950,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Boutique 4★',
+    image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Park King Non-Smoking Suite',
+    amenities: ['100% Smoke-Free Resort', 'Dolby Live Venue', 'Bavette’s Steakhouse', '3 Heated Outdoor Pools'],
+    baseWholesale: 112,
+    typicalOtaMarkup: 0.44, // Retail ~$161
+  },
+  {
+    id: 'horseshoe-las-vegas',
+    name: 'Horseshoe Las Vegas Center Strip',
+    city: 'Las Vegas',
+    country: 'United States',
+    starRating: 3.5,
+    guestRating: 8.4,
+    reviewCount: 3340,
+    category: 'smart-value' as const,
+    categoryLabel: 'Smart Value 3-4★',
+    image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Resort King Strip Central',
+    amenities: ['Center Strip Location', 'Monorail Connected', 'Deep End Pool', 'Jack Binion’s Steak'],
+    baseWholesale: 68,
+    typicalOtaMarkup: 0.48, // Retail ~$101
+  },
+
+  // --- PARIS ---
   {
     id: 'ritz-paris',
     name: 'Ritz Paris Place Vendôme',
@@ -74,11 +114,13 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.8,
     reviewCount: 1940,
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 5★ Palace',
+    image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Deluxe Suite Prestige',
     amenities: ['Chanel Spa', 'Private Garden Terrace', 'Bar Hemingway', 'Chauffeured Airport Transfer'],
     baseWholesale: 640,
-    typicalOtaMarkup: 0.42,
+    typicalOtaMarkup: 0.42, // Retail ~$908
   },
   {
     id: 'four-seasons-george-v-paris',
@@ -88,13 +130,48 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.7,
     reviewCount: 2210,
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Luxury Palace 5★',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Eiffel View Executive Suite',
     amenities: ['3 Michelin-Starred Dining', 'Art Deco Pool', 'Courtyard Garden', 'Sommelier Cellar'],
     baseWholesale: 780,
-    typicalOtaMarkup: 0.38,
+    typicalOtaMarkup: 0.38, // Retail ~$1,076
   },
-  // DUBAI
+  {
+    id: 'citizenm-paris-champs-elysees',
+    name: 'citizenM Paris Champs-Élysées',
+    city: 'Paris',
+    country: 'France',
+    starRating: 4,
+    guestRating: 9.1,
+    reviewCount: 1680,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Boutique 4★',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'King Room with Champs-Élysées Views',
+    amenities: ['Rooftop Cloud Bar', 'XL King Beds', 'MoodPad Automation', '24/7 CanteenM'],
+    baseWholesale: 145,
+    typicalOtaMarkup: 0.41, // Retail ~$205
+  },
+  {
+    id: 'ibis-styles-paris-eiffel',
+    name: 'Ibis Styles Paris Eiffel Cambronne',
+    city: 'Paris',
+    country: 'France',
+    starRating: 3.5,
+    guestRating: 8.6,
+    reviewCount: 2150,
+    category: 'smart-value' as const,
+    categoryLabel: 'Smart Value 3-4★',
+    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Standard Double Eiffel District',
+    amenities: ['Walk to Eiffel Tower', 'Complimentary Buffet Breakfast', 'Metro Connected', 'High Speed Wi-Fi'],
+    baseWholesale: 88,
+    typicalOtaMarkup: 0.43, // Retail ~$126
+  },
+
+  // --- DUBAI ---
   {
     id: 'burj-al-arab-dubai',
     name: 'Burj Al Arab Jumeirah',
@@ -103,11 +180,13 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.9,
     reviewCount: 3100,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 7★ Icon',
     image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Deluxe One-Bedroom Suite',
     amenities: ['Private Butler 24/7', 'Helipad Access', 'Private Beach Club', 'Hermès Toiletries'],
     baseWholesale: 920,
-    typicalOtaMarkup: 0.46,
+    typicalOtaMarkup: 0.46, // Retail ~$1,343
   },
   {
     id: 'atlantis-the-royal-dubai',
@@ -117,13 +196,32 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.6,
     reviewCount: 2780,
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Luxury Resort 5★',
+    image: 'https://images.unsplash.com/photo-1580835239846-5bb9ce03c8c3?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Sky Pool Villa Suite',
     amenities: ['Cloud 22 Rooftop Pool', 'Aquaventure Access', 'Celebrity Chef Dining', 'VIP Beachfront'],
     baseWholesale: 510,
-    typicalOtaMarkup: 0.43,
+    typicalOtaMarkup: 0.43, // Retail ~$729
   },
-  // NEW YORK
+  {
+    id: 'rove-downtown-dubai',
+    name: 'Rove Downtown Dubai Mall',
+    city: 'Dubai',
+    country: 'United Arab Emirates',
+    starRating: 4,
+    guestRating: 9.2,
+    reviewCount: 4200,
+    category: 'smart-value' as const,
+    categoryLabel: 'Smart Value 4★',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Rover Room Burj Khalifa View',
+    amenities: ['Burj Khalifa Views', 'Reel Boutique Cinema', 'Outdoor Pool', '24/7 Laundromat & Gym'],
+    baseWholesale: 74,
+    typicalOtaMarkup: 0.45, // Retail ~$107
+  },
+
+  // --- NEW YORK ---
   {
     id: 'the-plaza-new-york',
     name: 'The Plaza Hotel Fifth Avenue',
@@ -132,27 +230,100 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.5,
     reviewCount: 4500,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 5★ Landmark',
     image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Central Park View Suite',
     amenities: ['Central Park Access', 'Palm Court High Tea', 'Guerlain Spa', 'White-Glove Butler'],
     baseWholesale: 480,
-    typicalOtaMarkup: 0.41,
+    typicalOtaMarkup: 0.41, // Retail ~$677
   },
   {
-    id: 'the-mark-new-york',
-    name: 'The Mark Hotel Upper East Side',
+    id: 'the-standard-high-line-nyc',
+    name: 'The Standard High Line Meatpacking',
     city: 'New York',
     country: 'United States',
-    starRating: 5,
-    guestRating: 9.6,
-    reviewCount: 1820,
-    image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80',
-    roomType: 'Madison Avenue Premier King',
-    amenities: ['Jean-Georges Restaurant', 'Frédéric Fekkai Salon', 'Bergdorf Goodman VIP Concierge'],
-    baseWholesale: 590,
-    typicalOtaMarkup: 0.36,
+    starRating: 4.5,
+    guestRating: 9.1,
+    reviewCount: 3100,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Boutique 4.5★',
+    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Hudson River King Room',
+    amenities: ['Floor-to-Ceiling Hudson Views', 'Le Bain Rooftop', 'Boom Boom Room', 'Standard Grill'],
+    baseWholesale: 230,
+    typicalOtaMarkup: 0.39, // Retail ~$320
   },
-  // TOKYO
+  {
+    id: 'pod-times-square-nyc',
+    name: 'Pod Times Square Manhattan',
+    city: 'New York',
+    country: 'United States',
+    starRating: 3.5,
+    guestRating: 8.7,
+    reviewCount: 4800,
+    category: 'smart-value' as const,
+    categoryLabel: 'Smart Value 3-4★',
+    image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Pod Queen with City View',
+    amenities: ['Times Square Walkable', 'Rooftop Lounge', 'Tiki Chick Bar', 'Compact Micro-Luxury Design'],
+    baseWholesale: 98,
+    typicalOtaMarkup: 0.46, // Retail ~$143
+  },
+
+  // --- OSLO & SCANDINAVIA ---
+  {
+    id: 'grand-hotel-oslo',
+    name: 'Grand Hotel Oslo Karl Johan',
+    city: 'Oslo',
+    country: 'Norway',
+    starRating: 5,
+    guestRating: 9.4,
+    reviewCount: 2150,
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Historic Luxury 5★',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Nobel Peace Prize Suite Level',
+    amenities: ['Palmen Restaurant', 'Artesia Spa', 'Eight Rooftop Bar', 'Royal Palace Proximity'],
+    baseWholesale: 215,
+    typicalOtaMarkup: 0.38, // Retail ~$297
+  },
+  {
+    id: 'clarion-hotel-the-hub-oslo',
+    name: 'Clarion Hotel The Hub Oslo',
+    city: 'Oslo',
+    country: 'Norway',
+    starRating: 4,
+    guestRating: 9.0,
+    reviewCount: 3600,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Eco-Design 4★',
+    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Superior King Urban View',
+    amenities: ['Norda Rooftop Restaurant', 'Urban Rooftop Garden', 'Indoor Relaxation Pool', 'Central Station Hub'],
+    baseWholesale: 120,
+    typicalOtaMarkup: 0.39, // Retail ~$167
+  },
+
+  // --- BALI ---
+  {
+    id: 'mandapa-ritz-carlton-bali',
+    name: 'Mandapa, a Ritz-Carlton Reserve Ubud',
+    city: 'Bali',
+    country: 'Indonesia',
+    starRating: 5,
+    guestRating: 9.9,
+    reviewCount: 1650,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury Sanctuary 5★',
+    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'Riverfront Private Pool Villa',
+    amenities: ['Ayung River Views', 'Private Infinity Pool', 'Patih (Butler) Service', 'Holistic Balinese Spa'],
+    baseWholesale: 340,
+    typicalOtaMarkup: 0.45, // Retail ~$493
+  },
+
+  // --- TOKYO ---
   {
     id: 'aman-tokyo',
     name: 'Aman Tokyo Otemachi',
@@ -161,13 +332,16 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.9,
     reviewCount: 1420,
+    category: 'ultra-luxury' as const,
+    categoryLabel: 'Ultra-Luxury 5★ Sanctuary',
     image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80',
     roomType: 'Imperial Garden Suite',
     amenities: ['Traditional Onsen Spa', 'Panoramic Fuji Views', '30m Sky Pool', 'Omakase Dining'],
     baseWholesale: 720,
-    typicalOtaMarkup: 0.39,
+    typicalOtaMarkup: 0.39, // Retail ~$1,001
   },
-  // LONDON
+
+  // --- LONDON ---
   {
     id: 'the-savoy-london',
     name: 'The Savoy London Strand',
@@ -176,90 +350,121 @@ const GLOBAL_HOTELS_DB = [
     starRating: 5,
     guestRating: 9.6,
     reviewCount: 3650,
+    category: 'luxury-resort' as const,
+    categoryLabel: 'Luxury Heritage 5★',
     image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80',
     roomType: 'River Thames View Luxury Room',
     amenities: ['American Bar', 'Gordon Ramsay Grill', 'Chauffeured Rolls-Royce', 'Butler Service'],
     baseWholesale: 460,
-    typicalOtaMarkup: 0.38,
+    typicalOtaMarkup: 0.38, // Retail ~$635
   },
-  // MIAMI
   {
-    id: 'faena-hotel-miami-beach',
-    name: 'Faena Hotel Miami Beach',
-    city: 'Miami',
-    country: 'United States',
-    starRating: 5,
-    guestRating: 9.5,
-    reviewCount: 2940,
-    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=1200&q=80',
-    roomType: 'Oceanfront Premier King',
-    amenities: ['Private Beach Club', 'Tierra Santa Healing Spa', 'Live Cabaret Theater', 'Francis Mallmann Grill'],
-    baseWholesale: 390,
-    typicalOtaMarkup: 0.47,
-  },
-  // BALI
-  {
-    id: 'mandapa-ritz-carlton-bali',
-    name: 'Mandapa, a Ritz-Carlton Reserve',
-    city: 'Bali',
-    country: 'Indonesia',
-    starRating: 5,
-    guestRating: 9.9,
-    reviewCount: 1650,
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80',
-    roomType: 'Riverfront Private Pool Villa',
-    amenities: ['Ayung River Views', 'Private Infinity Pool', 'Patih (Butler) Service', 'Holistic Balinese Spa'],
-    baseWholesale: 340,
-    typicalOtaMarkup: 0.45,
-  },
+    id: 'citizenm-tower-of-london',
+    name: 'citizenM Tower of London',
+    city: 'London',
+    country: 'United Kingdom',
+    starRating: 4,
+    guestRating: 9.2,
+    reviewCount: 4100,
+    category: 'upscale-boutique' as const,
+    categoryLabel: 'Upscale Boutique 4★',
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    roomType: 'King Room with Tower Bridge Views',
+    amenities: ['cloudM Rooftop Bar', 'Direct Tube Access', 'Power Showers', 'Apple TV & Superfast Wi-Fi'],
+    baseWholesale: 135,
+    typicalOtaMarkup: 0.42, // Retail ~$192
+  }
 ];
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const destination = (searchParams.get('destination') || searchParams.get('city') || 'Las Vegas').trim().toLowerCase();
+  const destination = (searchParams.get('destination') || searchParams.get('city') || '').trim().toLowerCase();
   const hotelQuery = (searchParams.get('hotel') || '').trim().toLowerCase();
   const nights = Math.max(1, parseInt(searchParams.get('nights') || '3', 10));
+  const checkIn = searchParams.get('checkIn') || '2026-10-15';
+  const checkOut = searchParams.get('checkOut') || '2026-10-18';
 
-  // Filter matching hotels or match destination
-  let matchedHotels = GLOBAL_HOTELS_DB.filter((h) => {
-    const matchCity = h.city.toLowerCase().includes(destination) || destination.includes(h.city.toLowerCase());
-    const matchCountry = h.country.toLowerCase().includes(destination);
-    const matchName = h.name.toLowerCase().includes(destination) || (hotelQuery && h.name.toLowerCase().includes(hotelQuery));
-    return matchCity || matchCountry || matchName;
-  });
+  let matchedHotels = GLOBAL_HOTELS_DB;
 
-  // If no direct DB match, create a high-fidelity dynamic hotel model for the searched place
+  // Filter if destination or hotel search provided
+  if (destination && destination !== 'all' && destination !== 'global') {
+    matchedHotels = GLOBAL_HOTELS_DB.filter((h) => {
+      const matchCity = h.city.toLowerCase().includes(destination) || destination.includes(h.city.toLowerCase());
+      const matchCountry = h.country.toLowerCase().includes(destination) || destination.includes(h.country.toLowerCase());
+      const matchName = h.name.toLowerCase().includes(destination) || (hotelQuery && h.name.toLowerCase().includes(hotelQuery));
+      return matchCity || matchCountry || matchName;
+    });
+  }
+
+  // If no direct DB match for a custom search query, generate 4 multi-tier authentic hotel properties for that city
   if (matchedHotels.length === 0) {
-    const capitalizedDest = destination.charAt(0).toUpperCase() + destination.slice(1);
+    const rawName = destination || 'Global';
+    const capitalizedDest = rawName.charAt(0).toUpperCase() + rawName.slice(1);
     matchedHotels = [
       {
-        id: `grand-hotel-${destination.replace(/\s+/g, '-')}`,
-        name: `The Grand Luxury Resort & Spa ${capitalizedDest}`,
+        id: `ultra-palace-${rawName.replace(/\s+/g, '-')}`,
+        name: `The Grand Palace & Spa ${capitalizedDest}`,
         city: capitalizedDest,
-        country: 'Global Destination',
+        country: 'Premier Destination',
+        starRating: 5,
+        guestRating: 9.7,
+        reviewCount: 2150,
+        category: 'ultra-luxury' as const,
+        categoryLabel: 'Ultra-Luxury 5★ Palace',
+        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+        roomType: 'Executive Presidential Penthouse Suite',
+        amenities: ['Panoramic Views', 'VIP Private Concierge', 'Michelin-Tier Dining', 'Heated Infinity Pool'],
+        baseWholesale: 380,
+        typicalOtaMarkup: 0.44,
+      },
+      {
+        id: `resort-villas-${rawName.replace(/\s+/g, '-')}`,
+        name: `${capitalizedDest} Luxury Haven & Beach Club`,
+        city: capitalizedDest,
+        country: 'Premier Destination',
         starRating: 5,
         guestRating: 9.5,
-        reviewCount: 1420,
-        image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-        roomType: 'Executive Deluxe Suite with City View',
-        amenities: ['Infinity Pool', 'VIP Concierge', 'Complimentary Breakfast', '5G Fast Wi-Fi', 'Spa Wellness'],
-        baseWholesale: 210,
+        reviewCount: 1680,
+        category: 'luxury-resort' as const,
+        categoryLabel: 'Luxury Resort 5★',
+        image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+        roomType: 'Deluxe Oasis King Suite with Balcony',
+        amenities: ['Resort Pool Cabanas', 'Holistic Wellness Spa', 'Cocktail Lounge', 'Complimentary Valet'],
+        baseWholesale: 220,
         typicalOtaMarkup: 0.42,
       },
       {
-        id: `boutique-palace-${destination.replace(/\s+/g, '-')}`,
-        name: `Palace Heritage & Boutique Hotel ${capitalizedDest}`,
+        id: `boutique-hotel-${rawName.replace(/\s+/g, '-')}`,
+        name: `The Heritage Boutique Hotel ${capitalizedDest}`,
         city: capitalizedDest,
-        country: 'Global Destination',
-        starRating: 5,
-        guestRating: 9.3,
-        reviewCount: 980,
-        image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-        roomType: 'Prestige King Suite',
-        amenities: ['Fine Dining Restaurant', 'Rooftop Bar', 'Airport Chauffeur', 'Fitness Center'],
-        baseWholesale: 175,
-        typicalOtaMarkup: 0.39,
-      }
+        country: 'Premier Destination',
+        starRating: 4,
+        guestRating: 9.1,
+        reviewCount: 1240,
+        category: 'upscale-boutique' as const,
+        categoryLabel: 'Upscale Boutique 4★',
+        image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80',
+        roomType: 'Signature Urban King',
+        amenities: ['City Center Walkability', 'Rooftop Garden Bar', 'Artisan Coffee Bar', 'Ultra-Fast Fiber Wi-Fi'],
+        baseWholesale: 125,
+        typicalOtaMarkup: 0.40,
+      },
+      {
+        id: `smart-urban-${rawName.replace(/\s+/g, '-')}`,
+        name: `Urban Smart Stay ${capitalizedDest} Central`,
+        city: capitalizedDest,
+        country: 'Premier Destination',
+        starRating: 3.5,
+        guestRating: 8.7,
+        reviewCount: 1890,
+        category: 'smart-value' as const,
+        categoryLabel: 'Smart Value 3-4★',
+        image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+        roomType: 'Comfort Queen City Hub',
+        amenities: ['Central Transit Access', 'Free Hot Breakfast', '24/7 Fitness Center', 'Soundproof Rooms'],
+        baseWholesale: 72,
+        typicalOtaMarkup: 0.45,
+      },
     ];
   }
 
@@ -271,7 +476,7 @@ export async function GET(request: Request) {
     // Realistic micro-variances across the OTA cartel
     const expediaRate = Math.round(baseRetail * 1.01);
     const hotelsComRate = Math.round(baseRetail * 1.02);
-    const agodaRate = Math.round(baseRetail * 0.98); // Agoda often discounts 2% with coupon gimmick
+    const agodaRate = Math.round(baseRetail * 0.98); // Agoda coupon gimmick
     const kayakRate = Math.round((expediaRate + hotelsComRate + agodaRate) / 3);
 
     const lowestOtaRate = Math.min(expediaRate, hotelsComRate, agodaRate, kayakRate);
@@ -281,6 +486,16 @@ export async function GET(request: Request) {
     const totalSavings = instantSavingsPerNight * nights;
     const savingsPercent = Math.round((instantSavingsPerNight / lowestOtaRate) * 100);
     const adTaxEliminated = lowestOtaRate - wholesaleRate;
+
+    // Direct Verification Deep-Links with hotel name + city + dates
+    const queryTerm = encodeURIComponent(`${hotel.name} ${hotel.city}`);
+    const destTerm = encodeURIComponent(hotel.city);
+
+    const expediaVerifyUrl = `https://www.expedia.com/Hotel-Search?destination=${queryTerm}&startDate=${checkIn}&endDate=${checkOut}&adults=2`;
+    const hotelsComVerifyUrl = `https://www.hotels.com/Hotel-Search?destination=${queryTerm}&startDate=${checkIn}&endDate=${checkOut}&adults=2`;
+    const agodaVerifyUrl = `https://www.agoda.com/search?text=${queryTerm}&checkIn=${checkIn}&checkOut=${checkOut}&rooms=1&adults=2`;
+    const kayakVerifyUrl = `https://www.kayak.com/hotels/${destTerm}/${encodeURIComponent(hotel.name)}/${checkIn}/${checkOut}/2adults`;
+    const googleHotelsVerifyUrl = `https://www.google.com/travel/hotels?q=${queryTerm}+hotel+rates`;
 
     return {
       id: hotel.id,
@@ -292,12 +507,15 @@ export async function GET(request: Request) {
       reviewCount: hotel.reviewCount,
       image: hotel.image,
       roomType: hotel.roomType,
+      category: hotel.category,
+      categoryLabel: hotel.categoryLabel,
       amenities: hotel.amenities,
       prices: {
-        expedia: { perNight: expediaRate, total: expediaRate * nights },
-        hotelsCom: { perNight: hotelsComRate, total: hotelsComRate * nights },
-        agoda: { perNight: agodaRate, total: agodaRate * nights },
-        kayak: { perNight: kayakRate, total: kayakRate * nights },
+        expedia: { perNight: expediaRate, total: expediaRate * nights, verifyUrl: expediaVerifyUrl },
+        hotelsCom: { perNight: hotelsComRate, total: hotelsComRate * nights, verifyUrl: hotelsComVerifyUrl },
+        agoda: { perNight: agodaRate, total: agodaRate * nights, verifyUrl: agodaVerifyUrl },
+        kayak: { perNight: kayakRate, total: kayakRate * nights, verifyUrl: kayakVerifyUrl },
+        googleHotels: { verifyUrl: googleHotelsVerifyUrl },
         lowestOta: { provider: lowestOtaProvider, perNight: lowestOtaRate, total: lowestOtaRate * nights },
         atlasWholesale: {
           perNight: wholesaleRate,
@@ -318,7 +536,7 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    destination,
+    destination: destination || 'Global Portfolio',
     nights,
     totalResults: results.length,
     hotels: results,
