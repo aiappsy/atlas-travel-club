@@ -12,7 +12,8 @@ import {
   Menu,
   LogOut,
   Sparkles,
-  Search
+  Search,
+  BookOpen
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -99,6 +100,14 @@ export default function Navbar() {
 
             {/* Right: Actions, Proof & User Account */}
             <div className="flex items-center gap-2.5 sm:gap-3">
+              <Link
+                href="/case-study"
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-bold transition-all"
+              >
+                <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+                <span>Case Study</span>
+              </Link>
+
               <Link
                 href="/proof"
                 className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-all"

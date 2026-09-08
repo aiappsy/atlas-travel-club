@@ -150,7 +150,17 @@ export default function Footer() {
             </h5>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="/ATLAS_Whitepaper.pdf" download="ATLAS_Whitepaper.pdf" className="text-amber-300 hover:underline font-bold">
+                <Link href="/case-study" className="text-amber-300 hover:underline font-bold">
+                  Case Study: Rate Parity
+                </Link>
+              </li>
+              <li>
+                <a href="/ATLAS_Case_Study_Rate_Parity.pdf" download="ATLAS_Case_Study_Rate_Parity.pdf" className="text-amber-400 hover:underline">
+                  Case Study (PDF)
+                </a>
+              </li>
+              <li>
+                <a href="/ATLAS_Whitepaper.pdf" download="ATLAS_Whitepaper.pdf" className="text-slate-300 hover:underline">
                   Technical Whitepaper
                 </a>
               </li>
@@ -163,11 +173,6 @@ export default function Footer() {
                 <Link href="/how-it-works" className="hover:text-white transition-colors">
                   How ATLAS Works
                 </Link>
-              </li>
-              <li>
-                <a href="/ATLAS_Owner_Master_Setup_Guide.pdf" download="ATLAS_Owner_Master_Setup_Guide.pdf" className="hover:text-white transition-colors">
-                  Owner Setup Blueprint
-                </a>
               </li>
               <li>
                 <Link href="/admin" className="text-sky-400 hover:underline">

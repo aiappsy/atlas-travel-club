@@ -20,7 +20,9 @@ import {
   Scale,
   RefreshCw,
   ExternalLink,
-  HelpCircle
+  HelpCircle,
+  BookOpen,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -125,6 +127,40 @@ export default function SavingsProofPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 space-y-12">
+        {/* Educational Case Study Banner */}
+        <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-amber-500/30 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-black uppercase tracking-wider border border-amber-400/30">
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              Academic Research & Economic Case Study
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black">
+              Unmasking Rate Parity: The Invisible Hand of Travel Pricing
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Understand why public hotel rooms carry an 18%–25% marketing subsidy, how the OTA cartel enforces "Digital Invisibility," and how closed-loop networks unlock true wholesale arbitrage.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+            <Link
+              href="/case-study"
+              className="py-3 px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5"
+            >
+              <span>Read Economic Case Study</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <a
+              href="/ATLAS_Case_Study_Rate_Parity.pdf"
+              download="ATLAS_Case_Study_Rate_Parity.pdf"
+              className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs transition-all flex items-center gap-1.5"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>PDF</span>
+            </a>
+          </div>
+        </div>
+
         {/* SECTION 1: LIVE AUDIT COMPARISON CARDS */}
         <div className="space-y-6">
           <div className="text-center max-w-xl mx-auto space-y-1">

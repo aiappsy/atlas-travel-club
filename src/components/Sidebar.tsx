@@ -28,6 +28,7 @@ import {
   Shield,
   Compass,
   Sparkles,
+  Download,
   X
 } from 'lucide-react';
 
@@ -225,9 +226,22 @@ export default function Sidebar() {
           badgeColor: 'bg-emerald-500 text-slate-950 font-black',
         },
         {
+          name: 'Case Study: Rate Parity',
+          href: '/case-study',
+          icon: BookOpen,
+          badge: 'Economics',
+          badgeColor: 'bg-amber-400 text-slate-950 font-bold',
+        },
+        {
           name: 'How ATLAS Works',
           href: '/how-it-works',
           icon: HelpCircle,
+        },
+        {
+          name: 'Case Study (PDF)',
+          href: '/ATLAS_Case_Study_Rate_Parity.pdf',
+          icon: Download,
+          isExternalDownload: true,
         },
         {
           name: 'Official Sales Letter (PDF)',
