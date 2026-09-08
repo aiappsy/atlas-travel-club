@@ -101,6 +101,7 @@ const MEMBER_POSTCARDS = [
 export default function HomePage() {
   const { user, isMember } = useAuth();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
 
   return (
     <div className="space-y-24 pb-24 font-sans text-slate-900 bg-white">
@@ -320,20 +321,53 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Section 6: Membership Tiers (Clean 4-Card Matrix) */}
+      {/* Section 6: Membership Tiers (Digital Pass vs Cardholder Edition) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-xl mx-auto space-y-2">
+        <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Membership Plans
+            Flexible Membership Options
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            Choose Your Access Tier
+            Choose Your Travel Access Plan
           </h2>
-          <p className="text-xs text-slate-500">
-            Every membership is backed by our 100% Rate Parity Guarantee.
+          <p className="text-xs sm:text-sm text-slate-600">
+            Every plan unlocks 100% of our raw wholesale hotel, villa, and cruise inventory. Choose whether you want a pure digital pass or the optional physical Visa® card.
           </p>
+
+          {/* Interactive Edition Switcher */}
+          <div className="inline-flex p-1.5 rounded-2xl bg-slate-100 border border-slate-200 mt-2">
+            <button
+              type="button"
+              onClick={() => setEditionType('digital')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                editionType === 'digital'
+                  ? 'bg-white text-slate-950 shadow-md font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>📱 Digital Pass (Pay with Any Card / PayPal)</span>
+              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                $0 Card Fee
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setEditionType('card')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                editionType === 'card'
+                  ? 'bg-slate-900 text-amber-300 shadow-md font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>💳 Cardholder Edition (With ATLAS Visa®)</span>
+              <span className="text-[10px] font-bold text-amber-400 bg-slate-800 px-1.5 py-0.5 rounded-full">
+                0% FX Fees
+              </span>
+            </button>
+          </div>
         </div>
 
+        {/* Dynamic Tier Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {MEMBERSHIP_TIERS.map((tier) => (
             <div
@@ -361,12 +395,22 @@ export default function HomePage() {
                 </div>
 
                 <div className="mt-5 pt-4 border-t border-slate-200/30 space-y-2 text-xs">
-                  {tier.perksIncluded.slice(0, 5).map((p, i) => (
+                  {tier.perksIncluded.slice(0, 4).map((p, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                       <span className="opacity-90">{p}</span>
                     </div>
                   ))}
+
+                  {/* Dynamic perk based on Digital vs Card edition */}
+                  <div className="flex items-start gap-2 pt-1 border-t border-slate-200/20 text-xs font-semibold text-emerald-400">
+                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>
+                      {editionType === 'digital'
+                        ? 'Refunds & claims sent to your existing credit card/PayPal'
+                        : 'Includes Physical Laser-Engraved Titanium Visa® Card'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

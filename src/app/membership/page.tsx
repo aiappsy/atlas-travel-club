@@ -148,6 +148,33 @@ export default function MembershipPage() {
                 })}
               </div>
             </div>
+
+            {/* Payout & Payment Preference Settings */}
+            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-3">
+              <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-emerald-600" />
+                Payout & Refund Routing
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                Choose where your Pruvo price-drop refunds and AirHelp $650 delay compensation are deposited:
+              </p>
+              <div className="space-y-2 pt-1">
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500 bg-emerald-50/50 cursor-pointer">
+                  <input type="radio" name="payoutPref" defaultChecked className="text-emerald-600 focus:ring-emerald-500" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-900">Original Payment Card / PayPal / Bank</div>
+                    <div className="text-[10px] text-slate-500">Direct refund back to whatever card you paid with ($0 fee)</div>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 cursor-pointer">
+                  <input type="radio" name="payoutPref" className="text-emerald-600 focus:ring-emerald-500" />
+                  <div>
+                    <div className="text-xs font-bold text-slate-900">ATLAS Obsidian Visa® Card</div>
+                    <div className="text-[10px] text-slate-500">Instant credit with 0% FX fees + 5% card swipe cashback</div>
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
 
           {/* Right Column: Wholesale Bookings & Activity */}
