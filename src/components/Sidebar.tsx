@@ -29,6 +29,7 @@ import {
   Compass,
   Sparkles,
   Download,
+  Search,
   X
 } from 'lucide-react';
 
@@ -218,6 +219,13 @@ export default function Sidebar() {
     {
       title: 'Verification & Transparency',
       items: [
+        {
+          name: 'Multi-OTA Price Checker',
+          href: '/rate-checker',
+          icon: Search,
+          badge: 'Live',
+          badgeColor: 'bg-sky-400 text-slate-950 font-bold',
+        },
         {
           name: 'Live Savings Proof Engine',
           href: '/proof',
