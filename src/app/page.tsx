@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { MOCK_HOTELS, MEMBERSHIP_TIERS } from '@/lib/mockData';
-import HeroSearch from '@/components/HeroSearch';
+import LiveHotelSearch from '@/components/LiveHotelSearch';
 import SavingsCalculator from '@/components/SavingsCalculator';
 import AuthModal from '@/components/AuthModal';
 import {
@@ -123,12 +123,12 @@ export default function HomePage() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            Public booking portals add a 20%+ retail ad markup. <strong>ATLAS</strong> grants private members raw B2B Bedbank wholesale pricing on 1M+ hotels, luxury villas, and nomad colivings.
+            Public booking portals add a 20%+ retail ad markup. <strong>ATLAS</strong> lets you compare real live rates across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank wholesale prices.
           </p>
 
-          {/* Centered Clean Search Bar */}
-          <div className="pt-2">
-            <HeroSearch />
+          {/* Standard Live Travel Search & Real Multi-OTA Price Checker */}
+          <div className="pt-2 text-left">
+            <LiveHotelSearch initialDestination="Las Vegas" />
           </div>
 
           {/* 3 Core Value Pillars */}
