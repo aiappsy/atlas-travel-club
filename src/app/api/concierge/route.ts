@@ -56,6 +56,28 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. **Why Public Sites (Expedia) Are More Expensive**: Public sites are legally bound by "Rate Parity" agreements and add an **18%–35% retail markup** to fund TV and Google ads.\n\n2. **The Closed-Loop Secret**: Hotels quietly release unsold inventory to **B2B Wholesale Bedbanks (Hotelbeds, WebBeds)** at **30%–70% discounts**. These rates are legally restricted to private, closed-loop club members.\n\n3. **100% Net Rate Pass-Through**: Because we earn revenue through predictable membership subscriptions ($19.99/mo), we pass the **raw wholesale price directly to you with 0% retail markup**.\n\n4. **The FinTech Visa Flywheel**: On top of upfront savings, any post-booking price drops (Pruvo), flight delay payouts ($650), and annual club dividends are **deposited straight onto your reloadable ATLAS Visa card**!\n\nWould you like to read the complete breakdown or compare live rates?`;
     }
+    // 3b. Currency & Interbank FX Intent
+    else if (
+      query.includes('currency') ||
+      query.includes('currencies') ||
+      query.includes('fx') ||
+      query.includes('euro') ||
+      query.includes('eur') ||
+      query.includes('gbp') ||
+      query.includes('pound') ||
+      query.includes('chf') ||
+      query.includes('franc') ||
+      query.includes('aed') ||
+      query.includes('dirham') ||
+      query.includes('sgd') ||
+      query.includes('jpy') ||
+      query.includes('yen') ||
+      query.includes('aud') ||
+      query.includes('conversion') ||
+      query.includes('exchange rate')
+    ) {
+      reply = `💱 **Global Multi-Currency & 0% FX Engine:**\n\nATLAS supports **8 major global currencies** with real-time conversion at raw ECB interbank rates:\n\n- 🇺🇸 **USD ($)**: Base Club Currency\n- 🇪🇺 **EUR (€)**: ~0.92 per USD (No FX surcharge)\n- 🇬🇧 **GBP (£)**: ~0.79 per USD\n- 🇨🇭 **CHF (CHF)**: ~0.88 per USD\n- 🇦🇪 **AED (AED)**: 3.67 pegged\n- 🇸🇬 **SGD (S$)**: ~1.34 per USD\n- 🇯🇵 **JPY (¥)**: ~155.0 per USD\n- 🇦🇺 **AUD (A$)**: ~1.52 per USD\n\n🛡️ **Zero Foreign Transaction Fees**: Unlike consumer credit cards that charge 3% international fees, your ATLAS Visa card and bookings execute at pure interbank rates. You can switch your currency anytime via the navbar selector or Admin Console!`;
+    }
     // 4. Cruise / Miami Gap Intent
     else if (query.includes('cruise') || query.includes('miami') || query.includes('icon of the seas')) {
       const jetOption = features.enablePrivateJets

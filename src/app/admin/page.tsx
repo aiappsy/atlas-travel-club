@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { usePlatform } from '@/context/PlatformContext';
+import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { PROVIDER_INSTRUCTION_GUIDES, MOCK_NOMAD_VISAS, MOCK_VAULT_ACCOUNT, MOCK_VILLAS, MOCK_STATUS_MATCH_PROGRAMS, MOCK_FAST_TRACK_SERVICES, MOCK_CARD_ORDERS, MOCK_FLIGHT_CLAIMS, MOCK_PRIVATE_JETS, MOCK_PRICE_DROP_RECORDS, MOCK_YACHTS, MOCK_SUPERCARS } from '@/lib/mockData';
 import {
   ShieldCheck,
@@ -38,8 +39,9 @@ import {
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
+  const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'switchboard' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
 
   // Nomad Hub & Affiliates State
@@ -142,6 +144,7 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto flex overflow-x-auto gap-1 py-2 scrollbar-none">
           {[
             { id: 'switchboard', label: 'Feature Switchboard', icon: Layers },
+            { id: 'currency_engine', label: 'Currency & FX Engine', icon: DollarSign },
             { id: 'nomad_hub', label: 'Digital Nomad & Visas', icon: Laptop },
             { id: 'vault_manager', label: 'Travel Vault & Dividends', icon: Coins },
             { id: 'luxury_villas', label: 'Luxury Villas', icon: Castle },
@@ -235,6 +238,115 @@ export default function AdminPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: CURRENCY & INTERBANK FX ENGINE */}
+        {activeTab === 'currency_engine' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                  <h3 className="text-lg font-black text-white flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-amber-400" />
+                    Global Multi-Currency & Interbank FX Engine
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Manage 8 supported global currencies, live interbank exchange rates, and 0% foreign transaction fee parameters.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>0% FX Spread Active</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Currency Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {Object.values(currencies).map((curr) => {
+                  const isCurrent = currency === curr.code;
+                  return (
+                    <div
+                      key={curr.code}
+                      className={`p-5 rounded-2xl border transition-all ${
+                        isCurrent
+                          ? 'bg-amber-400/10 border-amber-400/50 shadow-lg shadow-amber-400/5'
+                          : 'bg-slate-800/60 border-slate-700/80 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-2xl">{curr.flag}</span>
+                          <div>
+                            <div className="font-extrabold text-sm text-white font-mono flex items-center gap-1.5">
+                              {curr.code}
+                              {isCurrent && (
+                                <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amber-400 text-slate-950 font-sans font-black">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-400">{curr.name}</div>
+                          </div>
+                        </div>
+                        <span className="text-sm font-black text-amber-300 font-mono bg-black/40 px-2 py-1 rounded-lg">
+                          {curr.symbol}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t border-slate-700/60">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">
+                          Exchange Rate (per 1 USD)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            step="0.01"
+                            disabled={curr.code === 'USD'}
+                            value={curr.rate}
+                            onChange={(e) => updateExchangeRate(curr.code, parseFloat(e.target.value) || curr.rate)}
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white font-mono focus:border-amber-400 outline-none disabled:opacity-50"
+                          />
+                          <button
+                            onClick={() => setCurrency(curr.code)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                              isCurrent
+                                ? 'bg-amber-400 text-slate-950'
+                                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+                            }`}
+                          >
+                            {isCurrent ? 'Active' : 'Set'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Advanced FX Settings */}
+              <div className="p-5 bg-black/30 rounded-2xl border border-slate-800 space-y-3">
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                  Global Rate Parity & Multi-Currency Rules
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+                    <div className="text-slate-400 text-[11px]">Interbank FX Oracle</div>
+                    <div className="font-bold text-emerald-400 mt-0.5">European Central Bank (ECB) 1-Min Poll</div>
+                  </div>
+                  <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+                    <div className="text-slate-400 text-[11px]">Club Markup Margin</div>
+                    <div className="font-bold text-amber-400 mt-0.5">0.00% (Pure Interbank)</div>
+                  </div>
+                  <div className="p-3 bg-slate-800/60 rounded-xl border border-slate-700">
+                    <div className="text-slate-400 text-[11px]">Auto Currency Detection</div>
+                    <div className="font-bold text-sky-400 mt-0.5">Geo-IP & Browser Locale</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

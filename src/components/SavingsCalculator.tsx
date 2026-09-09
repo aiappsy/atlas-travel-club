@@ -5,6 +5,7 @@ import { Sparkles, TrendingDown, ArrowRight, Building2, CheckCircle2, ShieldChec
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import AuthModal from '@/components/AuthModal';
 
 interface DestinationComparison {
@@ -91,6 +92,7 @@ const DESTINATION_DATA: DestinationComparison[] = [
 
 export default function SavingsCalculator() {
   const { isMember } = useAuth();
+  const { formatPrice } = useCurrency();
   const router = useRouter();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [selectedDestId, setSelectedDestId] = useState<string>('vegas');
@@ -245,7 +247,7 @@ export default function SavingsCalculator() {
                   </div>
                   {includeRentalCar && (
                     <span className="text-[11px] font-bold text-emerald-400">
-                      Save ${carSavings}
+                      Save {formatPrice(carSavings)}
                     </span>
                   )}
                 </label>
@@ -263,13 +265,13 @@ export default function SavingsCalculator() {
                         Theme Park / Attraction VIP Passes (2 Guests)
                       </div>
                       <div className="text-[10px] text-slate-400">
-                        Wholesale $110/ticket vs $170/ticket gate price
+                        Wholesale {formatPrice(110)}/ticket vs {formatPrice(170)}/ticket gate price
                       </div>
                     </div>
                   </div>
                   {includeThemePasses && (
                     <span className="text-[11px] font-bold text-emerald-400">
-                      Save ${ticketSavings}
+                      Save {formatPrice(ticketSavings)}
                     </span>
                   )}
                 </label>
@@ -296,7 +298,7 @@ export default function SavingsCalculator() {
                       Expedia.com Public Price:
                     </span>
                     <span className="font-mono font-bold text-rose-300 line-through">
-                      ${dest.retailOTA.expedia * nights} (${dest.retailOTA.expedia}/nt)
+                      {formatPrice(dest.retailOTA.expedia * nights)} ({formatPrice(dest.retailOTA.expedia)}/nt)
                     </span>
                   </div>
 
@@ -306,7 +308,7 @@ export default function SavingsCalculator() {
                       Booking.com Public Price:
                     </span>
                     <span className="font-mono font-bold text-rose-300 line-through">
-                      ${dest.retailOTA.bookingCom * nights} (${dest.retailOTA.bookingCom}/nt)
+                      {formatPrice(dest.retailOTA.bookingCom * nights)} ({formatPrice(dest.retailOTA.bookingCom)}/nt)
                     </span>
                   </div>
 
@@ -316,7 +318,7 @@ export default function SavingsCalculator() {
                       Hotels.com Public Price:
                     </span>
                     <span className="font-mono font-bold text-rose-300 line-through">
-                      ${dest.retailOTA.hotelsCom * nights} (${dest.retailOTA.hotelsCom}/nt)
+                      {formatPrice(dest.retailOTA.hotelsCom * nights)} ({formatPrice(dest.retailOTA.hotelsCom)}/nt)
                     </span>
                   </div>
                 </div>
@@ -325,12 +327,12 @@ export default function SavingsCalculator() {
                 <div className="pt-4 border-t border-white/10 space-y-3">
                   <div className="flex justify-between text-xs text-slate-300">
                     <span>Total Public OTA Cart (with selected add-ons):</span>
-                    <span className="font-bold line-through">${totalOTAPaid}</span>
+                    <span className="font-bold line-through">{formatPrice(totalOTAPaid)}</span>
                   </div>
 
                   <div className="flex justify-between text-sm sm:text-base font-black text-amber-300">
                     <span>Wholesale Member Total:</span>
-                    <span className="text-xl sm:text-2xl">${totalWholesalePaid}</span>
+                    <span className="text-xl sm:text-2xl">{formatPrice(totalWholesalePaid)}</span>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 flex items-center justify-between">
@@ -339,7 +341,7 @@ export default function SavingsCalculator() {
                         Your Direct Cash Savings
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-emerald-400">
-                        ${totalNetSaved}
+                        {formatPrice(totalNetSaved)}
                       </div>
                     </div>
                     <div className="text-right">

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useSidebar } from '@/context/SidebarContext';
+import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import AuthModal from './AuthModal';
 import {
   Compass,
@@ -13,13 +14,17 @@ import {
   LogOut,
   Sparkles,
   Search,
-  BookOpen
+  BookOpen,
+  Globe,
+  ChevronDown
 } from 'lucide-react';
 
 export default function Navbar() {
   const { user, isMember, logout } = useAuth();
   const { toggleSidebar } = useSidebar();
+  const { currency, setCurrency, currencies, formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
 
   return (
     <>
@@ -44,7 +49,7 @@ export default function Navbar() {
               </Link>
               {isMember && user && (
                 <span className="text-amber-200 font-semibold">
-                  Saved: <strong className="text-emerald-400">${user.lifetimeSavings}</strong>
+                  Saved: <strong className="text-emerald-400">{formatPrice(user.lifetimeSavings)}</strong>
                 </span>
               )}
             </div>
@@ -100,6 +105,49 @@ export default function Navbar() {
 
             {/* Right: Actions, Proof & User Account */}
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* Currency Selector Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsCurrencyOpen(!isCurrencyOpen)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-bold transition-all shadow-sm"
+                  title="Change Currency"
+                >
+                  <span className="text-sm">{currencies[currency]?.flag}</span>
+                  <span className="font-mono">{currency}</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                </button>
+
+                {isCurrencyOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95">
+                    <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 border-b border-slate-800">
+                      Select Currency (Interbank FX)
+                    </div>
+                    {Object.values(currencies).map((curr) => (
+                      <button
+                        key={curr.code}
+                        onClick={() => {
+                          setCurrency(curr.code as CurrencyCode);
+                          setIsCurrencyOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs text-left hover:bg-slate-800 transition-colors ${
+                          currency === curr.code
+                            ? 'text-amber-300 font-bold bg-amber-400/10'
+                            : 'text-slate-300'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span>{curr.flag}</span>
+                          <span>{curr.code}</span>
+                        </span>
+                        <span className="text-[11px] text-slate-400 font-mono">
+                          {curr.symbol}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <Link
                 href="/case-study"
                 className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all"
