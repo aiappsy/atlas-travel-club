@@ -31,6 +31,28 @@ export type OperatorRoleId =
   | 'operations_manager'
   | 'cmo_growth';
 
+export type AdminHubId =
+  | 'academy_governance'
+  | 'travel_inventory'
+  | 'fintech_banking'
+  | 'nomad_vip'
+  | 'integrations_engine';
+
+export interface AdminHubTabItem {
+  id: AdminTabId;
+  label: string;
+  icon: any;
+  badge?: string;
+}
+
+export interface AdminHub {
+  id: AdminHubId;
+  label: string;
+  icon: any;
+  description: string;
+  subTabs: AdminHubTabItem[];
+}
+
 export interface OperatorRole {
   id: OperatorRoleId;
   title: string;
