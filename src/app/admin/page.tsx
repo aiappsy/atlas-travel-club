@@ -36,15 +36,25 @@ import {
   Coins,
   Laptop,
   Smartphone,
-  QrCode
+  QrCode,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
   const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
+
+  // Messaging Bridge State (Telegram & WhatsApp)
+  const [telegramBotToken, setTelegramBotToken] = useState('7819204812:AAH99X_AtlasConciergeBotKey');
+  const [telegramBotUser, setTelegramBotUser] = useState('@AtlasConciergeBot');
+  const [twilioAccountSid, setTwilioAccountSid] = useState('AC9941824701298418294102948120');
+  const [twilioAuthToken, setTwilioAuthToken] = useState('tw_auth_sec_99418294719284');
+  const [whatsappFromNumber, setWhatsappFromNumber] = useState('whatsapp:+18008472852');
+  const [messagingBridgeActive, setMessagingBridgeActive] = useState(true);
 
   // Apple & Google Wallet Pass State
   const [applePassTypeId, setApplePassTypeId] = useState('pass.club.atlas.vip');
@@ -166,6 +176,7 @@ export default function AdminPage() {
             { id: 'visa_manager', label: 'Visa Prepaid Manager', icon: CreditCard },
             { id: 'card_agent', label: 'Card Fulfillment Agent', icon: Truck },
             { id: 'wallet_pass', label: 'Apple / Google Wallet', icon: Smartphone },
+            { id: 'messaging_bridge', label: 'WhatsApp & Telegram Bots', icon: MessageSquare },
             { id: 'ai_studio', label: 'AI Concierge Studio', icon: Bot },
             { id: 'guides', label: 'Provider Instructions', icon: BookOpen },
             { id: 'suppliers', label: 'B2B Suppliers', icon: Globe },
@@ -886,6 +897,111 @@ export default function AdminPage() {
                 className="w-full py-3.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-lg transition-all"
               >
                 Save Digital Pass Configurations
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: WHATSAPP & TELEGRAM MESSAGING BRIDGE */}
+        {activeTab === 'messaging_bridge' && (
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-3xl mx-auto space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div>
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5 text-emerald-400" />
+                  WhatsApp & Telegram VIP Concierge Webhook Bridge
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Connect Telegram bots and WhatsApp Business numbers to allow members to query Aura AI directly from mobile chat.
+                </p>
+              </div>
+              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Webhooks Online</span>
+              </span>
+            </div>
+
+            <div className="space-y-6 text-xs">
+              {/* Telegram Bot Card */}
+              <div className="p-5 bg-slate-800/60 rounded-2xl border border-slate-700/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-black text-sm text-white">
+                    <Send className="w-4 h-4 text-sky-400" />
+                    <span>Telegram VIP Bot (@AtlasConciergeBot)</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-full">
+                    Webhook: /api/concierge/telegram
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold uppercase text-slate-400 mb-1">Telegram Bot Token</label>
+                    <input
+                      type="password"
+                      value={telegramBotToken}
+                      onChange={(e) => setTelegramBotToken(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold uppercase text-slate-400 mb-1">Bot Username Handle</label>
+                    <input
+                      type="text"
+                      value={telegramBotUser}
+                      onChange={(e) => setTelegramBotUser(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* WhatsApp Business API Card */}
+              <div className="p-5 bg-slate-800/60 rounded-2xl border border-slate-700/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-black text-sm text-white">
+                    <MessageSquare className="w-4 h-4 text-emerald-400" />
+                    <span>Twilio WhatsApp Business API Gateway</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    Webhook: /api/concierge/whatsapp
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold uppercase text-slate-400 mb-1">Twilio Account SID</label>
+                    <input
+                      type="text"
+                      value={twilioAccountSid}
+                      onChange={(e) => setTwilioAccountSid(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-bold uppercase text-slate-400 mb-1">Twilio Auth Token</label>
+                    <input
+                      type="password"
+                      value={twilioAuthToken}
+                      onChange={(e) => setTwilioAuthToken(e.target.value)}
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Outbound WhatsApp Sender Number</label>
+                  <input
+                    type="text"
+                    value={whatsappFromNumber}
+                    onChange={(e) => setWhatsappFromNumber(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={() => alert('Telegram & WhatsApp VIP Concierge Webhook configurations updated!')}
+                className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all"
+              >
+                Save Messaging Webhook Settings
               </button>
             </div>
           </div>

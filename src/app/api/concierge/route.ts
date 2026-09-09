@@ -91,6 +91,18 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `📱 **ATLAS Sovereign Mobile Wallet Passbook (.pkpass / Google Pay):**\n\nEvery ATLAS member receives a cryptographic digital pass signed by ATLAS Sovereign Keys:\n\n1.  **Apple Wallet**: Tap **"Add to Apple Wallet"** on your dashboard or membership card to store your pass in iOS Wallet.\n2. 🟢 **Google Pay**: Tap **"Save to Google Pay"** for instant 1-tap pass access on Android.\n3. ⚡ **NFC Lounge & Airport Tap**: Tap your iPhone or Apple Watch at 500+ airport lounge desks & VIP Fast-Track immigration scanners.\n4. 🎟️ **Offline QR Voucher**: Contains your verified closed-loop member ID and 0% markup authorization code for seamless luxury hotel check-ins.\n\nWould you like me to open your digital pass preview right now?`;
     }
+    // 3d. WhatsApp & Telegram VIP Messaging Intent
+    else if (
+      query.includes('whatsapp') ||
+      query.includes('telegram') ||
+      query.includes('message') ||
+      query.includes('text') ||
+      query.includes('sms') ||
+      query.includes('bot') ||
+      query.includes('on the go')
+    ) {
+      reply = `💬 **24/7 VIP Mobile Concierge on WhatsApp & Telegram:**\n\nYou can chat with me directly from your mobile messaging apps without opening a browser:\n\n1. ✈️ **Telegram Bot**: Message **@AtlasConciergeBot** on Telegram to search wholesale hotels, request flight re-booking, or calculate Schengen days.\n2. 🟢 **WhatsApp Business**: Text our dedicated VIP Concierge line at **+1 (800) 847-ATLAS**.\n\nAll rates, gap alerts, and 1-click booking cards sync instantly across your web dashboard and mobile sessions!`;
+    }
     // 4. Cruise / Miami Gap Intent
     else if (query.includes('cruise') || query.includes('miami') || query.includes('icon of the seas')) {
       const jetOption = features.enablePrivateJets
