@@ -16,7 +16,8 @@ import {
   ExternalLink,
   SlidersHorizontal,
   Camera,
-  Building2
+  Building2,
+  Globe
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 
@@ -52,9 +53,6 @@ export default function LiveHotelSearch({
     { name: 'Paris', query: 'Paris' },
     { name: 'Dubai', query: 'Dubai' },
     { name: 'New York', query: 'New York' },
-    { name: 'London', query: 'London' },
-    { name: 'Tokyo', query: 'Tokyo' },
-    { name: 'Bali', query: 'Bali' },
   ];
 
   const categories = [
@@ -124,7 +122,7 @@ export default function LiveHotelSearch({
                 type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Oslo, Las Vegas, Paris, Bellagio..."
+                placeholder="e.g. Oslo, Las Vegas, Paris, Horseshoe..."
                 className="w-full bg-transparent font-bold text-sm text-white focus:outline-none placeholder:text-slate-500"
               />
             </div>
@@ -229,7 +227,7 @@ export default function LiveHotelSearch({
             <div className="flex items-center gap-2.5">
               <RefreshCw className="w-5 h-5 text-amber-400 animate-spin" />
               <h4 className="text-base font-black">
-                Pinging Global OTA Feeds & Live Bedbank Gateways...
+                Querying Live GDS & Direct OTA Property Feeds...
               </h4>
             </div>
             <span className="text-xs font-mono text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
@@ -240,11 +238,11 @@ export default function LiveHotelSearch({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs pt-2">
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 1 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Expedia Rapid API Feed</span>
+              <span>Expedia Property GDS</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 2 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Hotels.com GDS Benchmark</span>
+              <span>Hotels.com Live Benchmark</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 3 ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'}`}>
               <CheckCircle2 className="w-4 h-4" />
@@ -309,259 +307,250 @@ export default function LiveHotelSearch({
 
           {/* Hotel Result Cards */}
           <div className="space-y-6">
-            {filteredHotels.map((hotel) => (
-              <div
-                key={hotel.id}
-                className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
-              >
-                {/* Image & Quick Specs */}
-                <div className="lg:col-span-4 relative min-h-[260px] lg:min-h-full">
-                  <img
-                    src={hotel.image}
-                    alt={hotel.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // Fallback if image network error
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
-                    }}
-                  />
-                  {/* Rating Badge */}
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-400/30 shadow">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span>{hotel.guestRating} / 10 Excellent</span>
-                  </div>
+            {filteredHotels.map((hotel) => {
+              const detailUrl = `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${encodeURIComponent(guests)}`;
 
-                  {/* Category Tier Badge */}
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-slate-200 text-[10px] font-bold border border-white/20 shadow flex items-center gap-1">
-                    <Building2 className="w-3 h-3 text-amber-400" />
-                    <span>{hotel.categoryLabel}</span>
-                  </div>
-
-                  {/* Room & Location Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
-                    <div className="flex items-center justify-between">
-                      <div className="font-black text-amber-300 text-sm">{hotel.roomType}</div>
-                      <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
-                        <Camera className="w-2.5 h-2.5" />
-                        <span>Verified Property</span>
-                      </span>
-                    </div>
-                    <div className="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                      <span>{hotel.city}, {hotel.country}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Details & Live Comparison Matrix */}
-                <div className="lg:col-span-8 p-6 sm:p-7 flex flex-col justify-between space-y-6">
-                  <div className="space-y-4">
-                    {/* Hotel Title & Audit Ref */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xl sm:text-2xl font-black text-white">
-                            {hotel.name}
-                          </h4>
-                        </div>
-                        <div className="text-xs text-amber-400 font-semibold mt-0.5">
-                          {hotel.starRating}★ Rated Property • Verified B2B Bedbank Inventory
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-400 font-mono bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 self-start sm:self-auto">
-                        Audit Ref: {hotel.audit.auditHash.substring(0, 10)}
-                      </span>
+              return (
+                <div
+                  key={hotel.id}
+                  className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
+                >
+                  {/* Image & Quick Specs */}
+                  <div className="lg:col-span-4 relative min-h-[260px] lg:min-h-full">
+                    <Link href={detailUrl} className="block w-full h-full">
+                      <img
+                        src={hotel.image}
+                        alt={hotel.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      />
+                    </Link>
+                    {/* Rating Badge */}
+                    <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-400/30 shadow">
+                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span>{hotel.guestRating} / 10 Excellent</span>
                     </div>
 
-                    {/* Amenities */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {hotel.amenities.map((amenity, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2.5 py-1 rounded-full bg-slate-950 text-slate-300 text-xs font-semibold border border-slate-800"
-                        >
-                          ✓ {amenity}
+                    {/* Category Tier Badge */}
+                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-slate-200 text-[10px] font-bold border border-white/20 shadow flex items-center gap-1">
+                      <Building2 className="w-3 h-3 text-amber-400" />
+                      <span>{hotel.categoryLabel}</span>
+                    </div>
+
+                    {/* Room & Location Overlay */}
+                    <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="font-black text-amber-300 text-sm truncate">{hotel.roomType}</div>
+                        <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1 shrink-0 ml-1">
+                          <Camera className="w-2.5 h-2.5" />
+                          <span>Verified</span>
                         </span>
-                      ))}
+                      </div>
+                      <div className="text-slate-300 text-xs flex items-center gap-1 mt-0.5 truncate">
+                        <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <span>{hotel.address || `${hotel.city}, ${hotel.country}`}</span>
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Multi-OTA Price Comparison Grid WITH LIVE VERIFICATION LINKS */}
-                    <div className="pt-3 border-t border-slate-800">
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                          <span>Public Retail Prices on Other Platforms:</span>
-                          <span className="text-[10px] text-amber-400 font-normal normal-case">(Click any OTA to verify live)</span>
+                  {/* Details & Live Comparison Matrix */}
+                  <div className="lg:col-span-8 p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                    <div className="space-y-4">
+                      {/* Hotel Title & Audit Ref */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <Link href={detailUrl} className="hover:text-amber-400 transition-colors">
+                            <h4 className="text-xl sm:text-2xl font-black text-white">
+                              {hotel.name}
+                            </h4>
+                          </Link>
+                          <div className="text-xs text-amber-400 font-semibold mt-0.5">
+                            {hotel.starRating}★ Rated Property • Verified B2B Bedbank Clearing Inventory
+                          </div>
                         </div>
-                        <a
-                          href={hotel.prices.googleHotels.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
-                          title="Open Google Hotels search in a new tab"
-                        >
-                          <span>Compare on Google Hotels</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
+                        <span className="text-[11px] font-bold text-slate-400 font-mono bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 self-start sm:self-auto">
+                          Audit Ref: {hotel.audit.auditHash.substring(0, 10)}
+                        </span>
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
-                        {/* Expedia */}
-                        <a
-                          href={hotel.prices.expedia.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Expedia in new tab"
-                        >
-                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      {/* Amenities */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {hotel.amenities.map((amenity, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2.5 py-1 rounded-full bg-slate-950 text-slate-300 text-xs font-semibold border border-slate-800"
+                          >
+                            ✓ {amenity}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* Multi-OTA Direct Property Verification Grid */}
+                      <div className="pt-3 border-t border-slate-800">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <span>Direct Property Retail Rates:</span>
+                            <span className="text-[10px] text-amber-400 font-normal normal-case">(Click to verify live property page)</span>
+                          </div>
+                          <a
+                            href={hotel.prices.googleHotels.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+                            title="Open Google Hotels search for this exact property in a new tab"
+                          >
+                            <span>Google Hotels Direct ↗</span>
+                          </a>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs">
+                          {/* Expedia Direct Property */}
+                          <a
+                            href={hotel.prices.expedia.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all group block"
+                            title={`Click to verify direct rate for ${hotel.name} on Expedia`}
+                          >
+                            <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                               <span>Expedia</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-blue-400" />
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
-                          </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.expedia.perNight}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.expedia.total} total ({nights} nts)
-                          </div>
-                          <div className="text-[9px] text-blue-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Expedia ↗
-                          </div>
-                        </a>
+                            <div className="text-sm font-bold text-slate-400 line-through mt-1">
+                              ${hotel.prices.expedia.perNight}
+                            </div>
+                            <div className="text-[9px] text-blue-400 font-semibold group-hover:underline">
+                              Verify ↗
+                            </div>
+                          </a>
 
-                        {/* Hotels.com */}
-                        <a
-                          href={hotel.prices.hotelsCom.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Hotels.com in new tab"
-                        >
-                          <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                          {/* Hotels.com Direct Property */}
+                          <a
+                            href={hotel.prices.hotelsCom.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all group block"
+                            title={`Click to verify direct rate for ${hotel.name} on Hotels.com`}
+                          >
+                            <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                               <span>Hotels.com</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-rose-400" />
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
-                          </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.hotelsCom.perNight}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.hotelsCom.total} total ({nights} nts)
-                          </div>
-                          <div className="text-[9px] text-rose-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Hotels.com ↗
-                          </div>
-                        </a>
+                            <div className="text-sm font-bold text-slate-400 line-through mt-1">
+                              ${hotel.prices.hotelsCom.perNight}
+                            </div>
+                            <div className="text-[9px] text-rose-400 font-semibold group-hover:underline">
+                              Verify ↗
+                            </div>
+                          </a>
 
-                        {/* Agoda */}
-                        <a
-                          href={hotel.prices.agoda.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Agoda in new tab"
-                        >
-                          <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                          {/* Agoda Direct Property */}
+                          <a
+                            href={hotel.prices.agoda.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all group block"
+                            title={`Click to verify direct rate for ${hotel.name} on Agoda`}
+                          >
+                            <div className="font-bold text-purple-400 text-xs flex items-center justify-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
                               <span>Agoda</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
-                          </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.agoda.perNight}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.agoda.total} total ({nights} nts)
-                          </div>
-                          <div className="text-[9px] text-purple-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Agoda ↗
-                          </div>
-                        </a>
+                            <div className="text-sm font-bold text-slate-400 line-through mt-1">
+                              ${hotel.prices.agoda.perNight}
+                            </div>
+                            <div className="text-[9px] text-purple-400 font-semibold group-hover:underline">
+                              Verify ↗
+                            </div>
+                          </a>
 
-                        {/* Kayak */}
-                        <a
-                          href={hotel.prices.kayak.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Kayak in new tab"
-                        >
-                          <div className="font-bold text-amber-400 text-xs flex items-center justify-between sm:justify-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                          {/* Kayak Direct Property */}
+                          <a
+                            href={hotel.prices.kayak.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all group block"
+                            title={`Click to verify direct rate for ${hotel.name} on Kayak`}
+                          >
+                            <div className="font-bold text-amber-400 text-xs flex items-center justify-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                               <span>Kayak</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-amber-400" />
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
-                          </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.kayak.perNight}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.kayak.total} total ({nights} nts)
-                          </div>
-                          <div className="text-[9px] text-amber-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Kayak ↗
-                          </div>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+                            <div className="text-sm font-bold text-slate-400 line-through mt-1">
+                              ${hotel.prices.kayak.perNight}
+                            </div>
+                            <div className="text-[9px] text-amber-400 font-semibold group-hover:underline">
+                              Verify ↗
+                            </div>
+                          </a>
 
-                  {/* Highlighted ATLAS Wholesale Price Box */}
-                  <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row items-center justify-between gap-5 border border-emerald-500/40 shadow-2xl">
-                    <div className="space-y-1.5 text-center sm:text-left">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30">
-                        <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                        ATLAS Confidential B2B Wholesale Rate
-                      </div>
-                      <div className="flex items-baseline gap-2 justify-center sm:justify-start">
-                        <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
-                          ${hotel.prices.atlasWholesale.perNight}
-                        </span>
-                        <span className="text-xs text-slate-300">/ night</span>
-                        <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-md border border-amber-400/30">
-                          Save ${hotel.prices.atlasWholesale.instantSavingsPerNight}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
-                        </span>
-                      </div>
-                      <div className="text-xs sm:text-sm text-slate-200 font-medium">
-                        Total for {nights} Nights: <strong className="text-white font-bold">${hotel.prices.atlasWholesale.total}</strong>{' '}
-                        <span className="text-emerald-400 font-bold">(You save ${hotel.prices.atlasWholesale.totalSavings} vs. {hotel.prices.lowestOta.provider})</span>
-                      </div>
-                      <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.adTaxEliminated}/nt</span>
+                          {/* Hotel Official Direct Website */}
+                          <a
+                            href={hotel.officialWebsite}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2.5 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition-all group block"
+                            title={`Click to open official hotel website for ${hotel.name}`}
+                          >
+                            <div className="font-bold text-emerald-400 text-xs flex items-center justify-center gap-1">
+                              <Globe className="w-2.5 h-2.5 text-emerald-400" />
+                              <span>Hotel Site</span>
+                              <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-emerald-400" />
+                            </div>
+                            <div className="text-sm font-bold text-slate-400 line-through mt-1">
+                              ${hotel.prices.officialDirect?.perNight || hotel.prices.expedia.perNight}
+                            </div>
+                            <div className="text-[9px] text-emerald-400 font-semibold group-hover:underline">
+                              Direct ↗
+                            </div>
+                          </a>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
-                      <a
-                        href={hotel.prices.googleHotels.verifyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
-                        title="Verify real-time rates on Google Hotels in new window"
-                      >
-                        <span>Verify Live Prices</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                      </a>
+                    {/* Highlighted ATLAS Wholesale Price Box */}
+                    <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row items-center justify-between gap-5 border border-emerald-500/40 shadow-2xl">
+                      <div className="space-y-1.5 text-center sm:text-left">
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30">
+                          <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                          ATLAS Confidential B2B Wholesale Rate
+                        </div>
+                        <div className="flex items-baseline gap-2 justify-center sm:justify-start">
+                          <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
+                            ${hotel.prices.atlasWholesale.perNight}
+                          </span>
+                          <span className="text-xs text-slate-300">/ night</span>
+                          <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-md border border-amber-400/30">
+                            Save ${hotel.prices.atlasWholesale.instantSavingsPerNight}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
+                          </span>
+                        </div>
+                        <div className="text-xs sm:text-sm text-slate-200 font-medium">
+                          Total for {nights} Nights: <strong className="text-white font-bold">${hotel.prices.atlasWholesale.total}</strong>{' '}
+                          <span className="text-emerald-400 font-bold">(You save ${hotel.prices.atlasWholesale.totalSavings} vs. {hotel.prices.lowestOta.provider})</span>
+                        </div>
+                        <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.adTaxEliminated}/nt</span>
+                        </div>
+                      </div>
 
-                      <Link
-                        href="/membership"
-                        className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
-                      >
-                        <span>Unlock Wholesale Rate</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+                        <Link
+                          href={detailUrl}
+                          className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
+                        >
+                          <span>View Full Presentation & Book</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
