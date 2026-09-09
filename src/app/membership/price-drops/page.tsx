@@ -19,10 +19,41 @@ import {
   Bell
 } from 'lucide-react';
 import Link from 'next/link';
+import AuthModal from '@/components/AuthModal';
+import { Lock } from 'lucide-react';
 
 export default function PriceDropsPage() {
-  const { user } = useAuth();
+  const { user, isMember } = useAuth();
   const [records, setRecords] = useState<PriceDropRebookRecord[]>(MOCK_PRICE_DROP_RECORDS);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  if (!user || !isMember) {
+    return (
+      <div className="bg-slate-950 min-h-screen py-24 px-4 text-white font-sans flex items-center justify-center">
+        <div className="max-w-md w-full bg-slate-900 rounded-3xl p-8 text-center border border-amber-500/30 shadow-2xl space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 flex items-center justify-center mx-auto">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+              Members Only Utility
+            </span>
+            <h2 className="text-2xl font-black text-white">Price-Drop Re-Hedging Sentinel</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Continuous 24/7 post-booking price monitoring and automated difference cashback is reserved for active ATLAS Club members.
+            </p>
+          </div>
+          <button
+            onClick={() => setIsAuthOpen(true)}
+            className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer"
+          >
+            Sign Up for VIP Membership
+          </button>
+        </div>
+        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultMode="signup" />
+      </div>
+    );
+  }
 
   const totalRefunded = records.reduce((acc, r) => acc + r.cashRefunded, 0);
 

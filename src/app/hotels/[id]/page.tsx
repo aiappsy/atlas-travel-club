@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import AuthModal from '@/components/AuthModal';
 import {
   Star,
   MapPin,
@@ -22,11 +24,13 @@ import {
   Share2,
   Heart,
   Lock,
-  DollarSign
+  DollarSign,
+  Award
 } from 'lucide-react';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
 
 export default function HotelDetailPage() {
+  const { user, isMember, addBooking } = useAuth();
   const params = useParams();
   const searchParams = useSearchParams();
   const hotelId = params?.id as string;
@@ -36,6 +40,7 @@ export default function HotelDetailPage() {
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
   const [selectedRoom, setSelectedRoom] = useState<RoomOption | null>(null);
   const [isBooked, setIsBooked] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   // Dates & Guests from query or default
   const checkIn = searchParams.get('checkIn') || '2026-10-15';
@@ -518,22 +523,84 @@ export default function HotelDetailPage() {
                 </div>
               </div>
 
+              {/* Member Status Gate Indicator */}
+              <div className="p-3 rounded-2xl border text-xs flex items-center justify-between gap-2">
+                {isMember && user ? (
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Active Member: {user.displayName} ({user.tier.toUpperCase()} VIP)</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-amber-300 font-bold">
+                    <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Guest: Sign up required to lock 0% wholesale rate</span>
+                  </div>
+                )}
+              </div>
+
               {/* Action Button */}
               {isBooked ? (
-                <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-500 text-center space-y-2 animate-fade-in">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-                  <div className="font-black text-white text-sm">Wholesale Allocation Confirmed!</div>
+                <div className="p-5 rounded-2xl bg-emerald-950/80 border border-emerald-500 text-center space-y-3 animate-fade-in">
+                  <CheckCircle2 className="w-9 h-9 text-emerald-400 mx-auto" />
+                  <div className="font-black text-white text-base">Wholesale Allocation Confirmed!</div>
                   <p className="text-xs text-emerald-300">
-                    Reservation #{hotel.audit.auditHash.substring(0, 10)} has been secured at 0% markup.
+                    Reservation #{hotel.audit.auditHash.substring(0, 10).toUpperCase()} has been secured at 0% markup for {nights} nights.
                   </p>
+                  <div className="pt-2 border-t border-emerald-800/80 flex flex-col gap-2">
+                    <Link
+                      href="/membership"
+                      className="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-black transition-colors"
+                    >
+                      View in Member Portal ➔
+                    </Link>
+                    <button
+                      onClick={() => setIsBooked(false)}
+                      className="text-[11px] text-slate-400 hover:text-white underline cursor-pointer"
+                    >
+                      Make Another Booking
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button
-                  onClick={() => setIsBooked(true)}
+                  onClick={async () => {
+                    if (!isMember) {
+                      setIsAuthOpen(true);
+                      return;
+                    }
+                    await addBooking({
+                      userId: user?.uid || 'demo-member',
+                      hotelId: hotel.id,
+                      hotelName: hotel.name,
+                      hotelImage: hotel.image,
+                      hotelCity: hotel.city,
+                      roomId: currentRoom?.id || 'standard-room',
+                      roomName: currentRoom?.name || hotel.roomType,
+                      checkInDate: checkIn,
+                      checkOutDate: checkOut,
+                      nights,
+                      guests: 2,
+                      totalPublicPrice: totalRetail,
+                      totalMemberPaid: totalWholesale,
+                      totalSaved: totalSavings,
+                      status: 'confirmed',
+                      confirmationCode: `ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}`,
+                    });
+                    setIsBooked(true);
+                  }}
                   className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Reserve at Wholesale (${totalWholesale})</span>
+                  {!isMember ? (
+                    <>
+                      <Lock className="w-4 h-4 text-slate-950" />
+                      <span>Sign Up to Reserve Wholesale (${totalWholesale})</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-slate-950" />
+                      <span>Reserve at Wholesale (${totalWholesale})</span>
+                    </>
+                  )}
                 </button>
               )}
 
@@ -544,6 +611,15 @@ export default function HotelDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Auth Gate Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        defaultMode="signup"
+        customTitle="Join ATLAS to Complete This Booking"
+        customSubtitle="Rate parity rules require private closed-loop membership to reserve wholesale rates at 0% markup."
+      />
     </div>
   );
 }

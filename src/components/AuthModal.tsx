@@ -2,16 +2,24 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { X, ShieldCheck, Mail, Lock, User, Sparkles } from 'lucide-react';
+import { X, ShieldCheck, Mail, Lock, User, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: 'login' | 'signup';
+  customTitle?: string;
+  customSubtitle?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
+export default function AuthModal({
+  isOpen,
+  onClose,
+  defaultMode = 'signup',
+  customTitle,
+  customSubtitle,
+}: AuthModalProps) {
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading, signInWithDemo } = useAuth();
   const [isSignUp, setIsSignUp] = useState(defaultMode === 'signup');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,7 +34,7 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     try {
       if (isSignUp) {
         if (!name) {
-          setError('Please provide your full name');
+          setError('Please enter your full name');
           return;
         }
         await signUpWithEmail(email, password, name);
@@ -48,44 +56,71 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
     }
   };
 
+  const handleDemoLogin = async () => {
+    try {
+      if (signInWithDemo) {
+        await signInWithDemo();
+      } else {
+        await signInWithEmail('vip.member@atlasclub.com', 'password');
+      }
+      onClose();
+    } catch (err) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-        {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-sky-600 via-primary-600 to-indigo-700 p-6 text-white text-center relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-amber-500/30 text-white animate-in zoom-in-95 duration-200">
+        {/* Luxury Header Banner */}
+        <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 p-6 text-white text-center relative border-b border-slate-800">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+            className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="inline-flex items-center justify-center p-2.5 bg-white/10 rounded-2xl mb-3 backdrop-blur-md">
-            <Sparkles className="w-6 h-6 text-amber-300" />
+          
+          <div className="inline-flex items-center justify-center p-2.5 bg-amber-400/10 rounded-2xl mb-3 border border-amber-400/30">
+            <Sparkles className="w-6 h-6 text-amber-400" />
           </div>
-          <h2 className="text-2xl font-bold">
-            {isSignUp ? 'Join the Wholesale Travel Club' : 'Member Sign In'}
+
+          <h2 className="text-xl sm:text-2xl font-black text-white">
+            {customTitle ? customTitle : isSignUp ? 'Join ATLAS Wholesale Club' : 'Member Sign In'}
           </h2>
-          <p className="text-sky-100 text-sm mt-1">
-            {isSignUp
-              ? 'Unlock up to 70% off hotels, rental cars & theme parks'
-              : 'Access your private closed-loop wholesale pricing'}
+          
+          <p className="text-slate-300 text-xs mt-1.5 leading-relaxed max-w-xs mx-auto">
+            {customSubtitle
+              ? customSubtitle
+              : isSignUp
+              ? 'Rate parity laws require closed-loop membership to clear wholesale rates at 0% markup.'
+              : 'Access your private wholesale rates & sovereign travel vault.'}
           </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 space-y-4">
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm">
+            <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-rose-300 text-xs">
               {error}
             </div>
           )}
+
+          {/* 1-Click Demo VIP Access Button */}
+          <button
+            onClick={handleDemoLogin}
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/40"
+          >
+            <Zap className="w-4 h-4 text-amber-300" />
+            <span>⚡ 1-Click Instant VIP Access (Instant Test Access)</span>
+          </button>
 
           {/* Google Sign In */}
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm shadow-sm transition-all hover:shadow"
+            className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-950 hover:bg-slate-800 text-slate-200 font-bold text-xs shadow-sm transition-all cursor-pointer"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.64v3h3.88c2.27-2.09 3.66-5.17 3.66-9.08z"
@@ -103,67 +138,67 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.63 1.26 6.59l4.02 3.09c.95-2.83 3.6-4.93 6.72-4.93z"
               />
             </svg>
-            Continue with Google
+            <span>Continue with Google</span>
           </button>
 
-          <div className="relative my-6 text-center">
-            <hr className="border-slate-200" />
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs font-semibold text-slate-400 uppercase">
+          <div className="relative my-4 text-center">
+            <hr className="border-slate-800" />
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-slate-900 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               Or with email
             </span>
           </div>
 
           {/* Email / Password Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {isSignUp && (
               <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
                   Full Name
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                  <User className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
+                    className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-amber-400 text-xs text-white placeholder:text-slate-600"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@domain.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-amber-400 text-xs text-white placeholder:text-slate-600"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
+                  className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-amber-400 text-xs text-white placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -171,20 +206,21 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-semibold shadow-md shadow-sky-500/20 transition-all hover:shadow-lg text-sm"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black shadow-lg transition-all text-xs cursor-pointer mt-2"
             >
-              {loading ? 'Processing...' : isSignUp ? 'Create Member Account' : 'Sign In'}
+              {loading ? 'Processing...' : isSignUp ? 'Create VIP Member Account' : 'Sign In to Club'}
             </button>
           </form>
 
           {/* Toggle Login / Signup */}
-          <div className="mt-5 text-center text-xs text-slate-500">
+          <div className="text-center text-xs text-slate-400 pt-2">
             {isSignUp ? (
               <span>
-                Already a club member?{' '}
+                Already an ATLAS member?{' '}
                 <button
+                  type="button"
                   onClick={() => setIsSignUp(false)}
-                  className="text-sky-600 font-bold hover:underline"
+                  className="text-amber-400 font-bold hover:underline cursor-pointer"
                 >
                   Sign In
                 </button>
@@ -193,18 +229,19 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
               <span>
                 Don’t have a membership yet?{' '}
                 <button
+                  type="button"
                   onClick={() => setIsSignUp(true)}
-                  className="text-sky-600 font-bold hover:underline"
+                  className="text-amber-400 font-bold hover:underline cursor-pointer"
                 >
-                  Get VIP Pass
+                  Join ATLAS VIP
                 </button>
               </span>
             )}
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-xs text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>Encrypted with Google Firebase Security</span>
+          <div className="pt-3 border-t border-slate-800 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Closed-Loop B2B Bedbank Clearing • 100% Rate Parity Exempt</span>
           </div>
         </div>
       </div>

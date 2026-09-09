@@ -24,25 +24,30 @@ export default function MembershipPage() {
   const { user, isMember, upgradeTier, bookings } = useAuth();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  if (!user) {
+  if (!user || !isMember) {
     return (
-      <div className="bg-slate-50 min-h-screen py-20 px-4">
-        <div className="max-w-md mx-auto bg-white rounded-3xl p-8 text-center border border-slate-200 shadow-xl space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mx-auto">
-            <CreditCard className="w-7 h-7" />
+      <div className="bg-slate-950 min-h-screen py-24 px-4 text-white font-sans flex items-center justify-center">
+        <div className="max-w-md w-full bg-slate-900 rounded-3xl p-8 text-center border border-amber-500/30 shadow-2xl space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-400 flex items-center justify-center mx-auto">
+            <CreditCard className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900">Member Portal</h2>
-          <p className="text-xs text-slate-500">
-            Sign in to access your digital member card, scannable QR passes, and wholesale reservation history.
-          </p>
+          <div className="space-y-2">
+            <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
+              Members Only Access
+            </span>
+            <h2 className="text-2xl font-black text-white">ATLAS Member Portal</h2>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Sign in or create your membership to access your digital member card, QR pass, and wholesale reservation ledger.
+            </p>
+          </div>
           <button
             onClick={() => setIsAuthOpen(true)}
-            className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm rounded-xl shadow-md transition-all"
+            className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer"
           >
             Sign In / Join VIP Club
           </button>
         </div>
-        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+        <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultMode="signup" />
       </div>
     );
   }

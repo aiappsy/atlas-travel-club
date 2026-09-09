@@ -21,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (e: string, p: string) => Promise<void>;
   signUpWithEmail: (e: string, p: string, name: string) => Promise<void>;
+  signInWithDemo: () => Promise<void>;
   logout: () => Promise<void>;
   upgradeTier: (tier: MembershipTier) => Promise<void>;
   addBooking: (booking: Omit<BookingRecord, 'id' | 'createdAt'>) => Promise<void>;
@@ -29,9 +30,9 @@ interface AuthContextType {
 
 const DEFAULT_USER: UserProfile = {
   uid: 'demo-vip-member-777',
-  email: 'vip.member@hotelclub.com',
+  email: 'vip.member@atlasclub.com',
   displayName: 'Alex Harrison',
-  memberId: 'HC-9824-VIP',
+  memberId: 'ATLAS-9824-VIP',
   role: 'vip',
   tier: 'gold',
   membershipStatus: 'active',
@@ -44,7 +45,8 @@ const DEFAULT_USER: UserProfile = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
+  // Start as null so public visitors experience the sign-up conversion gates
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [bookings, setBookings] = useState<BookingRecord[]>([
@@ -173,6 +175,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithDemo = async () => {
+    setLoading(true);
+    setTimeout(() => {
+      setUser(DEFAULT_USER);
+      setLoading(false);
+    }, 200);
+  };
+
   const logout = async () => {
     try {
       await fbSignOut(auth);
@@ -232,6 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
+        signInWithDemo,
         logout,
         upgradeTier,
         addBooking,

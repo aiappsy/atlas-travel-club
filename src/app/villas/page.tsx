@@ -21,14 +21,16 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+import AuthModal from '@/components/AuthModal';
 
 export default function VillasPage() {
-  const { user } = useAuth();
+  const { user, isMember } = useAuth();
   const { features } = usePlatform();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVilla, setSelectedVilla] = useState<LuxuryVillaEstate | null>(null);
   const [nights, setNights] = useState<number>(3);
   const [isBooked, setIsBooked] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   if (!features.enableLuxuryVillas) {
     return (
@@ -257,14 +259,29 @@ export default function VillasPage() {
                   </div>
 
                   <button
-                    onClick={() => setIsBooked(true)}
-                    className="w-full py-4 bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
+                    onClick={() => {
+                      if (!isMember) {
+                        setIsAuthOpen(true);
+                        return;
+                      }
+                      setIsBooked(true);
+                    }}
+                    className="w-full py-4 bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span className="font-black text-[#003087]">Pay</span>
-                    <span className="font-black text-[#0079C1]">Pal</span>
-                    <span className="font-bold text-slate-900">
-                      • Confirm Villa Reservation (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})
-                    </span>
+                    {!isMember ? (
+                      <>
+                        <Lock className="w-4 h-4 text-slate-950" />
+                        <span>Sign Up to Reserve Estate (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-black text-[#003087]">Pay</span>
+                        <span className="font-black text-[#0079C1]">Pal</span>
+                        <span className="font-bold text-slate-900">
+                          • Confirm Villa Reservation (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})
+                        </span>
+                      </>
+                    )}
                   </button>
                 </>
               )}
@@ -272,6 +289,15 @@ export default function VillasPage() {
           </div>
         </div>
       )}
+
+      {/* Auth Gate Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        defaultMode="signup"
+        customTitle="Join ATLAS to Reserve Private Estates"
+        customSubtitle="Direct wholesale estate pricing with private chef & butler is exclusively cleared for ATLAS club members."
+      />
     </div>
   );
 }

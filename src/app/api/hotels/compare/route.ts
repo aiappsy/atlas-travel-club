@@ -61,7 +61,7 @@ export interface ComparedHotel {
 }
 
 // Master global hotel portfolio with verified direct deep-links, official websites, multi-photo galleries, and room options
-export const MASTER_HOTELS_DB: ComparedHotel[] = [
+const MASTER_HOTELS_DB: ComparedHotel[] = [
   // --- OSLO, NORWAY ---
   {
     id: 'grand-hotel-oslo',
