@@ -142,13 +142,41 @@ export async function POST(req: NextRequest) {
 
       reply = `✈️ **Flight Logged: New York JFK Arrival**\n\nI verified your flight **LH442 arriving at New York JFK on Sep 20**.\n\n⚠️ **Itinerary Gap Detected**: You have a confirmed flight, but you haven't reserved a hotel in Manhattan yet.\n\nHere are wholesale member deals locked in for your dates:\n1. 🏨 **The Plaza Fifth Avenue**: Wholesale **$345/nt** (Expedia: $690/nt — **Save 50%**)\n2. 🏨 **Grand Hyatt Manhattan**: Wholesale **$185/nt** (Hotels.com: $340/nt)\n${esimOption}Shall I lock in the Plaza or Hyatt for your stay?${autoRebookNotice}`;
     }
-    // 6. Hotel Direct Booking Intent
-    else if (query.includes('bellagio') || query.includes('vegas') || query.includes('oslo') || query.includes('paris') || query.includes('book')) {
-      reply = `🏨 **Direct Wholesale Reservation Available!**\n\nI have queried B2B Bedbanks for **The Grand Bellagio & Casino Resort (Las Vegas)** for **Sep 15 – Sep 18 (3 Nights)**.\n\n- **Public Expedia Rate**: $389 / night\n- **ATLAS Wholesale Rate**: **$198 / night**\n- **Total Member Savings**: **$573.00 (49% Off)**\n\nI have generated your instant reservation checkout card below. Click **"Confirm Booking"** to lock this rate immediately!`;
+    // 6. Hotel Direct Booking & Global Destination Intent
+    else if (
+      query.includes('bellagio') ||
+      query.includes('vegas') ||
+      query.includes('oslo') ||
+      query.includes('paris') ||
+      query.includes('dubai') ||
+      query.includes('burj') ||
+      query.includes('tokyo') ||
+      query.includes('aman') ||
+      query.includes('maldives') ||
+      query.includes('soneva') ||
+      query.includes('st. moritz') ||
+      query.includes('badrutt') ||
+      query.includes('london') ||
+      query.includes('claridge') ||
+      query.includes('hotel') ||
+      query.includes('resort') ||
+      query.includes('book')
+    ) {
+      if (query.includes('oslo') || query.includes('grand hotel')) {
+        reply = `🏨 **Direct Wholesale Reservation Available!**\n\n**Grand Hotel Oslo Karl Johan (Norway)**\n- **Public Expedia/Booking.com Rate**: $440 / night\n- **ATLAS Wholesale Net Rate**: **$215 / night**\n- **Direct Savings**: **$225 / night (51% Off)**\n\n👑 *Includes Nobel Suite floor access, Artesia Spa entry, and Palmen breakfast!*`;
+      } else if (query.includes('dubai') || query.includes('burj')) {
+        reply = `🏨 **Direct Wholesale Reservation Available!**\n\n**Burj Al Arab Jumeirah (Dubai, UAE)**\n- **Public Expedia Rate**: $2,400 / night\n- **ATLAS Wholesale Net Rate**: **$1,380 / night**\n- **Direct Savings**: **$1,020 / night (43% Off)**\n\n👑 *Includes private Rolls-Royce airport transfer & 24/7 private butler service!*`;
+      } else if (query.includes('tokyo') || query.includes('aman')) {
+        reply = `🏨 **Direct Wholesale Reservation Available!**\n\n**Aman Tokyo (Otemachi Tower Suite)**\n- **Public Booking.com Rate**: $1,850 / night\n- **ATLAS Wholesale Net Rate**: **$1,050 / night**\n- **Direct Savings**: **$800 / night (43% Off)**\n\n👑 *Includes traditional Onsen hot spring spa & panoramic Imperial Palace gardens view!*`;
+      } else if (query.includes('maldives') || query.includes('soneva')) {
+        reply = `🏨 **Direct Wholesale Reservation Available!**\n\n**Soneva Jani Overwater Villa (Noonu Atoll, Maldives)**\n- **Public Hotels.com Rate**: $3,200 / night\n- **ATLAS Wholesale Net Rate**: **$1,890 / night**\n- **Direct Savings**: **$1,310 / night (41% Off)**\n\n👑 *Includes retractable roof stargazing master suite & private water slide into the lagoon!*`;
+      } else {
+        reply = `🏨 **Direct Wholesale Reservation Available!**\n\nI have queried B2B Bedbanks for **The Grand Bellagio & Casino Resort (Las Vegas)**:\n\n- **Public Expedia Rate**: $389 / night\n- **ATLAS Wholesale Net Rate**: **$198 / night**\n- **Direct Savings**: **$191 / night ($573.00 total for 3 nights — 49% Off)**\n\n🛡️ **Price-Drop Sentinel Active**: If the rate drops prior to check-in, our Pruvo engine automatically refunds the difference to your reloadable Visa card!`;
+      }
     }
     // 7. Default Aura Greeting
     else {
-      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (Gemini 3.7 Flash & ElevenLabs).\n\nI can help you find raw wholesale net rates (30%–70% off Expedia), detect missing travel legs in your itinerary, or assist with **Digital Nomad Visas (Spain, Portugal, Dubai, Thailand) and monthly coliving**.\n\nTell me where you want to travel or work from!`;
+      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (Gemini 3.7 Flash & ElevenLabs).\n\nI can help you find raw wholesale net rates (30%–70% off Expedia across 1,000,000+ luxury hotels), issue instant **B2B Check-in Vouchers**, install your **Apple & Google Wallet passes**, or manage **Digital Nomad Visas (Spain, Portugal, Dubai, Thailand) and monthly coliving**.\n\nTell me where you want to travel or work from!`;
     }
 
     return NextResponse.json({

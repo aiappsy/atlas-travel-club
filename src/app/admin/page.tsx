@@ -39,15 +39,22 @@ import {
   QrCode,
   MessageSquare,
   Send,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
   const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'voucher_settings' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'switchboard' | 'currency_engine' | 'hotel_inventory' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'voucher_settings' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
+
+  // Hotel Inventory & Rate Overrides State
+  const [hotelSearchFilter, setHotelSearchFilter] = useState('');
+  const [selectedSupplierFeed, setSelectedSupplierFeed] = useState<'all' | 'hotelbeds' | 'webbeds' | 'amadeus'>('all');
+  const [globalWholesaleMarginOverride, setGlobalWholesaleMarginOverride] = useState<number>(0);
+  const [seasonalRatePredictorActive, setSeasonalRatePredictorActive] = useState(true);
 
   // B2B Wholesale Voucher Settings State
   const [voucherEmergencyPhone, setVoucherEmergencyPhone] = useState('+1 (800) 847-ATLAS / UK: +44 20 8123 4567');
@@ -169,6 +176,7 @@ export default function AdminPage() {
           {[
             { id: 'switchboard', label: 'Feature Switchboard', icon: Layers },
             { id: 'currency_engine', label: 'Currency & FX Engine', icon: DollarSign },
+            { id: 'hotel_inventory', label: 'Hotel Inventory & Margins', icon: Building2 },
             { id: 'nomad_hub', label: 'Digital Nomad & Visas', icon: Laptop },
             { id: 'vault_manager', label: 'Travel Vault & Dividends', icon: Coins },
             { id: 'luxury_villas', label: 'Luxury Villas', icon: Castle },
@@ -375,6 +383,124 @@ export default function AdminPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: HOTEL INVENTORY & RATE OVERRIDES */}
+        {activeTab === 'hotel_inventory' && (
+          <div className="space-y-6">
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                  <h3 className="text-lg font-black text-white flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-amber-400" />
+                    Global Luxury Hotel Inventory & Wholesale Rate Overrides
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Manage 1,000,000+ Bedbank inventory properties, rate parity audit thresholds, and seasonal rate drop predictors.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>50+ Curated Flagships Synced</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Controls Bar */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Global Wholesale Margin Offset</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      value={globalWholesaleMarginOverride}
+                      onChange={(e) => setGlobalWholesaleMarginOverride(parseFloat(e.target.value) || 0)}
+                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                      placeholder="0.00% (Pure Wholesale)"
+                    />
+                    <span className="text-slate-400 font-bold">%</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Supplier Bedbank Feed Filter</label>
+                  <select
+                    value={selectedSupplierFeed}
+                    onChange={(e) => setSelectedSupplierFeed(e.target.value as any)}
+                    className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs"
+                  >
+                    <option value="all">All B2B Feeds (WebBeds, Hotelbeds, Amadeus)</option>
+                    <option value="webbeds">WebBeds Direct API Feed</option>
+                    <option value="hotelbeds">Hotelbeds APItude Feed</option>
+                    <option value="amadeus">Amadeus Luxury GDS Network</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Autonomous Seasonal Rate Predictor</label>
+                  <button
+                    type="button"
+                    onClick={() => setSeasonalRatePredictorActive(!seasonalRatePredictorActive)}
+                    className={`w-full py-2 px-3 rounded-xl border font-bold flex items-center justify-between transition-all ${
+                      seasonalRatePredictorActive
+                        ? 'bg-amber-400/20 border-amber-400/40 text-amber-300'
+                        : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}
+                  >
+                    <span>AI Price-Drop Predictor</span>
+                    <span>{seasonalRatePredictorActive ? 'ACTIVE (24/7)' : 'DISABLED'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Sample Properties Table */}
+              <div className="border border-slate-800 rounded-2xl overflow-hidden">
+                <div className="p-3 bg-slate-800/80 border-b border-slate-700 flex items-center justify-between text-xs font-bold text-slate-300">
+                  <span>Curated Global Flagship Inventory</span>
+                  <span className="text-amber-400 font-mono">0% Retail Markup Active</span>
+                </div>
+                <div className="divide-y divide-slate-800/60 text-xs">
+                  {[
+                    { name: 'Grand Hotel Oslo Karl Johan', city: 'Oslo, Norway', publicRate: '$440/nt', wholesale: '$215/nt', save: '51%', status: 'Live B2B' },
+                    { name: 'The Grand Bellagio & Fountain Suite', city: 'Las Vegas, NV', publicRate: '$389/nt', wholesale: '$198/nt', save: '49%', status: 'Live B2B' },
+                    { name: 'The Plaza Fifth Avenue', city: 'New York, NY', publicRate: '$690/nt', wholesale: '$345/nt', save: '50%', status: 'Live B2B' },
+                    { name: 'Ritz Paris (Place Vendôme)', city: 'Paris, France', publicRate: '$1,650/nt', wholesale: '$900/nt', save: '45%', status: 'Live B2B' },
+                    { name: 'Burj Al Arab Jumeirah', city: 'Dubai, UAE', publicRate: '$2,400/nt', wholesale: '$1,380/nt', save: '43%', status: 'Live B2B' },
+                    { name: 'Aman Tokyo (High-Floor Suite)', city: 'Tokyo, Japan', publicRate: '$1,850/nt', wholesale: '$1,050/nt', save: '43%', status: 'Live B2B' },
+                    { name: 'Soneva Jani Water Villa', city: 'Maldives', publicRate: '$3,200/nt', wholesale: '$1,890/nt', save: '41%', status: 'Live B2B' },
+                    { name: 'Badrutt’s Palace Hotel', city: 'St. Moritz, Switzerland', publicRate: '$1,950/nt', wholesale: '$1,120/nt', save: '43%', status: 'Live B2B' },
+                  ].map((prop, idx) => (
+                    <div key={idx} className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-800/40 transition-colors">
+                      <div>
+                        <div className="font-black text-white">{prop.name}</div>
+                        <div className="text-[11px] text-slate-400">{prop.city}</div>
+                      </div>
+                      <div className="flex items-center gap-4 text-right">
+                        <div>
+                          <div className="text-[10px] text-slate-500 line-through">{prop.publicRate}</div>
+                          <div className="font-mono font-bold text-amber-300">{prop.wholesale}</div>
+                        </div>
+                        <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-black rounded-full">
+                          Save {prop.save}
+                        </span>
+                        <span className="px-2 py-0.5 bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold rounded-full hidden sm:inline">
+                          {prop.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={() => alert('Hotel Inventory and Bedbank rate override rules published!')}
+                className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all"
+              >
+                Save Hotel Inventory & Rate Sync Rules
+              </button>
             </div>
           </div>
         )}
