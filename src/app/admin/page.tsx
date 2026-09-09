@@ -38,15 +38,21 @@ import {
   Smartphone,
   QrCode,
   MessageSquare,
-  Send
+  Send,
+  FileText
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
   const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'voucher_settings' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
+
+  // B2B Wholesale Voucher Settings State
+  const [voucherEmergencyPhone, setVoucherEmergencyPhone] = useState('+1 (800) 847-ATLAS / UK: +44 20 8123 4567');
+  const [voucherRateParityClause, setVoucherRateParityClause] = useState('Strict Closed-Loop Member Net Rate. Rate Parity Non-Disclosure Clause: Net wholesale billing is settled directly via ATLAS Sovereign Banking Pool. Front desk should not collect room charges except incidentals.');
+  const [voucherHeaderBrand, setVoucherHeaderBrand] = useState('ATLAS VIP Sovereign Travel & Bedbank Network');
 
   // Messaging Bridge State (Telegram & WhatsApp)
   const [telegramBotToken, setTelegramBotToken] = useState('7819204812:AAH99X_AtlasConciergeBotKey');
@@ -177,6 +183,7 @@ export default function AdminPage() {
             { id: 'card_agent', label: 'Card Fulfillment Agent', icon: Truck },
             { id: 'wallet_pass', label: 'Apple / Google Wallet', icon: Smartphone },
             { id: 'messaging_bridge', label: 'WhatsApp & Telegram Bots', icon: MessageSquare },
+            { id: 'voucher_settings', label: 'B2B Vouchers & QR Check-in', icon: FileText },
             { id: 'ai_studio', label: 'AI Concierge Studio', icon: Bot },
             { id: 'guides', label: 'Provider Instructions', icon: BookOpen },
             { id: 'suppliers', label: 'B2B Suppliers', icon: Globe },
@@ -1002,6 +1009,88 @@ export default function AdminPage() {
                 className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all"
               >
                 Save Messaging Webhook Settings
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: B2B WHOLESALE VOUCHER & QR CHECK-IN */}
+        {activeTab === 'voucher_settings' && (
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-3xl mx-auto space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div>
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-amber-400" />
+                  B2B Wholesale Itinerary Voucher & QR Check-in Generator
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Customize official closed-loop supplier vouchers, rate parity non-disclosure clauses, and 24/7 B2B emergency supplier support.
+                </p>
+              </div>
+              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Voucher Engine Online</span>
+              </span>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="block font-bold uppercase text-slate-400 mb-1">Voucher Header & Brand Authority</label>
+                <input
+                  type="text"
+                  value={voucherHeaderBrand}
+                  onChange={(e) => setVoucherHeaderBrand(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold uppercase text-slate-400 mb-1">24/7 B2B Supplier Emergency Hotline</label>
+                <input
+                  type="text"
+                  value={voucherEmergencyPhone}
+                  onChange={(e) => setVoucherEmergencyPhone(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold uppercase text-slate-400 mb-1">Rate Parity Non-Disclosure Legal Clause</label>
+                <textarea
+                  rows={3}
+                  value={voucherRateParityClause}
+                  onChange={(e) => setVoucherRateParityClause(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 text-xs"
+                />
+              </div>
+
+              <div className="p-4 bg-black/40 rounded-2xl border border-slate-800 space-y-2">
+                <div className="text-[11px] font-bold uppercase text-amber-300">Active Voucher Security Specifications</div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Cryptographic SHA256 QR Matrix</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Bedbank Supplier Direct Settlement</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Zero Front-Desk Room Charge Guarantee</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Automated PDF Dispatch on Confirmation</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => alert('B2B Wholesale Voucher settings published!')}
+                className="w-full py-3.5 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all"
+              >
+                Save & Update Voucher Template
               </button>
             </div>
           </div>

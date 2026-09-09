@@ -103,6 +103,17 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `💬 **24/7 VIP Mobile Concierge on WhatsApp & Telegram:**\n\nYou can chat with me directly from your mobile messaging apps without opening a browser:\n\n1. ✈️ **Telegram Bot**: Message **@AtlasConciergeBot** on Telegram to search wholesale hotels, request flight re-booking, or calculate Schengen days.\n2. 🟢 **WhatsApp Business**: Text our dedicated VIP Concierge line at **+1 (800) 847-ATLAS**.\n\nAll rates, gap alerts, and 1-click booking cards sync instantly across your web dashboard and mobile sessions!`;
     }
+    // 3e. B2B Wholesale Voucher & Check-in Intent
+    else if (
+      query.includes('voucher') ||
+      query.includes('check in') ||
+      query.includes('hotel voucher') ||
+      query.includes('receipt') ||
+      query.includes('confirmation pdf') ||
+      query.includes('front desk')
+    ) {
+      reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nWhen checking into a luxury property booked via ATLAS:\n\n1. 🎟️ **Instant PDF Voucher**: Download your official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code.\n2. 🏨 **Front Desk Presentation**: Present the voucher or Apple/Google Wallet pass at check-in. The room is prepaid directly through ATLAS wholesale clearing.\n3. 🤫 **Rate Parity Protected**: The hotel front desk will not see or discuss the net wholesale rate, ensuring strict compliance with supplier agreements.\n4. 🆘 **24/7 B2B Emergency Support**: If the front desk requires immediate verification, our supplier priority desk is on standby (+1-800-847-ATLAS / +44 20 8123 4567).\n\nWould you like me to fetch the check-in voucher for your upcoming stay?`;
+    }
     // 4. Cruise / Miami Gap Intent
     else if (query.includes('cruise') || query.includes('miami') || query.includes('icon of the seas')) {
       const jetOption = features.enablePrivateJets
