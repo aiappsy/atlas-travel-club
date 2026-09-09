@@ -34,15 +34,23 @@ import {
   Award,
   Castle,
   Coins,
-  Laptop
+  Laptop,
+  Smartphone,
+  QrCode
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
   const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'switchboard' | 'currency_engine' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
+
+  // Apple & Google Wallet Pass State
+  const [applePassTypeId, setApplePassTypeId] = useState('pass.club.atlas.vip');
+  const [appleTeamId, setAppleTeamId] = useState('ATLAS9941X');
+  const [googleIssuerId, setGoogleIssuerId] = useState('3388000000022148192');
+  const [nfcLoungeEnabled, setNfcLoungeEnabled] = useState(true);
 
   // Nomad Hub & Affiliates State
   const [sherpaApiKey, setSherpaApiKey] = useState('sherpa_live_partner_token_994182');
@@ -157,6 +165,7 @@ export default function AdminPage() {
             { id: 'insurance', label: 'Travel Insurance', icon: HeartPulse },
             { id: 'visa_manager', label: 'Visa Prepaid Manager', icon: CreditCard },
             { id: 'card_agent', label: 'Card Fulfillment Agent', icon: Truck },
+            { id: 'wallet_pass', label: 'Apple / Google Wallet', icon: Smartphone },
             { id: 'ai_studio', label: 'AI Concierge Studio', icon: Bot },
             { id: 'guides', label: 'Provider Instructions', icon: BookOpen },
             { id: 'suppliers', label: 'B2B Suppliers', icon: Globe },
@@ -778,6 +787,106 @@ export default function AdminPage() {
                   </button>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: APPLE & GOOGLE WALLET PASS ENGINE */}
+        {activeTab === 'wallet_pass' && (
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-3xl mx-auto space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div>
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <Smartphone className="w-5 h-5 text-amber-400" />
+                  Apple Wallet (.pkpass) & Google Pay Pass Configuration
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Manage cryptographic signing certificates and NFC tap credentials for mobile member passes.
+                </p>
+              </div>
+              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold rounded-full flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Pass Signing Active</span>
+              </span>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Apple Pass Type Identifier</label>
+                  <input
+                    type="text"
+                    value={applePassTypeId}
+                    onChange={(e) => setApplePassTypeId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Apple Team Identifier</label>
+                  <input
+                    type="text"
+                    value={appleTeamId}
+                    onChange={(e) => setAppleTeamId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">Google Wallet Issuer ID</label>
+                  <input
+                    type="text"
+                    value={googleIssuerId}
+                    onChange={(e) => setGoogleIssuerId(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold uppercase text-slate-400 mb-1">NFC Lounge Terminal Verification</label>
+                  <button
+                    type="button"
+                    onClick={() => setNfcLoungeEnabled(!nfcLoungeEnabled)}
+                    className={`w-full py-2.5 px-4 rounded-xl border font-bold flex items-center justify-between transition-all ${
+                      nfcLoungeEnabled
+                        ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                        : 'bg-slate-800 border-slate-700 text-slate-400'
+                    }`}
+                  >
+                    <span>NFC Fast-Track Tap</span>
+                    <span>{nfcLoungeEnabled ? 'ENABLED' : 'DISABLED'}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 bg-black/40 rounded-2xl border border-slate-800 space-y-2">
+                <div className="text-[11px] font-bold uppercase text-amber-300">Live Passbook Capabilities</div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Dynamic QR Check-in Token</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Apple Push Notification on Price Drop</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Lock-Screen Airport Arrival Alert</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>0% Markup Closed-Loop Watermark</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => alert('Apple & Google Wallet pass credentials updated and published!')}
+                className="w-full py-3.5 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-black text-xs rounded-xl shadow-lg transition-all"
+              >
+                Save Digital Pass Configurations
+              </button>
             </div>
           </div>
         )}

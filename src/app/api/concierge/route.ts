@@ -78,6 +78,19 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `💱 **Global Multi-Currency & 0% FX Engine:**\n\nATLAS supports **8 major global currencies** with real-time conversion at raw ECB interbank rates:\n\n- 🇺🇸 **USD ($)**: Base Club Currency\n- 🇪🇺 **EUR (€)**: ~0.92 per USD (No FX surcharge)\n- 🇬🇧 **GBP (£)**: ~0.79 per USD\n- 🇨🇭 **CHF (CHF)**: ~0.88 per USD\n- 🇦🇪 **AED (AED)**: 3.67 pegged\n- 🇸🇬 **SGD (S$)**: ~1.34 per USD\n- 🇯🇵 **JPY (¥)**: ~155.0 per USD\n- 🇦🇺 **AUD (A$)**: ~1.52 per USD\n\n🛡️ **Zero Foreign Transaction Fees**: Unlike consumer credit cards that charge 3% international fees, your ATLAS Visa card and bookings execute at pure interbank rates. You can switch your currency anytime via the navbar selector or Admin Console!`;
     }
+    // 3c. Digital Wallet & Apple/Google Pass Intent
+    else if (
+      query.includes('apple wallet') ||
+      query.includes('google pay') ||
+      query.includes('google wallet') ||
+      query.includes('passbook') ||
+      query.includes('pkpass') ||
+      query.includes('digital card') ||
+      query.includes('qr pass') ||
+      query.includes('nfc pass')
+    ) {
+      reply = `📱 **ATLAS Sovereign Mobile Wallet Passbook (.pkpass / Google Pay):**\n\nEvery ATLAS member receives a cryptographic digital pass signed by ATLAS Sovereign Keys:\n\n1.  **Apple Wallet**: Tap **"Add to Apple Wallet"** on your dashboard or membership card to store your pass in iOS Wallet.\n2. 🟢 **Google Pay**: Tap **"Save to Google Pay"** for instant 1-tap pass access on Android.\n3. ⚡ **NFC Lounge & Airport Tap**: Tap your iPhone or Apple Watch at 500+ airport lounge desks & VIP Fast-Track immigration scanners.\n4. 🎟️ **Offline QR Voucher**: Contains your verified closed-loop member ID and 0% markup authorization code for seamless luxury hotel check-ins.\n\nWould you like me to open your digital pass preview right now?`;
+    }
     // 4. Cruise / Miami Gap Intent
     else if (query.includes('cruise') || query.includes('miami') || query.includes('icon of the seas')) {
       const jetOption = features.enablePrivateJets
