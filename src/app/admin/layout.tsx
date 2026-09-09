@@ -2,8 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'HotelsClub Master Administration | Isolated Command Console',
-  description: 'Enterprise control hub for B2B travel feeds, PayPal billing, AI Studio, and Visa card issuance.',
+  title: 'ATLAS Master Administration | Sovereign Command Console',
+  description: 'Enterprise control hub for B2B wholesale feeds, PayPal billing, AI Studio, and Visa card issuance.',
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

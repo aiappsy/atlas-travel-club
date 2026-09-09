@@ -44,7 +44,7 @@ export default function AdminPage() {
 
   // Nomad Hub & Affiliates State
   const [sherpaApiKey, setSherpaApiKey] = useState('sherpa_live_partner_token_994182');
-  const [outsiteAffiliateId, setOutsiteAffiliateId] = useState('outsite_aff_hotelsclub_vip');
+  const [outsiteAffiliateId, setOutsiteAffiliateId] = useState('outsite_aff_atlas_vip');
   const [wisePartnerId, setWisePartnerId] = useState('wise_aff_partner_994182');
   const [nordVpnToken, setNordVpnToken] = useState('nord_sec_aff_8841');
 
@@ -356,7 +356,7 @@ export default function AdminPage() {
                 <div>
                   <h3 className="text-base font-black text-white flex items-center gap-2">
                     <Coins className="w-5 h-5 text-amber-400" />
-                    HotelsClub Annual Profit Dividend Pool Manager
+                    ATLAS Annual Profit Dividend Pool Manager
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Accumulated supplier overrides, card interchange fees, and B2B commissions.
@@ -728,8 +728,8 @@ export default function AdminPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <a
-                    href="/HotelsClub_Owner_Master_Setup_Guide.pdf"
-                    download="HotelsClub_Owner_Master_Setup_Guide.pdf"
+                    href="/ATLAS_Owner_Master_Setup_Guide.pdf"
+                    download="ATLAS_Owner_Master_Setup_Guide.pdf"
                     className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl border border-slate-700 flex items-center gap-1.5 w-fit"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
@@ -806,7 +806,7 @@ export default function AdminPage() {
                   </label>
                   <input
                     type="text"
-                    defaultValue="598421_HotelsClub_VIP"
+                    defaultValue="598421_ATLAS_VIP"
                     className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white"
                   />
                 </div>
