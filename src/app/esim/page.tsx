@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_ESIM_PACKAGES } from '@/lib/mockData';
 import { EsimPackage } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Wifi,
   Smartphone,
@@ -22,6 +23,7 @@ import {
 
 export default function EsimPage() {
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const [activePackageModal, setActivePackageModal] = useState<EsimPackage | null>(null);
@@ -129,10 +131,10 @@ export default function EsimPage() {
                 <div className="flex items-end justify-between mb-4">
                   <div>
                     <div className="text-[10px] text-slate-400 line-through">
-                      Public Retail: ${pkg.publicRetailPrice.toFixed(2)}
+                      Public Retail: {formatPrice(pkg.publicRetailPrice)}
                     </div>
                     <div className="text-xl font-black text-slate-900">
-                      <span className="text-emerald-600">${pkg.memberWholesalePrice.toFixed(2)}</span>
+                      <span className="text-emerald-600">{formatPrice(pkg.memberWholesalePrice)}</span>
                     </div>
                   </div>
                   <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
@@ -211,12 +213,12 @@ export default function EsimPage() {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
                     <div className="flex justify-between text-slate-500">
                       <span>Public Roaming Rate:</span>
-                      <span className="line-through">${activePackageModal.publicRetailPrice.toFixed(2)}</span>
+                      <span className="line-through">{formatPrice(activePackageModal.publicRetailPrice)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Wholesale Member Rate:</span>
                       <span className="text-emerald-600 font-black text-base">
-                        ${activePackageModal.memberWholesalePrice.toFixed(2)}
+                        {formatPrice(activePackageModal.memberWholesalePrice)}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">
@@ -231,7 +233,7 @@ export default function EsimPage() {
                     <span className="font-black text-[#003087]">Pay</span>
                     <span className="font-black text-[#0079C1]">Pal</span>
                     <span className="font-bold text-slate-900">
-                      • Instant eSIM Activation (${activePackageModal.memberWholesalePrice.toFixed(2)})
+                      • Instant eSIM Activation ({formatPrice(activePackageModal.memberWholesalePrice)})
                     </span>
                   </button>
                 </>

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_PRIVATE_JETS } from '@/lib/mockData';
 import { PrivateJetEmptyLeg } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Plane,
   Clock,
@@ -24,6 +25,7 @@ import Link from 'next/link';
 
 export default function PrivateJetsPage() {
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [bookingModalJet, setBookingModalJet] = useState<PrivateJetEmptyLeg | null>(null);
   const [bookingType, setBookingType] = useState<'per_seat' | 'whole_jet'>('per_seat');
@@ -149,10 +151,10 @@ export default function PrivateJetsPage() {
               <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] text-slate-400 line-through">
-                    Standard Charter: ${jet.wholeJetRetailPrice.toLocaleString()}
+                    Standard Charter: {formatPrice(jet.wholeJetRetailPrice)}
                   </div>
                   <div className="text-xl font-black text-slate-900">
-                    <span className="text-emerald-600 font-black">${jet.perSeatMemberPrice.toLocaleString()}</span>
+                    <span className="text-emerald-600 font-black">{formatPrice(jet.perSeatMemberPrice)}</span>
                     <span className="text-xs text-slate-500 font-normal"> /seat</span>
                   </div>
                 </div>
@@ -224,7 +226,7 @@ export default function PrivateJetsPage() {
                           : 'border-slate-200 text-slate-600'
                       }`}
                     >
-                      Per-Seat (${bookingModalJet.perSeatMemberPrice})
+                      Per-Seat ({formatPrice(bookingModalJet.perSeatMemberPrice)})
                     </button>
                     <button
                       type="button"
@@ -235,21 +237,21 @@ export default function PrivateJetsPage() {
                           : 'border-slate-200 text-slate-600'
                       }`}
                     >
-                      Whole Jet (${bookingModalJet.wholeJetMemberPrice.toLocaleString()})
+                      Whole Jet ({formatPrice(bookingModalJet.wholeJetMemberPrice)})
                     </button>
                   </div>
 
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
                     <div className="flex justify-between text-slate-500">
                       <span>Retail Charter Price:</span>
-                      <span className="line-through">${bookingModalJet.wholeJetRetailPrice.toLocaleString()}</span>
+                      <span className="line-through">{formatPrice(bookingModalJet.wholeJetRetailPrice)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Wholesale Member Total:</span>
                       <span className="text-emerald-600 font-black text-base">
-                        ${bookingType === 'per_seat'
-                          ? (bookingModalJet.perSeatMemberPrice * passengerCount).toLocaleString()
-                          : bookingModalJet.wholeJetMemberPrice.toLocaleString()}
+                        {bookingType === 'per_seat'
+                          ? formatPrice(bookingModalJet.perSeatMemberPrice * passengerCount)
+                          : formatPrice(bookingModalJet.wholeJetMemberPrice)}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">

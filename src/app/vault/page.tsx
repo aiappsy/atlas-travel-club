@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MOCK_VAULT_ACCOUNT } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Coins,
   TrendingUp,
@@ -24,6 +25,7 @@ import AuthModal from '@/components/AuthModal';
 
 export default function VaultPage() {
   const { user, isMember } = useAuth();
+  const { formatPrice } = useCurrency();
   const [vault, setVault] = useState(MOCK_VAULT_ACCOUNT);
   const [spendSimulation, setSpendSimulation] = useState<number>(5000);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -109,7 +111,7 @@ export default function VaultPage() {
               </span>
             </div>
             <div className="text-3xl font-black text-emerald-600 font-mono">
-              +${vault.estimatedAnnualDividend.toFixed(2)}
+              +{formatPrice(vault.estimatedAnnualDividend)}
             </div>
             <div className="text-xs text-slate-500 flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -140,7 +142,7 @@ export default function VaultPage() {
               </span>
             </div>
             <div className="text-3xl font-black text-slate-900 font-mono">
-              ${vault.totalLifetimeDividendsPaid.toFixed(2)}
+              {formatPrice(vault.totalLifetimeDividendsPaid)}
             </div>
             <div className="text-xs text-emerald-700 font-semibold">
               ✓ Credited to Visa Card (•••• 8842)
@@ -169,7 +171,7 @@ export default function VaultPage() {
                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-2">
                   <span>Annual Travel & Visa Card Spend:</span>
                   <span className="text-sky-600 font-black text-sm font-mono">
-                    ${spendSimulation.toLocaleString()}
+                    {formatPrice(spendSimulation)}
                   </span>
                 </div>
                 <input
@@ -189,7 +191,7 @@ export default function VaultPage() {
                     Projected Annual Cash Dividend Payout:
                   </div>
                   <div className="text-3xl font-black text-emerald-700 font-mono mt-0.5">
-                    +${simulatedDividends}
+                    +{formatPrice(Number(simulatedDividends))}
                   </div>
                   <div className="text-[11px] text-emerald-800 mt-1">
                     Deposited directly onto your HotelsClub Reloadable Visa Card on Dec 31.
@@ -219,7 +221,7 @@ export default function VaultPage() {
                   <div className="flex items-center justify-between">
                     <span className="font-extrabold text-slate-900">{item.year} Annual Club Dividend</span>
                     <span className="font-mono text-emerald-600 font-black text-sm">
-                      +${item.amount.toFixed(2)}
+                      +{formatPrice(item.amount)}
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-500">

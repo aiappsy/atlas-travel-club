@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { MOCK_CRUISES } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Ship,
   Anchor,
@@ -25,6 +26,7 @@ import Link from 'next/link';
 export default function CruiseDetailPage() {
   const params = useParams();
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const cruiseId = params?.id as string;
 
   const cruise = MOCK_CRUISES.find((c) => c.id === cruiseId) || MOCK_CRUISES[0];
@@ -66,7 +68,7 @@ export default function CruiseDetailPage() {
               </span>
               <span className="bg-amber-100 text-amber-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <Gift className="w-3 h-3 text-amber-600" />
-                +${selectedCabin.onboardCreditBonus} Free Onboard Credit
+                +{formatPrice(selectedCabin.onboardCreditBonus)} Free Onboard Credit
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900">{cruise.title}</h1>
@@ -159,10 +161,10 @@ export default function CruiseDetailPage() {
 
                         <div className="text-right shrink-0">
                           <div className="text-xs text-slate-400 line-through">
-                            Brochure: ${cabin.publicBrochurePrice}
+                            Brochure: {formatPrice(cabin.publicBrochurePrice)}
                           </div>
                           <div className="text-xl font-black text-emerald-600">
-                            ${cabin.wholesaleMemberPrice}
+                            {formatPrice(cabin.wholesaleMemberPrice)}
                             <span className="text-xs text-slate-500 font-normal"> /person</span>
                           </div>
                           <button
@@ -194,12 +196,12 @@ export default function CruiseDetailPage() {
                   </div>
                   <h3 className="text-xl font-black text-slate-900">Wholesale Cruise Stateroom Confirmed!</h3>
                   <p className="text-xs text-slate-500">
-                    Your {selectedCabin.name} reservation and <strong>${selectedCabin.onboardCreditBonus} Onboard Credit</strong> have been registered.
+                    Your {selectedCabin.name} reservation and <strong>+{formatPrice(selectedCabin.onboardCreditBonus)} Onboard Credit</strong> have been registered.
                   </p>
                   <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-left space-y-1 text-xs">
-                    <div className="font-bold text-emerald-950">Wholesale Paid: ${totalWholesale}</div>
-                    <div className="text-emerald-700 font-extrabold">Instant Savings: ${totalSaved}</div>
-                    <div className="text-amber-700 font-bold">Onboard Spending Cash: +${selectedCabin.onboardCreditBonus}</div>
+                    <div className="font-bold text-emerald-950">Wholesale Paid: {formatPrice(totalWholesale)}</div>
+                    <div className="text-emerald-700 font-extrabold">Instant Savings: {formatPrice(totalSaved)}</div>
+                    <div className="text-amber-700 font-bold">Onboard Spending Cash: +{formatPrice(selectedCabin.onboardCreditBonus)}</div>
                   </div>
                   <Link
                     href="/membership"
@@ -216,15 +218,15 @@ export default function CruiseDetailPage() {
                         Wholesale Total (2 Guests)
                       </div>
                       <div className="text-3xl font-black text-slate-900">
-                        ${totalWholesale}
+                        {formatPrice(totalWholesale)}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-xs line-through text-slate-400">
-                        Brochure: ${totalBrochure}
+                        Brochure: {formatPrice(totalBrochure)}
                       </div>
                       <div className="text-sm font-black text-emerald-600">
-                        Save ${totalSaved}
+                        Save {formatPrice(totalSaved)}
                       </div>
                     </div>
                   </div>

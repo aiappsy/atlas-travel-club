@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { MEMBERSHIP_TIERS } from '@/lib/mockData';
+import { useCurrency } from '@/context/CurrencyContext';
 import DigitalMemberCard from '@/components/DigitalMemberCard';
 import AuthModal from '@/components/AuthModal';
 import {
@@ -22,6 +23,7 @@ import Link from 'next/link';
 
 export default function MembershipPage() {
   const { user, isMember, upgradeTier, bookings } = useAuth();
+  const { formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
   if (!user || !isMember) {
@@ -74,7 +76,7 @@ export default function MembershipPage() {
           <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
             <div>
               <div className="text-[10px] text-slate-300 uppercase font-bold">Lifetime Savings</div>
-              <div className="text-2xl font-black text-emerald-400">${user.lifetimeSavings}</div>
+              <div className="text-2xl font-black text-emerald-400">{formatPrice(user.lifetimeSavings)}</div>
             </div>
             <div className="h-8 w-px bg-white/20"></div>
             <div>
@@ -129,7 +131,7 @@ export default function MembershipPage() {
                       <div>
                         <div className="text-xs font-bold text-slate-900">{tier.name}</div>
                         <div className="text-[10px] text-slate-500">
-                          {tier.wholesaleHotelDiscount} • ${tier.priceAnnual}/yr
+                          {tier.wholesaleHotelDiscount} • {formatPrice(tier.priceAnnual)}/yr
                         </div>
                       </div>
 
@@ -244,8 +246,8 @@ export default function MembershipPage() {
                         </div>
 
                         <div className="font-bold text-slate-900">
-                          Paid: ${booking.totalMemberPaid}{' '}
-                          <span className="text-emerald-600 font-extrabold">(Saved ${booking.totalSaved})</span>
+                          Paid: {formatPrice(booking.totalMemberPaid)}{' '}
+                          <span className="text-emerald-600 font-extrabold">(Saved {formatPrice(booking.totalSaved)})</span>
                         </div>
                       </div>
                     </div>

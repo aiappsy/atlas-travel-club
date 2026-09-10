@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_YACHTS, MOCK_SUPERCARS } from '@/lib/mockData';
 import { LuxuryYachtCharter, SupercarRental } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Compass,
   Anchor,
@@ -22,6 +23,7 @@ import {
 
 export default function YachtsAndSupercarsPage() {
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [activeTab, setActiveTab] = useState<'yachts' | 'supercars'>('yachts');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeYachtModal, setActiveYachtModal] = useState<LuxuryYachtCharter | null>(null);
@@ -144,10 +146,10 @@ export default function YachtsAndSupercarsPage() {
                 <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
                   <div>
                     <div className="text-[10px] text-slate-400 line-through">
-                      Public Day Charter: ${yacht.fullDayRetailPrice.toLocaleString()}
+                      Public Day Charter: {formatPrice(yacht.fullDayRetailPrice)}
                     </div>
                     <div className="text-xl font-black text-slate-900">
-                      <span className="text-emerald-600">${yacht.halfDayMemberPrice.toLocaleString()}</span>
+                      <span className="text-emerald-600">{formatPrice(yacht.halfDayMemberPrice)}</span>
                       <span className="text-xs text-slate-500 font-normal"> /half-day</span>
                     </div>
                   </div>
@@ -216,10 +218,10 @@ export default function YachtsAndSupercarsPage() {
                 <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
                   <div>
                     <div className="text-[10px] text-slate-400 line-through">
-                      Public Daily: ${car.dailyRetailPrice.toLocaleString()}
+                      Public Daily: {formatPrice(car.dailyRetailPrice)}
                     </div>
                     <div className="text-xl font-black text-slate-900">
-                      <span className="text-emerald-600">${car.dailyMemberPrice.toLocaleString()}</span>
+                      <span className="text-emerald-600">{formatPrice(car.dailyMemberPrice)}</span>
                       <span className="text-xs text-slate-500 font-normal"> /day</span>
                     </div>
                   </div>
@@ -285,12 +287,12 @@ export default function YachtsAndSupercarsPage() {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
                     <div className="flex justify-between text-slate-500">
                       <span>Public Charter Price:</span>
-                      <span className="line-through">${activeYachtModal.halfDayRetailPrice.toLocaleString()}</span>
+                      <span className="line-through">{formatPrice(activeYachtModal.halfDayRetailPrice)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Wholesale Member Total (4-Hour Charter):</span>
                       <span className="text-emerald-600 font-black text-base">
-                        ${activeYachtModal.halfDayMemberPrice.toLocaleString()}
+                        {formatPrice(activeYachtModal.halfDayMemberPrice)}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">
@@ -305,7 +307,7 @@ export default function YachtsAndSupercarsPage() {
                     <span className="font-black text-[#003087]">Pay</span>
                     <span className="font-black text-[#0079C1]">Pal</span>
                     <span className="font-bold text-slate-900">
-                      • Confirm Yacht Charter (${activeYachtModal.halfDayMemberPrice.toLocaleString()})
+                      • Confirm Yacht Charter ({formatPrice(activeYachtModal.halfDayMemberPrice)})
                     </span>
                   </button>
                 </>
@@ -358,12 +360,12 @@ export default function YachtsAndSupercarsPage() {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
                     <div className="flex justify-between text-slate-500">
                       <span>Public Retail Daily:</span>
-                      <span className="line-through">${activeSupercarModal.dailyRetailPrice.toLocaleString()}</span>
+                      <span className="line-through">{formatPrice(activeSupercarModal.dailyRetailPrice)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Wholesale Member Total (1 Day):</span>
                       <span className="text-emerald-600 font-black text-base">
-                        ${activeSupercarModal.dailyMemberPrice.toLocaleString()}
+                        {formatPrice(activeSupercarModal.dailyMemberPrice)}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">
@@ -378,7 +380,7 @@ export default function YachtsAndSupercarsPage() {
                     <span className="font-black text-[#003087]">Pay</span>
                     <span className="font-black text-[#0079C1]">Pal</span>
                     <span className="font-bold text-slate-900">
-                      • Lock Supercar Reservation (${activeSupercarModal.dailyMemberPrice.toLocaleString()})
+                      • Lock Supercar Reservation ({formatPrice(activeSupercarModal.dailyMemberPrice)})
                     </span>
                   </button>
                 </>

@@ -5,6 +5,7 @@ import { MOCK_VILLAS } from '@/lib/mockData';
 import { LuxuryVillaEstate } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { usePlatform } from '@/context/PlatformContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Castle,
   Sparkles,
@@ -26,6 +27,7 @@ import AuthModal from '@/components/AuthModal';
 export default function VillasPage() {
   const { user, isMember } = useAuth();
   const { features } = usePlatform();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVilla, setSelectedVilla] = useState<LuxuryVillaEstate | null>(null);
   const [nights, setNights] = useState<number>(3);
@@ -160,10 +162,10 @@ export default function VillasPage() {
               <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] text-slate-400 line-through">
-                    Public Retail: ${villa.publicPricePerNight.toLocaleString()}/nt
+                    Public Retail: {formatPrice(villa.publicPricePerNight)}/nt
                   </div>
                   <div className="text-xl font-black text-slate-900">
-                    <span className="text-emerald-600">${villa.memberPricePerNight.toLocaleString()}</span>
+                    <span className="text-emerald-600">{formatPrice(villa.memberPricePerNight)}</span>
                     <span className="text-xs text-slate-500 font-normal"> /night</span>
                   </div>
                 </div>
@@ -245,12 +247,12 @@ export default function VillasPage() {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-1.5">
                     <div className="flex justify-between text-slate-500">
                       <span>Public Retail Total:</span>
-                      <span className="line-through">${(selectedVilla.publicPricePerNight * nights).toLocaleString()}</span>
+                      <span className="line-through">{formatPrice(selectedVilla.publicPricePerNight * nights)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Wholesale Member Total ({nights} Nights):</span>
                       <span className="text-emerald-600 font-black text-base">
-                        ${(selectedVilla.memberPricePerNight * nights).toLocaleString()}
+                        {formatPrice(selectedVilla.memberPricePerNight * nights)}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold text-[11px]">
@@ -271,14 +273,14 @@ export default function VillasPage() {
                     {!isMember ? (
                       <>
                         <Lock className="w-4 h-4 text-slate-950" />
-                        <span>Sign Up to Reserve Estate (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})</span>
+                        <span>Sign Up to Reserve Estate ({formatPrice(selectedVilla.memberPricePerNight * nights)})</span>
                       </>
                     ) : (
                       <>
                         <span className="font-black text-[#003087]">Pay</span>
                         <span className="font-black text-[#0079C1]">Pal</span>
                         <span className="font-bold text-slate-900">
-                          • Confirm Villa Reservation (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})
+                          • Confirm Villa Reservation ({formatPrice(selectedVilla.memberPricePerNight * nights)})
                         </span>
                       </>
                     )}

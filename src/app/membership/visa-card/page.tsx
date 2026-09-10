@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { MOCK_VISA_ACCOUNT } from '@/lib/mockData';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   CreditCard,
   Plus,
@@ -36,6 +37,7 @@ interface Transaction {
 
 export default function VisaCardPage() {
   const { user, isMember } = useAuth();
+  const { formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -238,7 +240,7 @@ export default function VisaCardPage() {
                   <div className="text-right">
                     <div className="text-[10px] text-white/50 uppercase font-bold">Current Balance</div>
                     <div className="text-3xl font-black text-emerald-400 font-mono tracking-tight">
-                      ${balance.toFixed(2)}
+                      {formatPrice(balance)}
                     </div>
                   </div>
                 </div>
@@ -318,7 +320,7 @@ export default function VisaCardPage() {
                     <TrendingDown className="w-4 h-4 text-emerald-400" />
                     <span>Trigger Price-Drop Sentinel Refund</span>
                   </div>
-                  <span className="font-mono font-black text-emerald-400">+$168.00</span>
+                  <span className="font-mono font-black text-emerald-400">+{formatPrice(168.00)}</span>
                 </button>
 
                 <button
@@ -336,7 +338,7 @@ export default function VisaCardPage() {
                     <Scale className="w-4 h-4 text-sky-400" />
                     <span>Trigger Flight Delay Compensation</span>
                   </div>
-                  <span className="font-mono font-black text-sky-400">+$650.00</span>
+                  <span className="font-mono font-black text-sky-400">+{formatPrice(650.00)}</span>
                 </button>
 
                 <button
@@ -354,7 +356,7 @@ export default function VisaCardPage() {
                     <Coins className="w-4 h-4 text-amber-400" />
                     <span>Trigger Travel Vault Annual Dividend</span>
                   </div>
-                  <span className="font-mono font-black text-amber-400">+$384.20</span>
+                  <span className="font-mono font-black text-amber-400">+{formatPrice(384.20)}</span>
                 </button>
               </div>
             </div>
@@ -374,7 +376,7 @@ export default function VisaCardPage() {
                 <div className="text-right">
                   <div className="text-[10px] text-slate-400 uppercase font-bold">Total Inflows</div>
                   <div className="text-sm font-black text-emerald-600 font-mono">
-                    ${transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0).toFixed(2)}
+                    {formatPrice(transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0))}
                   </div>
                 </div>
               </div>
@@ -413,11 +415,11 @@ export default function VisaCardPage() {
                           tx.amount > 0 ? 'text-emerald-600' : 'text-slate-900'
                         }`}
                       >
-                        {tx.amount > 0 ? `+$${tx.amount.toFixed(2)}` : `-$${Math.abs(tx.amount).toFixed(2)}`}
+                        {tx.amount > 0 ? `+${formatPrice(tx.amount)}` : `-${formatPrice(Math.abs(tx.amount))}`}
                       </div>
                       {tx.cashbackEarned > 0 && (
                         <div className="text-[10px] text-emerald-600 font-bold">
-                          +${tx.cashbackEarned.toFixed(2)} Cashback
+                          +{formatPrice(tx.cashbackEarned)} Cashback
                         </div>
                       )}
                     </div>

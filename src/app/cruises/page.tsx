@@ -3,6 +3,7 @@
 import React, { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { MOCK_CRUISES } from '@/lib/mockData';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Ship,
   Anchor,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 function CruisesSearchContent() {
+  const { formatPrice } = useCurrency();
   const [selectedLine, setSelectedLine] = useState<string>('All');
   const [selectedDest, setSelectedDest] = useState<string>('All');
   const [maxPrice, setMaxPrice] = useState<number>(2000);
@@ -165,7 +167,7 @@ function CruisesSearchContent() {
                   </div>
                   <div className="absolute bottom-3 left-3 bg-amber-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-md flex items-center gap-1">
                     <Gift className="w-3.5 h-3.5" />
-                    +${cruise.onboardCredit} FREE Onboard Cash
+                    +{formatPrice(cruise.onboardCredit)} FREE Onboard Cash
                   </div>
                 </div>
 
@@ -211,14 +213,14 @@ function CruisesSearchContent() {
                   <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                     <div>
                       <div className="text-xs text-slate-400">
-                        Brochure Retail: <span className="line-through font-bold">${cruise.publicPriceStarting}</span>
+                        Brochure Retail: <span className="line-through font-bold">{formatPrice(cruise.publicPriceStarting)}</span>
                       </div>
                       <div className="flex items-baseline gap-1.5 mt-0.5">
                         <span className="text-xs uppercase font-extrabold text-emerald-600">
                           Wholesale Starting:
                         </span>
                         <span className="text-2xl font-black text-slate-900">
-                          ${cruise.memberPriceStarting}
+                          {formatPrice(cruise.memberPriceStarting)}
                         </span>
                         <span className="text-xs text-slate-400"> /person</span>
                       </div>

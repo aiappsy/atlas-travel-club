@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { MOCK_FLIGHT_CLAIMS } from '@/lib/mockData';
 import { FlightClaimRecord } from '@/lib/types';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Plane,
   Clock,
@@ -22,6 +23,7 @@ import Link from 'next/link';
 
 export default function FlightClaimsPage() {
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [flightNumber, setFlightNumber] = useState('LH442');
   const [airline, setAirline] = useState('Lufthansa');
   const [flightDate, setFlightDate] = useState('2026-08-15');
@@ -179,10 +181,10 @@ export default function FlightClaimsPage() {
                         onChange={(e) => setPassengers(Number(e.target.value))}
                         className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
                       >
-                        <option value={1}>1 Passenger ($650)</option>
-                        <option value={2}>2 Passengers ($1,300)</option>
-                        <option value={3}>3 Passengers ($1,950)</option>
-                        <option value={4}>4 Passengers ($2,600)</option>
+                        <option value={1}>1 Passenger ({formatPrice(650)})</option>
+                        <option value={2}>2 Passengers ({formatPrice(1300)})</option>
+                        <option value={3}>3 Passengers ({formatPrice(1950)})</option>
+                        <option value={4}>4 Passengers ({formatPrice(2600)})</option>
                       </select>
                     </div>
                   </div>
@@ -195,11 +197,11 @@ export default function FlightClaimsPage() {
                         Flight Legally Qualified for Cash Payout!
                       </span>
                       <span className="text-xl font-black text-emerald-600">
-                        ${totalEstimatedPayout} Cash
+                        {formatPrice(totalEstimatedPayout)} Cash
                       </span>
                     </div>
                     <p className="text-[11px] text-emerald-800 leading-snug">
-                      Based on EU261 Article 7 regulations, {airline} is mandated to pay ${payoutPerPassenger} per ticket for this route disruption.
+                      Based on EU261 Article 7 regulations, {airline} is mandated to pay {formatPrice(payoutPerPassenger)} per ticket for this route disruption.
                     </p>
                   </div>
 
@@ -207,7 +209,7 @@ export default function FlightClaimsPage() {
                     onClick={() => setStep('filing')}
                     className="w-full py-4 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-black text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
                   >
-                    <span>File Legal Claim for ${totalEstimatedPayout}</span>
+                    <span>File Legal Claim for {formatPrice(totalEstimatedPayout)}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -227,7 +229,7 @@ export default function FlightClaimsPage() {
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
                     <div className="font-bold text-slate-900">Flight: {flightNumber} ({airline})</div>
                     <div className="text-slate-600">Route: {departureAirport} ➔ {arrivalAirport} on {flightDate}</div>
-                    <div className="font-black text-emerald-600">Estimated Cash Payout: ${totalEstimatedPayout}</div>
+                    <div className="font-black text-emerald-600">Estimated Cash Payout: {formatPrice(totalEstimatedPayout)}</div>
                   </div>
 
                   <div>
@@ -284,7 +286,7 @@ export default function FlightClaimsPage() {
                     type="submit"
                     className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-2xl shadow-lg transition-all"
                   >
-                    Submit Legal Enforcement Claim (${totalEstimatedPayout})
+                    Submit Legal Enforcement Claim ({formatPrice(totalEstimatedPayout)})
                   </button>
                 </form>
               )}
@@ -299,7 +301,7 @@ export default function FlightClaimsPage() {
                     AirHelp legal team has opened case file <strong>AH-EU261-8841920</strong> against {airline}.
                   </p>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
-                    <div>Claimed Amount: <strong>${totalEstimatedPayout} Cash</strong></div>
+                    <div>Claimed Amount: <strong>{formatPrice(totalEstimatedPayout)} Cash</strong></div>
                     <div>Payout Target: <strong>{payoutMethod === 'visa_card' ? 'HotelsClub Visa Card' : 'PayPal'}</strong></div>
                   </div>
                   <button
@@ -333,7 +335,7 @@ export default function FlightClaimsPage() {
                         <div className="text-[10px] text-slate-500">{clm.departureAirport} ➔ {clm.arrivalAirport}</div>
                       </div>
                       <span className="font-black text-emerald-600 font-mono text-sm">
-                        +${clm.estimatedPayout}
+                        +{formatPrice(clm.estimatedPayout)}
                       </span>
                     </div>
 

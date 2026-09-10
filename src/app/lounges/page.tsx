@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_LOUNGES } from '@/lib/mockData';
 import { AirportLounge } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import { useCurrency } from '@/context/CurrencyContext';
 import {
   Plane,
   Search,
@@ -22,6 +23,7 @@ import {
 
 export default function LoungesPage() {
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeLoungeModal, setActiveLoungeModal] = useState<AirportLounge | null>(null);
   const [passClaimed, setPassClaimed] = useState(false);
@@ -126,10 +128,10 @@ export default function LoungesPage() {
               <div className="p-6 pt-0 flex items-center justify-between">
                 <div>
                   <div className="text-xs text-slate-400 line-through">
-                    Walk-In Door Rate: ${lounge.walkInPrice}
+                    Walk-In Door Rate: {formatPrice(lounge.walkInPrice)}
                   </div>
                   <div className="text-xl font-black text-slate-900">
-                    <span className="text-emerald-600 font-extrabold">${lounge.memberPassPrice}</span>
+                    <span className="text-emerald-600 font-extrabold">{formatPrice(lounge.memberPassPrice)}</span>
                     <span className="text-xs text-slate-500 font-normal"> /pass</span>
                   </div>
                 </div>
@@ -204,11 +206,11 @@ export default function LoungesPage() {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Standard Door Entry:</span>
-                      <span className="line-through">${activeLoungeModal.walkInPrice}</span>
+                      <span className="line-through">{formatPrice(activeLoungeModal.walkInPrice)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
                       <span>Member Discount Pass:</span>
-                      <span className="text-emerald-600 font-black text-sm">${activeLoungeModal.memberPassPrice}</span>
+                      <span className="text-emerald-600 font-black text-sm">{formatPrice(activeLoungeModal.memberPassPrice)}</span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">
                       ✓ Includes unlimited gourmet buffet, premium drinks, showers & Wi-Fi.
@@ -220,7 +222,7 @@ export default function LoungesPage() {
                     className="w-full py-3.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2"
                   >
                     <QrCode className="w-4 h-4 text-amber-300" />
-                    <span>Unlock Lounge Pass ($32 via Member Pass)</span>
+                    <span>Unlock Lounge Pass ({formatPrice(activeLoungeModal.memberPassPrice)} via Member Pass)</span>
                   </button>
                 </>
               )}
