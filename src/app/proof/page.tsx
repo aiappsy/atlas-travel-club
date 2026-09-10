@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useCurrency } from '@/context/CurrencyContext';
 import { MOCK_PROOF_AUDITS, MOCK_LIVE_RECEIPTS } from '@/lib/mockData';
 import { SavingsProofAudit } from '@/lib/types';
 import {
@@ -27,6 +28,7 @@ import {
 import Link from 'next/link';
 
 export default function SavingsProofPage() {
+  const { formatPrice, currency } = useCurrency();
   const [selectedAuditId, setSelectedAuditId] = useState<string>('proof-bellagio-vegas');
   const [urlInput, setUrlInput] = useState('');
   const [isAuditingUrl, setIsAuditingUrl] = useState(false);
@@ -117,7 +119,7 @@ export default function SavingsProofPage() {
               <span key={rec.id} className="flex items-center gap-1.5 shrink-0">
                 <span className="font-bold text-white">{rec.memberNameMasked}</span>
                 <span className="text-slate-400">saved</span>
-                <strong className="text-emerald-400 font-mono">${rec.amountSaved}</strong>
+                <strong className="text-emerald-400 font-mono">{formatPrice(rec.amountSaved)}</strong>
                 <span className="text-slate-400">on {rec.itemBooked}</span>
                 <span className="text-[10px] text-slate-500">({rec.timestampAgo})</span>
               </span>
@@ -233,12 +235,12 @@ export default function SavingsProofPage() {
                           </span>
                         </div>
                         <div className="text-[10px] text-rose-700 mt-0.5">
-                          ${activeAudit.publicRetailPricePerNight} / night × {activeAudit.nights} nights
+                          {formatPrice(activeAudit.publicRetailPricePerNight)} / night × {activeAudit.nights} nights
                         </div>
                       </div>
                       <div className="text-right">
                         <span className="font-mono text-base font-bold text-rose-950">
-                          ${activeAudit.publicTotalRetailPrice.toLocaleString()}
+                          {formatPrice(activeAudit.publicTotalRetailPrice)}
                         </span>
                       </div>
                     </div>
@@ -253,12 +255,12 @@ export default function SavingsProofPage() {
                           </span>
                         </div>
                         <div className="text-[10px] text-emerald-800 mt-0.5">
-                          ${activeAudit.hotelsClubWholesalePerNight} / night × {activeAudit.nights} nights (0% Markup)
+                          {formatPrice(activeAudit.hotelsClubWholesalePerNight)} / night × {activeAudit.nights} nights (0% Markup)
                         </div>
                       </div>
                       <div className="text-right">
                         <span className="font-mono text-xl font-black text-emerald-700">
-                          ${activeAudit.hotelsClubTotalPaid.toLocaleString()}
+                          {formatPrice(activeAudit.hotelsClubTotalPaid)}
                         </span>
                       </div>
                     </div>
@@ -267,7 +269,7 @@ export default function SavingsProofPage() {
                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-slate-800">
                       <span className="font-bold">Instant Cash Saved at Booking:</span>
                       <span className="font-mono font-black text-base text-emerald-600">
-                        -${activeAudit.instantCashSaved.toLocaleString()}
+                        -{formatPrice(activeAudit.instantCashSaved)}
                       </span>
                     </div>
 
@@ -278,15 +280,15 @@ export default function SavingsProofPage() {
                       </span>
                       <div className="flex items-center justify-between text-[11px] text-slate-600">
                         <span>🛡️ Post-Booking Price-Drop Guarantee:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.priceDropProtection}</span>
+                        <span className="font-mono text-slate-800 font-bold">+{formatPrice(activeAudit.additionalCardBonuses.priceDropProtection)}</span>
                       </div>
                       <div className="flex items-center justify-between text-[11px] text-slate-600">
                         <span>🏦 Travel Vault Annual Profit Dividend:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.travelVaultDividends}</span>
+                        <span className="font-mono text-slate-800 font-bold">+{formatPrice(activeAudit.additionalCardBonuses.travelVaultDividends)}</span>
                       </div>
                       <div className="flex items-center justify-between text-[11px] text-slate-600">
                         <span>💳 Reloadable Visa Card FX Savings & Cashback:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.visaCashback}</span>
+                        <span className="font-mono text-slate-800 font-bold">+{formatPrice(activeAudit.additionalCardBonuses.visaCashback)}</span>
                       </div>
                     </div>
                   </div>
@@ -296,7 +298,7 @@ export default function SavingsProofPage() {
                   <div>
                     <div className="text-[10px] uppercase font-bold text-slate-400">Total Net Value Delivered:</div>
                     <div className="text-xl font-black text-slate-900 font-mono">
-                      ${activeAudit.totalNetValueDelivered.toLocaleString()}
+                      {formatPrice(activeAudit.totalNetValueDelivered)}
                     </div>
                   </div>
 
@@ -370,7 +372,7 @@ export default function SavingsProofPage() {
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-bold text-slate-400">You Save:</span>
                   <div className="font-mono text-2xl font-black text-emerald-400">
-                    ${urlAuditResult.instantCashSaved}
+                    {formatPrice(urlAuditResult.instantCashSaved)}
                   </div>
                 </div>
               </div>
@@ -379,19 +381,19 @@ export default function SavingsProofPage() {
                 <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700">
                   <span className="text-[10px] uppercase font-bold text-rose-400 block">Public Expedia Total:</span>
                   <span className="font-mono text-base font-bold text-white line-through">
-                    ${urlAuditResult.publicTotalRetailPrice.toLocaleString()}
+                    {formatPrice(urlAuditResult.publicTotalRetailPrice)}
                   </span>
                 </div>
                 <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-700">
                   <span className="text-[10px] uppercase font-bold text-emerald-300 block">Wholesale Member Total:</span>
                   <span className="font-mono text-base font-black text-emerald-400">
-                    ${urlAuditResult.hotelsClubTotalPaid.toLocaleString()}
+                    {formatPrice(urlAuditResult.hotelsClubTotalPaid)}
                   </span>
                 </div>
                 <div className="p-3 bg-indigo-950/60 rounded-xl border border-indigo-700">
                   <span className="text-[10px] uppercase font-bold text-indigo-300 block">Total Net Value:</span>
                   <span className="font-mono text-base font-black text-amber-400">
-                    ${urlAuditResult.totalNetValueDelivered.toLocaleString()}
+                    {formatPrice(urlAuditResult.totalNetValueDelivered)}
                   </span>
                 </div>
               </div>
@@ -444,8 +446,8 @@ export default function SavingsProofPage() {
 
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-600 space-y-1">
                 <div>Total Nights Traveling per Year: <strong>{totalAnnualNights} Nights</strong></div>
-                <div>Average Wholesale Savings: <strong>~$165 / night</strong></div>
-                <div>Gold VIP Annual Membership Cost: <strong>$179 / year ($14.90/mo)</strong></div>
+                <div>Average Wholesale Savings: <strong>~{formatPrice(165)} / night</strong></div>
+                <div>Gold VIP Annual Membership Cost: <strong>{formatPrice(179)} / year ({formatPrice(14.90)}/mo)</strong></div>
               </div>
             </div>
 
@@ -456,12 +458,12 @@ export default function SavingsProofPage() {
                   Your Estimated Annual Cash Savings:
                 </span>
                 <div className="text-4xl sm:text-5xl font-black font-mono mt-1">
-                  ${totalAnnualSavings.toLocaleString()}
+                  {formatPrice(totalAnnualSavings)}
                 </div>
               </div>
 
               <div className="p-4 bg-slate-950/20 rounded-2xl border border-white/20 text-xs space-y-1">
-                <div>Net Profit After Membership Fee: <strong className="text-amber-300 font-mono text-sm">+${netProfitForMember.toLocaleString()}</strong></div>
+                <div>Net Profit After Membership Fee: <strong className="text-amber-300 font-mono text-sm">+{formatPrice(netProfitForMember)}</strong></div>
                 <div>Membership Return on Investment: <strong className="text-white font-mono text-sm">{returnOnInvestment}% ROI</strong></div>
               </div>
 

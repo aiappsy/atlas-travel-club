@@ -27,10 +27,12 @@ import {
   DollarSign,
   Award
 } from 'lucide-react';
+import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
+  const { formatPrice } = useCurrency();
   const params = useParams();
   const searchParams = useSearchParams();
   const hotelId = params?.id as string;
@@ -113,9 +115,9 @@ export default function HotelDetailPage() {
       <div className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-slate-400 font-semibold">
-            <Link href="/rate-checker" className="hover:text-white flex items-center gap-1 transition-colors">
+            <Link href="/hotels" className="hover:text-white flex items-center gap-1 transition-colors">
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Rate Audit</span>
+              <span>Back to Search</span>
             </Link>
             <span>/</span>
             <span className="text-slate-200">{hotel.city}</span>
@@ -177,20 +179,20 @@ export default function HotelDetailPage() {
                 Wholesale Member Rate
               </div>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-3xl font-black text-white font-mono">${wholesalePerNight}</span>
+                <span className="text-3xl font-black text-white font-mono">{formatPrice(wholesalePerNight)}</span>
                 <span className="text-xs text-slate-400">/ night</span>
               </div>
               <div className="text-[11px] text-slate-400 line-through">
-                Public Retail: ${retailPerNight}/nt
+                Public Retail: {formatPrice(retailPerNight)}/nt
               </div>
             </div>
 
             <div className="text-right">
               <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
-                Save ${totalSavings} ({hotel.prices.atlasWholesale.savingsPercent}% Off)
+                Save {formatPrice(totalSavings)} ({hotel.prices.atlasWholesale.savingsPercent}% Off)
               </span>
               <div className="text-[11px] text-slate-400 mt-1">
-                {nights} Nights Total: <strong className="text-white">${totalWholesale}</strong>
+                {nights} Nights Total: <strong className="text-white">{formatPrice(totalWholesale)}</strong>
               </div>
             </div>
           </div>
@@ -269,7 +271,7 @@ export default function HotelDetailPage() {
                 <span>Expedia</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">${hotel.prices.expedia.perNight}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.expedia.perNight)}</div>
               <div className="text-[10px] text-blue-400 font-semibold mt-0.5">Verify Live ↗</div>
             </a>
 
@@ -283,7 +285,7 @@ export default function HotelDetailPage() {
                 <span>Hotels.com</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">${hotel.prices.hotelsCom.perNight}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.hotelsCom.perNight)}</div>
               <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Verify Live ↗</div>
             </a>
 
@@ -297,7 +299,7 @@ export default function HotelDetailPage() {
                 <span>Agoda</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">${hotel.prices.agoda.perNight}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.agoda.perNight)}</div>
               <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Verify Live ↗</div>
             </a>
 
@@ -311,7 +313,7 @@ export default function HotelDetailPage() {
                 <span>Kayak</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">${hotel.prices.kayak.perNight}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.kayak.perNight)}</div>
               <div className="text-[10px] text-amber-400 font-semibold mt-0.5">Verify Live ↗</div>
             </a>
 
@@ -325,7 +327,7 @@ export default function HotelDetailPage() {
                 <span>Hotel Direct</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-emerald-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">${hotel.prices.officialDirect?.perNight || retailPerNight}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.officialDirect?.perNight || retailPerNight)}</div>
               <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">Official Direct ↗</div>
             </a>
           </div>
@@ -338,7 +340,7 @@ export default function HotelDetailPage() {
             {/* About Property */}
             <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
               <h3 className="text-xl font-black text-white">About the Property</h3>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+              <p className="text-slate-300 text-sm sm:base leading-relaxed">
                 {hotel.description}
               </p>
 
@@ -434,15 +436,15 @@ export default function HotelDetailPage() {
                           </div>
                           <div className="flex items-baseline gap-1 md:justify-end">
                             <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-                              ${room.wholesaleRate}
+                              {formatPrice(room.wholesaleRate)}
                             </span>
                             <span className="text-xs text-slate-400">/ night</span>
                           </div>
                           <div className="text-xs text-slate-400 line-through">
-                            Public OTA: ${room.publicRetailRate}/nt
+                            Public OTA: {formatPrice(room.publicRetailRate)}/nt
                           </div>
                           <div className="text-xs font-bold text-amber-300 pt-1">
-                            You save ${roomTotalSavings} on {nights} nights
+                            You save {formatPrice(roomTotalSavings)} on {nights} nights
                           </div>
                         </div>
                       </div>
@@ -503,23 +505,23 @@ export default function HotelDetailPage() {
               {/* Price Breakdown */}
               <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs">
                 <div className="flex justify-between text-slate-400">
-                  <span>Wholesale Base (${wholesalePerNight} × {nights} nts)</span>
-                  <span className="font-mono text-white font-bold">${totalWholesale}</span>
+                  <span>Wholesale Base ({formatPrice(wholesalePerNight)} × {nights} nts)</span>
+                  <span className="font-mono text-white font-bold">{formatPrice(totalWholesale)}</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span>OTA Marketing Ad Tax (18-35%)</span>
-                  <span className="font-mono text-emerald-400 font-bold">-$0.00 (Eliminated)</span>
+                  <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Eliminated)</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span>Resort Surcharges & Tech Fees</span>
-                  <span className="font-mono text-emerald-400 font-bold">-$0.00 (Waived)</span>
+                  <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Waived)</span>
                 </div>
                 <div className="flex justify-between text-sm font-black pt-2 border-t border-slate-800">
                   <span className="text-white">Total Wholesale Cost</span>
-                  <span className="font-mono text-emerald-400 text-lg">${totalWholesale}</span>
+                  <span className="font-mono text-emerald-400 text-lg">{formatPrice(totalWholesale)}</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold text-center">
-                  You save ${totalSavings} vs. Public Retail (${totalRetail})
+                  You save {formatPrice(totalSavings)} vs. Public Retail ({formatPrice(totalRetail)})
                 </div>
               </div>
 
@@ -593,12 +595,12 @@ export default function HotelDetailPage() {
                   {!isMember ? (
                     <>
                       <Lock className="w-4 h-4 text-slate-950" />
-                      <span>Sign Up to Reserve Wholesale (${totalWholesale})</span>
+                      <span>Sign Up to Reserve Wholesale ({formatPrice(totalWholesale)})</span>
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 text-slate-950" />
-                      <span>Reserve at Wholesale (${totalWholesale})</span>
+                      <span>Reserve at Wholesale ({formatPrice(totalWholesale)})</span>
                     </>
                   )}
                 </button>

@@ -20,6 +20,7 @@ import {
   Globe
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
+import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
@@ -30,6 +31,7 @@ export default function LiveHotelSearch({
   initialDestination = '',
   isCompact = false,
 }: LiveHotelSearchProps) {
+  const { formatPrice, currency, setCurrency, currencies } = useCurrency();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
   const [checkOut, setCheckOut] = useState('2026-10-18');
@@ -256,6 +258,28 @@ export default function LiveHotelSearch({
         </div>
       )}
 
+
+      {/* Empty Search Fallback */}
+      {!isScanning && hasSearched && hotels.length === 0 && (
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4 shadow-xl text-white">
+          <Building2 className="w-12 h-12 text-amber-400 mx-auto opacity-75" />
+          <h4 className="text-lg font-black text-white">No Properties Found for "{destination}"</h4>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            We searched live B2B Bedbank gateways. Try searching for Oslo, Paris, Las Vegas, Dubai, Davao, Tokyo, or explore our global portfolio.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setDestination('');
+              performSearch('');
+            }}
+            className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer"
+          >
+            Explore Global Wholesale Portfolio
+          </button>
+        </div>
+      )}
+
       {/* Results Section with Price Tier Filter Tabs */}
       {!isScanning && hasSearched && hotels.length > 0 && (
         <div className="space-y-6">
@@ -283,26 +307,48 @@ export default function LiveHotelSearch({
             </div>
           </div>
 
-          {/* Price Category / Hotel Tier Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-              <span>Category Filter:</span>
+          {/* Price Category / Hotel Tier Filter Tabs + Currency Selector */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+                <span>Category:</span>
+              </div>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
-                }`}
+
+            {/* In-Search Currency Selector */}
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <span>Currency:</span>
+              </span>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as CurrencyCode)}
+                className="bg-slate-950 text-amber-300 border border-slate-800 hover:border-amber-400/50 rounded-xl px-2.5 py-1.5 text-xs font-bold font-mono focus:outline-none cursor-pointer transition-colors"
+                title="Select active currency"
               >
-                {cat.label}
-              </button>
-            ))}
+                {Object.values(currencies).map((c) => (
+                  <option key={c.code} value={c.code} className="bg-slate-900 text-white">
+                    {c.flag} {c.code} ({c.symbol}) - {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Hotel Result Cards */}
@@ -417,7 +463,7 @@ export default function LiveHotelSearch({
                               <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-blue-400" />
                             </div>
                             <div className="text-sm font-bold text-slate-400 line-through mt-1">
-                              ${hotel.prices.expedia.perNight}
+                              {formatPrice(hotel.prices.expedia.perNight)}
                             </div>
                             <div className="text-[9px] text-blue-400 font-semibold group-hover:underline">
                               Verify ↗
@@ -438,7 +484,7 @@ export default function LiveHotelSearch({
                               <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-rose-400" />
                             </div>
                             <div className="text-sm font-bold text-slate-400 line-through mt-1">
-                              ${hotel.prices.hotelsCom.perNight}
+                              {formatPrice(hotel.prices.hotelsCom.perNight)}
                             </div>
                             <div className="text-[9px] text-rose-400 font-semibold group-hover:underline">
                               Verify ↗
@@ -459,7 +505,7 @@ export default function LiveHotelSearch({
                               <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-purple-400" />
                             </div>
                             <div className="text-sm font-bold text-slate-400 line-through mt-1">
-                              ${hotel.prices.agoda.perNight}
+                              {formatPrice(hotel.prices.agoda.perNight)}
                             </div>
                             <div className="text-[9px] text-purple-400 font-semibold group-hover:underline">
                               Verify ↗
@@ -480,7 +526,7 @@ export default function LiveHotelSearch({
                               <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-amber-400" />
                             </div>
                             <div className="text-sm font-bold text-slate-400 line-through mt-1">
-                              ${hotel.prices.kayak.perNight}
+                              {formatPrice(hotel.prices.kayak.perNight)}
                             </div>
                             <div className="text-[9px] text-amber-400 font-semibold group-hover:underline">
                               Verify ↗
@@ -501,7 +547,7 @@ export default function LiveHotelSearch({
                               <ExternalLink className="w-2.5 h-2.5 text-slate-500 group-hover:text-emerald-400" />
                             </div>
                             <div className="text-sm font-bold text-slate-400 line-through mt-1">
-                              ${hotel.prices.officialDirect?.perNight || hotel.prices.expedia.perNight}
+                              {formatPrice(hotel.prices.officialDirect?.perNight || hotel.prices.expedia.perNight)}
                             </div>
                             <div className="text-[9px] text-emerald-400 font-semibold group-hover:underline">
                               Direct ↗
@@ -520,20 +566,20 @@ export default function LiveHotelSearch({
                         </div>
                         <div className="flex items-baseline gap-2 justify-center sm:justify-start">
                           <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
-                            ${hotel.prices.atlasWholesale.perNight}
+                            {formatPrice(hotel.prices.atlasWholesale.perNight)}
                           </span>
                           <span className="text-xs text-slate-300">/ night</span>
                           <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-md border border-amber-400/30">
-                            Save ${hotel.prices.atlasWholesale.instantSavingsPerNight}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
+                            Save {formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
                           </span>
                         </div>
                         <div className="text-xs sm:text-sm text-slate-200 font-medium">
-                          Total for {nights} Nights: <strong className="text-white font-bold">${hotel.prices.atlasWholesale.total}</strong>{' '}
-                          <span className="text-emerald-400 font-bold">(You save ${hotel.prices.atlasWholesale.totalSavings} vs. {hotel.prices.lowestOta.provider})</span>
+                          Total for {nights} Nights: <strong className="text-white font-bold">{formatPrice(hotel.prices.atlasWholesale.total)}</strong>{' '}
+                          <span className="text-emerald-400 font-bold">(You save {formatPrice(hotel.prices.atlasWholesale.totalSavings)} vs. {hotel.prices.lowestOta.provider})</span>
                         </div>
                         <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.adTaxEliminated}/nt</span>
+                          <span>OTA Marketing Ad Tax Eliminated: -{formatPrice(hotel.prices.atlasWholesale.adTaxEliminated)}/nt</span>
                         </div>
                       </div>
 
