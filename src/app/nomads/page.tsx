@@ -169,7 +169,7 @@ export default function NomadsPage() {
     <div className="bg-slate-50 min-h-screen pb-24 text-slate-900 font-sans">
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-teal-950">
-        <div className="max-w-7xl mx-auto text-center max-w-4xl space-y-4">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-black uppercase tracking-wider border border-teal-500/30">
             <Laptop className="w-3.5 h-3.5 text-teal-400" />
             Global Digital Nomad & Remote Residency Intelligence

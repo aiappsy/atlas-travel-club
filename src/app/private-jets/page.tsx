@@ -46,7 +46,7 @@ export default function PrivateJetsPage() {
     <div className="bg-slate-50 min-h-screen pb-24">
       {/* Hero Header */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-indigo-950">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl">
+        <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-3 border border-amber-400/30">
             <Plane className="w-3.5 h-3.5 text-amber-400" />
             Private Aviation Empty Leg Steals (Up to 80% Off)

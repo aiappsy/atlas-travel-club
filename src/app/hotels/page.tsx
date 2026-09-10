@@ -14,7 +14,7 @@ function HotelsSearchContent() {
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl space-y-3">
+        <div className="max-w-3xl mx-auto text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-400/30">
             <Sparkles className="w-3.5 h-3.5" />
             1,000,000+ Closed-Loop Wholesale Hotel Directory

@@ -40,7 +40,7 @@ export default function LoungesPage() {
     <div className="bg-slate-50 min-h-screen pb-20">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-sky-900/50">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl">
+        <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider mb-3">
             <Plane className="w-3.5 h-3.5" />
             1,400+ Global Airport VIP Lounges
