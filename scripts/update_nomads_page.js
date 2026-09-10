@@ -5,27 +5,38 @@ import { MOCK_NOMAD_VISAS, MOCK_NOMAD_COLIVINGS } from '@/lib/mockData';
 import { NomadVisaProgram, NomadColivingSpace } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { usePlatform } from '@/context/PlatformContext';
-import { useCurrency } from '@/context/CurrencyContext';
+import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import {
   Globe,
+  Compass,
   Wifi,
   Calendar,
   CheckCircle2,
+  AlertTriangle,
+  Lock,
+  ArrowRight,
   Search,
   Sparkles,
   Building2,
   Laptop,
+  Coins,
   ShieldCheck,
+  Scale,
+  CreditCard,
   X,
+  ExternalLink,
+  MapPin,
+  SlidersHorizontal,
   RefreshCw,
-  Filter,
-  ArrowRight
+  Award,
+  Filter
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function NomadsPage() {
+  const { user } = useAuth();
   const { features } = usePlatform();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, setCurrency, currencies } = useCurrency();
   const [activeTab, setActiveTab] = useState<'visas' | 'schengen_calculator' | 'coliving'>('visas');
 
   // Visa Search & Multi-Filters
@@ -69,7 +80,7 @@ export default function NomadsPage() {
 
   // Region Filter Options
   const regionOptions = [
-    { id: 'all', label: 'All Countries (' + MOCK_NOMAD_VISAS.length + ')' },
+    { id: 'all', label: `🌍 All Countries (${MOCK_NOMAD_VISAS.length})` },
     { id: 'schengen', label: '🇪🇺 Schengen Zone' },
     { id: 'zero_tax', label: '🏖️ 0% Tax Havens' },
     { id: 'asia_pacific', label: '🌏 Asia-Pacific' },
@@ -87,7 +98,7 @@ export default function NomadsPage() {
 
   // Filtered Visas with Smart Multi-field matching
   const filteredVisas = MOCK_NOMAD_VISAS.filter((v) => {
-    // 1. Keyword search
+    // 1. Keyword search (country, visa name, code, hubs, tax rate, requirements)
     const query = visaSearch.trim().toLowerCase();
     if (query) {
       const matchCountry = v.country.toLowerCase().includes(query);
@@ -184,18 +195,18 @@ export default function NomadsPage() {
           {/* Sub Navigation Bar */}
           <div className="pt-3 flex flex-wrap justify-center gap-2">
             {[
-              { id: 'visas', label: '🛂 Digital Nomad Visas (' + MOCK_NOMAD_VISAS.length + '+ Countries)' },
+              { id: 'visas', label: `🛂 Digital Nomad Visas (${MOCK_NOMAD_VISAS.length}+ Countries)` },
               { id: 'schengen_calculator', label: '⏳ Schengen 90/180-Day Sentinel' },
-              { id: 'coliving', label: '🏡 Monthly Coliving & Long-Stays (' + MOCK_NOMAD_COLIVINGS.length + ' Hubs)' },
+              { id: 'coliving', label: `🏡 Monthly Coliving & Long-Stays (${MOCK_NOMAD_COLIVINGS.length} Hubs)` },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={'py-2.5 px-5 rounded-2xl text-xs font-black transition-all cursor-pointer ' + (
+                className={`py-2.5 px-5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
                   activeTab === tab.id
                     ? 'bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20'
                     : 'bg-white/10 text-white hover:bg-white/20'
-                )}
+                }`}
               >
                 {tab.label}
               </button>
@@ -224,7 +235,7 @@ export default function NomadsPage() {
                   {visaSearch && (
                     <button
                       onClick={() => setVisaSearch('')}
-                      className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                      className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -259,11 +270,11 @@ export default function NomadsPage() {
                   <button
                     key={chip.id}
                     onClick={() => setSelectedRegion(chip.id)}
-                    className={'px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ' + (
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
                       selectedRegion === chip.id
                         ? 'bg-teal-600 text-white shadow-md'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                    )}
+                    }`}
                   >
                     {chip.label}
                   </button>
@@ -659,7 +670,7 @@ export default function NomadsPage() {
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 my-8">
             <button
               onClick={() => setSelectedVisa(null)}
-              className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -688,7 +699,7 @@ export default function NomadsPage() {
                 </p>
                 <button
                   onClick={() => setSelectedVisa(null)}
-                  className="py-2.5 px-6 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  className="py-2.5 px-6 bg-emerald-600 text-white rounded-xl text-xs font-bold"
                 >
                   Close & View Dashboard
                 </button>
@@ -744,7 +755,7 @@ export default function NomadsPage() {
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 my-8">
             <button
               onClick={() => setSelectedColiving(null)}
-              className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              className="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -768,7 +779,7 @@ export default function NomadsPage() {
                 </p>
                 <button
                   onClick={() => setSelectedColiving(null)}
-                  className="py-2.5 px-6 bg-emerald-600 text-white rounded-xl text-xs font-bold cursor-pointer"
+                  className="py-2.5 px-6 bg-emerald-600 text-white rounded-xl text-xs font-bold"
                 >
                   Done
                 </button>
@@ -782,7 +793,7 @@ export default function NomadsPage() {
                   <select
                     value={colivingMonths}
                     onChange={(e) => setColivingMonths(Number(e.target.value))}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 cursor-pointer"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800"
                   >
                     <option value={1}>1 Month (Flexible Remote Work)</option>
                     <option value={2}>2 Months (Extended Workation)</option>
@@ -822,3 +833,7 @@ export default function NomadsPage() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync(nomadsPagePath, newNomadsPageContent, 'utf8');
+console.log('Successfully updated src/app/nomads/page.tsx with smart multi-currency search & filtering');

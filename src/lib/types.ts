@@ -77,7 +77,10 @@ export interface NomadVisaProgram {
   taxRate: string;
   processingTime: string;
   cost: number;
-  schengenStatus: 'Full Schengen Zone' | 'Non-Schengen EU (Tax Haven)' | 'Asia-Pacific' | 'Americas / Caribbean' | 'Middle East 0% Tax';
+  schengenStatus: string;
+  region?: string;
+  incomeThresholdUsd?: number;
+  isZeroTax?: boolean;
   keyRequirements: string[];
   popularHubs: string[];
   fastTrackFilingAvailable: boolean;
