@@ -1648,7 +1648,7 @@ export const MOCK_YACHTS: LuxuryYachtCharter[] = [
     fullDayMemberPrice: 4700,
     amenities: ['Faraglioni Rocks & Blue Grotto Private Route', 'Limoncello & Italian Antipasto Platter', 'Teak Decking & Electric Bimini Sunroof', 'Air Conditioned Saloon', 'Bluetooth Audio & Subwoofers'],
     waterToys: ['Seabob Underwater Scooter', 'Floating Lounge Mats', 'Snorkel Equipment'],
-    image: 'https://images.unsplash.com/photo-1517400508447-f8dd518b86db?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1572446976848-5cbc23da4058?auto=format&fit=crop&w=1200&q=80',
     featured: true,
   },
   {
@@ -1668,7 +1668,7 @@ export const MOCK_YACHTS: LuxuryYachtCharter[] = [
     fullDayMemberPrice: 7900,
     amenities: ['Pampelonne Beach Club VIP Tender Service', 'Krug Champagne & Caviar Service Available', 'Carbon Fiber Stealth Hull', 'Retractable Shading Canopy', 'Enclosed Shower & Dressing Suites'],
     waterToys: ['2x Radinn Electric Jetboards', '2x Seabob F5S', 'Inflatable Sea Pool with Jellyfish Net'],
-    image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?auto=format&fit=crop&w=1200&q=80',
     featured: false,
   }
 ];
@@ -1906,7 +1906,7 @@ export const MOCK_PRIVATE_JETS: PrivateJetEmptyLeg[] = [
     perSeatMemberPrice: 1650,
     savingsPercentage: 70,
     amenities: ['Master Suite with Permanent Bed & Ensuite Shower', 'Nuage Ergonomic Deep Reclining Chairs', 'Pur Air HEPA 100% Fresh Air Flow', 'Custom Caviar & Arabic Mezze Service'],
-    image: 'https://images.unsplash.com/photo-1583073030880-9943542289f6?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1520690214124-2405c5217036?auto=format&fit=crop&w=1200&q=80',
     fboTerminal: 'Jetex Dubai VIP Terminal (Private Customs)',
     status: 'available'
   },
