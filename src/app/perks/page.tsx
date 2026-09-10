@@ -104,6 +104,9 @@ export default function PerksPage() {
                   <img
                     src={perk.image}
                     alt={perk.title}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 right-3 bg-amber-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg">

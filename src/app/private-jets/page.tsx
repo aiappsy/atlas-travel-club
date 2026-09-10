@@ -86,6 +86,9 @@ export default function PrivateJetsPage() {
                   <img
                     src={jet.image}
                     alt={jet.aircraftType}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full shadow border border-white/10">

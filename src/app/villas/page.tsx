@@ -106,8 +106,11 @@ export default function VillasPage() {
               <div>
                 <div className="relative h-64 overflow-hidden">
                   <img
-                    src={villa.images[0]}
+                    src={villa.images[0] || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80'}
                     alt={villa.name}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full shadow border border-white/10">

@@ -159,6 +159,9 @@ function CruisesSearchContent() {
                   <img
                     src={cruise.thumbnail}
                     alt={cruise.title}
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1599640842225-85d111c60e6b?auto=format&fit=crop&w=1200&q=80';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-emerald-600 text-white font-black text-xs px-3 py-1 rounded-full shadow-md flex items-center gap-1">

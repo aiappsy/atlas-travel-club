@@ -350,12 +350,12 @@ export interface EsimPackage {
   countryCode: string;
   countryName: string;
   flagEmoji: string;
-  region: 'Americas' | 'Europe' | 'Asia-Pacific' | 'Global (140+ Countries)';
+  region: 'Americas' | 'Europe' | 'Asia-Pacific' | 'Global (140+ Countries)' | 'Middle East' | 'Africa' | 'Global' | string;
   dataAmount: string;
   validityDays: number;
   publicRetailPrice: number;
   memberWholesalePrice: number;
-  networkSpeed: '5G / 4G LTE';
+  networkSpeed: string;
   carrierPartners: string;
   instantQrDelivery: boolean;
 }
@@ -457,7 +457,7 @@ export interface Hotel {
   memberPricePerNight: number;
   savingsPercentage: number;
   amenities: string[];
-  category: 'Luxury Resort' | 'Boutique' | 'City Center' | 'All-Inclusive' | 'Beachfront';
+  category: 'Luxury Resort' | 'Boutique' | 'City Center' | 'All-Inclusive' | 'Beachfront' | 'Ultra-Luxury' | 'Historic Palace' | string;
   featured: boolean;
   rooms: HotelRoom[];
 }
@@ -466,7 +466,7 @@ export interface PerkDeal {
   id: string;
   title: string;
   partnerName: string;
-  category: 'Dining' | 'Car Rental' | 'Theme Parks' | 'Shopping' | 'Entertainment' | 'Cruises';
+  category: 'Dining' | 'Car Rental' | 'Theme Parks' | 'Shopping' | 'Entertainment' | 'Cruises' | 'Chauffeur & Transfer' | string;
   discountText: string;
   description: string;
   image: string;
