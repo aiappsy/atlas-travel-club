@@ -210,7 +210,7 @@ export default function AITravelConcierge() {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-20 right-6 z-50 w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[590px] animate-in slide-in-from-bottom-5 duration-200">
+        <div className="fixed bottom-20 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-full sm:max-w-md max-h-[82vh] h-[590px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-4 text-white flex items-center justify-between">
             <div className="flex items-center gap-2.5">
