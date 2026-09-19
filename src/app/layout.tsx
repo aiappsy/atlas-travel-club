@@ -16,7 +16,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://atlas-travel-club.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://atlastravelclub.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

@@ -1,4 +1,4 @@
-﻿const PDFDocument = require('pdfkit');
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
@@ -231,7 +231,7 @@ function generateSafeTermSheet() {
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
     '• Information Rights: Quarterly financial updates and monthly KPI newsletters sent to all participating angel investors.\n' +
     '• Tax Treatment: Schedule K-1 pass-through during LLC phase; converts to standard 1099 dividend reporting upon corporate election.\n' +
-    '• Subscription Steps: (1) Execute Mutual NDA; (2) Review PPM & Financials; (3) Confirm allocation via executive@atlas-travel-club.com; (4) Sign YC SAFE via DocuSign; (5) Wire funds within 10 business days.',
+    '• Subscription Steps: (1) Execute Mutual NDA; (2) Review PPM & Financials; (3) Confirm allocation via executive@atlastravelclub.com; (4) Sign YC SAFE via DocuSign; (5) Wire funds within 10 business days.',
     38, 370, { width: 519, lineGap: 3 }
   );
 
