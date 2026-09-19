@@ -1,5 +1,18 @@
 [
   {
+    "id": "sig_8f7ba5b1bcf0bf91",
+    "fullName": "Jane Doe, Managing Partner",
+    "email": "investor.test@venturefund.com",
+    "firmName": "Nordic Horizon Ventures",
+    "signatureHash": "sha256:1b70bef8759ce89f3c2a23329418d883c60a3e538db9a020b7ccdc5e38f78238",
+    "ipAddress": "::1",
+    "userAgent": "Unknown User-Agent",
+    "signedAt": "2026-09-19T02:50:56.290Z",
+    "eSignConsent": true,
+    "jurisdiction": "Delaware / Wyoming LLC",
+    "status": "active"
+  },
+  {
     "id": "sig_21fb381be5a10653",
     "fullName": "Alexandra Vance",
     "email": "test.angel@venturefund.com",

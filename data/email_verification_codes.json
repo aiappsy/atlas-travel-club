@@ -3,5 +3,10 @@
     "code": "276690",
     "expiresAt": 1789785128619,
     "verified": true
+  },
+  "investor.test@venturefund.com": {
+    "code": "144062",
+    "expiresAt": 1789787156265,
+    "verified": true
   }
 }
