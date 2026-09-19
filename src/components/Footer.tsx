@@ -204,12 +204,32 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/legal/investor-disclosures" className="hover:text-white transition-colors">
+                  Investor Disclosures & Reg D
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/seller-of-travel" className="hover:text-white transition-colors">
+                  Seller of Travel Licensing
+                </Link>
+              </li>
+              <li>
+                <Link href="/legal/electronic-signatures" className="hover:text-white transition-colors">
+                  E-SIGN Digital Disclosures
+                </Link>
+              </li>
+              <li>
                 <Link href="/legal/banking-disclosures" className="hover:text-white transition-colors">
                   Banking & Card Terms
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="text-sky-400 hover:underline">
+                <Link href="/legal" className="text-amber-400 font-bold hover:underline">
+                  Legal & Compliance Hub →
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin" className="text-slate-400 hover:text-white">
                   Admin Console
                 </Link>
               </li>

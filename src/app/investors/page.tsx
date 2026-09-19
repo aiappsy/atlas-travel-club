@@ -881,6 +881,46 @@ export default function InvestorPortalPage() {
             </div>
           </section>
 
+          {/* 9. STATUTORY LEGAL DISCLAIMERS & REGULATORY FOOTNOTE */}
+          <section className="p-6 rounded-2xl bg-white border border-slate-200/80 text-xs text-slate-500 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="font-bold text-slate-900 flex items-center gap-2">
+                <Scale className="w-4 h-4 text-amber-600" />
+                <span>Statutory Securities & Regulatory Disclosures</span>
+              </div>
+              <span className="text-[11px] font-mono text-slate-400">ATLAS Travel Club LLC • Reg D / Rule 506</span>
+            </div>
+
+            <p className="text-[11px] leading-relaxed text-slate-500">
+              The materials presented within this Investor Portal do not constitute an offer to sell or a solicitation of an offer to buy securities. 
+              Any offering of SAFEs or membership units is made solely pursuant to definitive subscription agreements and is restricted exclusively to 
+              verified Accredited Investors pursuant to Rule 501 of Regulation D. Forward-looking statements are subject to risks and uncertainties 
+              pursuant to the Private Securities Litigation Reform Act of 1995.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 text-[11px] border-t border-slate-100 font-semibold text-slate-600">
+              <Link href="/legal/investor-disclosures" className="hover:text-amber-600 hover:underline">
+                Investor Disclosures & Safe Harbor
+              </Link>
+              <Link href="/legal/electronic-signatures" className="hover:text-amber-600 hover:underline">
+                Electronic Signatures (E-SIGN Act)
+              </Link>
+              <Link href="/legal/rate-parity-compliance" className="hover:text-amber-600 hover:underline">
+                Rate Parity Antitrust Memorandum
+              </Link>
+              <Link href="/legal/seller-of-travel" className="hover:text-amber-600 hover:underline">
+                Seller of Travel Disclosures
+              </Link>
+              <Link href="/legal/travel-disclaimer" className="hover:text-amber-600 hover:underline">
+                Supplier & CRS Disclaimer
+              </Link>
+              <Link href="/legal" className="text-amber-600 font-bold hover:underline ml-auto flex items-center gap-1">
+                <span>View Full Legal Directory</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
+          </section>
+
         </main>
       </div>
 
