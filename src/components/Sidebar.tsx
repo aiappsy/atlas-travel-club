@@ -241,6 +241,13 @@ export default function Sidebar() {
           badgeColor: 'bg-amber-400 text-slate-950 font-bold',
         },
         {
+          name: 'Investor Portal & Data Room',
+          href: '/investors',
+          icon: Building2,
+          badge: '$75k SAFE',
+          badgeColor: 'bg-emerald-400 text-slate-950 font-black',
+        },
+        {
           name: 'How ATLAS Works',
           href: '/how-it-works',
           icon: HelpCircle,

@@ -16,7 +16,8 @@ import {
   Search,
   BookOpen,
   Globe,
-  ChevronDown
+  ChevronDown,
+  Building2
 } from 'lucide-react';
 
 export default function Navbar() {
@@ -147,6 +148,14 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+
+              <Link
+                href="/investors"
+                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-500/30 text-xs font-bold transition-all shadow-sm"
+              >
+                <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>Investors</span>
+              </Link>
 
               <Link
                 href="/case-study"

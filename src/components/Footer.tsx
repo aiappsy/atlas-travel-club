@@ -170,6 +170,12 @@ export default function Footer() {
                 </a>
               </li>
               <li>
+                <Link href="/investors" className="text-amber-400 hover:underline font-bold flex items-center gap-1">
+                  <span>Investor Portal ($75k SAFE)</span>
+                  <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30">NDA</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/how-it-works" className="hover:text-white transition-colors">
                   How ATLAS Works
                 </Link>
