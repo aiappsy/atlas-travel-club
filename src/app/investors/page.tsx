@@ -914,6 +914,9 @@ export default function InvestorPortalPage() {
               <Link href="/legal/travel-disclaimer" className="hover:text-amber-600 hover:underline">
                 Supplier & CRS Disclaimer
               </Link>
+              <Link href="/legal/eu-norway-compliance" className="hover:text-blue-600 hover:underline font-bold text-blue-800">
+                EU & Norwegian Compliance (EØS)
+              </Link>
               <Link href="/legal" className="text-amber-600 font-bold hover:underline ml-auto flex items-center gap-1">
                 <span>View Full Legal Directory</span>
                 <ArrowRight className="w-3 h-3" />

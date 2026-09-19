@@ -224,6 +224,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/legal/eu-norway-compliance" className="text-sky-300 hover:text-white transition-colors font-semibold">
+                  EU & Norway Compliance (EØS)
+                </Link>
+              </li>
+              <li>
                 <Link href="/legal" className="text-amber-400 font-bold hover:underline">
                   Legal & Compliance Hub →
                 </Link>

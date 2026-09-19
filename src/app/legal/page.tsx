@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { 
   Scale, ShieldCheck, FileCheck, Building, CreditCard, 
-  AlertCircle, ArrowRight, Shield, FileText, ChevronRight 
+  AlertCircle, ArrowRight, Shield, FileText, ChevronRight, Globe2 
 } from 'lucide-react';
 
 export default function LegalHubPage() {
@@ -33,6 +33,13 @@ export default function LegalHubPage() {
           href: '/legal/rate-parity-compliance',
           badge: 'Antitrust Legal Brief',
           icon: ShieldCheck
+        },
+        {
+          title: 'EU & Norwegian Compliance Memorandum',
+          desc: 'Harmonization under EØS-avtalen, Norwegian Pakkereiseloven, EU Digital Markets Act (DMA), eIDAS signatures, and GDPR.',
+          href: '/legal/eu-norway-compliance',
+          badge: 'EEA / Norsk Lov',
+          icon: Globe2
         }
       ]
     },
