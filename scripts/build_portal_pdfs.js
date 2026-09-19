@@ -1,4 +1,4 @@
-const PDFDocument = require('pdfkit');
+﻿const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
@@ -32,100 +32,103 @@ function generatePitchDeck() {
   const out = fs.createWriteStream(path.join(targetDir, 'ATLAS_Investor_Pitch_Deck.pdf'));
   doc.pipe(out);
 
-  createHeader(doc, '10-Slide Investor Presentation', 'ATLAS Travel Club LLC — Pitch Deck (Revised Edition)');
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 1: Cover & Elevator Pitch', 38, 125);
+  createHeader(doc, '10-Slide Investor Presentation', 'The Private Travel Clearinghouse — Institutional Pitch Deck');
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 1: The Executive Thesis', 38, 125);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Headline: ATLAS Travel Club — The Digital Costco for Travel.\n' +
-    '• Sub-headline: Private membership club passing 100% of wholesale travel savings to members at 0% markup.\n' +
-    '• Presenter: Pål Juritzen, Founder & Managing Member.\n' +
-    '• Visual: Side-by-side comparison of 0% markup rates vs public Expedia/Booking.com benchmarks.',
+    '• Company: ATLAS Travel Club LLC (Manager-Managed LLC — Delaware / Wyoming)\n' +
+    '• Core Thesis: Disintermediating the $1.4T Booking Duopoly via a Private Institutional Clearinghouse.\n' +
+    '• Model: Gated closed-loop clearinghouse connecting affluent travelers directly to Tier-1 B2B wholesale liquidity pools with 0% retail markup.\n' +
+    '• Monetization: 96% gross margin subscription ARR ($399–$1,799/yr) + high-ticket payment interchange (1.85%).\n' +
+    '• Presenter: Pål Juritzen, Founder & Managing Member.',
     38, 140, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 2: The Problem — The $350B OTA Cartel Tax', 38, 205);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 2: The Problem — The $350B Duopoly Tollbooth', 38, 210);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Booking Holdings & Expedia extract 15%–30% commissions on every public room reservation.\n' +
-    '• Contractual Rate Parity forces hotels to maintain inflated retail prices on open channels.\n' +
-    '• High-frequency leisure families, SMBs, and luxury travelers overpay thousands annually.',
-    38, 220, { width: 519, lineGap: 2 }
+    '• The Cartel: Booking Holdings & Expedia Group control >70% of global OTA volume, extracting an extortionate 18%–30% take-rate.\n' +
+    '• The Threat: Draconian "Rate Parity" clauses legally forbid hotels from discounting publicly under threat of algorithmic de-listing.\n' +
+    '• The Hoteliers\' Crisis: 5-star hotels suffer 32% average vacancy. Unsold rooms expire worthless at midnight, but hotels cannot discount publicly without destroying their brand equity.',
+    38, 225, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 3: The Solution & Regulatory Arbitrage', 38, 285);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 3: The Asymmetric Solution & Regulatory Moat', 38, 295);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Closed-Loop Exemption: Under US Sherman Antitrust & EU Loi Macron (AT.40153), rate parity does NOT apply to closed-loop, password-protected membership clubs.\n' +
-    '• Direct B2B Wholesale: Sourcing from Hotelbeds, RateHawk, WebBeds, and Duffel NDC at net clearing rates.\n' +
-    '• Zero Markup: 100% net savings passed to subscribers; monetized purely via SaaS + interchange.',
-    38, 300, { width: 519, lineGap: 2 }
+    '• The Antitrust Safe Harbor: Under US Sherman Antitrust Act (15 U.S.C. § 1) and the EU Digital Markets Act (Regulation EU 2022/1925), rate parity rules do NOT apply to password-gated, closed-loop private buyer syndicates.\n' +
+    '• Direct B2B Wholesale Plumbing: Sourcing directly from Tier-1 global bedbanks (Hotelbeds, WebBeds, Travco) at net clearing rates.\n' +
+    '• Zero Markup Architecture: We pass 100% of wholesale net savings to verified members at 0% markup. Hoteliers quietly offload premium inventory without public rate degradation.',
+    38, 310, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 4: The Four High-Value Target Segments', 38, 370);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 4: High-Yield Customer Profile & Natural Demand', 38, 380);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '1. Affluent Families & Vacationers (45%): $8k–$25k/yr spend; save $1,500+ per 7-night vacation.\n' +
-    '2. SMB Owners & Business Travelers (30%): $15k–$60k/yr spend; enterprise rates without corporate bureaucracy.\n' +
-    '3. Luxury & Experiential Travelers (15%): $30k–$100k+/yr spend; 5-star suites, private villas, yacht charters.\n' +
-    '4. Borderless Remote Professionals (10%): $10k–$30k/yr spend; extended stays, global 5G eSIMs, visas.',
-    38, 385, { width: 519, lineGap: 2 }
+    '1. Affluent Families & Vacationers (45%): $10k–$35k/yr spend; save $1,600+ on a single 5-night stay (pays for membership on Day 1).\n' +
+    '2. Executives & SMB Founders (30%): $20k–$80k/yr spend; enterprise wholesale rates without corporate travel desk friction.\n' +
+    '3. Remote Tech Executives & Nomads (15%): $15k–$40k/yr spend; extended multi-week stays, global 5G eSIM connectivity.\n' +
+    '4. Ultra-High-Net-Worth VIPs (10%): $50k–$150k+/yr spend; 5-star penthouse suites, superyachts, empty-leg jet charters.',
+    38, 395, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 5: The Product — Phase 1 Built on Google Cloud', 38, 465);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 5: Production Platform & Zero-Deposit Architecture', 38, 465);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Production web application built on Next.js, deployed on Google Cloud Run with Cloud SQL.\n' +
-    '• Proprietary Rate-Parity Shield (AuthModal + Google Cloud Armor edge bot mitigation).\n' +
-    '• AI Travel Concierge powered by Google Cloud Vertex AI (Gemini) with Function Calling.',
+    '• 100% Serverless Google Cloud: Cloud Run container compute with Cloud SQL PostgreSQL v16; under $450/month fixed tech overhead.\n' +
+    '• Rate-Parity Shield: Client-side bot defense and Cloud Armor edge enforcement block scrapers and verify member sessions.\n' +
+    '• Zero Balance Sheet Liability: Synchronous real-time card authorization means member payment settles the wholesale bedbank. $0 locked in hotel deposits or inventory risk.',
     38, 480, { width: 519, lineGap: 2 }
   );
 
   createFooter(doc, 1, 2);
 
   doc.addPage();
-  createHeader(doc, '10-Slide Investor Presentation (Cont.)', 'Business Model, Projections & Capital Plan');
+  createHeader(doc, '10-Slide Investor Presentation (Cont.)', 'The 4-Engine Monetization Machine & Capital Plan');
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 6: Business Model & Attractive Unit Economics', 38, 125);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 6: The 4-Engine Monetization Machine', 38, 125);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• SaaS Memberships: Club ($349/yr), Family ($699/yr), VIP/Business ($1,499/yr).\n' +
-    '• Secondary Revenue: 1.2% debit interchange yield on reloadable co-branded Visa cards.\n' +
-    '• Unit Economics: $850 Blended ARPU, $115 CAC, 94% Gross Margin, 1.6-month payback, 38.6x LTV:CAC.',
+    '1. High-LTV SaaS Subscriptions (96% Gross Margin): Nomad ($399/yr), Family ($799/yr), Sovereign VIP ($1,799/yr). Blended $684/yr.\n' +
+    '2. High-Ticket Card Interchange: 1.85% net captured on card volume ($18.5k avg travel spend = $342/user/yr pure yield).\n' +
+    '3. Autonomous Price-Drop Arbitrage (30% Performance Fee): Re-shopping bot rebooks lower wholesale drops, splitting savings 70/30.\n' +
+    '4. Institutional FX Spread: 45 bps on cross-border transactions (saving members from 3.0%+ bank foreign transaction gouging).\n' +
+    '• Blended ARPU: $1,026/yr • Blended CAC: $110 • Payback: Day 1 (First Booking) • LTV/CAC: 38.4x • Retention: 91%.',
     38, 140, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 7: Traction & Roadmap (Phases 1–4)', 38, 205);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 7: Roadmap to $1M+ ARR (Phases 1–4)', 38, 220);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Phase 1 (Completed): Fully responsive front-end, compliance shield, rate comparison engine on Google Cloud Run.\n' +
-    '• Phase 2 (Months 1–3): Live RateHawk B2B and Duffel NDC flight feeds, Stripe Issuing.\n' +
-    '• Phase 3 (Months 4–6): 24/7 price-drop rebooking daemon, automated Airalo 5G eSIM provisioning.\n' +
-    '• Phase 4 (Months 7–12): High-touch WhatsApp/Telegram AI Concierge, empty-leg private jet charter desk.',
-    38, 220, { width: 519, lineGap: 2 }
+    '• Phase 1 (Live & Tested): Web platform, parity enforcement shield, rate audit engine, legal compliance suite on Google Cloud.\n' +
+    '• Phase 2 (Months 1–3): Direct RateHawk B2B and Duffel NDC flight feeds, Stripe Issuing card rails integration.\n' +
+    '• Phase 3 (Months 4–6): Autonomous 24/7 price-drop rebooking daemon, automated Airalo global 5G eSIM provisioning.\n' +
+    '• Phase 4 (Months 7–12): High-touch Vertex AI Concierge via WhatsApp/Telegram, private jet empty-leg clearinghouse.',
+    38, 235, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 8: Go-To-Market & The "Savings Audit" Flywheel', 38, 285);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 8: Go-To-Market: The Viral "Savings Audit" Engine', 38, 305);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Live Savings Audit Tool: Upload an Expedia confirmation; tool shows live $400–$1,200 savings behind member gate.\n' +
-    '• B2B Distribution: Executive syndicate partnerships with boutique wealth managers & SMB networks.\n' +
-    '• Zero-Risk Value Guarantee: 100% money-back guarantee if members do not save more than their annual fee on trip #1.',
-    38, 300, { width: 519, lineGap: 2 }
+    '• The Live Savings Audit: Prospects upload any Expedia or Booking.com itinerary; tool proves live $400–$1,500 cash savings instantly behind the member gate.\n' +
+    '• Direct Syndicate Distribution: Strategic partnerships with boutique wealth advisors, executive founder groups, and private family offices.\n' +
+    '• Irresistible Value Proposition: 100% Money-Back Guarantee if members do not save more than their annual fee on their very first stay.',
+    38, 320, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 9: Competitive Landscape & Moat', 38, 365);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 9: Unassailable Moat & Structural Barriers', 38, 385);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• vs OTAs (Expedia/Booking): 20%–30% lower prices on all identical room inventories.\n' +
-    '• vs Legacy Clubs (Inspirato): Accessible $349–$1,499/yr, zero inventory leases, $0 in supplier deposits.\n' +
-    '• The Moat: Closed-loop supplier compliance, autonomous price-drop rebooking, 100% Google Cloud native stack.',
-    38, 380, { width: 519, lineGap: 2 }
+    '• Regulatory & Antitrust Moat: Public OTAs cannot copy this model without breaching hotel parity contracts and cannibalizing their 25% take-rates.\n' +
+    '• Negative Working Capital Advantage: Unlike legacy tour operators or Inspirato with heavy lease obligations, ATLAS has $0 tied up in inventory.\n' +
+    '• High Switching Costs: Leaving ATLAS means willingly paying a 25% penalty tax to Booking.com on every future vacation.',
+    38, 400, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 10: The Ask & Lean $75,000 Budget', 38, 445);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 10: The $75,000 SAFE: High-Asymmetry Angel Opportunity', 38, 465);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Instrument: $75,000 USD via YC Post-Money SAFE for LLCs (Manager-Managed LLC — DE/WY).\n' +
-    '• Valuation Cap: $1,750,000 USD (20% discount, ~4.3% ownership at cap).\n' +
+    '• Instrument: $75,000 USD via YC Post-Money SAFE for LLCs (Manager-Managed LLC — Delaware / Wyoming).\n' +
+    '• Valuation Cap: $1,750,000 USD (20% discount, ~4.3% ownership cap at maturity).\n' +
     '• Capital Allocation (Over 57% in human execution):\n' +
-    '  - Founder Executive Stipend: $25,000 (33.3%) • $2,500/mo x 10 months for full-time commitment\n' +
-    '  - Contract Engineering & Tech Ops: $18,000 (24.0%) • 6 dev sprints for RateHawk & Duffel\n' +
-    '  - Member Acquisition & Distribution: $16,500 (22.0%) • Executive outreach & creator seeds\n' +
-    '  - Legal, SoT Licensing & Entity: $6,500 (8.7%) • Delaware/Wyoming LLC & SoT compliance\n' +
+    '  - Founder Executive Stipend: $25,000 (33.3%) • $2,500/mo x 10 months for full-time founder commitment\n' +
+    '  - Contract Engineering & Tech Ops: $18,000 (24.0%) • Direct RateHawk & Duffel API pipelines\n' +
+    '  - Member Acquisition Engine: $16,500 (22.0%) • Direct executive outreach & live savings audit ads\n' +
+    '  - Legal, SoT Licensing & Entity: $6,500 (8.7%) • Delaware/Wyoming LLC & SoT bond filings\n' +
     '  - Google Cloud & Vertex AI Tokens: $3,500 (4.7%) • 12 mos Cloud Run, Cloud SQL, Gemini 2.0\n' +
-    '  - Contingency Buffer: $3,500 (4.7%) • Minimal Operating Float: $2,000 (2.7%)\n' +
-    '• Milestone: Complete live API integrations and reach 1,000 paid members ($850,000 net ARR) in 9–12 months.',
-    38, 460, { width: 519, lineGap: 2 }
+    '  - Minimal Operating Float: $2,000 (2.7%) • Working capital buffer • Contingency: $3,500 (4.7%)\n' +
+    '• Value Inflection: 1,000 active members = $1.0M+ ARR = Series Seed round at $15M–$20M valuation (10x-15x paper markup).',
+    38, 480, { width: 519, lineGap: 2 }
   );
 
   createFooter(doc, 2, 2);
@@ -138,12 +141,12 @@ function generateProspectus() {
   const out = fs.createWriteStream(path.join(targetDir, 'ATLAS_Confidential_Prospectus.pdf'));
   doc.pipe(out);
 
-  createHeader(doc, 'Confidential Investor Prospectus', 'Private Placement Memorandum (Budget Restructure & LLC Edition)');
+  createHeader(doc, 'Confidential Offering Prospectus', 'Private Placement Memorandum (Institutional FinTech Edition)');
   
-  doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('1. EXECUTIVE SUMMARY & LEGAL BASIS', 38, 125);
+  doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('1. EXECUTIVE SUMMARY & ASYMMETRIC THESIS', 38, 125);
   doc.fillColor(slate).fontSize(8).font('Helvetica').text(
-    'ATLAS Travel Club LLC ("ATLAS" or the "Company") is an asset-light, closed-loop travel collective and financial technology platform organized as a Manager-Managed Limited Liability Company under the laws of Delaware and Wyoming. The Company is designed for high-spend leisure travelers, affluent families, and SMB business travelers. By operating as an authenticated, password-protected membership club, ATLAS exercises well-established antitrust exemptions under the US Sherman Antitrust Act (15 U.S.C. § 1) and EU Competition Law (French Loi Macron / EC Case AT.40153). These legal precedents establish that public Online Travel Agency (OTA) "Rate Parity" agreements do not apply to closed-loop buyer syndicates.\n\n' +
-    'ATLAS procures institutional room allotments directly from global B2B bedbanks (Hotelbeds, RateHawk, WebBeds) and airline New Distribution Capability (NDC) feeds at wholesale clearing costs, passing 100% of the wholesale discount directly to subscribers at 0% markup. The Company monetizes purely via high-margin recurring annual subscriptions and secondary debit interchange. Securities offered in this round are YC Post-Money SAFE for LLCs, convertible into Preferred Membership Units at the $1,750,000 valuation cap, or — at the election of the Manager — into Preferred Stock if the Company converts to a Delaware C-Corporation prior to an institutional Series Seed financing.',
+    'ATLAS Travel Club LLC ("ATLAS" or the "Company") is an asset-light, closed-loop private travel clearinghouse and financial technology platform organized as a Manager-Managed Limited Liability Company under the laws of Delaware and Wyoming. The Company is built specifically for affluent vacationers, digital executives, and high-frequency business travelers. By operating as a password-protected, authenticated private membership network, ATLAS operates under established statutory exemptions under the US Sherman Antitrust Act (15 U.S.C. § 1) and the European Union Digital Markets Act (Regulation EU 2022/1925 / EC Case AT.40153). These legal precedents establish that public Online Travel Agency (OTA) "Rate Parity" restrictions do NOT apply to closed buyer syndicates.\n\n' +
+    'ATLAS procures institutional room allotments directly from global B2B bedbanks (Hotelbeds, WebBeds, Travco) and airline New Distribution Capability (NDC) feeds at raw wholesale net clearing costs, passing 100% of the discount directly to subscribers at 0% retail markup. The Company monetizes through four high-margin recurring engines: high-margin annual software subscriptions (96% gross margin), merchant card interchange (1.85% on luxury travel volume), autonomous price-drop arbitrage performance fees (30% share of savings), and institutional FX spreads (45 bps). Securities offered in this round are YC Post-Money SAFEs for LLCs at a $1,750,000 valuation cap, with corporate conversion optionality into a Delaware C-Corporation for institutional venture rounds.',
     38, 140, { width: 519, lineGap: 2 }
   );
 
@@ -159,15 +162,15 @@ function generateProspectus() {
   doc.text('YEAR 5', 460, 275);
 
   const rows = [
-    ['Ending Active Members', '1,000', '6,000', '25,000', '60,000', '120,000'],
-    ['Gross Travel Booked (GMV)', '$13.8M', '$83.1M', '$346.2M', '$831.0M', '$1,662M'],
-    ['Subscription Net ARR', '$0.68M', '$4.10M', '$17.10M', '$41.04M', '$82.08M'],
-    ['Fintech Card Interchange', '$0.17M', '$1.00M', '$4.16M', '$9.97M', '$19.94M'],
-    ['TOTAL NET REVENUE', '$0.85M', '$5.10M', '$21.26M', '$51.01M', '$102.02M'],
-    ['COGS (Software, APIs, SIMs)', '($0.05M)', '($0.29M)', '($1.15M)', '($2.55M)', '($5.10M)'],
-    ['Operating Expenses (Opex)', '($0.45M)', '($2.10M)', '($6.96M)', '($14.45M)', '($26.50M)'],
-    ['NET PROFIT (EBITDA)', '+$0.35M', '+$2.76M', '+$13.15M', '+$34.01M', '+$70.42M'],
-    ['EBITDA Margin %', '41.2%', '54.1%', '61.9%', '66.7%', '69.0%']
+    ['Ending Active Members', '1,000', '5,500', '22,000', '65,000', '140,000'],
+    ['Gross Travel Booked (GMV)', '$18.5M', '$101.8M', '$407.0M', '$1,202.5M', '$2,590.0M'],
+    ['Subscription Net ARR (96% GM)', '$0.68M', '$3.76M', '$15.05M', '$44.46M', '$95.76M'],
+    ['Fintech Card Interchange (1.85%)', '$0.34M', '$1.88M', '$7.53M', '$22.25M', '$47.92M'],
+    ['TOTAL NET REVENUE', '$1.03M', '$5.64M', '$22.58M', '$66.71M', '$143.68M'],
+    ['COGS (APIs, Serverless, SIMs)', '($0.06M)', '($0.32M)', '($1.25M)', '($3.45M)', '($7.20M)'],
+    ['Operating Expenses (Opex)', '($0.52M)', '($2.50M)', '($8.20M)', '($18.50M)', '($34.50M)'],
+    ['NET PROFIT (EBITDA)', '+$0.45M', '+$2.82M', '+$13.13M', '+$44.76M', '+$101.98M'],
+    ['EBITDA Margin %', '43.7%', '50.0%', '58.2%', '67.1%', '71.0%']
   ];
 
   let currentY = 288;
@@ -184,12 +187,12 @@ function generateProspectus() {
     currentY += 14;
   });
 
-  doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('3. USE OF PROCEEDS ($75,000 BUDGET RESTRUCTURE)', 38, 430);
+  doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('3. USE OF PROCEEDS ($75,000 BUDGET ALLOCATION)', 38, 430);
   doc.fillColor(slate).fontSize(7.8).font('Helvetica').text(
     'ATLAS operates on modern, asset-light API protocols (RateHawk B2B, Duffel NDC, Stripe Issuing) that settle bookings synchronously via real-time card authorization at the moment of reservation. This architecture requires $0 in locked supplier deposits or legacy airline IATA bonds. Unlike legacy travel agencies that lock up $50k–$100k in non-productive bank guarantees and hotel room blocks, ATLAS operates a pure software model with zero inventory liability.\n\n' +
     '• Founder Executive Stipend: $25,000 (33.3%) — $2,500/mo over 10 months for full-time founder operational leadership.\n' +
-    '• Contract Engineering & Tech Ops: $18,000 (24.0%) — 6 milestone dev sprints for live RateHawk & Duffel on Google Cloud Run.\n' +
-    '• Member Acquisition & Distribution: $16,500 (22.0%) — Targeted executive flyer outreach, "Savings Audit" marketing, and creator seeds.\n' +
+    '• Contract Engineering & Tech Ops: $18,000 (24.0%) — Direct API pipelines for live RateHawk & Duffel on Google Cloud Run.\n' +
+    '• Member Acquisition & Growth: $16,500 (22.0%) — Targeted executive syndicate outreach, "Savings Audit" marketing, and creator seeds.\n' +
     '• Legal, SoT Licensing & Entity Setup: $6,500 (8.7%) — Delaware/Wyoming LLC formalization and Seller of Travel (FL/CA) compliance.\n' +
     '• Google Cloud & Vertex AI Tokens: $3,500 (4.7%) — 12 months Google Cloud Run, Cloud SQL, Cloud Armor, and Gemini 2.0 API calls.\n' +
     '• Contingency Operating Buffer: $3,500 (4.7%) — Cash reserve guaranteeing 10–12 months of operational runway.\n' +
@@ -252,7 +255,7 @@ function generateTechManual() {
 
   doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('1. GOOGLE CLOUD RUN COMPUTE & AUTOSCALING', 38, 125);
   doc.fillColor(slate).fontSize(8).font('Helvetica').text(
-    'All platform workloads are containerized using Bun and deployed to Google Cloud Run (us-central1) with fully managed concurrency (80 concurrent requests/instance, min 1, max 50 instances). Ingress is protected by Cloud Load Balancing and Google Cloud Armor edge bot mitigation, enforcing the Rate Parity Compliance Shield by blocking scrapers and applying X-Robots-Tag: noindex at the CDN layer.',
+    'All platform workloads are containerized and deployed to Google Cloud Run (us-central1) with fully managed concurrency (80 concurrent requests/instance, min 1, max 50 instances). Ingress is protected by Cloud Load Balancing and Google Cloud Armor edge bot mitigation, enforcing the Rate Parity Compliance Shield by blocking scrapers and applying X-Robots-Tag: noindex at the CDN layer.',
     38, 140, { width: 519, lineGap: 2.5 }
   );
 
@@ -288,7 +291,7 @@ function generateDueDiligenceFaq() {
 
   doc.fillColor(dark).fontSize(9.5).font('Helvetica-Bold').text('Q1: Can Booking.com or Expedia legally shut this down?', 38, 125);
   doc.fillColor(slate).fontSize(8).font('Helvetica').text(
-    'A: No. Rate Parity clauses apply exclusively to publicly accessible internet distribution (Google search, Trivago, public listings). Under the US Sherman Antitrust Act (15 U.S.C. § 1) and European Competition Law (French Loi Macron / EC AT.40153), closed-loop buyer syndicates and password-protected membership clubs are strictly exempt. Furthermore, B2B Bedbanks (Hotelbeds, RateHawk) exist specifically to trade this wholesale inventory to closed groups.',
+    'A: No. Rate Parity clauses apply exclusively to publicly accessible internet distribution (Google search, Trivago, public listings). Under the US Sherman Antitrust Act (15 U.S.C. § 1) and European Competition Law (EU Digital Markets Act / French Loi Macron), closed-loop buyer syndicates and password-protected membership clubs are strictly exempt. Furthermore, B2B Bedbanks (Hotelbeds, WebBeds) exist specifically to trade this wholesale inventory to closed groups.',
     38, 140, { width: 519, lineGap: 2 }
   );
 
@@ -345,9 +348,9 @@ function generateExitStrategy() {
   doc.text('TARGET VALUATION', 420, 295);
 
   const exitRows = [
-    ['Base Case (M&A)', 'Year 3', '25,000', '$21.2M', '$13.1M', '$74.2M (3.5x Rev) ~42x'],
-    ['Growth Case (Fintech)', 'Year 4', '60,000', '$51.0M', '$31.5M', '$378.0M (12x EBITDA) ~215x'],
-    ['Conservative PE Recap', 'Year 5', '100,000', '$85.0M', '$52.0M', '$416.0M (8x EBITDA) ~237x']
+    ['Base Case (M&A)', 'Year 3', '22,000', '$22.6M', '$13.1M', '$79.1M (3.5x Rev) ~45x'],
+    ['Growth Case (Fintech)', 'Year 4', '65,000', '$66.7M', '$44.8M', '$537.6M (12x EBITDA) ~307x'],
+    ['Conservative PE Recap', 'Year 5', '140,000', '$143.7M', '$102.0M', '$816.0M (8x EBITDA) ~466x']
   ];
 
   let currentY = 308;
