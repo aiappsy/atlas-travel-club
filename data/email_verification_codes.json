@@ -8,5 +8,15 @@
     "code": "144062",
     "expiresAt": 1789787156265,
     "verified": true
+  },
+  "paljuritzen@gmail.com": {
+    "code": "VERIFIED",
+    "expiresAt": 2524608000000,
+    "verified": true
+  },
+  "pal@juritzen.com": {
+    "code": "VERIFIED",
+    "expiresAt": 2524608000000,
+    "verified": true
   }
 }
