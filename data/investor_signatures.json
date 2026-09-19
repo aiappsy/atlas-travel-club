@@ -1,0 +1,15 @@
+[
+  {
+    "id": "sig_21fb381be5a10653",
+    "fullName": "Alexandra Vance",
+    "email": "test.angel@venturefund.com",
+    "firmName": "Vance Capital LLC",
+    "signatureHash": "sha256:2d6f33f72bf576e6ac73ac54ce1860330602e886b55995af5ef937a5db8ed6fa",
+    "ipAddress": "::1",
+    "userAgent": "node",
+    "signedAt": "2026-09-19T02:17:08.731Z",
+    "eSignConsent": true,
+    "jurisdiction": "Delaware / Wyoming LLC",
+    "status": "active"
+  }
+]
