@@ -119,8 +119,8 @@ function generatePitchDeck() {
 
   doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 10: What\'s In It For You — Asymmetric Returns, Cash Yield & VIP Perks', 38, 465);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Deal Terms: $75,000 USD via YC Post-Money SAFE for LLCs at a $1,750,000 Valuation Cap (~4.3% equity at cap).\n' +
-    '• Return Multiples on a $25k Angel Check: (1) Seed Markup (12-15 mos @ $15M-$20M): $214k-$286k (8.6x-11.4x); (2) Base Case M&A ($79M in Yr 3): $1.13M cash (45.2x); (3) Growth Case ($538M in Yr 4): $7.68M cash (307x); (4) Annual Dividend Yield: ~$187k/yr on Yr 3 EBITDA.\n' +
+    '• Deal Terms: $75,000 USD via YC Post-Money SAFE (Min Check: $5,000 | Cap: $1,750,000 USD | ~4.3% equity at cap).\n' +
+    '• Return Multiples ($5k Min / $25k Check): (1) Seed Markup ($15M-$20M): $43k-$57k on $5k ($214k-$286k on $25k); (2) Mid-Market M&A ($60M Yr 3): $171k cash on $5k ($857k on $25k); (3) Scale Buyout ($175M Yr 4-5): $500k cash on $5k ($2.50M on $25k); (4) Cash Yield: ~$37.5k/yr on $5k check.\n' +
     '• Immediate Lifestyle ROI: Lifetime Sovereign VIP Membership ($1,799/yr waived forever) + Global 5G eSIMs + Direct Founder WhatsApp Concierge.',
     38, 480, { width: 519, lineGap: 2 }
   );
@@ -214,7 +214,7 @@ function generateSafeTermSheet() {
     '• TARGET FINANCING: $75,000 USD (Minimum: $50,000 | Maximum: $100,000)\n' +
     '• VALUATION CAP: $1,750,000 USD\n' +
     '• DISCOUNT RATE: 20%\n' +
-    '• MINIMUM INVESTMENT: $10,000 USD (Checks of $25,000 preferred)\n' +
+    '• MINIMUM INVESTMENT: $5,000 USD (Checks of $25,000 preferred)\n' +
     '• IMPLIED OWNERSHIP: ~4.3% equity interest at the $1.75M valuation cap upon conversion.',
     38, 140, { width: 519, lineGap: 3 }
   );
