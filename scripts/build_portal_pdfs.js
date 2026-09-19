@@ -108,26 +108,20 @@ function generatePitchDeck() {
     38, 320, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 9: Unassailable Moat & Structural Barriers', 38, 385);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 9: Trust & Capital Preservation — Why Your Money Is Protected', 38, 385);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Regulatory & Antitrust Moat: Public OTAs cannot copy this model without breaching hotel parity contracts and cannibalizing their 25% take-rates.\n' +
-    '• Negative Working Capital Advantage: Unlike legacy tour operators or Inspirato with heavy lease obligations, ATLAS has $0 tied up in inventory.\n' +
-    '• High Switching Costs: Leaving ATLAS means willingly paying a 25% penalty tax to Booking.com on every future vacation.',
+    '• Zero Inventory Liabilities: Negative working capital cycle means $0 in locked hotel deposits or villa leases. Principal cannot be burned on empty rooms.\n' +
+    '• Founder Frugality & Alignment: Founder Pål Juritzen draws a capped $2,500/mo stipend over 10 months. Investor SAFE holds liquidation seniority.\n' +
+    '• Working Production Stack: Live Next.js platform on Google Cloud Run with Vertex AI Gemini 2.0 and B2B bedbank schemas operating today.\n' +
+    '• Governance & Tax Advantage: Monthly KPI updates, Delaware/Wyoming LLC registration, and Section 1202 QSBS ($10M tax-free gains) on C-Corp conversion.',
     38, 400, { width: 519, lineGap: 2 }
   );
 
-  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 10: The $75,000 SAFE: High-Asymmetry Angel Opportunity', 38, 465);
+  doc.fillColor(dark).fontSize(10).font('Helvetica-Bold').text('SLIDE 10: What\'s In It For You — Asymmetric Returns, Cash Yield & VIP Perks', 38, 465);
   doc.fillColor(slate).fontSize(8.5).font('Helvetica').text(
-    '• Instrument: $75,000 USD via YC Post-Money SAFE for LLCs (Manager-Managed LLC — Delaware / Wyoming).\n' +
-    '• Valuation Cap: $1,750,000 USD (20% discount, ~4.3% ownership cap at maturity).\n' +
-    '• Capital Allocation (Over 57% in human execution):\n' +
-    '  - Founder Executive Stipend: $25,000 (33.3%) • $2,500/mo x 10 months for full-time founder commitment\n' +
-    '  - Contract Engineering & Tech Ops: $18,000 (24.0%) • Direct RateHawk & Duffel API pipelines\n' +
-    '  - Member Acquisition Engine: $16,500 (22.0%) • Direct executive outreach & live savings audit ads\n' +
-    '  - Legal, SoT Licensing & Entity: $6,500 (8.7%) • Delaware/Wyoming LLC & SoT bond filings\n' +
-    '  - Google Cloud & Vertex AI Tokens: $3,500 (4.7%) • 12 mos Cloud Run, Cloud SQL, Gemini 2.0\n' +
-    '  - Minimal Operating Float: $2,000 (2.7%) • Working capital buffer • Contingency: $3,500 (4.7%)\n' +
-    '• Value Inflection: 1,000 active members = $1.0M+ ARR = Series Seed round at $15M–$20M valuation (10x-15x paper markup).',
+    '• Deal Terms: $75,000 USD via YC Post-Money SAFE for LLCs at a $1,750,000 Valuation Cap (~4.3% equity at cap).\n' +
+    '• Return Multiples on a $25k Angel Check: (1) Seed Markup (12-15 mos @ $15M-$20M): $214k-$286k (8.6x-11.4x); (2) Base Case M&A ($79M in Yr 3): $1.13M cash (45.2x); (3) Growth Case ($538M in Yr 4): $7.68M cash (307x); (4) Annual Dividend Yield: ~$187k/yr on Yr 3 EBITDA.\n' +
+    '• Immediate Lifestyle ROI: Lifetime Sovereign VIP Membership ($1,799/yr waived forever) + Global 5G eSIMs + Direct Founder WhatsApp Concierge.',
     38, 480, { width: 519, lineGap: 2 }
   );
 
