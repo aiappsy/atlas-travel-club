@@ -340,7 +340,7 @@ export default function SavingsCalculator() {
                       <div className="text-[10px] uppercase font-bold text-emerald-300">
                         Your Direct Cash Savings
                       </div>
-                      <div className="text-2xl sm:text-3xl font-black text-emerald-400">
+                      <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
                         {formatPrice(totalNetSaved)}
                       </div>
                     </div>
@@ -348,7 +348,30 @@ export default function SavingsCalculator() {
                       <span className="text-xs font-black text-emerald-300">
                         {totalSavedPercent}% Less Than Expedia
                       </span>
+                      <div className="text-[10px] text-slate-300 mt-0.5">
+                        Saved on this single {nights}-night stay
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Membership Payback ROI Callout */}
+                  <div className="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">💡</span>
+                      <div>
+                        <div className="font-black text-amber-300 uppercase text-[10px] tracking-wider">
+                          Annual Membership Payback
+                        </div>
+                        <div className="text-white text-xs font-medium">
+                          {totalNetSaved >= 499
+                            ? `This single trip pays for 100% of your $499 annual fee + leaves +${formatPrice(totalNetSaved - 499)} net profit in your pocket!`
+                            : `This single trip instantly recoups ${Math.round((totalNetSaved / 499) * 100)}% of your annual membership cost!`}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="font-mono font-black text-amber-300 text-sm shrink-0 bg-black/30 px-2.5 py-1 rounded-xl border border-amber-400/30">
+                      {Math.round((totalNetSaved / 499) * 100)}% Recouped
+                    </span>
                   </div>
                 </div>
 
@@ -358,7 +381,7 @@ export default function SavingsCalculator() {
                   className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl shadow-amber-400/20 transition-all flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   {!isMember && <Lock className="w-4 h-4 text-slate-950" />}
-                  <span>{isMember ? 'Book This Wholesale Deal' : 'Sign Up to Book This Wholesale Deal'}</span>
+                  <span>{isMember ? `Book This Deal & Save ${formatPrice(totalNetSaved)}` : `Sign Up to Book & Save ${formatPrice(totalNetSaved)}`}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>

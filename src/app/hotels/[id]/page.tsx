@@ -520,8 +520,13 @@ export default function HotelDetailPage() {
                   <span className="text-white">Total Wholesale Cost</span>
                   <span className="font-mono text-emerald-400 text-lg">{formatPrice(totalWholesale)}</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold text-center">
-                  You save {formatPrice(totalSavings)} vs. Public Retail ({formatPrice(totalRetail)})
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center space-y-1 shadow-md">
+                  <div className="text-sm sm:text-base font-black text-emerald-400 font-mono">
+                    ⚡ YOU SAVE {formatPrice(totalSavings)} ({Math.round((totalSavings / totalRetail) * 100)}% OFF)
+                  </div>
+                  <div className="text-[11px] font-bold text-amber-300">
+                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {Math.round((totalSavings / 499) * 100)}% of Annual Membership
+                  </div>
                 </div>
               </div>
 
