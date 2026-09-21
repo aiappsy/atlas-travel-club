@@ -6,6 +6,7 @@ import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { ATLAS_TRAINING_MANUALS } from '@/lib/manualsData';
 import { ATLAS_OPERATOR_ROLES, OperatorRoleId, AdminTabId, AdminHub, AdminHubId, AdminHubTabItem } from '@/lib/rbacData';
 import { PROVIDER_INSTRUCTION_GUIDES, MOCK_NOMAD_VISAS, MOCK_VAULT_ACCOUNT, MOCK_VILLAS, MOCK_STATUS_MATCH_PROGRAMS, MOCK_FAST_TRACK_SERVICES, MOCK_CARD_ORDERS, MOCK_FLIGHT_CLAIMS, MOCK_PRIVATE_JETS, MOCK_PRICE_DROP_RECORDS, MOCK_YACHTS, MOCK_SUPERCARS } from '@/lib/mockData';
+import { TESTED_GEMINI_MODELS, resolveActiveGeminiModel, getGeminiFallbackChain } from '@/lib/geminiModels';
 import {
   ShieldCheck,
   Zap,
@@ -128,6 +129,9 @@ export default function AdminPage() {
 
   // AI Studio
   const [elevenLabsKey, setElevenLabsKey] = useState('el_live_key_99418247');
+  const [geminiApiKey, setGeminiApiKey] = useState('AIzaSy_LiveGoogleStudioKey_994182');
+  const [selectedGeminiModelId, setSelectedGeminiModelId] = useState<string>(features.geminiModelId || 'gemini-3.8-flash');
+  const [autoUpgradeEnabled, setAutoUpgradeEnabled] = useState<boolean>(features.autoUpgradeGeminiModel !== false);
 
   // Active guide in knowledgebase
   const [selectedGuideId, setSelectedGuideId] = useState<string>('sherpa-nomad-visas');
@@ -1934,28 +1938,187 @@ export default function AdminPage() {
 
         {/* TAB 14: AI STUDIO */}
         {activeTab === 'ai_studio' && (
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-2xl mx-auto space-y-6">
-            <h3 className="text-base font-black text-white flex items-center gap-2">
-              <Bot className="w-5 h-5 text-amber-400" />
-              AI Concierge Studio (Gemini 3.7 Flash & ElevenLabs)
-            </h3>
-            <div className="space-y-4 text-xs">
+          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-4xl mx-auto space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-5">
               <div>
-                <label className="block font-bold uppercase text-slate-400 mb-1">ElevenLabs Voice API Key</label>
+                <h3 className="text-lg font-black text-white flex items-center gap-2">
+                  <Bot className="w-5 h-5 text-amber-400" />
+                  AI Concierge Intelligence Studio
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Google Gemini reasoning engine with autonomous model lifecycle upgrading & ElevenLabs voice synthesis.
+                </p>
+              </div>
+
+              {/* Dynamic Model Status Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold shrink-0">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Active: {resolveActiveGeminiModel({ modelOverride: selectedGeminiModelId, autoUpgradeEnabled }).name}</span>
+              </div>
+            </div>
+
+            {/* Autonomous Model Lifecycle Banner */}
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-sky-500/10 border border-amber-400/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">
+                    Autonomous Model Upgrading
+                  </span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={autoUpgradeEnabled}
+                    onChange={(e) => setAutoUpgradeEnabled(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                When enabled, ATLAS will automatically adopt new tested & proven Gemini models (starting now with <strong>Gemini 3.8 Flash</strong>) as soon as they pass automated itinerary benchmark tests, guaranteeing zero-downtime and perpetual access to state-of-the-art multimodal reasoning.
+              </p>
+            </div>
+
+            {/* Tested & Proven Models Matrix */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+                  Tested & Proven Gemini Models Catalog
+                </h4>
+                <span className="text-[10px] text-slate-400">
+                  {autoUpgradeEnabled ? 'Auto-Upgrade Active' : 'Manual Override Active'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {TESTED_GEMINI_MODELS.map((model) => {
+                  const isSelected = autoUpgradeEnabled
+                    ? model.status === 'active_latest'
+                    : selectedGeminiModelId === model.id;
+
+                  return (
+                    <div
+                      key={model.id}
+                      onClick={() => {
+                        setSelectedGeminiModelId(model.id);
+                        setAutoUpgradeEnabled(false);
+                      }}
+                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                        isSelected
+                          ? 'bg-amber-400/10 border-amber-400/80 ring-1 ring-amber-400/40'
+                          : 'bg-slate-950/60 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-sm text-white">{model.name}</span>
+                            {model.status === 'active_latest' && (
+                              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold border border-emerald-500/30">
+                                Latest Proven
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] font-mono text-slate-400">{model.releaseDate}</span>
+                        </div>
+                        <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                          {model.description}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800/80 grid grid-cols-3 gap-2 text-[10px]">
+                        <div>
+                          <div className="text-slate-400">Latency</div>
+                          <div className="font-bold text-emerald-400">{model.latencyProfile}</div>
+                        </div>
+                        <div>
+                          <div className="text-slate-400">Context</div>
+                          <div className="font-bold text-sky-400">{model.contextWindow}</div>
+                        </div>
+                        <div>
+                          <div className="text-slate-400">Tool Accuracy</div>
+                          <div className="font-bold text-amber-400">{model.benchmarks.toolCallingAccuracy}%</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Fallback Hierarchy Cascade */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <div className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-sky-400" />
+                <span>Zero-Downtime Fallback Cascade Chain</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+                  1. {resolveActiveGeminiModel({ modelOverride: selectedGeminiModelId, autoUpgradeEnabled }).name} (Primary)
+                </span>
+                <span className="text-slate-600 font-bold">➔</span>
+                <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 font-medium border border-slate-700">
+                  2. Gemini 3.7 Flash (Fallback)
+                </span>
+                <span className="text-slate-600 font-bold">➔</span>
+                <span className="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 font-medium border border-slate-700">
+                  3. Gemini 2.5 Flash (Resilience)
+                </span>
+              </div>
+            </div>
+
+            {/* API Keys Configuration */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-bold uppercase text-slate-400 mb-1">
+                  Google AI Studio Gemini API Key
+                </label>
+                <input
+                  type="password"
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white"
+                  placeholder="AIzaSy..."
+                />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Configured in Google AI Studio for Gemini 3.8 Flash inference.
+                </span>
+              </div>
+
+              <div>
+                <label className="block font-bold uppercase text-slate-400 mb-1">
+                  ElevenLabs Voice API Key
+                </label>
                 <input
                   type="password"
                   value={elevenLabsKey}
                   onChange={(e) => setElevenLabsKey(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white"
+                  placeholder="el_live_..."
                 />
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Aura Natural Conversational Voice synthesis.
+                </span>
               </div>
-              <button
-                onClick={() => alert('AI Studio settings saved!')}
-                className="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl"
-              >
-                Save AI Studio Parameters
-              </button>
             </div>
+
+            {/* Save Button */}
+            <button
+              onClick={() => {
+                updateFeatures({
+                  geminiModelId: selectedGeminiModelId,
+                  autoUpgradeGeminiModel: autoUpgradeEnabled,
+                });
+                publishLive();
+                alert(`AI Studio settings updated! Active model: ${resolveActiveGeminiModel({ modelOverride: selectedGeminiModelId, autoUpgradeEnabled }).name}. Auto-upgrade: ${autoUpgradeEnabled ? 'Enabled' : 'Disabled'}`);
+              }}
+              className="w-full py-3.5 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black rounded-xl text-sm shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Check className="w-4 h-4" />
+              <span>Save & Deploy AI Intelligence Parameters</span>
+            </button>
           </div>
         )}
 

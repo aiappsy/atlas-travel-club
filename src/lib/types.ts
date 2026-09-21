@@ -20,6 +20,8 @@ export interface PlatformFeatureFlags {
   enableAiConcierge: boolean;
   enableProactiveTripGaps: boolean;
   enableElevenLabsVoice: boolean;
+  geminiModelId?: string;
+  autoUpgradeGeminiModel?: boolean;
   allowMemberDirectBooking: boolean;
   defaultCommissionPassThrough: number;
   lastPublishedAt: string;

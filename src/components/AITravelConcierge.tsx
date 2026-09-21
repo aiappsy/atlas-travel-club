@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_ACTIVE_GAP_ALERTS } from '@/lib/mockData';
 import { TripGapAlert } from '@/lib/types';
 import { usePlatform } from '@/context/PlatformContext';
+import { resolveActiveGeminiModel, formatGeminiEngineBadge } from '@/lib/geminiModels';
 import {
   Sparkles,
   Bot,
@@ -33,8 +34,8 @@ import Link from 'next/link';
 interface BookingCardAction {
   hotelId: string;
   hotelName: string;
-  city: string;
-  dates: string;
+  city?: string;
+  dates?: string;
   wholesaleRate: number;
   retailRate: number;
   savings: number;
@@ -59,6 +60,11 @@ export default function AITravelConcierge() {
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [activeGapIndex, setActiveGapIndex] = useState<number>(0);
 
+  const activeModel = resolveActiveGeminiModel({
+    modelOverride: features.geminiModelId,
+    autoUpgradeEnabled: features.autoUpgradeGeminiModel ?? true,
+  });
+
   // If Admin completely disables the AI Concierge, do not render
   if (!features.enableAiConcierge) {
     return null;
@@ -69,7 +75,7 @@ export default function AITravelConcierge() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: `👋 Hello Alex! I am **Aura**, your proactive VIP AI Concierge (Gemini 3.7 Flash & ElevenLabs).\n\n${
+      text: `👋 Hello Alex! I am **Aura**, your proactive VIP AI Concierge (${formatGeminiEngineBadge(activeModel)}).\n\n${
         features.enableProactiveTripGaps
           ? `⚠️ **Proactive Itinerary Alert**: I noticed you booked the **7-Night Caribbean Cruise on Icon of the Seas (Miami, Oct 18)**, but you haven't secured a flight into Miami (MIA/FLL) yet!\n\nWould you like me to find cheap wholesale flights, book an empty-leg private jet seat, or help you with **Digital Nomad Visas & Coliving**?`
           : `I am ready to help you find wholesale hotels, flights, digital nomad visas, and travel services. Where would you like to travel next?`
@@ -225,8 +231,9 @@ export default function AITravelConcierge() {
                     Nomad & Visa Aligned
                   </span>
                 </h4>
-                <div className="text-[10px] text-slate-400">
-                  Gemini 3.7 Flash & Global Mobility Engine
+                <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>{activeModel.name} & Global Mobility Engine</span>
                 </div>
               </div>
             </div>

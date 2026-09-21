@@ -208,6 +208,8 @@ export const DEFAULT_PLATFORM_CONFIG: PlatformFeatureFlags = {
   enableAiConcierge: true,
   enableProactiveTripGaps: true,
   enableElevenLabsVoice: true,
+  geminiModelId: 'gemini-3.8-flash',
+  autoUpgradeGeminiModel: true,
   allowMemberDirectBooking: true,
   defaultCommissionPassThrough: 100,
   lastPublishedAt: '2026-08-26 07:00 UTC',

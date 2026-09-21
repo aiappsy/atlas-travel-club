@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PlatformFeatureFlags } from '@/lib/types';
 import { DEFAULT_PLATFORM_CONFIG } from '@/lib/mockData';
+import { resolveActiveGeminiModel, formatGeminiEngineBadge } from '@/lib/geminiModels';
 
 export async function POST(req: NextRequest) {
   try {
     const { prompt, features: passedFeatures } = await req.json();
     const query = (prompt || '').toLowerCase();
     const features: PlatformFeatureFlags = passedFeatures || DEFAULT_PLATFORM_CONFIG;
+
+    const activeModel = resolveActiveGeminiModel({
+      modelOverride: features.geminiModelId,
+      autoUpgradeEnabled: features.autoUpgradeGeminiModel ?? true,
+    });
 
     let reply = '';
 
@@ -179,12 +185,20 @@ export async function POST(req: NextRequest) {
     }
     // 7. Default Aura Greeting
     else {
-      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (Gemini 3.7 Flash & ElevenLabs).\n\nI can help you find raw wholesale net rates (30%–70% off Expedia across 1,000,000+ luxury hotels), issue instant **B2B Check-in Vouchers**, install your **Apple & Google Wallet passes**, or manage **Digital Nomad Visas (Spain, Portugal, Dubai, Thailand) and monthly coliving**.\n\nTell me where you want to travel or work from!`;
+      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nI can help you find raw wholesale net rates (30%–70% off Expedia across 1,000,000+ luxury hotels), issue instant **B2B Check-in Vouchers**, install your **Apple & Google Wallet passes**, or manage **Digital Nomad Visas (Spain, Portugal, Dubai, Thailand) and monthly coliving**.\n\nTell me where you want to travel or work from!`;
     }
 
     return NextResponse.json({
       success: true,
       reply,
+      model: {
+        id: activeModel.id,
+        name: activeModel.name,
+        version: activeModel.version,
+        status: activeModel.status,
+        autoUpgraded: features.autoUpgradeGeminiModel ?? true,
+        latencyProfile: activeModel.latencyProfile,
+      },
     });
   } catch (error: any) {
     return NextResponse.json(
