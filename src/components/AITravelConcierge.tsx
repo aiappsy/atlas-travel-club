@@ -81,6 +81,7 @@ export default function AITravelConcierge() {
 
   const quickPrompts = [
     'How does ATLAS wholesale pricing work?',
+    'Check Southampton train vs cruise boarding gap',
     'What are the best 0% tax Digital Nomad Visas?',
     'Check my Schengen 90-day remaining limit',
     ...(features.enableProactiveTripGaps ? ['Resolve missing Miami flight for Cruise'] : []),

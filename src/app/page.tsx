@@ -165,7 +165,7 @@ export default function HomePage() {
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">Recoups 100%+ Day 1</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-200 font-medium mt-0.5 leading-relaxed">
-                  A single 3-night stay saves an average of <strong className="text-emerald-400 font-bold">$573.00</strong> — completely paying off your annual Gold VIP membership ($499) + leaving <strong className="text-amber-300 font-bold">+$74 pure cash profit</strong> in your pocket.
+                  A single 3-night stay at The Bellagio saves <strong className="text-emerald-400 font-bold">$573.00</strong> — completely paying off your annual Gold VIP membership ($179) + putting <strong className="text-amber-300 font-bold">+$394 pure cash profit</strong> in your pocket on Day 1 (320% immediate ROI).
                 </p>
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function HomePage() {
           {FEATURED_ESCAPES.map((hotel) => {
             const savingsPerNight = hotel.retailPrice - hotel.wholesalePrice;
             const savings3Nights = savingsPerNight * 3;
-            const paybackPercent = Math.round((savings3Nights / 499) * 100);
+            const paybackPercent = Math.round((savings3Nights / 179) * 100);
 
             return (
               <div

@@ -493,11 +493,11 @@ export default function NomadsPage() {
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {[
-                      { country: 'Bulgaria (Bansko)', flag: '🇧🇬', note: '10% Flat Tax' },
-                      { country: 'Montenegro (Kotor)', flag: '🇲🇪', note: 'Bay of Kotor' },
-                      { country: 'Albania (Tirana)', flag: '🇦🇱', note: '1-Yr 0% Tax' },
+                      { country: 'United Kingdom (London)', flag: '🇬🇧', note: '180-Day Non-Schengen' },
                       { country: 'Cyprus (Limassol)', flag: '🇨🇾', note: '60-Day Non-Dom' },
-                      { country: 'Georgia (Tbilisi)', flag: '🇬🇪', note: '365-Day Visa-Free' },
+                      { country: 'Albania (Tirana)', flag: '🇦🇱', note: '1-Yr 0% Tax' },
+                      { country: 'Montenegro (Kotor)', flag: '🇲🇪', note: 'Bay of Kotor' },
+                      { country: 'Bulgaria (Bansko)', flag: '🇧🇬', note: '10% Flat Tax' },
                       { country: 'Dubai (UAE)', flag: '🇦🇪', note: '0% Tax E-Visa' }
                     ].map((item, idx) => (
                       <div key={idx} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs">

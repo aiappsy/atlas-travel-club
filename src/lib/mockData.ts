@@ -1822,6 +1822,17 @@ export const MOCK_PRICE_DROP_RECORDS: PriceDropRebookRecord[] = [
 
 export const MOCK_ACTIVE_GAP_ALERTS: TripGapAlert[] = [
   {
+    id: 'gap-southampton-cruise-train',
+    type: 'schedule_conflict',
+    tripTitle: '2-Week Transatlantic Cruise (Queen Mary 2)',
+    destination: 'Southampton, UK',
+    dates: 'Nov 04 – Nov 18, 2026',
+    message: 'Temporal Gap Detected: Your London-to-Southampton train arrives at 4:00 PM, but the cruise final boarding cutoff is strictly 3:30 PM! Aura flagged this physically impossible sequence before departure.',
+    suggestedActionText: 'Re-route to 1:15 PM B2B Train (Arrives 2:32 PM)',
+    targetRoute: '/cruises',
+    category: 'cruise'
+  },
+  {
     id: 'gap-miami-cruise-flight',
     type: 'missing_flight',
     tripTitle: '7-Night Caribbean Cruise (Icon of the Seas)',

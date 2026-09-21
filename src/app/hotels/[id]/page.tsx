@@ -525,7 +525,7 @@ export default function HotelDetailPage() {
                     ⚡ YOU SAVE {formatPrice(totalSavings)} ({Math.round((totalSavings / totalRetail) * 100)}% OFF)
                   </div>
                   <div className="text-[11px] font-bold text-amber-300">
-                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {Math.round((totalSavings / 499) * 100)}% of Annual Membership
+                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {Math.round((totalSavings / 179) * 100)}% of Annual Membership (Gold VIP)
                   </div>
                 </div>
               </div>

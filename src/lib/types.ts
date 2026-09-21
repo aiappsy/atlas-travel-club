@@ -224,14 +224,14 @@ export interface PriceDropRebookRecord {
 
 export interface TripGapAlert {
   id: string;
-  type: 'missing_flight' | 'missing_hotel' | 'missing_esim' | 'missing_lounge';
+  type: 'missing_flight' | 'missing_hotel' | 'missing_esim' | 'missing_lounge' | 'schedule_conflict';
   tripTitle: string;
   destination: string;
   dates: string;
   message: string;
   suggestedActionText: string;
   targetRoute: string;
-  category: 'flight' | 'hotel' | 'esim' | 'jet';
+  category: 'flight' | 'hotel' | 'esim' | 'jet' | 'train' | 'cruise';
 }
 
 export interface PrivateJetEmptyLeg {

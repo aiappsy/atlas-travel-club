@@ -357,7 +357,7 @@ export default function LiveHotelSearch({
           <div className="space-y-6">
             {filteredHotels.map((hotel) => {
               const detailUrl = `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${encodeURIComponent(guests)}`;
-              const annualFee = 499;
+              const annualFee = 179; // Gold VIP Annual Membership
               const paybackRatio = Math.round((hotel.prices.atlasWholesale.totalSavings / annualFee) * 100);
               const isFullPayback = hotel.prices.atlasWholesale.totalSavings >= annualFee;
 
@@ -655,7 +655,7 @@ export default function LiveHotelSearch({
                             <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                             <span>
                               {isFullPayback
-                                ? `This 1 stay pays for 100% of your $499 annual fee + puts +${formatPrice(hotel.prices.atlasWholesale.totalSavings - annualFee)} net profit in your bank!`
+                                ? `This 1 stay pays for 100% of your $179 Gold VIP annual fee + puts +${formatPrice(hotel.prices.atlasWholesale.totalSavings - annualFee)} net profit in your bank!`
                                 : `This 1 stay recoups ${paybackRatio}% of your entire annual membership cost!`}
                             </span>
                           </div>

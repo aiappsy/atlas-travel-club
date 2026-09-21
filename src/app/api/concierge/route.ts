@@ -114,7 +114,10 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nWhen checking into a luxury property booked via ATLAS:\n\n1. 🎟️ **Instant PDF Voucher**: Download your official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code.\n2. 🏨 **Front Desk Presentation**: Present the voucher or Apple/Google Wallet pass at check-in. The room is prepaid directly through ATLAS wholesale clearing.\n3. 🤫 **Rate Parity Protected**: The hotel front desk will not see or discuss the net wholesale rate, ensuring strict compliance with supplier agreements.\n4. 🆘 **24/7 B2B Emergency Support**: If the front desk requires immediate verification, our supplier priority desk is on standby (+1-800-847-ATLAS / +44 20 8123 4567).\n\nWould you like me to fetch the check-in voucher for your upcoming stay?`;
     }
-    // 4. Cruise / Miami Gap Intent
+    // 4. Cruise / Itinerary Gap Intent
+    else if (query.includes('southampton') || query.includes('train') || (query.includes('cruise') && query.includes('boarding'))) {
+      reply = `🚢 **Aura Proactive Logistical Gap Analysis (Deterministic Grounding):**\n\nI parsed the temporal sequence of your **London ➔ Southampton ➔ Transatlantic Cruise** itinerary:\n\n⚠️ **CRITICAL TEMPORAL CONFLICT DETECTED**:\n- **Current Train Booking**: London Waterloo ➔ Southampton Central arrives at **4:00 PM**.\n- **Cruise Boarding Gate**: Absolute final embarkation cutoff is strictly **3:30 PM**.\n\n*A standard calendar would record this blindly, but this sequence is physically impossible: you would arrive 30 minutes after the ship closes boarding.*\n\n✅ **Aura Automated Resolution**:\n- Re-routing to the **1:15 PM B2B Wholesale Train** from London Waterloo.\n- Arrives Southampton Central at **2:32 PM** (giving you 58 minutes buffer before boarding cutoff).\n\nWould you like me to execute this ticket switch now?`;
+    }
     else if (query.includes('cruise') || query.includes('miami') || query.includes('icon of the seas')) {
       const jetOption = features.enablePrivateJets
         ? `1. 🛩️ **Private Jet Empty Leg**: Miami ➔ New York or Los Angeles ➔ Miami on a *Bombardier Challenger* from **$1,250/seat**.\n`

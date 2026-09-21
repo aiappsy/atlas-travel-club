@@ -363,14 +363,14 @@ export default function SavingsCalculator() {
                           Annual Membership Payback
                         </div>
                         <div className="text-white text-xs font-medium">
-                          {totalNetSaved >= 499
-                            ? `This single trip pays for 100% of your $499 annual fee + leaves +${formatPrice(totalNetSaved - 499)} net profit in your pocket!`
-                            : `This single trip instantly recoups ${Math.round((totalNetSaved / 499) * 100)}% of your annual membership cost!`}
+                          {totalNetSaved >= 179
+                            ? `This single trip pays for 100% of your $179 Gold VIP annual fee + leaves +${formatPrice(totalNetSaved - 179)} net profit in your pocket!`
+                            : `This single trip instantly recoups ${Math.round((totalNetSaved / 179) * 100)}% of your annual membership cost!`}
                         </div>
                       </div>
                     </div>
                     <span className="font-mono font-black text-amber-300 text-sm shrink-0 bg-black/30 px-2.5 py-1 rounded-xl border border-amber-400/30">
-                      {Math.round((totalNetSaved / 499) * 100)}% Recouped
+                      {Math.round((totalNetSaved / 179) * 100)}% Recouped
                     </span>
                   </div>
                 </div>
