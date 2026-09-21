@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
+import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE, getDefaultTripDates } from '@/lib/mockData';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
@@ -44,9 +45,10 @@ export default function HotelDetailPage() {
   const [isBooked, setIsBooked] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
 
-  // Dates & Guests from query or default
-  const checkIn = searchParams.get('checkIn') || '2026-10-15';
-  const checkOut = searchParams.get('checkOut') || '2026-10-18';
+  // Dates & Guests from query or dynamic default
+  const defaultDates = getDefaultTripDates(14, 3);
+  const checkIn = searchParams.get('checkIn') || defaultDates.checkIn;
+  const checkOut = searchParams.get('checkOut') || defaultDates.checkOut;
   const guests = searchParams.get('guests') || '2 Adults, 1 Room';
 
   const d1 = new Date(checkIn);
@@ -56,7 +58,7 @@ export default function HotelDetailPage() {
   useEffect(() => {
     async function loadHotel() {
       try {
-        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}`);
+        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`);
         const data = await res.json();
         if (data?.hotel) {
           setHotel(data.hotel);
@@ -108,6 +110,10 @@ export default function HotelDetailPage() {
   const totalWholesale = wholesalePerNight * nights;
   const totalRetail = retailPerNight * nights;
   const totalSavings = totalRetail - totalWholesale;
+
+  const activeTierPlan = user ? (MEMBERSHIP_TIERS.find((t) => t.id === user.tier) || GOLD_VIP_TIER) : GOLD_VIP_TIER;
+  const tierCost = activeTierPlan.priceAnnual > 0 ? activeTierPlan.priceAnnual : GOLD_VIP_ANNUAL_FEE;
+  const paybackPercent = Math.round((totalSavings / tierCost) * 100);
 
   return (
     <div className="bg-slate-950 text-white min-h-screen pb-24 font-sans selection:bg-amber-400 selection:text-slate-950">
@@ -525,7 +531,7 @@ export default function HotelDetailPage() {
                     ⚡ YOU SAVE {formatPrice(totalSavings)} ({Math.round((totalSavings / totalRetail) * 100)}% OFF)
                   </div>
                   <div className="text-[11px] font-bold text-amber-300">
-                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {Math.round((totalSavings / 179) * 100)}% of Annual Membership (Gold VIP)
+                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {paybackPercent}% of Annual Membership ({activeTierPlan.name})
                   </div>
                 </div>
               </div>

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
+import { GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE, getDefaultTripDates } from '@/lib/mockData';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
@@ -34,9 +35,10 @@ export default function LiveHotelSearch({
   isCompact = false,
 }: LiveHotelSearchProps) {
   const { formatPrice, currency, setCurrency, currencies } = useCurrency();
+  const defaultDates = getDefaultTripDates(14, 3);
   const [destination, setDestination] = useState(initialDestination);
-  const [checkIn, setCheckIn] = useState('2026-10-15');
-  const [checkOut, setCheckOut] = useState('2026-10-18');
+  const [checkIn, setCheckIn] = useState(defaultDates.checkIn);
+  const [checkOut, setCheckOut] = useState(defaultDates.checkOut);
   const [guests, setGuests] = useState('2 Guests, 1 Room');
   
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -357,7 +359,7 @@ export default function LiveHotelSearch({
           <div className="space-y-6">
             {filteredHotels.map((hotel) => {
               const detailUrl = `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${encodeURIComponent(guests)}`;
-              const annualFee = 179; // Gold VIP Annual Membership
+              const annualFee = GOLD_VIP_ANNUAL_FEE;
               const paybackRatio = Math.round((hotel.prices.atlasWholesale.totalSavings / annualFee) * 100);
               const isFullPayback = hotel.prices.atlasWholesale.totalSavings >= annualFee;
 
@@ -655,8 +657,8 @@ export default function LiveHotelSearch({
                             <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                             <span>
                               {isFullPayback
-                                ? `This 1 stay pays for 100% of your $179 Gold VIP annual fee + puts +${formatPrice(hotel.prices.atlasWholesale.totalSavings - annualFee)} net profit in your bank!`
-                                : `This 1 stay recoups ${paybackRatio}% of your entire annual membership cost!`}
+                                ? `This 1 stay pays for 100% of your ${formatPrice(annualFee)} ${GOLD_VIP_TIER.name} annual fee + puts +${formatPrice(hotel.prices.atlasWholesale.totalSavings - annualFee)} net profit in your bank!`
+                                : `This 1 stay recoups ${paybackRatio}% of your annual ${GOLD_VIP_TIER.name} cost!`}
                             </span>
                           </div>
 

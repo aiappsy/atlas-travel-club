@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { MOCK_HOTELS, MEMBERSHIP_TIERS } from '@/lib/mockData';
+import { useCurrency } from '@/context/CurrencyContext';
+import { MOCK_HOTELS, MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
 import LiveHotelSearch from '@/components/LiveHotelSearch';
 import SavingsCalculator from '@/components/SavingsCalculator';
 import AuthModal from '@/components/AuthModal';
@@ -29,57 +30,6 @@ import {
   Download,
   Award
 } from 'lucide-react';
-
-const FEATURED_ESCAPES = [
-  {
-    id: 'bellagio-vegas',
-    name: 'The Bellagio Resort & Luxury Casino',
-    city: 'Las Vegas, NV',
-    image: 'https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.4,
-    retailPrice: 389,
-    wholesalePrice: 198,
-    savings: '49%',
-    category: 'Luxury Casino Resort'
-  },
-  {
-    id: 'ritz-paris',
-    name: 'Ritz Paris Place Vendôme',
-    city: 'Paris, France',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.8,
-    retailPrice: 1120,
-    wholesalePrice: 640,
-    savings: '43%',
-    category: 'Palace Suite'
-  },
-  {
-    id: 'atlantis-the-royal',
-    name: 'Atlantis The Royal Palm',
-    city: 'Dubai, UAE',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.6,
-    retailPrice: 890,
-    wholesalePrice: 510,
-    savings: '43%',
-    category: 'Ultra-Luxury Beachfront'
-  },
-  {
-    id: 'faena-miami',
-    name: 'Faena Hotel Miami Beach',
-    city: 'Miami Beach, FL',
-    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.5,
-    retailPrice: 740,
-    wholesalePrice: 390,
-    savings: '47%',
-    category: 'Oceanfront Art Deco'
-  }
-];
 
 const MEMBER_POSTCARDS = [
   {
@@ -110,8 +60,25 @@ const MEMBER_POSTCARDS = [
 
 export default function HomePage() {
   const { user, isMember } = useAuth();
+  const { formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
+
+  // Dynamic calculations for Hero Payback & Featured Hotels
+  const sampleHotel = MOCK_HOTELS.find((h) => h.id === 'bellagio-vegas') || MOCK_HOTELS[0];
+  const sampleStayNights = 3;
+  const sampleSavingsPerNight = sampleHotel.publicPricePerNight - sampleHotel.memberPricePerNight;
+  const sampleStaySavings = sampleSavingsPerNight * sampleStayNights;
+  const sampleNetProfit = sampleStaySavings - GOLD_VIP_ANNUAL_FEE;
+  const sampleRoiPercent = Math.round((sampleStaySavings / GOLD_VIP_ANNUAL_FEE) * 100);
+
+  const featuredHotels = MOCK_HOTELS.filter((h) => h.featured);
+  const avgSavingsPct = Math.round(
+    featuredHotels.reduce((acc, h) => acc + ((h.publicPricePerNight - h.memberPricePerNight) / h.publicPricePerNight) * 100, 0) /
+      (featuredHotels.length || 1)
+  );
+  const minSavings3Nts = Math.min(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
+  const maxSavings3Nts = Math.max(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
 
   return (
     <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
@@ -134,10 +101,10 @@ export default function HomePage() {
               <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Member Booking:</span>
             </div>
             <div className="text-slate-300 text-xs truncate text-center sm:text-left flex-1">
-              <span className="font-bold text-white">The Bellagio Las Vegas</span> • Public: <span className="line-through text-rose-400">$389/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">$198/nt</span> • <strong className="text-amber-300 font-black">Member Saved $573 on 3 nights (49% OFF)</strong>
+              <span className="font-bold text-white">{sampleHotel.name.replace(' & Casino Resort', '')}</span> • Public: <span className="line-through text-rose-400">{formatPrice(sampleHotel.publicPricePerNight)}/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">{formatPrice(sampleHotel.memberPricePerNight)}/nt</span> • <strong className="text-amber-300 font-black">Member Saved {formatPrice(sampleStaySavings)} on {sampleStayNights} nights ({Math.round((sampleSavingsPerNight / sampleHotel.publicPricePerNight) * 100)}% OFF)</strong>
             </div>
             <span className="hidden md:inline-flex px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-bold text-emerald-300 shrink-0">
-              ⚡ Recouped 115% of Annual Membership
+              ⚡ Recouped {sampleRoiPercent}% of {GOLD_VIP_TIER.name}
             </span>
           </div>
 
@@ -165,19 +132,19 @@ export default function HomePage() {
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">Recoups 100%+ Day 1</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-200 font-medium mt-0.5 leading-relaxed">
-                  A single 3-night stay at The Bellagio saves <strong className="text-emerald-400 font-bold">$573.00</strong> — completely paying off your annual Gold VIP membership ($179) + putting <strong className="text-amber-300 font-bold">+$394 pure cash profit</strong> in your pocket on Day 1 (320% immediate ROI).
+                  A single {sampleStayNights}-night stay at {sampleHotel.name.replace(' & Casino Resort', '')} saves <strong className="text-emerald-400 font-bold">{formatPrice(sampleStaySavings)}</strong> — completely paying off your annual {GOLD_VIP_TIER.name} membership ({formatPrice(GOLD_VIP_ANNUAL_FEE)}) + putting <strong className="text-amber-300 font-bold">+{formatPrice(sampleNetProfit)} pure cash profit</strong> in your pocket on Day 1 ({sampleRoiPercent}% immediate ROI).
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4 shrink-0 text-center md:text-right border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-5">
               <div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Member Savings</div>
-                <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">41.8% OFF</div>
+                <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">{avgSavingsPct}% OFF</div>
               </div>
               <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
               <div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Cash Saved</div>
-                <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">$540–$1,840</div>
+                <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">{formatPrice(minSavings3Nts)}–{formatPrice(maxSavings3Nts)}</div>
               </div>
             </div>
           </div>
@@ -234,10 +201,11 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FEATURED_ESCAPES.map((hotel) => {
-            const savingsPerNight = hotel.retailPrice - hotel.wholesalePrice;
+          {featuredHotels.slice(0, 4).map((hotel) => {
+            const savingsPerNight = hotel.publicPricePerNight - hotel.memberPricePerNight;
+            const savingsPercent = Math.round((savingsPerNight / hotel.publicPricePerNight) * 100);
             const savings3Nights = savingsPerNight * 3;
-            const paybackPercent = Math.round((savings3Nights / 179) * 100);
+            const paybackPercent = Math.round((savings3Nights / GOLD_VIP_ANNUAL_FEE) * 100);
 
             return (
               <div
@@ -246,7 +214,7 @@ export default function HomePage() {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={hotel.image}
+                    src={hotel.thumbnail || hotel.images[0]}
                     alt={hotel.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -254,7 +222,7 @@ export default function HomePage() {
                     {hotel.category}
                   </div>
                   <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
-                    <span>SAVE {hotel.savings}</span>
+                    <span>SAVE {savingsPercent}%</span>
                   </div>
                 </div>
 
@@ -262,7 +230,7 @@ export default function HomePage() {
                   <div className="space-y-1.5">
                     <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                      <span>{hotel.city}</span>
+                      <span>{hotel.city}, {hotel.stateCountry}</span>
                     </div>
                     <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1">
                       {hotel.name}
@@ -271,10 +239,10 @@ export default function HomePage() {
                     {/* Prominent Savings Callout Pill */}
                     <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2 text-center">
                       <div className="text-xs font-black text-emerald-800">
-                        You Pocket: +${savings3Nights} on 3 Nts
+                        You Pocket: +{formatPrice(savings3Nights)} on 3 Nts
                       </div>
                       <div className="text-[10px] font-bold text-emerald-600">
-                        ⚡ Covers {paybackPercent}% of Annual Membership
+                        ⚡ Covers {paybackPercent}% of Annual {GOLD_VIP_TIER.name}
                       </div>
                     </div>
                   </div>
@@ -282,16 +250,16 @@ export default function HomePage() {
                   <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
                     <div>
                       <div className="text-[11px] text-slate-400 line-through">
-                        Public: ${hotel.retailPrice}/nt
+                        Public: {formatPrice(hotel.publicPricePerNight)}/nt
                       </div>
                       <div className="text-lg font-black text-slate-900 font-mono">
-                        ${hotel.wholesalePrice}
+                        {formatPrice(hotel.memberPricePerNight)}
                         <span className="text-xs font-normal text-slate-500"> /nt</span>
                       </div>
                     </div>
 
                     <Link
-                      href="/hotels"
+                      href={`/hotels/${hotel.id}`}
                       className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold text-xs transition-colors shadow-sm"
                     >
                       View Rate

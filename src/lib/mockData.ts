@@ -2519,6 +2519,29 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
   }
 ];
 
+export const getTierById = (tierId: string): TierPlan => {
+  return (
+    MEMBERSHIP_TIERS.find((t) => t.id === tierId) ||
+    MEMBERSHIP_TIERS.find((t) => t.id === 'gold') ||
+    MEMBERSHIP_TIERS[0]
+  );
+};
+
+export const GOLD_VIP_TIER = getTierById('gold');
+export const GOLD_VIP_ANNUAL_FEE = GOLD_VIP_TIER.priceAnnual; // dynamically 179
+
+export function getDefaultTripDates(offsetDays = 14, stayNights = 3) {
+  const now = new Date();
+  const inDate = new Date(now.getTime() + offsetDays * 24 * 60 * 60 * 1000);
+  const outDate = new Date(inDate.getTime() + stayNights * 24 * 60 * 60 * 1000);
+  const toYMD = (d: Date) => d.toISOString().split('T')[0];
+  return {
+    checkIn: toYMD(inDate),
+    checkOut: toYMD(outDate),
+    nights: stayNights,
+  };
+}
+
 export const MOCK_CRUISES: CruiseItinerary[] = [
   {
     id: 'icon-caribbean',

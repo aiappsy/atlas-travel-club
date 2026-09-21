@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCurrency } from '@/context/CurrencyContext';
-import { MOCK_PROOF_AUDITS, MOCK_LIVE_RECEIPTS } from '@/lib/mockData';
+import { MOCK_PROOF_AUDITS, MOCK_LIVE_RECEIPTS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
 import { SavingsProofAudit } from '@/lib/types';
 import {
   ShieldCheck,
@@ -81,7 +81,7 @@ export default function SavingsProofPage() {
   const estimatedSavingsPerNight = 165;
   const totalAnnualNights = tripsPerYear * avgNightsPerTrip;
   const totalAnnualSavings = totalAnnualNights * estimatedSavingsPerNight;
-  const goldMembershipCost = 179; // $179/yr
+  const goldMembershipCost = GOLD_VIP_ANNUAL_FEE;
   const netProfitForMember = totalAnnualSavings - goldMembershipCost;
   const returnOnInvestment = Math.round((totalAnnualSavings / goldMembershipCost) * 100);
 
@@ -447,7 +447,7 @@ export default function SavingsProofPage() {
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-600 space-y-1">
                 <div>Total Nights Traveling per Year: <strong>{totalAnnualNights} Nights</strong></div>
                 <div>Average Wholesale Savings: <strong>~{formatPrice(165)} / night</strong></div>
-                <div>Gold VIP Annual Membership Cost: <strong>{formatPrice(179)} / year ({formatPrice(14.90)}/mo)</strong></div>
+                <div>{GOLD_VIP_TIER.name} Annual Membership Cost: <strong>{formatPrice(goldMembershipCost)} / year ({formatPrice(goldMembershipCost / 12)}/mo)</strong></div>
               </div>
             </div>
 

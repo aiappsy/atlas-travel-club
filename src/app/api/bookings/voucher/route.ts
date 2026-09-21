@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDefaultTripDates } from '@/lib/mockData';
 
 function generateVoucherPayload(params: {
   bookingId?: string | null;
@@ -10,13 +11,14 @@ function generateVoucherPayload(params: {
   supplierRef?: string | null;
 }) {
   const { bookingId, hotelName, guestName, checkIn, checkOut, roomType, supplierRef } = params;
+  const defaultDates = getDefaultTripDates(14, 3);
 
   return {
     voucherId: bookingId || 'ATLAS-B2B-994182',
     hotelName: hotelName || 'The Grand Hotel & Suites',
     guestName: guestName || 'Valued ATLAS VIP Member',
-    checkIn: checkIn || '2026-10-15',
-    checkOut: checkOut || '2026-10-18',
+    checkIn: checkIn || defaultDates.checkIn,
+    checkOut: checkOut || defaultDates.checkOut,
     roomType: roomType || 'Deluxe King Fountain View Suite',
     supplier: 'WebBeds / Hotelbeds Global B2B Network',
     supplierRef: supplierRef || 'WB-8841920-ATLAS',

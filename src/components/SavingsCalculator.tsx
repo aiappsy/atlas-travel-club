@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
+import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
 import AuthModal from '@/components/AuthModal';
 
 interface DestinationComparison {
@@ -99,6 +100,7 @@ export default function SavingsCalculator() {
   const [nights, setNights] = useState<number>(4);
   const [includeRentalCar, setIncludeRentalCar] = useState<boolean>(true);
   const [includeThemePasses, setIncludeThemePasses] = useState<boolean>(false);
+  const [selectedTierId, setSelectedTierId] = useState<string>('gold');
 
   const dest = DESTINATION_DATA.find((d) => d.id === selectedDestId) || DESTINATION_DATA[0];
 
@@ -132,6 +134,13 @@ export default function SavingsCalculator() {
   const totalWholesalePaid = wholesaleHotelTotal + wholesaleCarTotal + wholesaleTicketsTotal;
   const totalNetSaved = totalOTAPaid - totalWholesalePaid;
   const totalSavedPercent = Math.round((totalNetSaved / totalOTAPaid) * 100);
+
+  // Dynamic Tier Payback Calculations
+  const targetTier = MEMBERSHIP_TIERS.find((t) => t.id === selectedTierId) || GOLD_VIP_TIER;
+  const tierAnnualFee = targetTier.priceAnnual > 0 ? targetTier.priceAnnual : GOLD_VIP_ANNUAL_FEE;
+  const isFullPayback = totalNetSaved >= tierAnnualFee;
+  const paybackRatio = Math.round((totalNetSaved / tierAnnualFee) * 100);
+  const netProfit = totalNetSaved - tierAnnualFee;
 
   const handleBookDeal = () => {
     if (!isMember) {
@@ -354,24 +363,44 @@ export default function SavingsCalculator() {
                     </div>
                   </div>
 
-                  {/* Membership Payback ROI Callout */}
-                  <div className="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-lg">💡</span>
-                      <div>
-                        <div className="font-black text-amber-300 uppercase text-[10px] tracking-wider">
-                          Annual Membership Payback
-                        </div>
-                        <div className="text-white text-xs font-medium">
-                          {totalNetSaved >= 179
-                            ? `This single trip pays for 100% of your $179 Gold VIP annual fee + leaves +${formatPrice(totalNetSaved - 179)} net profit in your pocket!`
-                            : `This single trip instantly recoups ${Math.round((totalNetSaved / 179) * 100)}% of your annual membership cost!`}
+                  {/* Membership Payback ROI Callout & Interactive Tier Selector */}
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-1.5 px-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Payback Against:</span>
+                      {MEMBERSHIP_TIERS.filter((t) => t.id !== 'free').map((tier) => (
+                        <button
+                          key={tier.id}
+                          type="button"
+                          onClick={() => setSelectedTierId(tier.id)}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
+                            selectedTierId === tier.id
+                              ? 'bg-amber-400 text-slate-950 shadow-sm font-black'
+                              : 'bg-white/10 text-slate-300 hover:bg-white/20'
+                          }`}
+                        >
+                          {tier.name} ({formatPrice(tier.priceAnnual)}/yr)
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/30 flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-lg">💡</span>
+                        <div>
+                          <div className="font-black text-amber-300 uppercase text-[10px] tracking-wider">
+                            {targetTier.name} Payback ROI
+                          </div>
+                          <div className="text-white text-xs font-medium">
+                            {isFullPayback
+                              ? `This single trip pays for 100% of your ${formatPrice(tierAnnualFee)} ${targetTier.name} annual fee + leaves +${formatPrice(netProfit)} net profit in your pocket!`
+                              : `This single trip instantly recoups ${paybackRatio}% of your ${targetTier.name} annual fee!`}
+                          </div>
                         </div>
                       </div>
+                      <span className="font-mono font-black text-amber-300 text-sm shrink-0 bg-black/30 px-2.5 py-1 rounded-xl border border-amber-400/30">
+                        {paybackRatio}% Recouped
+                      </span>
                     </div>
-                    <span className="font-mono font-black text-amber-300 text-sm shrink-0 bg-black/30 px-2.5 py-1 rounded-xl border border-amber-400/30">
-                      {Math.round((totalNetSaved / 179) * 100)}% Recouped
-                    </span>
                   </div>
                 </div>
 

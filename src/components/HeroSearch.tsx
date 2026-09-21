@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getDefaultTripDates } from '@/lib/mockData';
 import {
   Search,
   MapPin,
@@ -28,26 +29,25 @@ const TRAVEL_CATEGORIES = [
 const POPULAR_DESTINATIONS = [
   { name: 'Las Vegas, NV', tag: 'From $198/nt', discount: '49% Off' },
   { name: 'Cancun, Mexico', tag: 'From $235/nt', discount: '54% Off' },
-  { name: 'St. Barts, Caribbean', tag: 'Villa $3,200/nt', discount: '45% Off' },
-  { name: 'Paris, France', tag: 'From $420/nt', discount: '50% Off' },
-  { name: 'Lisbon, Portugal', tag: 'Coliving $1,150/mo', discount: '45% Off' },
-  { name: 'Courchevel 1850, France', tag: 'Ski Chalet $2,300/nt', discount: '45% Off' },
+  { name: 'Paris, France', tag: 'From $345/nt', discount: '44% Off' },
+  { name: 'Tokyo, Japan', tag: 'From $215/nt', discount: '45% Off' },
   { name: 'Bali, Indonesia', tag: 'Coliving $890/mo', discount: '46% Off' },
 ];
 
 export default function HeroSearch() {
   const router = useRouter();
+  const defaultDates = getDefaultTripDates(14, 3);
   const [activeTab, setActiveTab] = useState('hotels');
   const [city, setCity] = useState('');
-  const [checkIn, setCheckIn] = useState('2026-09-15');
-  const [checkOut, setCheckOut] = useState('2026-09-18');
+  const [checkIn, setCheckIn] = useState(defaultDates.checkIn);
+  const [checkOut, setCheckOut] = useState(defaultDates.checkOut);
   const [guests, setGuests] = useState('2 Guests, 1 Room');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const currentTabObj = TRAVEL_CATEGORIES.find((t) => t.id === activeTab) || TRAVEL_CATEGORIES[0];
-    const query = city ? `?city=${encodeURIComponent(city)}` : '';
+    const query = `?city=${encodeURIComponent(city)}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${encodeURIComponent(guests)}`;
     router.push(`${currentTabObj.path}${query}`);
   };
 

@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
       roomName,
       wholesalePricePerNight,
       publicRetailPricePerNight,
+      checkInDate,
+      checkOutDate,
     } = body;
 
     if (!manifest || !manifest.email || !hotelName) {
@@ -31,7 +33,9 @@ export async function POST(req: NextRequest) {
       hotelName,
       roomName,
       wholesalePricePerNight,
-      publicRetailPricePerNight
+      publicRetailPricePerNight,
+      checkInDate,
+      checkOutDate
     );
 
     return NextResponse.json({

@@ -960,18 +960,83 @@ function generateDynamicDestinationHotels(destQuery: string, nights: number): Co
   ];
 }
 
+function dynamicallyScaleHotelPrices(
+  hotel: ComparedHotel,
+  nights: number,
+  checkIn?: string,
+  checkOut?: string
+): ComparedHotel {
+  const scaleProvider = (p: { perNight: number; total: number; verifyUrl: string }) => {
+    let url = p.verifyUrl;
+    if (checkIn && checkOut) {
+      url = url.replace(/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\//, `/${checkIn}/${checkOut}/`);
+    }
+    return {
+      ...p,
+      total: p.perNight * nights,
+      verifyUrl: url,
+    };
+  };
+
+  const atlasPerNight = hotel.prices.atlasWholesale.perNight;
+  const lowestPerNight = hotel.prices.lowestOta.perNight;
+  const instantSavingsPerNight = Math.max(0, lowestPerNight - atlasPerNight);
+  const totalSavings = instantSavingsPerNight * nights;
+  const adTaxEliminated = instantSavingsPerNight * nights;
+
+  const scaledRooms = (hotel.roomOptions || []).map((r) => {
+    const roomSavingsPerNight = Math.max(0, r.publicRetailRate - r.wholesaleRate);
+    return {
+      ...r,
+      instantSavingsPerNight: roomSavingsPerNight,
+      savingsPercent: Math.round((roomSavingsPerNight / (r.publicRetailRate || 1)) * 100),
+    };
+  });
+
+  return {
+    ...hotel,
+    roomOptions: scaledRooms,
+    prices: {
+      ...hotel.prices,
+      expedia: scaleProvider(hotel.prices.expedia),
+      hotelsCom: scaleProvider(hotel.prices.hotelsCom),
+      agoda: scaleProvider(hotel.prices.agoda),
+      kayak: scaleProvider(hotel.prices.kayak),
+      officialDirect: scaleProvider(hotel.prices.officialDirect),
+      lowestOta: {
+        ...hotel.prices.lowestOta,
+        total: lowestPerNight * nights,
+      },
+      atlasWholesale: {
+        ...hotel.prices.atlasWholesale,
+        total: atlasPerNight * nights,
+        instantSavingsPerNight,
+        totalSavings,
+        adTaxEliminated,
+        savingsPercent: Math.round((instantSavingsPerNight / (lowestPerNight || 1)) * 100),
+      },
+    },
+    audit: {
+      ...hotel.audit,
+      timestamp: new Date().toISOString(),
+    },
+  };
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const destination = (searchParams.get('destination') || searchParams.get('city') || '').trim().toLowerCase();
   const hotelQuery = (searchParams.get('hotel') || '').trim().toLowerCase();
   const hotelId = (searchParams.get('id') || '').trim().toLowerCase();
   const nights = Math.max(1, parseInt(searchParams.get('nights') || '3', 10));
+  const checkIn = searchParams.get('checkIn') || undefined;
+  const checkOut = searchParams.get('checkOut') || undefined;
 
   // Single hotel lookup by ID
   if (hotelId) {
     const singleHotel = MASTER_HOTELS_DB.find((h) => h.id === hotelId);
     if (singleHotel) {
-      return NextResponse.json({ hotel: singleHotel });
+      return NextResponse.json({ hotel: dynamicallyScaleHotelPrices(singleHotel, nights, checkIn, checkOut) });
     }
   }
 
@@ -999,10 +1064,12 @@ export async function GET(request: Request) {
     }
   }
 
+  const dynamicHotels = matchedHotels.map((h) => dynamicallyScaleHotelPrices(h, nights, checkIn, checkOut));
+
   return NextResponse.json({
     destination: destination || 'Global Curated Portfolio',
     nights,
-    totalResults: matchedHotels.length,
-    hotels: matchedHotels,
+    totalResults: dynamicHotels.length,
+    hotels: dynamicHotels,
   });
 }

@@ -1,6 +1,7 @@
 import { ProviderHotelRate, GuestManifest, BookingResponse, ProviderName } from './types';
 import { amadeusProvider } from './amadeus';
 import { hotelbedsProvider } from './hotelbeds';
+import { getDefaultTripDates } from '../mockData';
 
 export class UnifiedTravelRouter {
   /**
@@ -34,8 +35,13 @@ export class UnifiedTravelRouter {
     hotelName: string,
     roomName: string,
     wholesalePricePerNight: number,
-    publicRetailPricePerNight: number
+    publicRetailPricePerNight: number,
+    checkInDate?: string,
+    checkOutDate?: string
   ): Promise<BookingResponse> {
+    const defaultDates = getDefaultTripDates(14, nights);
+    const resolvedCheckIn = checkInDate || defaultDates.checkIn;
+    const resolvedCheckOut = checkOutDate || defaultDates.checkOut;
     const wholesalePaid = wholesalePricePerNight * nights;
     const publicTotal = publicRetailPricePerNight * nights;
     const providerRef = `${provider.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -47,8 +53,8 @@ export class UnifiedTravelRouter {
       provider,
       hotelName,
       roomName,
-      checkInDate: '2026-09-15',
-      checkOutDate: '2026-09-18',
+      checkInDate: resolvedCheckIn,
+      checkOutDate: resolvedCheckOut,
       nights,
       guests: 2,
       totalPublicPrice: publicTotal,
