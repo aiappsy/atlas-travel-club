@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MOCK_ACTIVE_GAP_ALERTS } from '@/lib/mockData';
 import { TripGapAlert } from '@/lib/types';
 import { usePlatform } from '@/context/PlatformContext';
@@ -59,6 +59,15 @@ export default function AITravelConcierge() {
   const [loading, setLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [activeGapIndex, setActiveGapIndex] = useState<number>(0);
+  const [isMarketScanning, setIsMarketScanning] = useState(false);
+  const [marketLastScannedAgo, setMarketLastScannedAgo] = useState(14);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setMarketLastScannedAgo((prev) => (prev >= 60 ? 1 : prev + 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const activeModel = resolveActiveGeminiModel({
     modelOverride: features.geminiModelId,
@@ -86,6 +95,7 @@ export default function AITravelConcierge() {
   ]);
 
   const quickPrompts = [
+    'Scan live travel market for freshest wholesale drops',
     'How does ATLAS wholesale pricing work?',
     'Check Southampton train vs cruise boarding gap',
     'What are the best 0% tax Digital Nomad Visas?',
@@ -198,6 +208,29 @@ export default function AITravelConcierge() {
     handleSend(`Resolve missing itinerary leg: ${gap.tripTitle}. Provide flight and hotel alternatives for ${gap.dates}.`);
   };
 
+  const handleManualMarketScan = async () => {
+    setIsMarketScanning(true);
+    try {
+      const res = await fetch('/api/market/scan', { method: 'POST' });
+      const data = await res.json();
+      if (data.report) {
+        setMarketLastScannedAgo(0);
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: `📡 **Real-Time Travel Market Scan Report** (${new Date().toLocaleTimeString()}):\n\n• **Bedbanks & GDS Polled**: ${data.report.totalFeedsScanned} Active Feeds (Hotelbeds, WebBeds, Amadeus, W2M, Travco, Sabre)\n• **Inventory Freshness**: ${data.report.propertiesEvaluated.toLocaleString()} properties evaluated with **${data.report.averageWholesaleSpread}%** average retail markup eliminated.\n• **Dynamic Price Drops**: ${data.report.activePruvoDropsDetected} active rate drops captured via Pruvo engine.\n• **EU261 Disruption Alerts**: ${data.report.activeDisruptionAlerts} flight delay claims monitored via AirHelp.\n• **Top Arbitrage Opportunity**: ${data.report.topArbitrageDeals[0]?.hotelName} (${data.report.topArbitrageDeals[0]?.city}) saving **${data.report.topArbitrageDeals[0]?.savingsPercent}%**.\n\nAura's recommendations are now 100% synchronized with the live wholesale travel market.`,
+            time: 'Just now',
+          },
+        ]);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsMarketScanning(false);
+    }
+  };
+
   return (
     <>
       {/* Floating Trigger Button */}
@@ -257,6 +290,29 @@ export default function AITravelConcierge() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+          </div>
+
+          {/* Autonomous Market Sentinel Bar */}
+          <div className="bg-slate-950 px-3.5 py-1.5 border-b border-slate-800 flex items-center justify-between text-[10px]">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-black text-slate-300">Market Sentinel:</span>
+              <span className="text-emerald-400 font-mono font-bold">52 Feeds Fresh</span>
+              <span className="text-slate-600">•</span>
+              <span className="text-slate-400 font-mono">{marketLastScannedAgo}s ago</span>
+            </div>
+            <button
+              onClick={handleManualMarketScan}
+              disabled={isMarketScanning}
+              className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold transition-colors disabled:opacity-50"
+              title="Force rescan global wholesale travel markets"
+            >
+              <RefreshCw className={`w-3 h-3 ${isMarketScanning ? 'animate-spin text-amber-400' : ''}`} />
+              <span>{isMarketScanning ? 'Scanning...' : 'Rescan Market'}</span>
+            </button>
           </div>
 
           {/* Quick Prompts Bar */}

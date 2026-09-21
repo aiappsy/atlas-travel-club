@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PlatformFeatureFlags } from '@/lib/types';
 import { DEFAULT_PLATFORM_CONFIG } from '@/lib/mockData';
 import { resolveActiveGeminiModel, formatGeminiEngineBadge } from '@/lib/geminiModels';
+import { runLiveMarketScan, buildMarketGroundingContext } from '@/lib/marketScanner';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +14,8 @@ export async function POST(req: NextRequest) {
       modelOverride: features.geminiModelId,
       autoUpgradeEnabled: features.autoUpgradeGeminiModel ?? true,
     });
+
+    const marketScan = runLiveMarketScan();
 
     let reply = '';
 
@@ -183,9 +186,20 @@ export async function POST(req: NextRequest) {
         reply = `🏨 **Direct Wholesale Reservation Available!**\n\nI have queried B2B Bedbanks for **The Grand Bellagio & Casino Resort (Las Vegas)**:\n\n- **Public Expedia Rate**: $389 / night\n- **ATLAS Wholesale Net Rate**: **$198 / night**\n- **Direct Savings**: **$191 / night ($573.00 total for 3 nights — 49% Off)**\n\n🛡️ **Price-Drop Sentinel Active**: If the rate drops prior to check-in, our Pruvo engine automatically refunds the difference to your reloadable Visa card!`;
       }
     }
-    // 7. Default Aura Greeting
+    // 6b. Live Travel Market Scan Intent
+    else if (
+      query.includes('market') ||
+      query.includes('scan') ||
+      query.includes('scanner') ||
+      query.includes('latest prices') ||
+      query.includes('up to date') ||
+      query.includes('feeds')
+    ) {
+      reply = `📡 **Live Travel Market Scan Completed (#${marketScan.scanId}):**\n\nI just executed an autonomous scan across **${marketScan.feedsScannedCount} B2B Wholesale Bedbanks & GDS feeds** (${marketScan.freshnessSeconds}s ago), monitoring **${marketScan.propertiesMonitored.toLocaleString()} properties** worldwide.\n\n📊 **Current Real-Time Spreads:**\n- **Average Retail Markup Eliminated**: **${marketScan.averageWholesaleMarginEliminated}%**\n- **Pruvo Price-Drop Sentinel**: **${marketScan.activePriceDropsDetected} active rate drops** being monitored for auto-cashback to member Visa cards.\n- **AirHelp Flight Sentinel**: **${marketScan.activeDisruptionClaimsPending} active €600 compensation claims** filing autonomously.\n\n⚡ **Top Arbitrage Spreads Right Now:**\n${marketScan.topOpportunities.map((o) => `• **${o.hotelName} (${o.city})**: Public ${o.otaProvider} $${o.publicOtaPrice}/nt ➔ **ATLAS Wholesale $${o.wholesaleNetPrice}/nt** (Save **$${o.savingsPerNight}/nt — ${o.savingsPercent}% OFF**)`).join('\n')}\n\nOur market scanner runs 24/7 in the background so you never book at inflated retail rates. What destination would you like me to audit next?`;
+    }
+    // 7. Default Aura Greeting with Live Market Telemetry
     else {
-      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nI can help you find raw wholesale net rates (30%–70% off Expedia across 1,000,000+ luxury hotels), issue instant **B2B Check-in Vouchers**, install your **Apple & Google Wallet passes**, or manage **Digital Nomad Visas (Spain, Portugal, Dubai, Thailand) and monthly coliving**.\n\nTell me where you want to travel or work from!`;
+      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nMy autonomous market scanner continuously audits **50+ B2B Bedbanks & GDS networks** (updated ${marketScan.freshnessSeconds}s ago) to eliminate the 18%–35% OTA retail ad tax across 1,000,000+ luxury hotels, monitor price drops, and manage digital nomad relocation.\n\nTell me where you want to travel or work from!`;
     }
 
     return NextResponse.json({
@@ -198,6 +212,15 @@ export async function POST(req: NextRequest) {
         status: activeModel.status,
         autoUpgraded: features.autoUpgradeGeminiModel ?? true,
         latencyProfile: activeModel.latencyProfile,
+      },
+      marketScan: {
+        scanId: marketScan.scanId,
+        timestamp: marketScan.timestamp,
+        freshnessSeconds: marketScan.freshnessSeconds,
+        feedsScanned: marketScan.feedsScannedCount,
+        propertiesMonitored: marketScan.propertiesMonitored,
+        averageDiscount: marketScan.averageWholesaleMarginEliminated,
+        activePriceDrops: marketScan.activePriceDropsDetected,
       },
     });
   } catch (error: any) {
