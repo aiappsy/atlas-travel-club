@@ -1,0 +1,8 @@
+{
+  "name": "ATLAS | The Private Wholesale Travel & Banking Club",
+  "description": "ATLAS is a closed-loop wholesale travel and sovereign banking club with 0% retail markups, co-branded reloadable Visa cards, post-booking price drop refunds, and annual profit dividends.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
