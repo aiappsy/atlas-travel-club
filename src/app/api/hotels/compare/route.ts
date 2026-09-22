@@ -132,8 +132,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 300, total: 900, verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+Karl+Johan+rates' },
-      hotelsCom: { perNight: 303, total: 909, verifyUrl: 'https://www.hotels.com/ho125695/grand-hotel-oslo-norway/' },
+      expedia: { perNight: 300, total: 900, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Grand%20Hotel%20Oslo%2C%20Karl%20Johans%20gate%2C%20Norway' },
+      hotelsCom: { perNight: 303, total: 909, verifyUrl: 'https://www.hotels.com/ho115858/grand-hotel-oslo-oslo-norway/' },
       agoda: { perNight: 291, total: 873, verifyUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html' },
       kayak: { perNight: 298, total: 894, verifyUrl: 'https://www.kayak.com/hotels/Oslo,Norway-c4193/Grand-Hotel/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 305, total: 915, verifyUrl: 'https://www.grand.no' },
@@ -196,8 +196,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 169, total: 507, verifyUrl: 'https://www.google.com/travel/hotels?q=Clarion+Hotel+The+Hub+Oslo+rates' },
-      hotelsCom: { perNight: 170, total: 510, verifyUrl: 'https://www.hotels.com/ho1060938496/clarion-hotel-the-hub-oslo-norway/' },
+      expedia: { perNight: 169, total: 507, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Clarion%20Hotel%20The%20Hub%2C%20Oslo%2C%20Norway' },
+      hotelsCom: { perNight: 170, total: 510, verifyUrl: 'https://www.hotels.com/ho137729/clarion-hotel-the-hub-oslo-norway/' },
       agoda: { perNight: 164, total: 492, verifyUrl: 'https://www.agoda.com/clarion-hotel-the-hub/hotel/oslo-no.html' },
       kayak: { perNight: 168, total: 504, verifyUrl: 'https://www.kayak.com/hotels/Oslo,Norway-c4193/Clarion-Hotel-The-Hub/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 172, total: 516, verifyUrl: 'https://www.strawberry.no/hotell/norge/oslo/clarion-hotel-the-hub/' },
@@ -275,8 +275,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 102, total: 306, verifyUrl: 'https://www.google.com/travel/hotels?q=Horseshoe+Las+Vegas+Hotel+rates' },
-      hotelsCom: { perNight: 103, total: 309, verifyUrl: 'https://www.hotels.com/ho106093/horseshoe-las-vegas-las-vegas-united-states-of-america/' },
+      expedia: { perNight: 102, total: 306, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Horseshoe%20Las%20Vegas' },
+      hotelsCom: { perNight: 103, total: 309, verifyUrl: 'https://www.hotels.com/ho107128/bally-s-las-vegas-hotel-casino-las-vegas-united-states-of-america/' },
       agoda: { perNight: 99, total: 297, verifyUrl: 'https://www.agoda.com/horseshoe-las-vegas/hotel/las-vegas-nv-us.html' },
       kayak: { perNight: 101, total: 303, verifyUrl: 'https://www.kayak.com/hotels/Las-Vegas,NV-c17042/Horseshoe-Las-Vegas/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 105, total: 315, verifyUrl: 'https://www.caesars.com/horseshoe-las-vegas' },
@@ -339,8 +339,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 298, total: 894, verifyUrl: 'https://www.google.com/travel/hotels?q=Bellagio+Las+Vegas+Hotel+rates' },
-      hotelsCom: { perNight: 301, total: 903, verifyUrl: 'https://www.hotels.com/ho147048/bellagio-las-vegas-united-states-of-america/' },
+      expedia: { perNight: 298, total: 894, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Bellagio%20Las%20Vegas' },
+      hotelsCom: { perNight: 301, total: 903, verifyUrl: 'https://www.hotels.com/ho119566/bellagio-las-vegas-united-states-of-america/' },
       agoda: { perNight: 289, total: 867, verifyUrl: 'https://www.agoda.com/bellagio-hotel-and-casino/hotel/las-vegas-nv-us.html' },
       kayak: { perNight: 296, total: 888, verifyUrl: 'https://www.kayak.com/hotels/Las-Vegas,NV-c17042/Bellagio/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 305, total: 915, verifyUrl: 'https://bellagio.mgmresorts.com' },
@@ -404,8 +404,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 915, total: 2745, verifyUrl: 'https://www.google.com/travel/hotels?q=Ritz+Paris+Place+Vendome+rates' },
-      hotelsCom: { perNight: 920, total: 2760, verifyUrl: 'https://www.hotels.com/ho1060938/hotel-ritz-paris-france/' },
+      expedia: { perNight: 915, total: 2745, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Ritz%20Paris%20Place%20Vendome' },
+      hotelsCom: { perNight: 920, total: 2760, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Ritz%20Paris%2015%20Place%20Vendome' },
       agoda: { perNight: 898, total: 2694, verifyUrl: 'https://www.agoda.com/ritz-paris/hotel/paris-fr.html' },
       kayak: { perNight: 910, total: 2730, verifyUrl: 'https://www.kayak.com/hotels/Paris,France-c12262/Ritz-Paris/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 930, total: 2790, verifyUrl: 'https://www.ritzparis.com' },
@@ -469,8 +469,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 1350, total: 4050, verifyUrl: 'https://www.google.com/travel/hotels?q=Burj+Al+Arab+Jumeirah+Dubai+rates' },
-      hotelsCom: { perNight: 1360, total: 4080, verifyUrl: 'https://www.hotels.com/ho147048/burj-al-arab-jumeirah-dubai/' },
+      expedia: { perNight: 1350, total: 4050, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Burj%20Al%20Arab%20Jumeirah%20Dubai' },
+      hotelsCom: { perNight: 1360, total: 4080, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Burj%20Al%20Arab%20Jumeirah%20Dubai' },
       agoda: { perNight: 1320, total: 3960, verifyUrl: 'https://www.agoda.com/burj-al-arab-hotel/hotel/dubai-ae.html' },
       kayak: { perNight: 1340, total: 4020, verifyUrl: 'https://www.kayak.com/hotels/Dubai,United-Arab-Emirates-c9170/Burj-Al-Arab-Jumeirah/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 1380, total: 4140, verifyUrl: 'https://www.jumeirah.com/en/stay/dubai/burj-al-arab-jumeirah' },
@@ -534,8 +534,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 685, total: 2055, verifyUrl: 'https://www.google.com/travel/hotels?q=The+Plaza+Hotel+New+York+rates' },
-      hotelsCom: { perNight: 690, total: 2070, verifyUrl: 'https://www.hotels.com/ho1060938/the-plaza-new-york-united-states/' },
+      expedia: { perNight: 685, total: 2055, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=The%20Plaza%20Hotel%20Fifth%20Avenue%20New%20York' },
+      hotelsCom: { perNight: 690, total: 2070, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=The%20Plaza%20Hotel%20Fifth%20Avenue%20New%20York' },
       agoda: { perNight: 665, total: 1995, verifyUrl: 'https://www.agoda.com/the-plaza-hotel/hotel/new-york-ny-us.html' },
       kayak: { perNight: 675, total: 2025, verifyUrl: 'https://www.kayak.com/hotels/New-York,NY-c15830/The-Plaza/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 700, total: 2100, verifyUrl: 'https://www.theplazany.com' },
@@ -612,8 +612,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 165, total: 495, verifyUrl: 'https://www.expedia.com/Davao-Hotels-Dusit-Thani-Residence-Davao.h35291824.Hotel-Information' },
-      hotelsCom: { perNight: 168, total: 504, verifyUrl: 'https://www.hotels.com/ho1129481/dusit-thani-residence-davao-philippines/' },
+      expedia: { perNight: 165, total: 495, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Dusit%20Thani%20Residence%20Davao' },
+      hotelsCom: { perNight: 168, total: 504, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Dusit%20Thani%20Residence%20Davao' },
       agoda: { perNight: 158, total: 474, verifyUrl: 'https://www.agoda.com/dusit-thani-residence-davao/hotel/davao-city-ph.html' },
       kayak: { perNight: 162, total: 486, verifyUrl: 'https://www.kayak.com/hotels/Davao,Philippines-c11492/Dusit-Thani-Residence' },
       officialDirect: { perNight: 170, total: 510, verifyUrl: 'https://www.dusit.com/dusitthani-davaoresidence' },
@@ -675,8 +675,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 310, total: 930, verifyUrl: 'https://www.expedia.com/Samal-Hotels-Pearl-Farm-Beach-Resort.h381924.Hotel-Information' },
-      hotelsCom: { perNight: 315, total: 945, verifyUrl: 'https://www.hotels.com/ho291824/pearl-farm-beach-resort-philippines/' },
+      expedia: { perNight: 310, total: 930, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Pearl%20Farm%20Beach%20Resort%20Samal' },
+      hotelsCom: { perNight: 315, total: 945, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Pearl%20Farm%20Beach%20Resort%20Samal' },
       agoda: { perNight: 298, total: 894, verifyUrl: 'https://www.agoda.com/pearl-farm-beach-resort/hotel/davao-city-ph.html' },
       kayak: { perNight: 305, total: 915, verifyUrl: 'https://www.kayak.com/hotels/Samal-Island,Philippines/Pearl-Farm' },
       officialDirect: { perNight: 320, total: 960, verifyUrl: 'https://www.pearlfarmresort.com' },
@@ -737,8 +737,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 115, total: 345, verifyUrl: 'https://www.expedia.com/Davao-Hotels-Seda-Abreeza.h519284.Hotel-Information' },
-      hotelsCom: { perNight: 118, total: 354, verifyUrl: 'https://www.hotels.com/ho419284/seda-abreeza-davao-philippines/' },
+      expedia: { perNight: 115, total: 345, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Seda%20Abreeza%20Davao' },
+      hotelsCom: { perNight: 118, total: 354, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Seda%20Abreeza%20Davao' },
       agoda: { perNight: 110, total: 330, verifyUrl: 'https://www.agoda.com/seda-abreeza-hotel/hotel/davao-city-ph.html' },
       kayak: { perNight: 112, total: 336, verifyUrl: 'https://www.kayak.com/hotels/Davao,Philippines/Seda-Abreeza' },
       officialDirect: { perNight: 120, total: 360, verifyUrl: 'https://abreeza.sedahotels.com' },
@@ -799,8 +799,8 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 95, total: 285, verifyUrl: 'https://www.expedia.com/Davao-Hotels-Waterfront-Insular-Hotel-Davao.h419284.Hotel-Information' },
-      hotelsCom: { perNight: 98, total: 294, verifyUrl: 'https://www.hotels.com/ho319284/waterfront-insular-hotel-davao-philippines/' },
+      expedia: { perNight: 95, total: 285, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Waterfront%20Insular%20Hotel%20Davao' },
+      hotelsCom: { perNight: 98, total: 294, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Waterfront%20Insular%20Hotel%20Davao' },
       agoda: { perNight: 90, total: 270, verifyUrl: 'https://www.agoda.com/waterfront-insular-hotel-davao/hotel/davao-city-ph.html' },
       kayak: { perNight: 92, total: 276, verifyUrl: 'https://www.kayak.com/hotels/Davao,Philippines/Waterfront-Insular' },
       officialDirect: { perNight: 100, total: 300, verifyUrl: 'https://www.waterfronthotels.com.ph' },
@@ -872,12 +872,12 @@ function generateDynamicDestinationHotels(destQuery: string, nights: number): Co
         }
       ],
       prices: {
-        expedia: { perNight: 280, total: 280 * nights, verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' hotels rates')}` },
-        hotelsCom: { perNight: 285, total: 285 * nights, verifyUrl: `https://www.hotels.com` },
-        agoda: { perNight: 272, total: 272 * nights, verifyUrl: `https://www.agoda.com` },
-        kayak: { perNight: 278, total: 278 * nights, verifyUrl: `https://www.kayak.com` },
-        officialDirect: { perNight: 290, total: 290 * nights, verifyUrl: `https://www.google.com` },
-        googleHotels: { verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' hotels')}` },
+        expedia: { perNight: 280, total: 280 * nights, verifyUrl: `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent('The Grand ' + city + ' Luxury Suites')}` },
+        hotelsCom: { perNight: 285, total: 285 * nights, verifyUrl: `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent('The Grand ' + city + ' Luxury Suites')}` },
+        agoda: { perNight: 272, total: 272 * nights, verifyUrl: `https://www.agoda.com/search?city=${encodeURIComponent(city)}&text=${encodeURIComponent('The Grand ' + city + ' Luxury Suites')}` },
+        kayak: { perNight: 278, total: 278 * nights, verifyUrl: `https://www.kayak.com/hotels/${encodeURIComponent(city + ', ' + country)}/The-Grand-${encodeURIComponent(city)}` },
+        officialDirect: { perNight: 290, total: 290 * nights, verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent('The Grand ' + city + ' Luxury Suites rates')}` },
+        googleHotels: { verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent('The Grand ' + city + ' Luxury Suites rates')}` },
         lowestOta: { provider: 'Agoda', perNight: 272, total: 272 * nights },
         atlasWholesale: {
           perNight: 155,
@@ -934,12 +934,12 @@ function generateDynamicDestinationHotels(destQuery: string, nights: number): Co
         }
       ],
       prices: {
-        expedia: { perNight: 420, total: 420 * nights, verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' luxury resort')}` },
-        hotelsCom: { perNight: 430, total: 430 * nights, verifyUrl: `https://www.hotels.com` },
-        agoda: { perNight: 410, total: 410 * nights, verifyUrl: `https://www.agoda.com` },
-        kayak: { perNight: 415, total: 415 * nights, verifyUrl: `https://www.kayak.com` },
-        officialDirect: { perNight: 440, total: 440 * nights, verifyUrl: `https://www.google.com` },
-        googleHotels: { verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' resort rates')}` },
+        expedia: { perNight: 420, total: 420 * nights, verifyUrl: `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(city + ' Palace Resort & Private Beach')}` },
+        hotelsCom: { perNight: 430, total: 430 * nights, verifyUrl: `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(city + ' Palace Resort & Private Beach')}` },
+        agoda: { perNight: 410, total: 410 * nights, verifyUrl: `https://www.agoda.com/search?city=${encodeURIComponent(city)}&text=${encodeURIComponent(city + ' Palace Resort & Private Beach')}` },
+        kayak: { perNight: 415, total: 415 * nights, verifyUrl: `https://www.kayak.com/hotels/${encodeURIComponent(city + ', ' + country)}/${encodeURIComponent(city)}-Palace-Resort` },
+        officialDirect: { perNight: 440, total: 440 * nights, verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' Palace Resort rates')}` },
+        googleHotels: { verifyUrl: `https://www.google.com/travel/hotels?q=${encodeURIComponent(city + ' Palace Resort Private Beach rates')}` },
         lowestOta: { provider: 'Agoda', perNight: 410, total: 410 * nights },
         atlasWholesale: {
           perNight: 235,
@@ -966,15 +966,47 @@ function dynamicallyScaleHotelPrices(
   checkIn?: string,
   checkOut?: string
 ): ComparedHotel {
-  const scaleProvider = (p: { perNight: number; total: number; verifyUrl: string }) => {
-    let url = p.verifyUrl;
-    if (checkIn && checkOut) {
-      url = url.replace(/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\//, `/${checkIn}/${checkOut}/`);
+  const updateUrlWithDates = (rawUrl: string): string => {
+    if (!rawUrl || !checkIn || !checkOut) return rawUrl;
+    try {
+      if (rawUrl.includes('kayak.com')) {
+        if (/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\//.test(rawUrl)) {
+          return rawUrl.replace(/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}\//, `/${checkIn}/${checkOut}/`);
+        }
+        return `${rawUrl.replace(/\/$/, '')}/${checkIn}/${checkOut}/2adults`;
+      }
+      if (rawUrl.includes('hotels.com') || rawUrl.includes('expedia.com')) {
+        const urlObj = new URL(rawUrl);
+        urlObj.searchParams.set('startDate', checkIn);
+        urlObj.searchParams.set('endDate', checkOut);
+        urlObj.searchParams.set('d1', checkIn);
+        urlObj.searchParams.set('d2', checkOut);
+        return urlObj.toString();
+      }
+      if (rawUrl.includes('google.com/travel/hotels')) {
+        const urlObj = new URL(rawUrl);
+        urlObj.searchParams.set('dates', `${checkIn},${checkOut}`);
+        return urlObj.toString();
+      }
+      if (rawUrl.includes('agoda.com')) {
+        const urlObj = new URL(rawUrl);
+        urlObj.searchParams.set('checkIn', checkIn);
+        urlObj.searchParams.set('checkOut', checkOut);
+        urlObj.searchParams.set('los', String(nights || 1));
+        urlObj.searchParams.set('adults', '2');
+        return urlObj.toString();
+      }
+    } catch {
+      return rawUrl;
     }
+    return rawUrl;
+  };
+
+  const scaleProvider = (p: { perNight: number; total: number; verifyUrl: string }) => {
     return {
       ...p,
       total: p.perNight * nights,
-      verifyUrl: url,
+      verifyUrl: updateUrlWithDates(p.verifyUrl),
     };
   };
 
@@ -1003,6 +1035,9 @@ function dynamicallyScaleHotelPrices(
       agoda: scaleProvider(hotel.prices.agoda),
       kayak: scaleProvider(hotel.prices.kayak),
       officialDirect: scaleProvider(hotel.prices.officialDirect),
+      googleHotels: {
+        verifyUrl: updateUrlWithDates(hotel.prices.googleHotels?.verifyUrl || ''),
+      },
       lowestOta: {
         ...hotel.prices.lowestOta,
         total: lowestPerNight * nights,
