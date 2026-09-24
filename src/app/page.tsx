@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { MOCK_HOTELS, MEMBERSHIP_TIERS } from '@/lib/mockData';
+import { useCurrency } from '@/context/CurrencyContext';
+import { MOCK_HOTELS, MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
 import LiveHotelSearch from '@/components/LiveHotelSearch';
 import SavingsCalculator from '@/components/SavingsCalculator';
 import AuthModal from '@/components/AuthModal';
@@ -29,57 +30,6 @@ import {
   Download,
   Award
 } from 'lucide-react';
-
-const FEATURED_ESCAPES = [
-  {
-    id: 'bellagio-vegas',
-    name: 'The Bellagio Resort & Luxury Casino',
-    city: 'Las Vegas, NV',
-    image: 'https://images.unsplash.com/photo-1581351123004-757df051db8e?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.4,
-    retailPrice: 389,
-    wholesalePrice: 198,
-    savings: '49%',
-    category: 'Luxury Casino Resort'
-  },
-  {
-    id: 'ritz-paris',
-    name: 'Ritz Paris Place Vendôme',
-    city: 'Paris, France',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.8,
-    retailPrice: 1120,
-    wholesalePrice: 640,
-    savings: '43%',
-    category: 'Palace Suite'
-  },
-  {
-    id: 'atlantis-the-royal',
-    name: 'Atlantis The Royal Palm',
-    city: 'Dubai, UAE',
-    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.6,
-    retailPrice: 890,
-    wholesalePrice: 510,
-    savings: '43%',
-    category: 'Ultra-Luxury Beachfront'
-  },
-  {
-    id: 'faena-miami',
-    name: 'Faena Hotel Miami Beach',
-    city: 'Miami Beach, FL',
-    image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?auto=format&fit=crop&w=800&q=80',
-    stars: 5,
-    rating: 9.5,
-    retailPrice: 740,
-    wholesalePrice: 390,
-    savings: '47%',
-    category: 'Oceanfront Art Deco'
-  }
-];
 
 const MEMBER_POSTCARDS = [
   {
@@ -110,8 +60,25 @@ const MEMBER_POSTCARDS = [
 
 export default function HomePage() {
   const { user, isMember } = useAuth();
+  const { formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
+
+  // Dynamic calculations for Hero Payback & Featured Hotels
+  const sampleHotel = MOCK_HOTELS.find((h) => h.id === 'bellagio-vegas') || MOCK_HOTELS[0];
+  const sampleStayNights = 3;
+  const sampleSavingsPerNight = sampleHotel.publicPricePerNight - sampleHotel.memberPricePerNight;
+  const sampleStaySavings = sampleSavingsPerNight * sampleStayNights;
+  const sampleNetProfit = sampleStaySavings - GOLD_VIP_ANNUAL_FEE;
+  const sampleRoiPercent = Math.round((sampleStaySavings / GOLD_VIP_ANNUAL_FEE) * 100);
+
+  const featuredHotels = MOCK_HOTELS.filter((h) => h.featured);
+  const avgSavingsPct = Math.round(
+    featuredHotels.reduce((acc, h) => acc + ((h.publicPricePerNight - h.memberPricePerNight) / h.publicPricePerNight) * 100, 0) /
+      (featuredHotels.length || 1)
+  );
+  const minSavings3Nts = Math.min(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
+  const maxSavings3Nts = Math.max(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
 
   return (
     <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
@@ -122,6 +89,23 @@ export default function HomePage() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30 shadow-sm">
             <Compass className="w-4 h-4 text-amber-400 animate-spin-slow" />
             <span>The Private Wholesale Travel & Sovereign Banking Club</span>
+          </div>
+
+          {/* Live Wholesale Savings Ticker Banner */}
+          <div className="max-w-4xl mx-auto bg-slate-950/80 backdrop-blur-md rounded-2xl p-2.5 sm:px-4 sm:py-2 border border-emerald-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Member Booking:</span>
+            </div>
+            <div className="text-slate-300 text-xs truncate text-center sm:text-left flex-1">
+              <span className="font-bold text-white">{sampleHotel.name.replace(' & Casino Resort', '')}</span> • Public: <span className="line-through text-rose-400">{formatPrice(sampleHotel.publicPricePerNight)}/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">{formatPrice(sampleHotel.memberPricePerNight)}/nt</span> • <strong className="text-amber-300 font-black">Member Saved {formatPrice(sampleStaySavings)} on {sampleStayNights} nights ({Math.round((sampleSavingsPerNight / sampleHotel.publicPricePerNight) * 100)}% OFF)</strong>
+            </div>
+            <span className="hidden md:inline-flex px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-bold text-emerald-300 shrink-0">
+              ⚡ Recouped {sampleRoiPercent}% of {GOLD_VIP_TIER.name}
+            </span>
           </div>
 
           {/* Large Hero Title */}
@@ -135,6 +119,35 @@ export default function HomePage() {
           <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
             Public booking portals add an 18%–25% retail ad markup. <strong>ATLAS</strong> lets you compare real-time prices across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank clearing rates.
           </p>
+
+          {/* Instant 1-Stay Payback Math Guarantee Banner */}
+          <div className="max-w-5xl mx-auto p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-sky-500/15 border border-amber-400/40 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-left">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center shrink-0 shadow-lg text-xl">
+                💡
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">The 1-Booking Payback Guarantee</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">Recoups 100%+ Day 1</span>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium mt-0.5 leading-relaxed">
+                  A single {sampleStayNights}-night stay at {sampleHotel.name.replace(' & Casino Resort', '')} saves <strong className="text-emerald-400 font-bold">{formatPrice(sampleStaySavings)}</strong> — completely paying off your annual {GOLD_VIP_TIER.name} membership ({formatPrice(GOLD_VIP_ANNUAL_FEE)}) + putting <strong className="text-amber-300 font-bold">+{formatPrice(sampleNetProfit)} pure cash profit</strong> in your pocket on Day 1 ({sampleRoiPercent}% immediate ROI).
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 shrink-0 text-center md:text-right border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-5">
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Member Savings</div>
+                <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">{avgSavingsPct}% OFF</div>
+              </div>
+              <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Cash Saved</div>
+                <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">{formatPrice(minSavings3Nts)}–{formatPrice(maxSavings3Nts)}</div>
+              </div>
+            </div>
+          </div>
 
           {/* Standard Live Travel Search & Real Multi-OTA Price Checker */}
           <div className="pt-2 text-left max-w-5xl mx-auto">
@@ -188,57 +201,74 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {FEATURED_ESCAPES.map((hotel) => (
-            <div
-              key={hotel.id}
-              className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between group"
-            >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={hotel.image}
-                  alt={hotel.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
-                  {hotel.category}
+          {featuredHotels.slice(0, 4).map((hotel) => {
+            const savingsPerNight = hotel.publicPricePerNight - hotel.memberPricePerNight;
+            const savingsPercent = Math.round((savingsPerNight / hotel.publicPricePerNight) * 100);
+            const savings3Nights = savingsPerNight * 3;
+            const paybackPercent = Math.round((savings3Nights / GOLD_VIP_ANNUAL_FEE) * 100);
+
+            return (
+              <div
+                key={hotel.id}
+                className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between group hover:border-emerald-500/50"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={hotel.thumbnail || hotel.images[0]}
+                    alt={hotel.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
+                    {hotel.category}
+                  </div>
+                  <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                    <span>SAVE {savingsPercent}%</span>
+                  </div>
                 </div>
-                <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2 py-0.5 rounded-full shadow">
-                  SAVE {hotel.savings}
+
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-1.5">
+                    <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-amber-500" />
+                      <span>{hotel.city}, {hotel.stateCountry}</span>
+                    </div>
+                    <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1">
+                      {hotel.name}
+                    </h3>
+
+                    {/* Prominent Savings Callout Pill */}
+                    <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2 text-center">
+                      <div className="text-xs font-black text-emerald-800">
+                        You Pocket: +{formatPrice(savings3Nights)} on 3 Nts
+                      </div>
+                      <div className="text-[10px] font-bold text-emerald-600">
+                        ⚡ Covers {paybackPercent}% of Annual {GOLD_VIP_TIER.name}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
+                    <div>
+                      <div className="text-[11px] text-slate-400 line-through">
+                        Public: {formatPrice(hotel.publicPricePerNight)}/nt
+                      </div>
+                      <div className="text-lg font-black text-slate-900 font-mono">
+                        {formatPrice(hotel.memberPricePerNight)}
+                        <span className="text-xs font-normal text-slate-500"> /nt</span>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/hotels/${hotel.id}`}
+                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold text-xs transition-colors shadow-sm"
+                    >
+                      View Rate
+                    </Link>
+                  </div>
                 </div>
               </div>
-
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-1">
-                  <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{hotel.city}</span>
-                  </div>
-                  <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors">
-                    {hotel.name}
-                  </h3>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
-                  <div>
-                    <div className="text-[10px] text-slate-400 line-through">
-                      Expedia: ${hotel.retailPrice}/nt
-                    </div>
-                    <div className="text-lg font-black text-slate-900 font-mono">
-                      ${hotel.wholesalePrice}
-                      <span className="text-xs font-normal text-slate-500"> /nt</span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href="/hotels"
-                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors"
-                  >
-                    View Rate
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
