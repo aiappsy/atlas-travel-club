@@ -23,6 +23,14 @@ export interface PlatformFeatureFlags {
   allowMemberDirectBooking: boolean;
   defaultCommissionPassThrough: number;
   lastPublishedAt: string;
+  geminiModelId?: string;
+  autoUpgradeGeminiModel?: boolean;
+  // OTA Affiliate link configuration (set in Admin → Suppliers)
+  expediaAffiliateId?: string;
+  hotelsComAffiliateId?: string;
+  bookingAffiliateId?: string;
+  kayakAffiliateId?: string;
+  agodaAffiliateId?: string;
 }
 
 export interface SavingsProofAudit {

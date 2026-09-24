@@ -211,6 +211,8 @@ export const DEFAULT_PLATFORM_CONFIG: PlatformFeatureFlags = {
   allowMemberDirectBooking: true,
   defaultCommissionPassThrough: 100,
   lastPublishedAt: '2026-08-26 07:00 UTC',
+  geminiModelId: 'gemini-3.7-flash',
+  autoUpgradeGeminiModel: true,
 };
 
 export const MOCK_NOMAD_VISAS: NomadVisaProgram[] = [
@@ -1009,6 +1011,21 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     ]
   }
 ];
+
+export const GOLD_VIP_TIER: TierPlan = MEMBERSHIP_TIERS.find((t) => t.id === 'gold') || MEMBERSHIP_TIERS[2];
+export const GOLD_VIP_ANNUAL_FEE = 179;
+
+export function getDefaultTripDates(daysAhead: number = 14, stayLength: number = 3) {
+  const checkInDate = new Date();
+  checkInDate.setDate(checkInDate.getDate() + daysAhead);
+  const checkOutDate = new Date(checkInDate);
+  checkOutDate.setDate(checkOutDate.getDate() + stayLength);
+
+  return {
+    checkIn: checkInDate.toISOString().split('T')[0],
+    checkOut: checkOutDate.toISOString().split('T')[0],
+  };
+}
 
 export const MOCK_CRUISES: CruiseItinerary[] = [
   {

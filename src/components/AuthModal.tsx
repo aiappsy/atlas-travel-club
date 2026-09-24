@@ -8,10 +8,18 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: 'login' | 'signup';
+  customTitle?: string;
+  customSubtitle?: string;
 }
 
-export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: AuthModalProps) {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading } = useAuth();
+export default function AuthModal({
+  isOpen,
+  onClose,
+  defaultMode = 'login',
+  customTitle,
+  customSubtitle,
+}: AuthModalProps) {
+  const { signInWithGoogle, signInWithEmail, signUpWithEmail, loading, toggleDemoMode } = useAuth();
   const [isSignUp, setIsSignUp] = useState(defaultMode === 'signup');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -63,12 +71,12 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
             <Sparkles className="w-6 h-6 text-amber-300" />
           </div>
           <h2 className="text-2xl font-bold">
-            {isSignUp ? 'Join the Wholesale Travel Club' : 'Member Sign In'}
+            {customTitle || (isSignUp ? 'Join the Wholesale Travel Club' : 'Member Sign In')}
           </h2>
           <p className="text-sky-100 text-sm mt-1">
-            {isSignUp
+            {customSubtitle || (isSignUp
               ? 'Unlock up to 70% off hotels, rental cars & theme parks'
-              : 'Access your private closed-loop wholesale pricing'}
+              : 'Access your private closed-loop wholesale pricing')}
           </p>
         </div>
 
@@ -104,6 +112,19 @@ export default function AuthModal({ isOpen, onClose, defaultMode = 'login' }: Au
               />
             </svg>
             Continue with Google
+          </button>
+
+          {/* Instant VIP Demo Pass */}
+          <button
+            type="button"
+            onClick={() => {
+              toggleDemoMode();
+              onClose();
+            }}
+            className="w-full mt-2.5 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/30 font-bold text-xs transition-all"
+          >
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span>⚡ Instant VIP Member Access (Demo Pass)</span>
           </button>
 
           <div className="relative my-6 text-center">

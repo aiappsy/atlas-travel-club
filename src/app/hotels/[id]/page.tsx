@@ -138,6 +138,7 @@ export default function HotelDetailPage() {
   const totalWholesale = wholesalePerNight * nights;
   const totalRetail = retailPerNight * nights;
   const totalSavings = totalRetail - totalWholesale;
+  const savingsPerNight = retailPerNight - wholesalePerNight;
 
   const activeTierPlan = user ? (MEMBERSHIP_TIERS.find((t) => t.id === user.tier) || GOLD_VIP_TIER) : GOLD_VIP_TIER;
   const tierCost = activeTierPlan.priceAnnual > 0 ? activeTierPlan.priceAnnual : GOLD_VIP_ANNUAL_FEE;
@@ -718,16 +719,31 @@ export default function HotelDetailPage() {
               </div>
 
               {/* Member Status Gate Indicator */}
-              <div className="p-3 rounded-2xl border text-xs flex items-center justify-between gap-2">
+              <div className="p-3.5 rounded-2xl border border-slate-800 bg-slate-950/80 text-xs">
                 {isMember && user ? (
-                  <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>Active Member: {user.displayName} ({user.tier.toUpperCase()} VIP)</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-emerald-400 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>Active Member: {user.displayName} ({user.tier.toUpperCase()} VIP)</span>
+                    </div>
+                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      Wholesale Unlocked
+                    </span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-amber-300 font-bold">
-                    <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span>Guest: Sign up required to lock 0% wholesale rate</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 text-amber-300 font-bold">
+                        <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>Closed-Bed Wholesale Rate: Membership Required</span>
+                      </div>
+                      <span className="text-[10px] bg-amber-400/20 text-amber-300 font-black px-2 py-0.5 rounded-md border border-amber-400/30">
+                        Rate Gated
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      Hotel Rate Parity contracts legally prohibit selling wholesale rates to non-members. You must be an active club member to access 0% retail markup and book this stay.
+                    </p>
                   </div>
                 )}
               </div>
@@ -755,13 +771,28 @@ export default function HotelDetailPage() {
                     </button>
                   </div>
                 </div>
+              ) : !isMember ? (
+                <div className="space-y-2.5">
+                  <Link
+                    href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${wholesalePerNight}&savings=${savingsPerNight}&totalSavings=${totalSavings}&totalWholesale=${totalWholesale}&totalRetail=${totalRetail}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
+                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer text-center"
+                  >
+                    <Lock className="w-4 h-4 text-slate-950 shrink-0" />
+                    <span>Join Club to Book Closed Bed Rate ({formatPrice(totalWholesale)})</span>
+                    <ArrowRight className="w-4 h-4 text-slate-950 shrink-0" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAuthOpen(true)}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <span>Already a member? Sign in to unlock instant booking</span>
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={async () => {
-                    if (!isMember) {
-                      setIsAuthOpen(true);
-                      return;
-                    }
                     await addBooking({
                       userId: user?.uid || 'demo-member',
                       hotelId: hotel.id,
@@ -782,19 +813,10 @@ export default function HotelDetailPage() {
                     });
                     setIsBooked(true);
                   }}
-                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
                 >
-                  {!isMember ? (
-                    <>
-                      <Lock className="w-4 h-4 text-slate-950" />
-                      <span>Sign Up to Reserve Wholesale ({formatPrice(totalWholesale)})</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4 text-slate-950" />
-                      <span>Reserve at Wholesale ({formatPrice(totalWholesale)})</span>
-                    </>
-                  )}
+                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <span>Reserve at Wholesale ({formatPrice(totalWholesale)})</span>
                 </button>
               )}
 
@@ -811,8 +833,8 @@ export default function HotelDetailPage() {
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
         defaultMode="signup"
-        customTitle="Join ATLAS to Complete This Booking"
-        customSubtitle="Rate parity rules require private closed-loop membership to reserve wholesale rates at 0% markup."
+        customTitle={`Join ATLAS to Book ${hotel.name}`}
+        customSubtitle={`Rate parity agreements require private closed-loop membership to reserve wholesale rates at 0% markup. You save ${formatPrice(totalSavings)} on this reservation.`}
       />
     </div>
   );

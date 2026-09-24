@@ -18,6 +18,8 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   loading: boolean;
   isMember: boolean;
+  isDemoMode: boolean;
+  toggleDemoMode: () => void;
   signInWithGoogle: () => Promise<void>;
   signInWithEmail: (e: string, p: string) => Promise<void>;
   signUpWithEmail: (e: string, p: string, name: string) => Promise<void>;
@@ -44,6 +46,7 @@ const DEFAULT_USER: UserProfile = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
   const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -220,6 +223,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const toggleDemoMode = () => {
+    setIsDemoMode((prev) => {
+      const next = !prev;
+      if (next) {
+        setUser(DEFAULT_USER);
+      } else {
+        setUser(null);
+      }
+      return next;
+    });
+  };
+
   const isMember = user !== null && user.membershipStatus === 'active';
 
   return (
@@ -229,6 +244,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         firebaseUser,
         loading,
         isMember,
+        isDemoMode,
+        toggleDemoMode,
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,

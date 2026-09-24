@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlatformProvider } from '@/context/PlatformContext';
 import { SidebarProvider } from '@/context/SidebarContext';
+import { CurrencyProvider } from '@/context/CurrencyContext';
 import AppLayout from '@/components/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -23,9 +24,11 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased min-h-screen bg-slate-50`}>
         <PlatformProvider>
           <AuthProvider>
-            <SidebarProvider>
-              <AppLayout>{children}</AppLayout>
-            </SidebarProvider>
+            <CurrencyProvider>
+              <SidebarProvider>
+                <AppLayout>{children}</AppLayout>
+              </SidebarProvider>
+            </CurrencyProvider>
           </AuthProvider>
         </PlatformProvider>
       </body>

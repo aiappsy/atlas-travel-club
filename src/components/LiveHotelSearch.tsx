@@ -16,7 +16,9 @@ import {
   ExternalLink,
   Layers,
   Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ChevronRight,
+  Lock
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 
@@ -315,11 +317,14 @@ export default function LiveHotelSearch({
                 className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
               >
                 {/* Image & Quick Specs */}
-                <div className="lg:col-span-4 relative min-h-[260px] lg:min-h-full">
+                <Link
+                  href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                  className="lg:col-span-4 relative min-h-[260px] lg:min-h-full block group overflow-hidden cursor-pointer"
+                >
                   <img
                     src={hotel.image}
                     alt={hotel.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   {/* Rating Badge */}
                   <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-slate-950/90 backdrop-blur-md text-amber-300 text-xs font-black flex items-center gap-1.5 border border-amber-400/30 shadow">
@@ -333,14 +338,14 @@ export default function LiveHotelSearch({
                   </div>
 
                   {/* Room & Location Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg">
-                    <div className="font-black text-amber-300 text-sm">{hotel.roomType}</div>
+                  <div className="absolute bottom-3 left-3 right-3 p-3.5 rounded-2xl bg-slate-950/95 backdrop-blur-md text-white text-xs border border-white/10 shadow-lg group-hover:border-amber-400/40 transition-colors">
+                    <div className="font-black text-amber-300 text-sm group-hover:text-amber-200 transition-colors">{hotel.roomType}</div>
                     <div className="text-slate-300 text-xs flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3.5 h-3.5 text-amber-400" />
                       <span>{hotel.city}, {hotel.country}</span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Details & Live Comparison Matrix */}
                 <div className="lg:col-span-8 p-6 sm:p-7 flex flex-col justify-between space-y-6">
@@ -349,9 +354,12 @@ export default function LiveHotelSearch({
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-xl sm:text-2xl font-black text-white">
+                          <Link
+                            href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                            className="text-xl sm:text-2xl font-black text-white hover:text-amber-300 transition-colors"
+                          >
                             {hotel.name}
-                          </h4>
+                          </Link>
                         </div>
                         <div className="text-xs text-amber-400 font-semibold mt-0.5">
                           {hotel.starRating}★ Rated Property • Verified B2B Bedbank Inventory
@@ -523,11 +531,20 @@ export default function LiveHotelSearch({
                       </div>
                       <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.adTaxEliminated}/nt</span>
+                        <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.instantSavingsPerNight}/night (-${hotel.prices.atlasWholesale.adTaxEliminated} total)</span>
                       </div>
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+                      <Link
+                        href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                        className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
+                        title="View all room options, suites, and property gallery"
+                      >
+                        <span>View Rooms ({hotel.roomOptions?.length || 1})</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                      </Link>
+
                       <a
                         href={hotel.prices.googleHotels.verifyUrl}
                         target="_blank"
@@ -540,10 +557,12 @@ export default function LiveHotelSearch({
                       </a>
 
                       <Link
-                        href="/membership"
+                        href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${hotel.prices.atlasWholesale.perNight}&savings=${hotel.prices.atlasWholesale.instantSavingsPerNight}&totalSavings=${hotel.prices.atlasWholesale.totalSavings}&totalWholesale=${hotel.prices.atlasWholesale.total}&totalRetail=${hotel.prices.lowestOta.total}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
                         className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
+                        title="Member sign-up required to access confidential closed-bed wholesale rates"
                       >
-                        <span>Unlock Wholesale Rate</span>
+                        <Lock className="w-3.5 h-3.5" />
+                        <span>Unlock Closed Bed Rate</span>
                         <ArrowRight className="w-4 h-4" />
                       </Link>
                     </div>
