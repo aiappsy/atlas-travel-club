@@ -90,31 +90,45 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
     roomOptions: [
       {
         id: 'superior-king',
-        name: 'Superior King Room (Courtyard View)',
-        description: 'Classic Nordic styling, king-size Duxiana bed, marble bathroom with heated floor and luxury toiletries.',
+        name: 'Superior Room (King)',
+        description: 'Classic Nordic styling, king-size Duxiana bed, marble bathroom with heated floor, Karl Johans gate view, and luxury toiletries.',
         capacity: '2 Adults',
         bedType: '1 King Bed',
         sizeSqFt: 340,
         image: '/images/hotels/grand-hotel-oslo-suite.jpg',
-        publicRetailRate: 297,
+        publicRetailRate: 346,
         wholesaleRate: 169,
-        instantSavingsPerNight: 128,
-        savingsPercent: 43,
+        instantSavingsPerNight: 177,
+        savingsPercent: 51,
         amenities: ['Duxiana Mattress', 'Heated Marble Floors', 'Nespresso Bar', 'Turn-down Service']
       },
       {
-        id: 'deluxe-karl-johan',
-        name: 'Deluxe King Suite (Karl Johan Street View)',
-        description: 'Spacious suite overlooking Karl Johans gate and Parliament, with separate seating area and deep soaking tub.',
-        capacity: '2-3 Guests',
-        bedType: '1 King Bed + Lounge',
-        sizeSqFt: 520,
+        id: 'grand-room-queen-petite',
+        name: 'Grand Room, 1 Queen Bed (Petite)',
+        description: 'Intimate historic elegance overlooking the inner courtyard, queen-size bed, marble bathroom, and curated Nordic art.',
+        capacity: '2 Adults',
+        bedType: '1 Queen Bed',
+        sizeSqFt: 280,
         image: '/images/hotels/grand-hotel-oslo-exterior-2.jpg',
-        publicRetailRate: 440,
-        wholesaleRate: 255,
-        instantSavingsPerNight: 185,
-        savingsPercent: 42,
-        amenities: ['Karl Johan Views', 'Complimentary Spa Access', 'Evening Champagne', 'Walk-in Rain Shower']
+        publicRetailRate: 317,
+        wholesaleRate: 155,
+        instantSavingsPerNight: 162,
+        savingsPercent: 51,
+        amenities: ['Courtyard View', 'Heated Bathroom Floor', 'Nespresso Bar', 'High-Speed Wi-Fi']
+      },
+      {
+        id: 'superior-twin',
+        name: 'Superior Twin Room',
+        description: 'Spacious room with two plush twin beds, historic architectural detailing, executive work desk, and walk-in rain shower.',
+        capacity: '2 Adults',
+        bedType: '2 Twin Beds',
+        sizeSqFt: 350,
+        image: '/images/hotels/grand-hotel-oslo.jpg',
+        publicRetailRate: 362,
+        wholesaleRate: 175,
+        instantSavingsPerNight: 187,
+        savingsPercent: 52,
+        amenities: ['Two Luxury Twin Beds', 'Marble Bath with Rain Shower', 'Work Desk', 'Karl Johan Proximity']
       },
       {
         id: 'nobel-presidential-suite',
@@ -132,20 +146,20 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 300, total: 900, verifyUrl: 'https://www.expedia.com/Oslo-Hotels-Grand-Hotel.h115858.Hotel-Information' },
-      hotelsCom: { perNight: 303, total: 909, verifyUrl: 'https://www.hotels.com/ho115858/grand-hotel-oslo-oslo-norway/' },
-      agoda: { perNight: 291, total: 873, verifyUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html' },
-      kayak: { perNight: 298, total: 894, verifyUrl: 'https://www.kayak.com/hotels/Oslo,Norway-c4193/Grand-Hotel/2026-10-15/2026-10-18/2adults' },
-      officialDirect: { perNight: 305, total: 915, verifyUrl: 'https://www.grand.no' },
+      expedia: { perNight: 348, total: 1044, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Grand+Hotel+Oslo,+Karl+Johans+gate+31,+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
+      hotelsCom: { perNight: 346, total: 1038, verifyUrl: 'https://www.hotels.com/ho115858/grand-hotel-oslo-oslo-norway/' },
+      agoda: { perNight: 357, total: 1071, verifyUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html' },
+      kayak: { perNight: 350, total: 1050, verifyUrl: 'https://www.kayak.com/hotels/Grand-Hotel-Oslo-by-Scandic,Oslo,Norway-c194307638-hotel-details/2026-10-15/2026-10-18/2adults' },
+      officialDirect: { perNight: 365, total: 1095, verifyUrl: 'https://www.grand.no' },
       googleHotels: { verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+Karl+Johans+gate+rates' },
-      lowestOta: { provider: 'Agoda', perNight: 291, total: 873 },
+      lowestOta: { provider: 'Hotels.com', perNight: 346, total: 1038 },
       atlasWholesale: {
         perNight: 169,
         total: 507,
-        instantSavingsPerNight: 122,
-        totalSavings: 366,
-        savingsPercent: 42,
-        adTaxEliminated: 122,
+        instantSavingsPerNight: 177,
+        totalSavings: 531,
+        savingsPercent: 51,
+        adTaxEliminated: 177,
       },
     },
     audit: {
@@ -196,7 +210,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 169, total: 507, verifyUrl: 'https://www.expedia.com/Oslo-Hotels-Clarion-Hotel-The-Hub.h137729.Hotel-Information' },
+      expedia: { perNight: 169, total: 507, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Clarion+Hotel+The+Hub,+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 170, total: 510, verifyUrl: 'https://www.hotels.com/ho137729/clarion-hotel-the-hub-oslo-norway/' },
       agoda: { perNight: 164, total: 492, verifyUrl: 'https://www.agoda.com/clarion-hotel-the-hub/hotel/oslo-no.html' },
       kayak: { perNight: 168, total: 504, verifyUrl: 'https://www.kayak.com/hotels/Oslo,Norway-c4193/Clarion-Hotel-The-Hub/2026-10-15/2026-10-18/2adults' },
@@ -275,7 +289,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 102, total: 306, verifyUrl: 'https://www.expedia.com/Las-Vegas-Hotels-Horseshoe-Las-Vegas.h107128.Hotel-Information' },
+      expedia: { perNight: 102, total: 306, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Horseshoe+Las+Vegas&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 103, total: 309, verifyUrl: 'https://www.hotels.com/ho107128/bally-s-las-vegas-hotel-casino-las-vegas-united-states-of-america/' },
       agoda: { perNight: 99, total: 297, verifyUrl: 'https://www.agoda.com/horseshoe-las-vegas/hotel/las-vegas-nv-us.html' },
       kayak: { perNight: 101, total: 303, verifyUrl: 'https://www.kayak.com/hotels/Las-Vegas,NV-c17042/Horseshoe-Las-Vegas/2026-10-15/2026-10-18/2adults' },
@@ -339,7 +353,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 298, total: 894, verifyUrl: 'https://www.expedia.com/Las-Vegas-Hotels-Bellagio.h119566.Hotel-Information' },
+      expedia: { perNight: 298, total: 894, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Bellagio+Las+Vegas&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 301, total: 903, verifyUrl: 'https://www.hotels.com/ho119566/bellagio-las-vegas-united-states-of-america/' },
       agoda: { perNight: 289, total: 867, verifyUrl: 'https://www.agoda.com/bellagio-hotel-and-casino/hotel/las-vegas-nv-us.html' },
       kayak: { perNight: 296, total: 888, verifyUrl: 'https://www.kayak.com/hotels/Las-Vegas,NV-c17042/Bellagio/2026-10-15/2026-10-18/2adults' },
@@ -404,7 +418,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 915, total: 2745, verifyUrl: 'https://www.expedia.com/Paris-Hotels-Ritz-Paris.h20387.Hotel-Information' },
+      expedia: { perNight: 915, total: 2745, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Ritz+Paris+Place+Vendome&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 920, total: 2760, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Ritz%20Paris%2015%20Place%20Vendome' },
       agoda: { perNight: 898, total: 2694, verifyUrl: 'https://www.agoda.com/ritz-paris/hotel/paris-fr.html' },
       kayak: { perNight: 910, total: 2730, verifyUrl: 'https://www.kayak.com/hotels/Paris,France-c12262/Ritz-Paris/2026-10-15/2026-10-18/2adults' },
@@ -469,7 +483,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 1350, total: 4050, verifyUrl: 'https://www.expedia.com/Dubai-Hotels-Burj-Al-Arab-Jumeirah.h119777.Hotel-Information' },
+      expedia: { perNight: 1350, total: 4050, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Burj+Al+Arab+Jumeirah+Dubai&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 1360, total: 4080, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Burj%20Al%20Arab%20Jumeirah%20Dubai' },
       agoda: { perNight: 1320, total: 3960, verifyUrl: 'https://www.agoda.com/burj-al-arab-hotel/hotel/dubai-ae.html' },
       kayak: { perNight: 1340, total: 4020, verifyUrl: 'https://www.kayak.com/hotels/Dubai,United-Arab-Emirates-c9170/Burj-Al-Arab-Jumeirah/2026-10-15/2026-10-18/2adults' },
@@ -534,7 +548,7 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 685, total: 2055, verifyUrl: 'https://www.expedia.com/New-York-Hotels-The-Plaza-A-Fairmont-Managed-Hotel.h12558.Hotel-Information' },
+      expedia: { perNight: 685, total: 2055, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=The+Plaza+Hotel+Fifth+Avenue+New+York&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
       hotelsCom: { perNight: 690, total: 2070, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=The%20Plaza%20Hotel%20Fifth%20Avenue%20New%20York' },
       agoda: { perNight: 665, total: 1995, verifyUrl: 'https://www.agoda.com/the-plaza-hotel/hotel/new-york-ny-us.html' },
       kayak: { perNight: 675, total: 2025, verifyUrl: 'https://www.kayak.com/hotels/New-York,NY-c15830/The-Plaza/2026-10-15/2026-10-18/2adults' },
@@ -883,7 +897,8 @@ function buildOtaUrls(hotelName: string, city: string, country: string, checkIn?
   const coParam = checkOut || '';
 
   const expediaUrl = new URL('https://www.expedia.com/Hotel-Search');
-  expediaUrl.searchParams.set('destination', hotelName);
+  expediaUrl.searchParams.set('destination', `${hotelName}, ${city}`);
+  expediaUrl.searchParams.set('adults', '2');
   if (ciParam) {
     expediaUrl.searchParams.set('startDate', ciParam);
     expediaUrl.searchParams.set('chkin', ciParam);
@@ -894,7 +909,8 @@ function buildOtaUrls(hotelName: string, city: string, country: string, checkIn?
   }
 
   const hotelsComUrl = new URL('https://www.hotels.com/Hotel-Search');
-  hotelsComUrl.searchParams.set('destination', hotelName);
+  hotelsComUrl.searchParams.set('destination', `${hotelName}, ${city}`);
+  hotelsComUrl.searchParams.set('adults', '2');
   if (ciParam) {
     hotelsComUrl.searchParams.set('startDate', ciParam);
     hotelsComUrl.searchParams.set('chkin', ciParam);
@@ -1040,7 +1056,24 @@ function dynamicallyScaleHotelPrices(
         }
         return `${rawUrl.replace(/\/$/, '')}/${checkIn}/${checkOut}/2adults`;
       }
-      if (rawUrl.includes('hotels.com') || rawUrl.includes('expedia.com')) {
+      if (rawUrl.includes('expedia.com')) {
+        let urlObj: URL;
+        if (rawUrl.includes('Hotel-Information')) {
+          urlObj = new URL('https://www.expedia.com/Hotel-Search');
+          urlObj.searchParams.set('destination', `${hotel.name}, ${hotel.city}`);
+          urlObj.searchParams.set('adults', '2');
+        } else {
+          urlObj = new URL(rawUrl);
+        }
+        urlObj.searchParams.set('startDate', checkIn);
+        urlObj.searchParams.set('endDate', checkOut);
+        urlObj.searchParams.set('d1', checkIn);
+        urlObj.searchParams.set('d2', checkOut);
+        urlObj.searchParams.set('chkin', checkIn);
+        urlObj.searchParams.set('chkout', checkOut);
+        return urlObj.toString();
+      }
+      if (rawUrl.includes('hotels.com')) {
         const urlObj = new URL(rawUrl);
         urlObj.searchParams.set('startDate', checkIn);
         urlObj.searchParams.set('endDate', checkOut);

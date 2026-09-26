@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ATLAS Autonomous Travel Market Scanner & Real-Time Intelligence Sentinel
  * 
  * Continuously scans global travel markets across 50+ B2B bedbanks, wholesale suppliers,
@@ -79,9 +79,9 @@ export function runLiveMarketScan(): LiveMarketScanReport {
       hotelName: 'Grand Hotel Oslo Karl Johan',
       city: 'Oslo',
       country: 'Norway',
-      publicOtaPrice: 440,
-      wholesaleNetPrice: 215,
-      savingsPerNight: 225,
+      publicOtaPrice: 346,
+      wholesaleNetPrice: 169,
+      savingsPerNight: 177,
       savingsPercent: 51,
       otaProvider: 'Hotels.com',
       bedbankSource: 'Amadeus B2B Nordic Clearing',
