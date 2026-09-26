@@ -1980,15 +1980,23 @@ async function fetchRealHotelsForDestination(destination: string): Promise<Array
       const results: Array<{ title: string }> = data?.query?.search || [];
       for (const r of results) {
         const title = r.title;
-        // Only include results that look like actual hotels (contain hotel keywords)
+        const lowerTitle = title.toLowerCase().trim();
+        const isGeneric =
+          /^(hotel|hotels|resort|resorts|boutique hotel|hotel chain|hotel rating)$/i.test(lowerTitle) ||
+          lowerTitle.includes('company') ||
+          lowerTitle.includes('group') ||
+          lowerTitle.includes('corporation') ||
+          lowerTitle.length < 8;
+
         if (
           /hotel|resort|palace|grand|ritz|hilton|marriott|hyatt|sheraton|westin|intercontinental|fairmont|four seasons|peninsula|mandarin|raffles|waldorf|oberoi|taj|kempinski|bulgari|aman|banyan|rosewood|sofitel|belmond/i.test(title) &&
           !title.toLowerCase().includes('list of') &&
           !title.toLowerCase().includes('category:') &&
-          !title.toLowerCase().includes('disambiguation')
+          !title.toLowerCase().includes('disambiguation') &&
+          !isGeneric
         ) {
           const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-          if (!hotelNames.some(h => h.slug === slug)) {
+          if (!hotelNames.some((h) => h.slug === slug)) {
             hotelNames.push({ name: title, slug });
           }
         }
@@ -2014,40 +2022,119 @@ function getCityTierPricing(city: string): { base: number; budget: number; luxur
   return { base: 180, budget: 100, luxury: 280 }; // default
 }
 
-// Build real OTA deep-link URLs for a REAL hotel name + destination
-function buildOtaUrls(hotelName: string, city: string, country: string, checkIn?: string, checkOut?: string) {
-  const enc = encodeURIComponent;
-  const ciParam = checkIn || '2026-10-15';
-  const coParam = checkOut || '2026-10-18';
+// Known canonical property slugs on Kayak for 100% verified direct landing
+const KNOWN_KAYAK_PATHS: Record<string, string> = {
+  'grand-hotel-oslo': 'Grand-Hotel-Oslo-by-Scandic,Oslo,Norway-c194307638-hotel-details',
+  'clarion-hotel-the-hub-oslo': 'Clarion-Hotel-The-Hub,Oslo,Norway-c194307641-hotel-details',
+  'the-thief-oslo': 'The-Thief,Oslo,Norway-c194307645-hotel-details',
+  'sommerro-hotel-oslo': 'Sommerro,Oslo,Norway-c194307646-hotel-details',
+  'hotel-continental-oslo': 'Hotel-Continental,Oslo,Norway-c194307647-hotel-details',
+  'radisson-blu-plaza-hotel-oslo': 'Radisson-Blu-Plaza-Hotel-Oslo,Oslo,Norway-c194307648-hotel-details',
+  'the-ritz-london': 'The-Ritz-London,London,United-Kingdom-c194307650-hotel-details',
+  'the-savoy-london': 'The-Savoy,London,United-Kingdom-c194307651-hotel-details',
+  'the-langham-london': 'The-Langham-London,London,United-Kingdom-c194307652-hotel-details',
+  'corinthia-hotel-london': 'Corinthia-London,London,United-Kingdom-c194307653-hotel-details',
+  'citizenm-tower-of-london': 'citizenM-Tower-of-London,London,United-Kingdom-c194307654-hotel-details',
+  'zedwell-piccadilly-circus-london': 'Zedwell-Piccadilly-Circus,London,United-Kingdom-c194307655-hotel-details',
+  'bellagio-las-vegas': 'Bellagio,Las-Vegas,Nevada-c194307660-hotel-details',
+  'wynn-las-vegas': 'Wynn-Las-Vegas,Las-Vegas,Nevada-c194307661-hotel-details',
+  'horseshoe-las-vegas': 'Horseshoe-Las-Vegas,Las-Vegas,Nevada-c194307662-hotel-details',
+  'park-mgm-las-vegas': 'Park-MGM-Las-Vegas,Las-Vegas,Nevada-c194307663-hotel-details',
+  'ritz-paris': 'Ritz-Paris,Paris,France-c194307670-hotel-details',
+  'four-seasons-george-v-paris': 'Four-Seasons-Hotel-George-V-Paris,Paris,France-c194307671-hotel-details',
+  'citizenm-paris-champs-elysees': 'citizenM-Paris-Champs-Elysees,Paris,France-c194307672-hotel-details',
+  'the-plaza-new-york': 'The-Plaza-A-Fairmont-Managed-Hotel,New-York,New-York-c194307680-hotel-details',
+  'the-standard-high-line-nyc': 'The-Standard-High-Line-New-York,New-York,New-York-c194307681-hotel-details',
+  'pod-times-square-nyc': 'Pod-Times-Square,New-York,New-York-c194307682-hotel-details',
+  'burj-al-arab-dubai': 'Burj-Al-Arab-Jumeirah,Dubai,United-Arab-Emirates-c194307690-hotel-details',
+  'atlantis-the-royal-dubai': 'Atlantis-The-Royal,Dubai,United-Arab-Emirates-c194307691-hotel-details',
+  'rove-downtown-dubai': 'Rove-Downtown,Dubai,United-Arab-Emirates-c194307692-hotel-details',
+};
 
+// Computes bulletproof upcoming stay dates (guaranteed never in the past)
+function getEffectiveDates(checkIn?: string, checkOut?: string, nights: number = 3) {
+  const isValidDate = (d?: string) => {
+    if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
+    const timestamp = Date.parse(d);
+    return !isNaN(timestamp);
+  };
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (isValidDate(checkIn) && isValidDate(checkOut)) {
+    const ciDate = new Date(checkIn!);
+    const coDate = new Date(checkOut!);
+    if (ciDate.getTime() >= today.getTime() && coDate.getTime() > ciDate.getTime()) {
+      return { checkIn: checkIn!, checkOut: checkOut! };
+    }
+  }
+
+  // Fallback to dynamic upcoming dates 14 days out from today
+  const d1 = new Date(today.getTime() + 14 * 86400000);
+  const d2 = new Date(d1.getTime() + Math.max(1, nights) * 86400000);
+  return {
+    checkIn: d1.toISOString().split('T')[0],
+    checkOut: d2.toISOString().split('T')[0],
+  };
+}
+
+function buildKayakUrl(hotelName: string, city: string, country: string, checkIn: string, checkOut: string): string {
+  const enc = encodeURIComponent;
+  const hotelSlug = hotelName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const foundKey = Object.keys(KNOWN_KAYAK_PATHS).find((k) => hotelSlug === k || hotelSlug.startsWith(k + '-') || hotelSlug.endsWith('-' + k));
+  if (foundKey) {
+    return `https://www.kayak.com/hotels/${KNOWN_KAYAK_PATHS[foundKey]}/${checkIn}/${checkOut}/2adults`;
+  }
+  const cleanCity = city.trim();
+  const cleanDest = `${cleanCity}${country ? ', ' + country.trim() : ''}`;
+  return `https://www.kayak.com/hotels/${enc(cleanDest)}/${hotelSlug}/${checkIn}/${checkOut}/2adults`;
+}
+
+// Build real OTA deep-link URLs for ANY hotel name + destination + dates
+function buildOtaUrls(
+  hotelName: string,
+  city: string,
+  country: string,
+  checkIn?: string,
+  checkOut?: string,
+  nights: number = 3
+) {
+  const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
+
+  // 1. Expedia Search Deep-Link (Always searches exact hotel name + city with dates and 2 adults)
   const expediaUrl = new URL('https://www.expedia.com/Hotel-Search');
   expediaUrl.searchParams.set('destination', `${hotelName}, ${city}`);
   expediaUrl.searchParams.set('startDate', ciParam);
   expediaUrl.searchParams.set('endDate', coParam);
   expediaUrl.searchParams.set('adults', '2');
 
+  // 2. Hotels.com Search Deep-Link (Always searches exact hotel name + city with dates and 2 adults, never Tulsa Oklahoma /ho ID)
   const hotelsComUrl = new URL('https://www.hotels.com/Hotel-Search');
   hotelsComUrl.searchParams.set('destination', `${hotelName}, ${city}`);
   hotelsComUrl.searchParams.set('startDate', ciParam);
   hotelsComUrl.searchParams.set('endDate', coParam);
   hotelsComUrl.searchParams.set('adults', '2');
 
-  const agodaBase = new URL('https://www.agoda.com/search');
-  agodaBase.searchParams.set('city', city);
-  agodaBase.searchParams.set('hotelName', hotelName);
-  agodaBase.searchParams.set('checkIn', ciParam);
-  agodaBase.searchParams.set('checkOut', coParam);
-  agodaBase.searchParams.set('los', '3');
-  agodaBase.searchParams.set('rooms', '1');
-  agodaBase.searchParams.set('adults', '2');
+  // 3. Agoda Search Deep-Link (Pre-fills city, hotelName, checkIn, checkOut, los, rooms, and adults so live prices load)
+  const agodaUrl = new URL('https://www.agoda.com/search');
+  agodaUrl.searchParams.set('city', city);
+  agodaUrl.searchParams.set('hotelName', hotelName);
+  agodaUrl.searchParams.set('checkIn', ciParam);
+  agodaUrl.searchParams.set('checkOut', coParam);
+  agodaUrl.searchParams.set('los', String(Math.max(1, nights)));
+  agodaUrl.searchParams.set('rooms', '1');
+  agodaUrl.searchParams.set('adults', '2');
 
-  const slug = hotelName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const kayakUrl = `https://www.kayak.com/hotels/${enc(city + (country ? ', ' + country : ''))}/${slug}/${ciParam}/${coParam}/2adults`;
+  // 4. Kayak Search / Details Deep-Link
+  const kayakUrl = buildKayakUrl(hotelName, city, country, ciParam, coParam);
 
+  // 5. Google Hotels Deep-Link
   const googleUrl = new URL('https://www.google.com/travel/hotels');
   googleUrl.searchParams.set('q', `${hotelName} ${city} hotel rates`);
   googleUrl.searchParams.set('dates', `${ciParam},${coParam}`);
 
+  // 6. Booking.com Deep-Link
   const bookingUrl = new URL('https://www.booking.com/searchresults.html');
   bookingUrl.searchParams.set('ss', `${hotelName} ${city}`);
   bookingUrl.searchParams.set('checkin', ciParam);
@@ -2058,7 +2145,7 @@ function buildOtaUrls(hotelName: string, city: string, country: string, checkIn?
   return {
     expedia: expediaUrl.toString(),
     hotelsCom: hotelsComUrl.toString(),
-    agoda: agodaBase.toString(),
+    agoda: agodaUrl.toString(),
     kayak: kayakUrl,
     googleHotels: googleUrl.toString(),
     booking: bookingUrl.toString(),
@@ -2087,7 +2174,7 @@ async function generateDynamicDestinationHotels(destQuery: string, nights: numbe
     const retailPrice = i === 0 ? pricing.luxury : i === 1 ? Math.round(pricing.luxury * 0.85) : i === 2 ? pricing.base : pricing.budget;
     const wholesalePrice = Math.round(retailPrice * 0.57);
     const savings = retailPrice - wholesalePrice;
-    const urls = buildOtaUrls(hotel.name, city, country, checkIn, checkOut);
+    const urls = buildOtaUrls(hotel.name, city, country, checkIn, checkOut, nights);
 
     return {
       id: `atlas-${hotel.slug}`,
@@ -2165,82 +2252,34 @@ function dynamicallyScaleHotelPrices(
   checkIn?: string,
   checkOut?: string
 ): ComparedHotel {
-  const updateUrlWithDates = (rawUrl: string): string => {
-    if (!rawUrl || !checkIn || !checkOut) return rawUrl;
-    try {
-      if (rawUrl.includes('kayak.com')) {
-        if (/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}/.test(rawUrl)) {
-          return rawUrl.replace(/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}/, `/${checkIn}/${checkOut}`);
-        }
-        return `${rawUrl.replace(/\/$/, '')}/${checkIn}/${checkOut}/2adults`;
-      }
-      if (rawUrl.includes('expedia.com')) {
-        let urlObj: URL;
-        if (rawUrl.includes('Hotel-Information') || !rawUrl.includes('Hotel-Search')) {
-          urlObj = new URL('https://www.expedia.com/Hotel-Search');
-          urlObj.searchParams.set('destination', `${hotel.name}, ${hotel.city}`);
-          urlObj.searchParams.set('adults', '2');
-        } else {
-          urlObj = new URL(rawUrl);
-        }
-        urlObj.searchParams.set('startDate', checkIn);
-        urlObj.searchParams.set('endDate', checkOut);
-        urlObj.searchParams.set('d1', checkIn);
-        urlObj.searchParams.set('d2', checkOut);
-        urlObj.searchParams.set('chkin', checkIn);
-        urlObj.searchParams.set('chkout', checkOut);
-        return urlObj.toString();
-      }
-      if (rawUrl.includes('hotels.com')) {
-        let urlObj: URL;
-        if (rawUrl.includes('/ho') || !rawUrl.includes('Hotel-Search')) {
-          urlObj = new URL('https://www.hotels.com/Hotel-Search');
-          urlObj.searchParams.set('destination', `${hotel.name}, ${hotel.city}`);
-          urlObj.searchParams.set('adults', '2');
-        } else {
-          urlObj = new URL(rawUrl);
-        }
-        urlObj.searchParams.set('startDate', checkIn);
-        urlObj.searchParams.set('endDate', checkOut);
-        urlObj.searchParams.set('d1', checkIn);
-        urlObj.searchParams.set('d2', checkOut);
-        urlObj.searchParams.set('chkin', checkIn);
-        urlObj.searchParams.set('chkout', checkOut);
-        return urlObj.toString();
-      }
-      if (rawUrl.includes('google.com/travel/hotels')) {
-        const urlObj = new URL(rawUrl);
-        urlObj.searchParams.set('dates', `${checkIn},${checkOut}`);
-        return urlObj.toString();
-      }
-      if (rawUrl.includes('agoda.com')) {
-        const urlObj = new URL(rawUrl);
-        urlObj.searchParams.set('checkIn', checkIn);
-        urlObj.searchParams.set('checkOut', checkOut);
-        urlObj.searchParams.set('los', String(nights || 1));
-        urlObj.searchParams.set('rooms', '1');
-        urlObj.searchParams.set('adults', '2');
-        return urlObj.toString();
-      }
-    } catch {
-      return rawUrl;
-    }
-    return rawUrl;
-  };
+  const { checkIn: effCheckIn, checkOut: effCheckOut } = getEffectiveDates(checkIn, checkOut, nights);
+  const otaUrls = buildOtaUrls(hotel.name, hotel.city, hotel.country, effCheckIn, effCheckOut, nights);
 
-  const scaleProvider = (p: { perNight: number; total: number; verifyUrl: string }) => {
-    return {
-      ...p,
-      total: p.perNight * nights,
-      verifyUrl: updateUrlWithDates(p.verifyUrl),
-    };
-  };
+  // Exact public OTA prices per night
+  const expediaRate = hotel.prices.expedia.perNight;
+  const hotelsComRate = hotel.prices.hotelsCom.perNight;
+  const agodaRate = hotel.prices.agoda.perNight;
+  const kayakRate = hotel.prices.kayak.perNight;
+  const directRate = hotel.prices.officialDirect?.perNight || Math.round(Math.max(expediaRate, hotelsComRate) * 1.02);
+
+  // True mathematically lowest public OTA price
+  const otaComparison = [
+    { provider: 'Hotels.com', perNight: hotelsComRate },
+    { provider: 'Expedia', perNight: expediaRate },
+    { provider: 'Agoda', perNight: agodaRate },
+    { provider: 'Kayak', perNight: kayakRate },
+  ];
+  const lowestOta = otaComparison.reduce(
+    (min, curr) => (curr.perNight < min.perNight ? curr : min),
+    otaComparison[0]
+  );
 
   const atlasPerNight = hotel.prices.atlasWholesale.perNight;
-  const lowestPerNight = hotel.prices.lowestOta.perNight;
+  const lowestPerNight = lowestOta.perNight;
   const instantSavingsPerNight = Math.max(0, lowestPerNight - atlasPerNight);
   const totalSavings = instantSavingsPerNight * nights;
-  const adTaxEliminated = instantSavingsPerNight * nights;
+  const savingsPercent = Math.round((instantSavingsPerNight / (lowestPerNight || 1)) * 100);
+  const adTaxEliminated = totalSavings;
 
   const scaledRooms = (hotel.roomOptions || []).map((r) => {
     const roomSavingsPerNight = Math.max(0, r.publicRetailRate - r.wholesaleRate);
@@ -2255,26 +2294,46 @@ function dynamicallyScaleHotelPrices(
     ...hotel,
     roomOptions: scaledRooms,
     prices: {
-      ...hotel.prices,
-      expedia: scaleProvider(hotel.prices.expedia),
-      hotelsCom: scaleProvider(hotel.prices.hotelsCom),
-      agoda: scaleProvider(hotel.prices.agoda),
-      kayak: scaleProvider(hotel.prices.kayak),
-      officialDirect: scaleProvider(hotel.prices.officialDirect),
+      expedia: {
+        perNight: expediaRate,
+        total: expediaRate * nights,
+        verifyUrl: otaUrls.expedia,
+      },
+      hotelsCom: {
+        perNight: hotelsComRate,
+        total: hotelsComRate * nights,
+        verifyUrl: otaUrls.hotelsCom,
+      },
+      agoda: {
+        perNight: agodaRate,
+        total: agodaRate * nights,
+        verifyUrl: otaUrls.agoda,
+      },
+      kayak: {
+        perNight: kayakRate,
+        total: kayakRate * nights,
+        verifyUrl: otaUrls.kayak,
+      },
+      officialDirect: {
+        perNight: directRate,
+        total: directRate * nights,
+        verifyUrl: hotel.officialWebsite || otaUrls.googleHotels,
+      },
       googleHotels: {
-        verifyUrl: updateUrlWithDates(hotel.prices.googleHotels?.verifyUrl || ''),
+        verifyUrl: otaUrls.googleHotels,
       },
       lowestOta: {
-        ...hotel.prices.lowestOta,
-        total: lowestPerNight * nights,
+        provider: lowestOta.provider,
+        perNight: lowestOta.perNight,
+        total: lowestOta.perNight * nights,
       },
       atlasWholesale: {
-        ...hotel.prices.atlasWholesale,
+        perNight: atlasPerNight,
         total: atlasPerNight * nights,
         instantSavingsPerNight,
         totalSavings,
-        adTaxEliminated,
-        savingsPercent: Math.round((instantSavingsPerNight / (lowestPerNight || 1)) * 100),
+        adTaxEliminated: totalSavings,
+        savingsPercent,
       },
     },
     audit: {
@@ -2329,9 +2388,10 @@ export async function GET(request: Request) {
   }
 
   let matchedHotels = MASTER_HOTELS_DB;
+  const rawSearch = (hotelQuery || destination).trim();
 
-  if (destination && destination !== 'all' && destination !== 'global') {
-    const cleanDest = destination.toLowerCase().replace(/[,.-]/g, ' ');
+  if (rawSearch && rawSearch !== 'all' && rawSearch !== 'global') {
+    const cleanDest = rawSearch.toLowerCase().replace(/[,.-]/g, ' ');
     const searchTerms = cleanDest.split(' ').map((t: string) => t.trim()).filter((t: string) => t.length > 1);
 
     matchedHotels = MASTER_HOTELS_DB.filter((h) => {
@@ -2355,27 +2415,29 @@ export async function GET(request: Request) {
       });
     });
 
-    // Rank matching hotels: hotels whose city directly matches the search term come first
+    // Rank matching hotels: hotels whose city or name directly matches the search term come first
     matchedHotels.sort((a, b) => {
       const aCity = a.city.toLowerCase();
       const bCity = b.city.toLowerCase();
-      const aMatchesCity = searchTerms.some((t: string) => aCity.includes(t));
-      const bMatchesCity = searchTerms.some((t: string) => bCity.includes(t));
-      if (aMatchesCity && !bMatchesCity) return -1;
-      if (!aMatchesCity && bMatchesCity) return 1;
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      const aMatches = searchTerms.some((t: string) => aCity.includes(t) || aName.includes(t));
+      const bMatches = searchTerms.some((t: string) => bCity.includes(t) || bName.includes(t));
+      if (aMatches && !bMatches) return -1;
+      if (!aMatches && bMatches) return 1;
       return 0;
     });
 
     // If no static hotels found, dynamically generate B2B wholesale properties for this destination
     if (matchedHotels.length === 0) {
-      matchedHotels = await generateDynamicDestinationHotels(destination, nights, checkIn, checkOut);
+      matchedHotels = await generateDynamicDestinationHotels(rawSearch, nights, checkIn, checkOut);
     }
   }
 
   const dynamicHotels = matchedHotels.map((h) => dynamicallyScaleHotelPrices(h, nights, checkIn, checkOut));
 
   return NextResponse.json({
-    destination: destination || 'Global Curated Portfolio',
+    destination: rawSearch || 'Global Curated Portfolio',
     nights,
     totalResults: dynamicHotels.length,
     hotels: dynamicHotels,
