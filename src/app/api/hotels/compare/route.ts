@@ -2332,18 +2332,38 @@ export async function GET(request: Request) {
 
   if (destination && destination !== 'all' && destination !== 'global') {
     const cleanDest = destination.toLowerCase().replace(/[,.-]/g, ' ');
-    const searchTerms = cleanDest.split(' ').filter((t: string) => t.trim().length > 1);
+    const searchTerms = cleanDest.split(' ').map((t: string) => t.trim()).filter((t: string) => t.length > 1);
 
     matchedHotels = MASTER_HOTELS_DB.filter((h) => {
       const city = h.city.toLowerCase();
       const country = h.country.toLowerCase();
       const name = h.name.toLowerCase();
       const address = h.address.toLowerCase();
+      const fullText = `${city} ${country} ${name} ${address}`;
 
-      // Check if any search term matches city, country, name, or address
-      return searchTerms.some((term: string) =>
-        city.includes(term) || country.includes(term) || name.includes(term) || address.includes(term)
-      );
+      // If the destination query directly appears as a phrase
+      if (fullText.includes(cleanDest.trim())) return true;
+
+      // Word boundary match: ensure short tokens like 'las' or 'uk' match actual whole words
+      return searchTerms.some((term: string) => {
+        try {
+          const regex = new RegExp(`\\b${term}\\b`, 'i');
+          return regex.test(city) || regex.test(country) || regex.test(name) || regex.test(address);
+        } catch {
+          return fullText.includes(term);
+        }
+      });
+    });
+
+    // Rank matching hotels: hotels whose city directly matches the search term come first
+    matchedHotels.sort((a, b) => {
+      const aCity = a.city.toLowerCase();
+      const bCity = b.city.toLowerCase();
+      const aMatchesCity = searchTerms.some((t: string) => aCity.includes(t));
+      const bMatchesCity = searchTerms.some((t: string) => bCity.includes(t));
+      if (aMatchesCity && !bMatchesCity) return -1;
+      if (!aMatchesCity && bMatchesCity) return 1;
+      return 0;
     });
 
     // If no static hotels found, dynamically generate B2B wholesale properties for this destination
