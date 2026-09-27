@@ -31,7 +31,8 @@ import {
   Maximize2,
   Images,
   Camera,
-  Info
+  Info,
+  Download
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
@@ -777,6 +778,15 @@ export default function HotelDetailPage() {
                     Reservation #{hotel.audit.auditHash.substring(0, 10).toUpperCase()} has been secured at 0% markup for {nights} nights.
                   </p>
                   <div className="pt-2 border-t border-emerald-800/80 flex flex-col gap-2">
+                    <a
+                      href={`/api/bookings/voucher?format=html&bookingRef=ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}&hotelName=${encodeURIComponent(hotel.name)}&guestName=${encodeURIComponent(user?.displayName || 'VIP Member')}&checkIn=${checkIn}&checkOut=${checkOut}&roomType=${encodeURIComponent(currentRoom?.name || hotel.roomType)}&nights=${nights}&totalPaid=${totalWholesale}&savings=${totalSavings}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-2.5 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-1.5 shadow-lg"
+                    >
+                      <Download className="w-4 h-4 text-slate-950" />
+                      <span>Download Official PDF Hotel Voucher (Check-In Pass)</span>
+                    </a>
                     <Link
                       href="/membership"
                       className="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-black transition-colors"

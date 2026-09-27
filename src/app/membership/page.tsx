@@ -295,9 +295,21 @@ function MembershipContent() {
                             <span>{booking.checkInDate} to {booking.checkOutDate} ({booking.nights} nights)</span>
                           </div>
 
-                          <div className="font-bold text-slate-900">
-                            Paid: {formatPrice(booking.totalMemberPaid)}{' '}
-                            <span className="text-emerald-600 font-extrabold">(Saved {formatPrice(booking.totalSaved)})</span>
+                          <div className="flex items-center gap-3">
+                            <div className="font-bold text-slate-900">
+                              Paid: {formatPrice(booking.totalMemberPaid)}{' '}
+                              <span className="text-emerald-600 font-extrabold">(Saved {formatPrice(booking.totalSaved)})</span>
+                            </div>
+                            <a
+                              href={`/api/bookings/voucher?format=html&bookingRef=${encodeURIComponent(booking.confirmationCode)}&hotelName=${encodeURIComponent(booking.hotelName)}&guestName=${encodeURIComponent(user?.displayName || 'VIP Member')}&checkIn=${booking.checkInDate}&checkOut=${booking.checkOutDate}&roomType=${encodeURIComponent(booking.roomName)}&nights=${booking.nights}&totalPaid=${booking.totalMemberPaid}&savings=${booking.totalSaved}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[10px] flex items-center gap-1 shadow-sm transition-colors cursor-pointer"
+                              title="Download official hotel check-in voucher"
+                            >
+                              <Download className="w-3 h-3 text-slate-950" />
+                              <span>Voucher PDF</span>
+                            </a>
                           </div>
                         </div>
                       </div>
