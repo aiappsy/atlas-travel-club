@@ -117,7 +117,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
-            Public booking portals add an 18%–25% retail ad markup. <strong>ATLAS</strong> lets you compare real-time prices across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank clearing rates.
+            Public booking portals add a 20%–45% retail ad markup. <strong>ATLAS</strong> lets you compare real-time prices across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank clearing rates.
           </p>
 
           {/* Instant 1-Stay Payback Math Guarantee Banner */}
@@ -160,7 +160,7 @@ export default function HomePage() {
               <div className="text-amber-400 font-black text-sm flex items-center gap-1.5">
                 <Building2 className="w-4 h-4" /> 1,000,000+ Hotels & Villas
               </div>
-              <p className="text-xs text-slate-300 mt-1">Direct XML/REST Bedbank pipelines at 30% to 70% off retail.</p>
+              <p className="text-xs text-slate-300 mt-1">Direct XML/REST Bedbank pipelines at 20% to 45% off retail.</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
@@ -291,7 +291,7 @@ export default function HomePage() {
               </div>
               <h3 className="font-black text-base text-slate-900">Search Confidential Wholesale</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Enter any destination to unlock confidential B2B Bedbank wholesale inventory with 0% retail markup (saving 30%–70% instantly).
+                Enter any destination to unlock confidential B2B Bedbank wholesale inventory with 0% retail markup (saving 20%–45% instantly).
               </p>
             </div>
 

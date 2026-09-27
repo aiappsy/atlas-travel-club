@@ -45,7 +45,7 @@ export default function Footer() {
               </div>
               <div>
                 <h4 className="font-bold text-white text-sm">Best Rate Guarantee</h4>
-                <p className="text-xs text-slate-500">Up to 70% below public OTAs</p>
+                <p className="text-xs text-slate-500">20% to 45% below public OTAs</p>
               </div>
             </div>
           </div>

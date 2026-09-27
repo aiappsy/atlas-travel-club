@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 const TRAVEL_CATEGORIES = [
-  { id: 'hotels', label: 'Hotels', icon: Building2, path: '/hotels', saveText: '30%–70% Off' },
+  { id: 'hotels', label: 'Hotels', icon: Building2, path: '/hotels', saveText: '20%–45% Off' },
   { id: 'villas', label: 'Villas & Chalets', icon: Castle, path: '/villas', saveText: 'French Chef' },
   { id: 'nomads', label: 'Nomad Coliving', icon: Laptop, path: '/nomads', saveText: '1Gbps Wi-Fi' },
   { id: 'jets', label: 'Private Jets', icon: Plane, path: '/private-jets', saveText: 'Empty Legs' },
@@ -26,13 +26,13 @@ const TRAVEL_CATEGORIES = [
 ];
 
 const POPULAR_DESTINATIONS = [
-  { name: 'Las Vegas, NV', tag: 'From $198/nt', discount: '49% Off' },
-  { name: 'Cancun, Mexico', tag: 'From $235/nt', discount: '54% Off' },
+  { name: 'Las Vegas, NV', tag: 'From $198/nt', discount: '42% Off' },
+  { name: 'Cancun, Mexico', tag: 'From $235/nt', discount: '44% Off' },
   { name: 'St. Barts, Caribbean', tag: 'Villa $3,200/nt', discount: '45% Off' },
-  { name: 'Paris, France', tag: 'From $420/nt', discount: '50% Off' },
+  { name: 'Paris, France', tag: 'From $420/nt', discount: '43% Off' },
   { name: 'Lisbon, Portugal', tag: 'Coliving $1,150/mo', discount: '45% Off' },
   { name: 'Courchevel 1850, France', tag: 'Ski Chalet $2,300/nt', discount: '45% Off' },
-  { name: 'Bali, Indonesia', tag: 'Coliving $890/mo', discount: '46% Off' },
+  { name: 'Bali, Indonesia', tag: 'Coliving $890/mo', discount: '40% Off' },
 ];
 
 export default function HeroSearch() {

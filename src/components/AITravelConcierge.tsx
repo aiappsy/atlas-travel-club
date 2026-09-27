@@ -404,7 +404,7 @@ export default function AITravelConcierge() {
                     </div>
 
                     <div className="text-[11px] text-slate-300 font-medium">
-                      Read our complete guide on why Expedia marks up prices, how Rate Parity works, and why our closed-loop club saves you 30%–70%.
+                      Read our complete guide on why Expedia marks up prices, how Rate Parity works, and why our closed-loop club saves you 20%–45%.
                     </div>
 
                     <Link

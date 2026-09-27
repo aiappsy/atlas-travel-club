@@ -704,7 +704,7 @@ export default function HotelDetailPage() {
                   <span className="font-mono text-white font-bold">{formatPrice(rawWholesaleTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
-                  <span>OTA Marketing Ad Tax (18-35%)</span>
+                  <span>OTA Marketing Ad Tax (20-45%)</span>
                   <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Eliminated)</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
@@ -733,7 +733,7 @@ export default function HotelDetailPage() {
                     <span>Transparent Pricing Policy</span>
                   </div>
                   <p className="text-slate-400 leading-relaxed">
-                    Commercial OTAs mark up hotels by 18%–35% to fund advertising. ATLAS passes through raw bedbank wholesale rates. The 3.8% buffer covers direct credit card processing (Visa/Mastercard/Stripe), multi-currency FX settlement, and 24/7 B2B clearing guarantees so you receive pure wholesale pricing with zero hidden margins.
+                    Commercial OTAs mark up hotels by 20%–45% to fund advertising. ATLAS passes through raw bedbank wholesale rates. The 3.8% buffer covers direct credit card processing (Visa/Mastercard/Stripe), multi-currency FX settlement, and 24/7 B2B clearing guarantees so you receive pure wholesale pricing with zero hidden margins.
                   </p>
                 </div>
               </div>

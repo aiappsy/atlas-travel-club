@@ -308,7 +308,7 @@ function MembershipContent() {
                     <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-2" />
                     <h4 className="text-sm font-bold text-slate-700">No Wholesale Bookings Yet</h4>
                     <p className="text-xs text-slate-500 mt-1">
-                      Start exploring 1,000,000+ wholesale hotels and save up to 70%.
+                      Start exploring 1,000,000+ wholesale hotels and save 20% to 45%.
                     </p>
                     <Link
                       href="/hotels"

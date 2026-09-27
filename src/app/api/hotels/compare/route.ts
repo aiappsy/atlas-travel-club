@@ -2386,8 +2386,8 @@ async function fetchSerpApiHotels(
         retailPrice = idx === 0 ? pricing.ultra : idx < 3 ? pricing.luxury : idx < 8 ? pricing.base : pricing.budget;
       }
 
-      // 45%–55% confidential wholesale net rate
-      const wholesalePrice = Math.round(retailPrice * 0.55);
+      // 20%–45% confidential wholesale net rate (averaging ~38% off retail)
+      const wholesalePrice = Math.round(retailPrice * 0.62);
       const savings = retailPrice - wholesalePrice;
 
       // Extract real photos
@@ -2665,7 +2665,7 @@ async function generateDynamicDestinationHotels(
         : ['Prime Metro Transit Access', 'Grab & Go Artisan Breakfast', '24/7 Fitness Center', 'Soundproof Triple-Glazed Windows', 'High-Speed Wi-Fi'];
     }
 
-    const wholesalePrice = Math.round(retailPrice * 0.56);
+    const wholesalePrice = Math.round(retailPrice * 0.62);
     const savings = Math.round(retailPrice * 0.95) - wholesalePrice;
     const urls = buildOtaUrls(hotel.name, city, country, checkIn, checkOut, nights);
     const imgIndex = Math.floor(i / 4) % images.length;

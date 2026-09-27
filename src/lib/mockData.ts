@@ -1756,7 +1756,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     badgeColor: 'bg-amber-500',
     priceMonthly: 19.99,
     priceAnnual: 179,
-    wholesaleHotelDiscount: 'Up to 55% Off',
+    wholesaleHotelDiscount: 'Up to 40% Off',
     perksIncluded: [
       'Maximum wholesale rates (1M+ properties)',
       '4x Travel Vault Dividend Multiplier (Annual Cash Payout to Visa)',
@@ -1779,7 +1779,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     badgeColor: 'bg-purple-600',
     priceMonthly: 39.99,
     priceAnnual: 349,
-    wholesaleHotelDiscount: 'Up to 70% Off',
+    wholesaleHotelDiscount: 'Up to 45% Off',
     perksIncluded: [
       'Guaranteed lowest rate price match + 10%',
       '8x Travel Vault Dividend Multiplier (Maximum Club Profit Share)',

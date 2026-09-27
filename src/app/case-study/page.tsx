@@ -91,7 +91,7 @@ export default function CaseStudyPage() {
           </h2>
 
           <p className="text-sm text-slate-600 leading-relaxed">
-            For the modern traveler, the <strong>"Retail Trap"</strong> is an invisible tax. As framed in the <em>Sovereign Travel Manifesto</em>, paying standard retail prices for a hotel room is effectively a <strong>"voluntary tax"</strong> levied not by the state, but by the "OTA Cartel"—a dominant group of Online Travel Agencies including Expedia, Booking.com, and Hotels.com. These platforms maintain an iron grip on the market by imposing an artificial retail markup that typically ranges from <strong>18% to 25%</strong>.
+            For the modern traveler, the <strong>"Retail Trap"</strong> is an invisible tax. As framed in the <em>Sovereign Travel Manifesto</em>, paying standard retail prices for a hotel room is effectively a <strong>"voluntary tax"</strong> levied not by the state, but by the "OTA Cartel"—a dominant group of Online Travel Agencies including Expedia, Booking.com, and Hotels.com. These platforms maintain an iron grip on the market by imposing an artificial retail markup that typically ranges from <strong>20% to 45%</strong>.
           </p>
 
           <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-950 space-y-2">
@@ -145,7 +145,7 @@ export default function CaseStudyPage() {
                     <Globe className="w-4 h-4 text-sky-600" /> Online Travel Agency (OTA)
                   </td>
                   <td className="p-4 text-slate-600">Contractually demands price identity to ensure they are never undercut.</td>
-                  <td className="p-4 text-slate-600">Retains 18%–25% commission while capturing guest data.</td>
+                  <td className="p-4 text-slate-600">Retains 20%–45% commission while capturing guest data.</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
                   <td className="p-4 font-bold text-slate-900 flex items-center gap-2">
@@ -294,7 +294,7 @@ export default function CaseStudyPage() {
                 1. Wholesale Liquidity Access
               </div>
               <p className="text-xs text-slate-600">
-                Direct XML integration into B2B Bedbanks (Hotelbeds, WebBeds), bypassing the 18%–25% retail markup across 1,000,000+ properties.
+                Direct XML integration into B2B Bedbanks (Hotelbeds, WebBeds), bypassing the 20%–45% retail markup across 1,000,000+ properties.
               </p>
             </div>
 

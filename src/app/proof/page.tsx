@@ -138,7 +138,7 @@ export default function SavingsProofPage() {
               Unmasking Rate Parity: The Invisible Hand of Travel Pricing
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Understand why public hotel rooms carry an 18%–25% marketing subsidy, how the OTA cartel enforces "Digital Invisibility," and how closed-loop networks unlock true wholesale arbitrage.
+              Understand why public hotel rooms carry a 20%–45% marketing subsidy, how the OTA cartel enforces "Digital Invisibility," and how closed-loop networks unlock true wholesale arbitrage.
             </p>
           </div>
 

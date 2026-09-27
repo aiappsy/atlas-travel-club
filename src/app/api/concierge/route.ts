@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       query.includes('wholesale') ||
       query.includes('explain')
     ) {
-      reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. **Why Public Sites (Expedia) Are More Expensive**: Public sites are legally bound by "Rate Parity" agreements and add an **18%–35% retail markup** to fund TV and Google ads.\n\n2. **The Closed-Loop Secret**: Hotels quietly release unsold inventory to **B2B Wholesale Bedbanks (Hotelbeds, WebBeds)** at **30%–70% discounts**. These rates are legally restricted to private, closed-loop club members.\n\n3. **100% Net Rate Pass-Through**: Because we earn revenue through predictable membership subscriptions ($19.99/mo), we pass the **raw wholesale price directly to you with 0% retail markup**.\n\n4. **The FinTech Visa Flywheel**: On top of upfront savings, any post-booking price drops (Pruvo), flight delay payouts ($650), and annual club dividends are **deposited straight onto your reloadable ATLAS Visa card**!\n\nWould you like to read the complete breakdown or compare live rates?`;
+      reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. **Why Public Sites (Expedia) Are More Expensive**: Public sites are legally bound by "Rate Parity" agreements and add a **20%–45% retail markup** to fund TV and Google ads.\n\n2. **The Closed-Loop Secret**: Hotels quietly release unsold inventory to **B2B Wholesale Bedbanks (Hotelbeds, WebBeds)** at **20%–45% wholesale discounts**. These rates are legally restricted to private, closed-loop club members.\n\n3. **100% Net Rate Pass-Through**: Because we earn revenue through predictable membership subscriptions ($19.99/mo), we pass the **raw wholesale price directly to you with 0% retail markup**.\n\n4. **The FinTech Visa Flywheel**: On top of upfront savings, any post-booking price drops (Pruvo), flight delay payouts ($650), and annual club dividends are **deposited straight onto your reloadable ATLAS Visa card**!\n\nWould you like to read the complete breakdown or compare live rates?`;
     }
     // 3b. Currency & Interbank FX Intent
     else if (
@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
     }
     // 7. Default Aura Greeting with Live Market Telemetry
     else {
-      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nMy autonomous market scanner continuously audits **50+ B2B Bedbanks & GDS networks** (updated ${marketScan.freshnessSeconds}s ago) to eliminate the 18%–35% OTA retail ad tax across 1,000,000+ luxury hotels, monitor price drops, and manage digital nomad relocation.\n\nTell me where you want to travel or work from!`;
+      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nMy autonomous market scanner continuously audits **50+ B2B Bedbanks & GDS networks** (updated ${marketScan.freshnessSeconds}s ago) to eliminate the 20%–45% OTA retail ad tax across 1,000,000+ luxury hotels, monitor price drops, and manage digital nomad relocation.\n\nTell me where you want to travel or work from!`;
     }
 
     return NextResponse.json({

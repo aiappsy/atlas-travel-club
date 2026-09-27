@@ -36,10 +36,10 @@ export default function RateCheckerPage() {
         <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
             <h3 className="text-xl font-black text-slate-900">
-              How Can ATLAS Offer Rates 24% to 52% Below Public Sites?
+              How Can ATLAS Offer Rates 20% to 45% Below Public Sites?
             </h3>
             <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-              Public travel platforms are bound by contractual <strong>Rate Parity</strong>, forcing them to inflate prices by 18%–25% to fund Google search advertising. Because ATLAS operates as a closed-loop membership club, our B2B Bedbank inventory is 100% exempt from parity laws.
+              Public travel platforms are bound by contractual <strong>Rate Parity</strong>, forcing them to inflate prices by 20%–45% to fund Google search advertising. Because ATLAS operates as a closed-loop membership club, our B2B Bedbank inventory is 100% exempt from parity laws.
             </p>
           </div>
 

@@ -75,7 +75,7 @@ export default function AuthModal({
           </h2>
           <p className="text-sky-100 text-sm mt-1">
             {customSubtitle || (isSignUp
-              ? 'Unlock up to 70% off hotels, rental cars & theme parks'
+              ? 'Unlock 20% to 45% off hotels, rental cars & theme parks'
               : 'Access your private closed-loop wholesale pricing')}
           </p>
         </div>

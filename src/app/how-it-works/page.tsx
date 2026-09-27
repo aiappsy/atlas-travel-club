@@ -75,7 +75,7 @@ export default function HowItWorksPage() {
               </div>
               <h3 className="text-xl font-black text-slate-900">Bound by "Rate Parity" Contracts</h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Hotels sign strict legal agreements with public booking sites promising they will <strong>never advertise a cheaper price publicly online</strong>. To fund billions in TV ads and Google search campaigns, public OTAs add an <strong>18% to 25% retail markup</strong> on top of every booking.
+                Hotels sign strict legal agreements with public booking sites promising they will <strong>never advertise a cheaper price publicly online</strong>. To fund billions in TV ads and Google search campaigns, public OTAs add a <strong>20% to 45% retail markup</strong> on top of every booking.
               </p>
               <div className="p-4 bg-rose-50/60 rounded-2xl border border-rose-100 text-xs text-rose-900 font-semibold space-y-1">
                 <div>❌ You pay retail markups on every stay.</div>
@@ -84,14 +84,14 @@ export default function HowItWorksPage() {
               </div>
             </div>
 
-            {/* Box 2: HotelsClub Closed-Loop */}
+            {/* Box 2: ATLAS Closed-Loop */}
             <div className="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-8 rounded-3xl border border-indigo-800 shadow-xl space-y-4 relative">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase border border-emerald-400/30">
-                HotelsClub Private Member Club
+                ATLAS Private Member Club
               </div>
               <h3 className="text-xl font-black text-white">Private B2B Wholesale Net Rates</h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                When hotels have unsold rooms, they quietly release them to <strong>B2B Wholesale Bedbanks (Hotelbeds, WebBeds) at 30% to 70% off</strong> under one legal rule: <em>The price must only be shown behind a private password-protected membership wall</em>.
+                When hotels have unsold rooms, they quietly release them to <strong>B2B Wholesale Bedbanks (Hotelbeds, WebBeds) at 20% to 45% off</strong> under one legal rule: <em>The price must only be shown behind a private password-protected membership wall</em>.
               </p>
               <div className="p-4 bg-white/10 rounded-2xl border border-white/10 text-xs text-emerald-300 font-semibold space-y-1">
                 <div>✓ 100% Net Wholesale Pricing passed straight to you.</div>
@@ -175,7 +175,7 @@ export default function HowItWorksPage() {
               </div>
               <h4 className="font-extrabold text-base text-slate-900">Upfront at Booking</h4>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Save 30% to 70% instantly on 1,000,000+ hotels, villas, cruises, and private jet empty legs with 100% raw wholesale pass-through.
+                Save 20% to 45% instantly on 1,000,000+ hotels, villas, cruises, and private jet empty legs with 100% raw wholesale pass-through.
               </p>
             </div>
 
