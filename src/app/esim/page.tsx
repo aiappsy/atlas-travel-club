@@ -194,7 +194,7 @@ export default function EsimPage() {
                     </svg>
                   </div>
                   <div className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 p-2 rounded-xl">
-                    SM-DP+ Address: LPA:1$esim.hotelsclub.com$ACTIVATION-KEY-9824
+                    SM-DP+ Address: LPA:1$esim.atlastravel.club$ACTIVATION-KEY-9824
                   </div>
                   <p className="text-xs text-slate-500">
                     Open Camera on your iPhone/Android or go to <strong>Settings ➔ Cellular ➔ Add eSIM</strong> and point at this code.

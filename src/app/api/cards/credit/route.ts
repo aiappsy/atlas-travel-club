@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       creditedAmount: amount,
-      source: source || 'HotelsClub Automated Treasury',
+      source: source || 'ATLAS Automated Treasury',
       reference: reference || `CREDIT-${Date.now()}`,
       status: 'posted_to_visa_balance',
       timestamp: new Date().toISOString(),

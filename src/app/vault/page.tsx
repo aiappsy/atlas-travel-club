@@ -50,7 +50,7 @@ export default function VaultPage() {
               Travel Vault & Annual Profit Dividends
             </h1>
             <p className="text-slate-600 text-sm mt-1">
-              Unlike traditional travel agencies, HotelsClub shares platform commissions and interchange profits with members. Every booking and Visa card swipe accumulates Vault Equity Units paid as an annual cash dividend.
+              Unlike traditional travel agencies, ATLAS shares platform commissions and interchange profits with members. Every booking and Visa card swipe accumulates Vault Equity Units paid as an annual cash dividend.
             </p>
           </div>
 
@@ -162,7 +162,7 @@ export default function VaultPage() {
                     +${simulatedDividends}
                   </div>
                   <div className="text-[11px] text-emerald-800 mt-1">
-                    Deposited directly onto your HotelsClub Reloadable Visa Card on Dec 31.
+                    Deposited directly onto your ATLAS Obsidian Visa® Card on Dec 31.
                   </div>
                 </div>
 

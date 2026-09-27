@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'HotelsClub Master Administration | Isolated Command Console',
+  title: 'ATLAS Master Administration | Isolated Command Console',
   description: 'Enterprise control hub for B2B travel feeds, PayPal billing, AI Studio, and Visa card issuance.',
 };
 

@@ -41,7 +41,7 @@ export default function VisaCardPage() {
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('hotelsclub_visa_balance');
+      const saved = localStorage.getItem('atlas_visa_balance') || localStorage.getItem('hotelsclub_visa_balance');
       if (saved) return Number(saved);
     }
     return MOCK_VISA_ACCOUNT.balance;
@@ -92,7 +92,7 @@ export default function VisaCardPage() {
 
   // Persist balance
   useEffect(() => {
-    localStorage.setItem('hotelsclub_visa_balance', balance.toString());
+    localStorage.setItem('atlas_visa_balance', balance.toString());
   }, [balance]);
 
   if (!user || !isMember) {
@@ -161,7 +161,7 @@ export default function VisaCardPage() {
       ]);
       setLoading(false);
       setShowTopUpModal(false);
-      alert(`🎉 Successfully uploaded $${added} onto your HotelsClub Visa card!`);
+      alert(`🎉 Successfully uploaded $${added} onto your ATLAS Obsidian Visa® Card!`);
     }, 1000);
   };
 

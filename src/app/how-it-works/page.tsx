@@ -119,7 +119,7 @@ export default function HowItWorksPage() {
                 <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
                   <th className="py-3 px-4">Luxury Property & Dates</th>
                   <th className="py-3 px-4">Expedia / Public Retail</th>
-                  <th className="py-3 px-4">HotelsClub Wholesale</th>
+                  <th className="py-3 px-4">ATLAS Wholesale</th>
                   <th className="py-3 px-4 text-emerald-600">Your Upfront Savings</th>
                 </tr>
               </thead>
@@ -130,8 +130,8 @@ export default function HowItWorksPage() {
                     <span className="text-[10px] text-slate-400 font-normal">3 Nights • Fountain View King</span>
                   </td>
                   <td className="py-4 px-4 line-through text-slate-400">$1,167 ($389/nt)</td>
-                  <td className="py-4 px-4 font-black text-emerald-600 text-sm">$594 ($198/nt)</td>
-                  <td className="py-4 px-4 font-black text-emerald-600">SAVE $573 (49% Off)</td>
+                  <td className="py-4 px-4 font-black text-emerald-600 text-sm">$665 ($221/nt)</td>
+                  <td className="py-4 px-4 font-black text-emerald-600">SAVE $502 (43% Off)</td>
                 </tr>
                 <tr className="hover:bg-slate-50">
                   <td className="py-4 px-4 font-bold text-slate-900">
@@ -226,10 +226,10 @@ export default function HowItWorksPage() {
 
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
               <h5 className="font-bold text-sm text-slate-900">
-                How does HotelsClub make money if you don't mark up room prices?
+                How does ATLAS make money if you don't mark up room prices?
               </h5>
               <p className="text-slate-600 leading-relaxed">
-                We operate like Costco or Netflix: on transparent, predictable <strong>monthly membership subscriptions ($19.99/mo Gold or $39.99/mo Platinum)</strong>, plus modest merchant interchange on our co-branded Visa cards. Because we don't rely on room markups to survive, we pass 100% of the wholesale discount directly to you.
+                We operate like Costco or Netflix: on transparent, predictable <strong>annual membership subscriptions ($179/yr Gold or $349/yr Platinum)</strong>, plus modest merchant interchange on our co-branded Visa cards. Because we don't rely on room markups to survive, we pass 100% of the wholesale discount directly to you.
               </p>
             </div>
 
@@ -238,7 +238,7 @@ export default function HowItWorksPage() {
                 How does the Visa Prepaid Card actually receive funds?
               </h5>
               <p className="text-slate-600 leading-relaxed">
-                Your HotelsClub card is an authentic co-branded Visa debit/prepaid card powered by Stripe Issuing. When our automated systems recover a price-drop refund, win an airline delay payout, or distribute year-end dividends, the funds are deposited directly into your card balance to spend anywhere worldwide.
+                Your ATLAS Visa card is an authentic co-branded Visa debit/prepaid card powered by Stripe Issuing. When our automated systems recover a price-drop refund, win an airline delay payout, or distribute year-end dividends, the funds are deposited directly into your card balance to spend anywhere worldwide.
               </p>
             </div>
           </div>

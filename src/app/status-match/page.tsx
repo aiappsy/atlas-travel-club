@@ -38,7 +38,7 @@ export default function StatusMatchPage() {
             Skip 60 Nights of Stays: Instant Diamond & Platinum Status
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            As a HotelsClub VIP member, bridge your tier to receive instant Hilton Honors Diamond, Marriott Bonvoy Platinum, and Star Alliance Gold status. Enjoy complimentary suite upgrades, executive lounge breakfasts, and 4 PM late checkouts everywhere you travel.
+            As an ATLAS VIP member, bridge your tier to receive instant Hilton Honors Diamond, Marriott Bonvoy Platinum, and Star Alliance Gold status. Enjoy complimentary suite upgrades, executive lounge breakfasts, and 4 PM late checkouts everywhere you travel.
           </p>
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function StatusMatchPage() {
                 <div>
                   <div className="text-[10px] text-slate-400">Eligible Tier:</div>
                   <div className="text-xs font-black text-slate-900 uppercase">
-                    {prog.minHotelsClubTier}+ Members
+                    ATLAS {prog.minHotelsClubTier}+ Members
                   </div>
                 </div>
 
@@ -173,7 +173,7 @@ export default function StatusMatchPage() {
 
                   <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-left text-xs space-y-1">
                     <div className="font-bold text-emerald-900">
-                      ✓ Instant Verification via HotelsClub Gold VIP Status
+                      ✓ Instant Verification via ATLAS Gold VIP Status
                     </div>
                     <div className="text-emerald-700 text-[11px]">
                       Your {selectedProgram.matchedTier} perks will be active in your {selectedProgram.brand} app within 12–24 hours.

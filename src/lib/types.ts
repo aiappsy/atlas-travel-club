@@ -224,7 +224,7 @@ export interface PriceDropRebookRecord {
   newRebookedPriceTotal: number;
   cashRefunded: number;
   status: 'monitoring' | 'price_drop_detected' | 'auto_rebooked_success';
-  refundDestination: 'HotelsClub Visa Card' | 'PayPal';
+  refundDestination: 'ATLAS Obsidian Visa® Card' | 'ATLAS Visa Card' | 'PayPal';
   lastCheckedAt: string;
   rebookedAt?: string;
   hotelImage: string;

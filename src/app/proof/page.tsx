@@ -59,10 +59,10 @@ export default function SavingsProofPage() {
         publicRetailPricePerNight: 895,
         publicTotalRetailPrice: 2685,
         retailMarketingMarkup: 1290,
-        hotelsClubWholesalePerNight: 465,
-        hotelsClubTotalPaid: 1395,
-        instantCashSaved: 1290,
-        savingsPercentage: 48,
+        hotelsClubWholesalePerNight: 519,
+        hotelsClubTotalPaid: 1557,
+        instantCashSaved: 1128,
+        savingsPercentage: 42,
         additionalCardBonuses: {
           priceDropProtection: 185,
           travelVaultDividends: 92.50,
@@ -243,11 +243,11 @@ export default function SavingsProofPage() {
                       </div>
                     </div>
 
-                    {/* HotelsClub Wholesale Row */}
+                    {/* ATLAS Wholesale Row */}
                     <div className="p-3.5 bg-emerald-50 rounded-2xl border-2 border-emerald-500 flex items-center justify-between">
                       <div>
                         <div className="font-black text-emerald-950 flex items-center gap-1">
-                          <span>HotelsClub Raw Net Wholesale Rate</span>
+                          <span>ATLAS Raw Net Wholesale Rate</span>
                           <span className="text-[10px] bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-full">
                             SAVE {activeAudit.savingsPercentage}%
                           </span>
@@ -403,7 +403,7 @@ export default function SavingsProofPage() {
         <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl max-w-4xl mx-auto space-y-8">
           <div className="text-center max-w-xl mx-auto space-y-2">
             <h3 className="text-2xl font-black text-slate-900">
-              Will HotelsClub Membership Pay for Itself?
+              Will ATLAS Membership Pay for Itself?
             </h3>
             <p className="text-xs text-slate-500">
               Calculate your personal return on investment (ROI) based on how often you travel:

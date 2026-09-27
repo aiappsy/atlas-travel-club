@@ -245,7 +245,7 @@ export default function FlightClaimsPage() {
                         }`}
                       >
                         <CreditCard className="w-4 h-4 text-emerald-600" />
-                        <span>HotelsClub Visa Card</span>
+                        <span>ATLAS Obsidian Visa® Card</span>
                       </button>
 
                       <button
@@ -300,7 +300,7 @@ export default function FlightClaimsPage() {
                   </p>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
                     <div>Claimed Amount: <strong>${totalEstimatedPayout} Cash</strong></div>
-                    <div>Payout Target: <strong>{payoutMethod === 'visa_card' ? 'HotelsClub Visa Card' : 'PayPal'}</strong></div>
+                    <div>Payout Target: <strong>{payoutMethod === 'visa_card' ? 'ATLAS Obsidian Visa® Card' : 'PayPal'}</strong></div>
                   </div>
                   <button
                     onClick={() => setStep('calculator')}

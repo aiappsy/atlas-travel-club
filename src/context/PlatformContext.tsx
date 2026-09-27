@@ -21,7 +21,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const syncFromStorage = () => {
       try {
-        const saved = localStorage.getItem('hotelsclub_platform_features');
+        const saved = localStorage.getItem('atlas_platform_features') || localStorage.getItem('hotelsclub_platform_features');
         if (saved) {
           setFeatures(JSON.parse(saved));
         }
@@ -33,7 +33,7 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     syncFromStorage();
 
     const handleStorageEvent = (e: StorageEvent) => {
-      if (e.key === 'hotelsclub_platform_features' && e.newValue) {
+      if ((e.key === 'atlas_platform_features' || e.key === 'hotelsclub_platform_features') && e.newValue) {
         setFeatures(JSON.parse(e.newValue));
       }
     };
@@ -43,11 +43,11 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
     };
 
     window.addEventListener('storage', handleStorageEvent);
-    window.addEventListener('hotelsclub_platform_sync', handleCustomSync);
+    window.addEventListener('atlas_platform_sync', handleCustomSync);
 
     return () => {
       window.removeEventListener('storage', handleStorageEvent);
-      window.removeEventListener('hotelsclub_platform_sync', handleCustomSync);
+      window.removeEventListener('atlas_platform_sync', handleCustomSync);
     };
   }, []);
 
@@ -59,8 +59,8 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
         lastPublishedAt: new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC',
       };
       try {
-        localStorage.setItem('hotelsclub_platform_features', JSON.stringify(updated));
-        window.dispatchEvent(new Event('hotelsclub_platform_sync'));
+        localStorage.setItem('atlas_platform_features', JSON.stringify(updated));
+        window.dispatchEvent(new Event('atlas_platform_sync'));
       } catch (e) {
         // ignore
       }
@@ -70,8 +70,8 @@ export function PlatformProvider({ children }: { children: React.ReactNode }) {
 
   const publishLive = () => {
     try {
-      localStorage.setItem('hotelsclub_platform_features', JSON.stringify(features));
-      window.dispatchEvent(new Event('hotelsclub_platform_sync'));
+      localStorage.setItem('atlas_platform_features', JSON.stringify(features));
+      window.dispatchEvent(new Event('atlas_platform_sync'));
     } catch (e) {
       // ignore
     }

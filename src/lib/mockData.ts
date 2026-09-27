@@ -1200,7 +1200,7 @@ export const MOCK_VAULT_ACCOUNT: TravelVaultAccount = {
     {
       year: 2025,
       amount: 290.00,
-      destination: 'HotelsClub Visa Prepaid Card (•••• 8842)',
+      destination: 'ATLAS Obsidian Visa® Card (•••• 8842)',
       paidAt: '2025-12-31 23:59 UTC'
     }
   ]
@@ -1331,7 +1331,7 @@ export const MOCK_PRICE_DROP_RECORDS: PriceDropRebookRecord[] = [
     newRebookedPriceTotal: 426.00,
     cashRefunded: 168.00,
     status: 'auto_rebooked_success',
-    refundDestination: 'HotelsClub Visa Card',
+    refundDestination: 'ATLAS Obsidian Visa® Card',
     lastCheckedAt: '12 mins ago',
     rebookedAt: '2026-08-24 14:20 UTC',
     hotelImage: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
@@ -1439,7 +1439,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Sign up for a partner affiliate account at ivisa.com/affiliates or joinsherpa.com/partners.',
       '2. In Developer Settings, copy your Affiliate Campaign ID and API Token.',
-      '3. In HotelsClub Admin > Digital Nomad & Visas, paste your credentials and save.',
+      '3. In ATLAS Admin > Digital Nomad & Visas, paste your credentials and save.',
       '4. When a member applies for a Spain, Portugal, Dubai, or Thailand Nomad Visa, you earn $20–$75 per approved filing.'
     ]
   },
@@ -1457,7 +1457,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Register at outsite.co/affiliates and apply for Selina CoLive partner network.',
       '2. Copy your Outsite Affiliate Tracking Token.',
-      '3. In HotelsClub Admin > Digital Nomad & Visas, paste your Outsite ID.',
+      '3. In ATLAS Admin > Digital Nomad & Visas, paste your Outsite ID.',
       '4. When members book long-stay suites in Lisbon, Bali, or Medellín, your affiliate tracking is automatically attached.'
     ]
   },
@@ -1475,20 +1475,20 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Register at wise.com/affiliates (via Impact.com).',
       '2. Obtain your Wise Partner Campaign Link ID.',
-      '3. Paste into HotelsClub Admin > Digital Nomad & Visas under "FinTech Banking Partner".',
+      '3. Paste into ATLAS Admin > Digital Nomad & Visas under "FinTech Banking Partner".',
       '4. Members setting up multi-currency local accounts for their foreign visas generate automated affiliate commissions.'
     ]
   },
   {
     id: 'travel-vault-dividends',
-    providerName: 'HotelsClub Vault & Profit Dividend Smart Engine',
+    providerName: 'ATLAS Vault & Profit Dividend Smart Engine',
     category: 'Closed-Loop Profit Sharing & Member Dividend Distribution',
     estimatedApprovalTime: 'Instant / Built-in Protocol',
     typicalCommissionOrSavings: 'Members receive annual cash dividend checks ($250 – $1,200) deposited directly onto their Visa Prepaid Card',
-    portalUrl: 'https://hotelsclub.vip/vault',
+    portalUrl: 'https://atlastravel.club/vault',
     requirements: [
-      'Active HotelsClub membership in good standing',
-      'HotelsClub Reloadable Visa Card or PayPal account for deposit'
+      'Active ATLAS membership in good standing',
+      'ATLAS Obsidian Visa® Card or PayPal account for deposit'
     ],
     stepByStepGuide: [
       '1. Every booking across hotels, private jets, yachts, and reloadable Visa card swipes generates Vault Equity Points.',
@@ -1511,7 +1511,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Register as a partner at lecollectionist.com/en/travel-designers or oliverstravels.com.',
       '2. In Developer Settings, copy your B2B Estate XML/REST API credentials.',
-      '3. In HotelsClub Admin > Luxury Villas, paste your credentials and set your member discount pass-through.',
+      '3. In ATLAS Admin > Luxury Villas, paste your credentials and set your member discount pass-through.',
       '4. When a member books an estate, the on-site butler and private chef are notified to tailor arrival provisioning.'
     ]
   },
@@ -1529,7 +1529,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Apply for an enterprise partner account at statusmatch.com/business or loylogic.com.',
       '2. In Developer Settings, obtain your Status Bridge API Secret.',
-      '3. In HotelsClub Admin > Status Match, paste your API token and define tier mappings (e.g. Gold ➔ Hilton Diamond).',
+      '3. In ATLAS Admin > Status Match, paste your API token and define tier mappings (e.g. Gold ➔ Hilton Diamond).',
       '4. When a member requests a match, StatusMatch.com pushes instant tier upgrades directly to Hilton/Marriott/Star Alliance.'
     ]
   },
@@ -1547,7 +1547,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Sign up at diamondair.co.uk or marhabaservices.com B2B partner portal.',
       '2. Copy your Agency Account ID and API Dispatch Token.',
-      '3. In HotelsClub Admin > Fast-Track Immigration, paste your token and save.',
+      '3. In ATLAS Admin > Fast-Track Immigration, paste your token and save.',
       '4. When a member books an arrival escort, the airport agent is dispatched to the jet bridge with a digital name board.'
     ]
   },
@@ -1565,7 +1565,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Sign up at boatsetter.com/affiliates or clickandboat.com partner portal.',
       '2. Copy your B2B Fleet Partner API Key and Webhook URL.',
-      '3. In HotelsClub Admin > Yachts & Supercars, paste your key and adjust commission margins.',
+      '3. In ATLAS Admin > Yachts & Supercars, paste your key and adjust commission margins.',
       '4. When a member books a yacht, the licensed captain is dispatched and coordinates harbor boarding directly.'
     ]
   },
@@ -1583,7 +1583,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Create an enterprise developer account at pruvo.com/business or hotelmize.com.',
       '2. In Developer Settings, copy your B2B API Token and configure your Webhook URL.',
-      '3. In HotelsClub Admin > Auto-Rebooker, paste your Token and set your minimum rebook drop threshold ($25 min).',
+      '3. In ATLAS Admin > Auto-Rebooker, paste your Token and set your minimum rebook drop threshold ($25 min).',
       '4. When a member books a room, the engine monitors the rate 24/7. When the price drops, it automatically re-reserves at the lower rate and deposits the difference onto their Visa card.'
     ]
   },
@@ -1601,7 +1601,7 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Apply at lunajets.com/en/b2b-partners or flyxo.com/partners.',
       '2. Request B2B Empty Leg Feed API credentials (REST JSON Webhook).',
-      '3. In HotelsClub Admin > Private Jets, paste your API Key and set your charter commission markups.',
+      '3. In ATLAS Admin > Private Jets, paste your API Key and set your charter commission markups.',
       '4. When a member reserves a seat or whole jet, the FBO handling team coordinates executive tarmac access, catering, and pilot briefing.'
     ]
   },
@@ -1659,9 +1659,9 @@ export const PROVIDER_INSTRUCTION_GUIDES: ProviderInstructionGuide[] = [
     stepByStepGuide: [
       '1. Log into your Stripe Dashboard and navigate to the "Issuing" tab.',
       '2. Click "Request Access" for Physical Card Issuing and submit your business entity details.',
-      '3. In "Card Designs", upload your HotelsClub metallic Gold/Platinum card art with your logo.',
+      '3. In "Card Designs", upload your ATLAS metallic Gold/Platinum card art with your logo.',
       '4. Copy your Secret Key (sk_live_...) and Webhook Secret from Developer Settings.',
-      '5. Paste the keys in your HotelsClub Admin Console under "Prepaid Visa Manager" and click Publish.',
+      '5. Paste the keys in your ATLAS Admin Console under "Prepaid Visa Manager" and click Publish.',
       '6. When members order a Visa card, Stripe automatically prints and ships it via USPS with real-time tracking.'
     ]
   }
@@ -1722,7 +1722,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     badgeColor: 'bg-teal-600',
     priceMonthly: 29.99,
     priceAnnual: 279,
-    wholesaleHotelDiscount: 'Up to 50% Off (Monthly Coliving & Long-Stays)',
+    wholesaleHotelDiscount: 'Up to 45% Off (Monthly Coliving & Long-Stays)',
     isPopular: true,
     perksIncluded: [
       'Free 10GB Global 5G Travel eSIM auto-renewed monthly',
@@ -1730,7 +1730,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
       'Digital Nomad Visa Application Concierge (Spain, Portugal, Dubai, Thailand)',
       'Schengen 90/180-Day Automated Compliance Sentinel',
       'Curated monthly coliving spaces with verified 300+ Mbps Fiber Wi-Fi',
-      'HotelsClub Reloadable Visa Card with 0% Foreign Transaction Fees',
+      'ATLAS Obsidian Reloadable Visa Card with 0% Foreign Transaction Fees',
       '3x Travel Vault Dividend Multiplier'
     ]
   },
