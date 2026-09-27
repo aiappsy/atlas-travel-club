@@ -119,8 +119,14 @@ export default function Navbar() {
 
                 {isCurrencyOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 max-h-80 overflow-y-auto">
-                    <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-slate-400 border-b border-slate-800">
-                      Select Currency (Interbank FX)
+                    <div className="px-3 py-1.5 border-b border-slate-800 flex items-center justify-between">
+                      <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                        Interbank FX
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded-full border border-emerald-800/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        ECB Live
+                      </span>
                     </div>
                     {Object.values(currencies).map((curr) => (
                       <button

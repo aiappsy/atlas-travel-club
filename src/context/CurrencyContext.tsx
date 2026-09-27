@@ -62,6 +62,8 @@ interface CurrencyContextType {
   formatPrice: (amountInUSD: number, options?: { showCode?: boolean; roundWhole?: boolean }) => string;
   convertPrice: (amountInUSD: number) => number;
   currentConfig: CurrencyConfig;
+  fxSource: string;
+  fxLastUpdated: string | null;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
@@ -69,6 +71,8 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
   const [currencies, setCurrencies] = useState<Record<CurrencyCode, CurrencyConfig>>(DEFAULT_CURRENCIES);
+  const [fxSource, setFxSource] = useState<string>('European Central Bank (ECB)');
+  const [fxLastUpdated, setFxLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -86,6 +90,40 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error('Failed to load currency preferences', e);
     }
+
+    // Fetch live ECB rates from our internal /api/fx endpoint
+    const fetchLiveRates = async () => {
+      try {
+        const res = await fetch('/api/fx');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.rates) {
+          setCurrencies((prev) => {
+            const updated = { ...prev };
+            for (const [code, rate] of Object.entries(data.rates as Record<string, number>)) {
+              if (updated[code as CurrencyCode]) {
+                updated[code as CurrencyCode] = {
+                  ...updated[code as CurrencyCode],
+                  rate,
+                };
+              }
+            }
+            try {
+              localStorage.setItem('atlas_fx_rates', JSON.stringify(updated));
+            } catch (err) {
+              // ignore
+            }
+            return updated;
+          });
+          if (data.source) setFxSource(data.source);
+          if (data.date) setFxLastUpdated(data.date);
+        }
+      } catch (err) {
+        console.warn('Could not refresh live FX rates, using local cache:', err);
+      }
+    };
+
+    fetchLiveRates();
   }, []);
 
   const setCurrency = (code: CurrencyCode) => {
@@ -152,7 +190,9 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         updateExchangeRate,
         formatPrice,
         convertPrice,
-        currentConfig
+        currentConfig,
+        fxSource,
+        fxLastUpdated,
       }}
     >
       {children}
