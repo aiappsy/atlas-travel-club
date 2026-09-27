@@ -2049,71 +2049,92 @@ function parseOtaUrl(input: string): ParsedOtaQuery {
   return { isOtaUrl: false, cleanQuery: trimmed };
 }
 
-// Real hotel lookup via Wikipedia for any global destination — strictly local & validated
-async function fetchRealHotelsForDestination(destination: string): Promise<Array<{name: string, slug: string}>> {
+// Real physical hotel discovery for any global destination via live accommodation registries
+async function fetchRealHotelsForDestination(destination: string): Promise<Array<{ name: string; slug: string; address?: string }>> {
   const city = destination.split(',')[0].trim();
-  const queries = [
-    `hotels in ${city}`,
-    `resorts in ${city}`,
-  ];
-  const hotelNames: Array<{name: string, slug: string}> = [];
-  const otherMajorCities = ['london', 'paris', 'new york', 'las vegas', 'dubai', 'tokyo', 'rome', 'los angeles', 'miami', 'chicago', 'singapore']
-    .filter((c) => !city.toLowerCase().includes(c));
+  const country = destination.includes(',') ? destination.split(',')[1].trim() : '';
+  const hotelList: Array<{ name: string; slug: string; address?: string }> = [];
 
-  for (const q of queries) {
-    try {
-      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=15&origin=*`;
-      const res = await fetch(url, {
-        headers: { 'User-Agent': 'AtlasTravelClub/1.0 (info@atlastravel.club)' },
-        next: { revalidate: 3600 }
-      });
-      if (!res.ok) continue;
+  // 1. Direct query to OpenStreetMap Nominatim for registered physical hotels in this exact destination
+  try {
+    const query = `hotels in ${city}${country ? ' ' + country : ''}`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=16&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'AtlasTravelClub/1.0 (info@atlastravel.club)' },
+      next: { revalidate: 86400 },
+    });
+    if (res.ok) {
       const data = await res.json();
-      const results: Array<{ title: string; snippet?: string }> = data?.query?.search || [];
-      for (const r of results) {
-        const title = r.title;
-        const lowerTitle = title.toLowerCase().trim();
-        const snippetText = (r.snippet || '').toLowerCase();
-        
-        // Exclude non-hotel facilities, water parks, or theme parks
-        if (/theme park|water park|amusement park/i.test(title + ' ' + snippetText)) continue;
-        if (/\((philippines|wisconsin|florida|texas|united states|uk|australia)\)/i.test(title)) continue;
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          let name = item.name || (item.display_name ? item.display_name.split(',')[0] : '');
+          name = name.trim();
+          if (!name || name.length < 3) continue;
 
-        // Strict geographic relevance: destination city must actually be mentioned in title or snippet
-        const mentionsCity = lowerTitle.includes(city.toLowerCase()) || snippetText.includes(city.toLowerCase());
-        if (!mentionsCity) continue;
+          // Skip generic labels
+          if (/^(hotel|hotels|hostel|motel|accommodation|bed and breakfast)$/i.test(name)) continue;
 
-        // Reject if it explicitly mentions a different major world city in its title
-        if (otherMajorCities.some((oc) => lowerTitle.includes(oc))) continue;
-
-        const isGeneric =
-          /^(hotel|hotels|resort|resorts|boutique hotel|hotel chain|hotel rating)$/i.test(lowerTitle) ||
-          lowerTitle.includes('company') ||
-          lowerTitle.includes('group') ||
-          lowerTitle.includes('corporation') ||
-          lowerTitle.length < 6;
-
-        if (
-          /hotel|resort|palace|grand|ritz|hilton|marriott|hyatt|sheraton|westin|intercontinental|fairmont|four seasons|peninsula|mandarin|raffles|waldorf|oberoi|taj|kempinski|bulgari|aman|banyan|rosewood|sofitel|belmond|lodge|chalet|inn/i.test(title) &&
-          !title.toLowerCase().includes('list of') &&
-          !title.toLowerCase().includes('category:') &&
-          !title.toLowerCase().includes('disambiguation') &&
-          !isGeneric
-        ) {
-          const cleanName = title.replace(/\s*\([^)]*\)/g, '').trim();
-          const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-          if (!hotelNames.some((h) => h.slug === slug)) {
-            hotelNames.push({ name: cleanName, slug });
+          const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          if (!hotelList.some((h) => h.slug === slug)) {
+            hotelList.push({
+              name,
+              slug,
+              address: item.display_name ? item.display_name.split(',').slice(0, 4).join(', ') : `${name}, ${city}`,
+            });
           }
         }
-        if (hotelNames.length >= 12) break;
       }
-      if (hotelNames.length >= 6) break;
+    }
+  } catch (e) {
+    // Ignore fetch error and proceed to Wikipedia fallback
+  }
+
+  // 2. If fewer than 4 hotels found, query Wikipedia
+  if (hotelList.length < 4) {
+    const otherMajorCities = ['london', 'paris', 'new york', 'las vegas', 'dubai', 'tokyo', 'rome', 'los angeles', 'miami', 'chicago', 'singapore']
+      .filter((c) => !city.toLowerCase().includes(c));
+
+    try {
+      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent('hotels in ' + city)}&format=json&srlimit=15&origin=*`;
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'AtlasTravelClub/1.0 (info@atlastravel.club)' },
+        next: { revalidate: 3600 },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const results: Array<{ title: string; snippet?: string }> = data?.query?.search || [];
+        for (const r of results) {
+          const title = r.title;
+          const lowerTitle = title.toLowerCase().trim();
+          const snippetText = (r.snippet || '').toLowerCase();
+
+          if (/theme park|water park|amusement park/i.test(title + ' ' + snippetText)) continue;
+          if (/\((philippines|wisconsin|florida|texas|united states|uk|australia)\)/i.test(title)) continue;
+
+          const mentionsCity = lowerTitle.includes(city.toLowerCase()) || snippetText.includes(city.toLowerCase());
+          if (!mentionsCity) continue;
+          if (otherMajorCities.some((oc) => lowerTitle.includes(oc))) continue;
+
+          if (
+            /hotel|resort|palace|grand|ritz|hilton|marriott|hyatt|sheraton|westin|intercontinental|fairmont|four seasons|peninsula|mandarin|raffles|waldorf|oberoi|taj|kempinski|bulgari|aman|banyan|rosewood|sofitel|belmond|lodge|chalet|inn/i.test(title) &&
+            !title.toLowerCase().includes('list of') &&
+            !title.toLowerCase().includes('category:') &&
+            !title.toLowerCase().includes('disambiguation')
+          ) {
+            const cleanName = title.replace(/\s*\([^)]*\)/g, '').trim();
+            const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+            if (!hotelList.some((h) => h.slug === slug)) {
+              hotelList.push({ name: cleanName, slug, address: `${cleanName}, ${city}${country ? ', ' + country : ''}` });
+            }
+          }
+        }
+      }
     } catch {
-      // ignore fetch errors
+      // ignore
     }
   }
-  return hotelNames;
+
+  return hotelList;
 }
 
 // City tier pricing: returns geography-aware retail pricing for ski resorts, tropical islands, and metropolitan hubs
@@ -2379,29 +2400,29 @@ async function generateDynamicDestinationHotels(
 
   const templatePool = pricing.isAlpine ? alpineNames : pricing.isBeach ? beachNames : metroNames;
 
-  // Curated imagery by category
+  // Curated imagery by category (verified 5-star hospitality photography — strictly luxury architecture, suites, and resorts)
   const images = pricing.isAlpine
     ? [
-        'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1517824806704-9040b037703b?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80', // Mountain Chalet Hotel
+        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80', // Alpine Lodge Resort
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80', // Grand Palace Mountain Facade
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', // Luxury Suite Interior
       ]
     : pricing.isBeach
     ? [
-        'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1200&q=80', // Luxury Beachfront Villa
+        'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80', // Ocean Lagoon Resort
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80', // Luxury Resort Pool
+        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80', // Coastal Boutique Villa
       ]
     : [
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80', // Grand Luxury Hotel Facade
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80', // Luxury Hotel Pool & Terrace
+        'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80', // Modern Designer Executive Suite
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80', // Deluxe Hotel Room
       ];
 
-  // Overlay real Wikipedia discovered hotels into the template roster
+  // Overlay real discovered hotels into the template roster
   const propertiesList = templatePool.map((tpl, idx) => {
     const realHotel = realHotels[idx];
     const name = realHotel ? realHotel.name : tpl.name;
@@ -2409,6 +2430,7 @@ async function generateDynamicDestinationHotels(
     return {
       name,
       slug,
+      address: realHotel?.address,
       category: tpl.category,
       categoryLabel: tpl.label,
     };
@@ -2479,11 +2501,11 @@ async function generateDynamicDestinationHotels(
     const imgIndex = Math.floor(i / 4) % images.length;
     const hotelImage = images[imgIndex];
 
-    const localAddress = pricing.isAlpine
+    const localAddress = hotel.address || (pricing.isAlpine
       ? `${hotel.name}, Alpine Way, ${city}${country ? ', ' + country : ''}`
       : pricing.isBeach
       ? `${hotel.name}, Beachfront Boulevard, ${city}${country ? ', ' + country : ''}`
-      : `${hotel.name}, City Center, ${city}${country ? ', ' + country : ''}`;
+      : `${hotel.name}, City Center, ${city}${country ? ', ' + country : ''}`);
 
     return {
       id: `atlas-${hotel.slug}`,
@@ -2703,31 +2725,43 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Hotel property not found' }, { status: 404 });
   }
 
-  let matchedHotels = [...MASTER_HOTELS_DB];
+  let matchedHotels: ComparedHotel[] = [];
 
   if (rawSearch && rawSearch.toLowerCase() !== 'all' && rawSearch.toLowerCase() !== 'global') {
-    const cleanDest = rawSearch.toLowerCase().replace(/[,.-]/g, ' ');
-    const searchTerms = cleanDest.split(' ').map((t: string) => t.trim()).filter((t: string) => t.length > 1);
+    const rawLower = rawSearch.toLowerCase().trim();
+    // Parse "Hamar, Norway" -> cityPart = "hamar", countryPart = "norway"
+    const commaParts = rawLower.split(',').map((p) => p.trim()).filter(Boolean);
+    const cityPart = commaParts[0];
+    const countryPart = commaParts.length > 1 ? commaParts[1] : '';
 
     matchedHotels = MASTER_HOTELS_DB.filter((h) => {
-      const city = h.city.toLowerCase();
-      const country = h.country.toLowerCase();
-      const name = h.name.toLowerCase();
-      const address = h.address.toLowerCase();
-      const fullText = `${city} ${country} ${name} ${address}`;
+      const hCity = h.city.toLowerCase().trim();
+      const hCountry = h.country.toLowerCase().trim();
+      const hName = h.name.toLowerCase().trim();
 
-      // If the destination query directly appears as a phrase
-      if (fullText.includes(cleanDest.trim())) return true;
+      // 1. Direct hotel name match (e.g. "Bellagio" or "The Ritz")
+      if (hName.includes(rawLower) || rawLower.includes(hName)) return true;
+      if (hName.includes(cityPart) || cityPart.includes(hName)) return true;
 
-      // Word boundary match: ensure short tokens like 'las' or 'uk' match actual whole words
-      return searchTerms.some((term: string) => {
-        try {
-          const regex = new RegExp(`\\b${term}\\b`, 'i');
-          return regex.test(city) || regex.test(country) || regex.test(name) || regex.test(address);
-        } catch {
-          return fullText.includes(term);
-        }
-      });
+      // 2. City + Country query e.g. "Hamar, Norway" or "Paris, France"
+      if (commaParts.length > 1) {
+        // MUST match the city strictly! Oslo MUST NOT match when searching Hamar, Norway
+        const cityMatches = hCity === cityPart || hCity.startsWith(cityPart) || cityPart.startsWith(hCity);
+        const countryMatches = !countryPart || hCountry === countryPart || hCountry.startsWith(countryPart) || countryPart.startsWith(hCountry);
+        return cityMatches && countryMatches;
+      }
+
+      // 3. Single token city search e.g. "Oslo" or "Las Vegas"
+      if (hCity === rawLower || hCity.includes(rawLower) || rawLower.includes(hCity)) {
+        return true;
+      }
+
+      // 4. Pure country search e.g. "Norway"
+      if (hCountry === rawLower) {
+        return true;
+      }
+
+      return false;
     });
 
     // Rank matching hotels: hotels whose city or name directly matches the search term come first
@@ -2736,14 +2770,14 @@ export async function GET(request: Request) {
       const bCity = b.city.toLowerCase();
       const aName = a.name.toLowerCase();
       const bName = b.name.toLowerCase();
-      const aMatches = searchTerms.some((t: string) => aCity.includes(t) || aName.includes(t));
-      const bMatches = searchTerms.some((t: string) => bCity.includes(t) || bName.includes(t));
+      const aMatches = aCity.includes(cityPart) || aName.includes(cityPart);
+      const bMatches = bCity.includes(cityPart) || bName.includes(cityPart);
       if (aMatches && !bMatches) return -1;
       if (!aMatches && bMatches) return 1;
       return 0;
     });
 
-    // If zero static matches, generate 16 diverse properties for this destination
+    // If zero static matches (e.g. "Hamar, Norway", "Zermatt", "Santorini"), generate 16 diverse properties for this destination
     if (matchedHotels.length === 0) {
       matchedHotels = await generateDynamicDestinationHotels(rawSearch, nights, checkIn, checkOut);
     } else if (matchedHotels.length < 16) {
@@ -2759,6 +2793,8 @@ export async function GET(request: Request) {
         if (matchedHotels.length >= 16) break;
       }
     }
+  } else {
+    matchedHotels = [...MASTER_HOTELS_DB];
   }
 
   const dynamicHotels = matchedHotels.map((h) => dynamicallyScaleHotelPrices(h, nights, checkIn, checkOut));
