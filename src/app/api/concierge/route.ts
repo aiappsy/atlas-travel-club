@@ -85,7 +85,18 @@ export async function POST(req: NextRequest) {
       query.includes('conversion') ||
       query.includes('exchange rate')
     ) {
-      reply = `💱 **Global Multi-Currency & 0% FX Engine:**\n\nATLAS supports **8 major global currencies** with real-time conversion at raw ECB interbank rates:\n\n- 🇺🇸 **USD ($)**: Base Club Currency\n- 🇪🇺 **EUR (€)**: ~0.92 per USD (No FX surcharge)\n- 🇬🇧 **GBP (£)**: ~0.79 per USD\n- 🇨🇭 **CHF (CHF)**: ~0.88 per USD\n- 🇦🇪 **AED (AED)**: 3.67 pegged\n- 🇸🇬 **SGD (S$)**: ~1.34 per USD\n- 🇯🇵 **JPY (¥)**: ~155.0 per USD\n- 🇦🇺 **AUD (A$)**: ~1.52 per USD\n\n🛡️ **Zero Foreign Transaction Fees**: Unlike consumer credit cards that charge 3% international fees, your ATLAS Visa card and bookings execute at pure interbank rates. You can switch your currency anytime via the navbar selector or Admin Console!`;
+      reply = `💱 **Global Multi-Currency & 0% FX Engine:**\n\nATLAS supports **19 major global currencies** with real-time conversion at raw European Central Bank (ECB via Frankfurter) interbank rates:\n\n- 🇺🇸 **USD ($)**: Base Club Currency\n- 🇪🇺 **EUR (€)**: Direct ECB interbank rate (0% markup)\n- 🇳🇴 **NOK (kr)**: Real-time Norwegian Krone live feed\n- 🇬🇧 **GBP (£)**: British Pound sterling live feed\n- 🇸🇪 **SEK (kr)** & 🇩🇰 **DKK (kr)**: Nordic interbank rates\n- 🇨🇭 **CHF (CHF)**: Swiss Franc parity\n- 🇦🇪 **AED (AED)**: 3.6725 pegged\n- 🇨🇦 **CAD (C$)** & 🇦🇺 **AUD (A$)**: Transatlantic & Pacific rates\n- 🇯🇵 **JPY (¥)**, 🇸🇬 **SGD (S$)**, 🇹🇭 **THB (฿)**, 🇵🇭 **PHP (₱)**, 🇮🇳 **INR (₹)**, 🇮🇩 **IDR (Rp)**, 🇲🇾 **MYR (RM)**, 🇳🇿 **NZD (NZ$)**, 🇭🇰 **HKD (HK$)**.\n\n🛡️ **Zero Foreign Transaction Fees**: Unlike consumer credit cards that charge 3% international fees, your ATLAS Visa card and bookings execute at pure interbank rates. You can switch your currency anytime via the navbar selector (marked with the 🟢 ECB Live badge)!`;
+    }
+    // 3c. Flight Delay & EU261 Legal Compensation Intent
+    else if (
+      query.includes('delay') ||
+      query.includes('claim') ||
+      query.includes('cancelled flight') ||
+      query.includes('eu261') ||
+      query.includes('compensation') ||
+      query.includes('flight refund')
+    ) {
+      reply = `⚖️ **ATLAS EU261 & International Flight Disruption Compensation Sentinel:**\n\nIf your flight was delayed by 3+ hours or cancelled within the last 3 years, you are legally entitled to statutory cash compensation under European Regulation 261/2004 and UK Air Passenger Rights:\n\n- ✈️ **Short-Haul (< 1,500 km, e.g. Oslo ➔ London/Stockholm)**: **€250 ($275)** per passenger.\n- ✈️ **Medium-Haul (1,500 – 3,500 km, e.g. Oslo ➔ Barcelona/Rome/Mallorca)**: **€400 ($440)** per passenger.\n- ✈️ **Long-Haul (> 3,500 km, e.g. Frankfurt/London ➔ New York/Miami)**: **€600 ($650)** per passenger.\n\n🛡️ **Instant Verification**: Enter any flight number in our [Live Flight Claims Scanner](/flight-claims) (e.g. SK810, DY1234, LH442) for immediate verification and direct payout straight to your ATLAS Visa Card!`;
     }
     // 3c. Digital Wallet & Apple/Google Pass Intent
     else if (

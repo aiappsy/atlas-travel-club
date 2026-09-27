@@ -56,7 +56,11 @@ Here is your deployment protocol:
    - **CRITICAL COMPLIANCE**: Never expose raw wholesale supplier net rates to public unauthenticated scrapers.
    - Always gate booking endpoints behind authenticated member JWT session tokens.
 
-💡 **Pro-Tip**: Use the **Wholesale Gateways Tab** in the Admin Console to test API response latency. We target < 1,800ms for hotel searches.`;
+💡 **Live APItude Endpoints**:
+- Health & Latency Monitor: \`/api/providers/hotelbeds/status\` (validates HMAC-SHA256 signature in real time).
+- Live Wholesale Availability: \`/api/providers/hotelbeds/availability?destination=Palma+de+Mallorca\` (returns live room allotments and authentic rateKeys).
+- Interbank FX Engine: \`/api/fx\` (19 currencies synced live from European Central Bank).
+- Live Flight Claims Scanner: \`/api/flights/scan?flight=SK810\` (EU261 statutory claim evaluator).`;
       } else if (query.includes('apple') || query.includes('google') || query.includes('wallet') || query.includes('pass') || query.includes('.pkpass')) {
         tutorResponse = `📱 **AI Integrations Tutor: Apple Wallet & Google Pay Pass Generation**
 
