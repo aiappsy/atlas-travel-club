@@ -32,9 +32,11 @@ import {
   Compass
 } from 'lucide-react';
 import Link from 'next/link';
+import { useCurrency } from '@/context/CurrencyContext';
 
 function MembershipContent() {
   const { user, isMember, upgradeTier, bookings, toggleDemoMode } = useAuth();
+  const { formatPrice } = useCurrency();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -99,7 +101,7 @@ function MembershipContent() {
             <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
               <div>
                 <div className="text-[10px] text-slate-300 uppercase font-bold">Lifetime Savings</div>
-                <div className="text-2xl font-black text-emerald-400">${user.lifetimeSavings}</div>
+                <div className="text-2xl font-black text-emerald-400">{formatPrice(user.lifetimeSavings)}</div>
               </div>
               <div className="h-8 w-px bg-white/20"></div>
               <div>
@@ -123,8 +125,8 @@ function MembershipContent() {
                   Ready to book {hotelName} ({hotelCity || 'Destination'})
                 </h3>
                 <p className="text-xs text-slate-300">
-                  Wholesale Rate: <strong className="text-emerald-400 font-mono">${wholesaleRate || '169'}/night</strong> • Total: <strong className="text-white">${totalWholesale || '507'}</strong> for {nights} nights.
-                  {totalSavings && <span className="text-emerald-400 font-bold ml-1.5">(Save ${totalSavings})</span>}
+                  Wholesale Rate: <strong className="text-emerald-400 font-mono">{formatPrice(Number(wholesaleRate || 169))}/night</strong> • Total: <strong className="text-white">{formatPrice(Number(totalWholesale || 507))}</strong> for {nights} nights.
+                  {totalSavings && <span className="text-emerald-400 font-bold ml-1.5">(Save {formatPrice(Number(totalSavings))})</span>}
                 </p>
               </div>
               <Link
@@ -179,7 +181,7 @@ function MembershipContent() {
                         <div>
                           <div className="text-xs font-bold text-slate-900">{tier.name}</div>
                           <div className="text-[10px] text-slate-500">
-                            {tier.wholesaleHotelDiscount} • ${tier.priceAnnual}/yr
+                            {tier.wholesaleHotelDiscount} • {tier.priceAnnual === 0 ? 'Free' : `${formatPrice(tier.priceAnnual)}/yr`}
                           </div>
                         </div>
 
@@ -294,8 +296,8 @@ function MembershipContent() {
                           </div>
 
                           <div className="font-bold text-slate-900">
-                            Paid: ${booking.totalMemberPaid}{' '}
-                            <span className="text-emerald-600 font-extrabold">(Saved ${booking.totalSaved})</span>
+                            Paid: {formatPrice(booking.totalMemberPaid)}{' '}
+                            <span className="text-emerald-600 font-extrabold">(Saved {formatPrice(booking.totalSaved)})</span>
                           </div>
                         </div>
                       </div>
@@ -361,7 +363,7 @@ function MembershipContent() {
                 <div className="text-center sm:text-left">
                   <div className="text-[10px] uppercase font-bold text-slate-400">Public Retail Total</div>
                   <div className="text-lg font-bold text-rose-400 line-through font-mono">
-                    ${totalRetail || (Number(wholesaleRate || 169) + Number(savings || 122)) * Number(nights)}
+                    {formatPrice(Number(totalRetail || (Number(wholesaleRate || 169) + Number(savings || 122)) * Number(nights)))}
                   </div>
                 </div>
 
@@ -370,14 +372,14 @@ function MembershipContent() {
                 <div className="text-center sm:text-left">
                   <div className="text-[10px] uppercase font-bold text-emerald-400">Wholesale Net Total</div>
                   <div className="text-3xl font-black text-emerald-400 font-mono">
-                    ${totalWholesale || Number(wholesaleRate || 169) * Number(nights)}
+                    {formatPrice(Number(totalWholesale || Number(wholesaleRate || 169) * Number(nights)))}
                   </div>
                 </div>
 
                 <div className="px-3.5 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center">
                   <div className="text-[10px] uppercase font-bold">Instant Savings</div>
                   <div className="text-base font-black font-mono">
-                    -${totalSavings || Number(savings || 122) * Number(nights)}
+                    -{formatPrice(Number(totalSavings || Number(savings || 122) * Number(nights)))}
                   </div>
                 </div>
               </div>
@@ -391,7 +393,7 @@ function MembershipContent() {
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             Private Closed-Loop Wholesale Travel Club
           </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
+          <h1 className="text-3xl sm:5xl lg:text-6xl font-black tracking-tight leading-tight">
             Why You Must Be a Member to Book Wholesale
           </h1>
           <p className="text-slate-300 text-sm sm:text-lg leading-relaxed">
@@ -490,8 +492,9 @@ function MembershipContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {MEMBERSHIP_TIERS.map((tier) => {
             const isFeatured = tier.id === 'gold';
-            const price = billingCycle === 'annual' ? `$${tier.priceAnnual}` : `$${tier.priceMonthly}`;
-            const cycleLabel = billingCycle === 'annual' ? '/year' : '/month';
+            const rawPrice = billingCycle === 'annual' ? tier.priceAnnual : tier.priceMonthly;
+            const price = rawPrice === 0 ? 'Free' : formatPrice(rawPrice);
+            const cycleLabel = rawPrice === 0 ? '' : billingCycle === 'annual' ? '/year' : '/month';
 
             return (
               <div
@@ -522,7 +525,7 @@ function MembershipContent() {
 
                   <div className="mt-4 flex items-baseline gap-1">
                     <span className="text-3xl sm:text-4xl font-black text-white font-mono">{price}</span>
-                    <span className="text-xs text-slate-400 font-medium">{cycleLabel}</span>
+                    {cycleLabel && <span className="text-xs text-slate-400 font-medium">{cycleLabel}</span>}
                   </div>
 
                   <div className="mt-2 text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1 px-2.5 rounded-lg inline-block">

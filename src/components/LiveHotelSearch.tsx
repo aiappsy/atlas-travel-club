@@ -18,9 +18,11 @@ import {
   Sparkles,
   SlidersHorizontal,
   ChevronRight,
-  Lock
+  Lock,
+  ArrowUpDown
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
+import { useCurrency } from '@/context/CurrencyContext';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
@@ -31,12 +33,14 @@ export default function LiveHotelSearch({
   initialDestination = '',
   isCompact = false,
 }: LiveHotelSearchProps) {
+  const { formatPrice } = useCurrency();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
   const [checkOut, setCheckOut] = useState('2026-10-18');
   const [guests, setGuests] = useState('2 Guests, 1 Room');
   
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'savings' | 'price-asc' | 'price-desc' | 'rating'>('savings');
   const [isScanning, setIsScanning] = useState(false);
   const [scanStep, setScanStep] = useState(0);
   const [hotels, setHotels] = useState<ComparedHotel[]>([]);
@@ -111,10 +115,28 @@ export default function LiveHotelSearch({
     performSearch(destination);
   };
 
-  const filteredHotels = hotels.filter((h) => {
-    if (selectedCategory === 'all') return true;
-    return h.category === selectedCategory;
-  });
+  const filteredHotels = hotels
+    .filter((h) => {
+      if (selectedCategory === 'all') return true;
+      return h.category === selectedCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'savings') {
+        const savA = a.prices?.atlasWholesale?.instantSavingsPerNight || 0;
+        const savB = b.prices?.atlasWholesale?.instantSavingsPerNight || 0;
+        return savB - savA;
+      }
+      if (sortBy === 'price-asc') {
+        return (a.prices?.atlasWholesale?.perNight || 0) - (b.prices?.atlasWholesale?.perNight || 0);
+      }
+      if (sortBy === 'price-desc') {
+        return (b.prices?.atlasWholesale?.perNight || 0) - (a.prices?.atlasWholesale?.perNight || 0);
+      }
+      if (sortBy === 'rating') {
+        return (b.guestRating || 0) - (a.guestRating || 0);
+      }
+      return 0;
+    });
 
   return (
     <div className="w-full space-y-8 font-sans">
@@ -305,26 +327,55 @@ export default function LiveHotelSearch({
             </div>
           </div>
 
-          {/* Price Category / Hotel Tier Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
-              <span>Category Filter:</span>
+          {/* Controls Bar: Category Filter & Sort Options */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-2 border-b border-slate-800/80">
+            {/* Price Category Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 shrink-0 mr-1">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+                <span>Tier:</span>
+              </div>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
+                    selectedCategory === cat.id
+                      ? 'bg-amber-400 text-slate-950 shadow-md font-black'
+                      : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                  selectedCategory === cat.id
-                    ? 'bg-amber-400 text-slate-950 shadow-md scale-105'
-                    : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
+
+            {/* Instant Sort Options */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0 self-start md:self-auto">
+              <span className="text-xs font-bold text-slate-400 flex items-center gap-1 mr-1">
+                <ArrowUpDown className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Sort:</span>
+              </span>
+              {[
+                { id: 'savings', label: '💰 Max Savings' },
+                { id: 'price-asc', label: '🏷️ Lowest Price' },
+                { id: 'rating', label: '⭐ Top Rated' },
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSortBy(s.id as any)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    sortBy === s.id
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black'
+                      : 'bg-slate-950 hover:bg-slate-800 text-slate-400 border border-slate-800'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Hotel Result Cards */}
@@ -436,10 +487,10 @@ export default function LiveHotelSearch({
                             <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
                           </div>
                           <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.expedia.perNight}
+                            {formatPrice(hotel.prices.expedia.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.expedia.total} total ({nights} nts)
+                            {formatPrice(hotel.prices.expedia.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-blue-400 font-semibold mt-1 group-hover:underline">
                             Verify on Expedia ↗
@@ -462,10 +513,10 @@ export default function LiveHotelSearch({
                             <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
                           </div>
                           <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.hotelsCom.perNight}
+                            {formatPrice(hotel.prices.hotelsCom.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.hotelsCom.total} total ({nights} nts)
+                            {formatPrice(hotel.prices.hotelsCom.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-rose-400 font-semibold mt-1 group-hover:underline">
                             Verify on Hotels.com ↗
@@ -488,10 +539,10 @@ export default function LiveHotelSearch({
                             <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
                           </div>
                           <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.agoda.perNight}
+                            {formatPrice(hotel.prices.agoda.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.agoda.total} total ({nights} nts)
+                            {formatPrice(hotel.prices.agoda.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-purple-400 font-semibold mt-1 group-hover:underline">
                             Verify on Agoda ↗
@@ -514,10 +565,10 @@ export default function LiveHotelSearch({
                             <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
                           </div>
                           <div className="text-base font-bold text-slate-400 line-through mt-1.5">
-                            ${hotel.prices.kayak.perNight}
+                            {formatPrice(hotel.prices.kayak.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            ${hotel.prices.kayak.total} total ({nights} nts)
+                            {formatPrice(hotel.prices.kayak.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-amber-400 font-semibold mt-1 group-hover:underline">
                             Verify on Kayak ↗
@@ -536,20 +587,20 @@ export default function LiveHotelSearch({
                       </div>
                       <div className="flex items-baseline gap-2 justify-center sm:justify-start">
                         <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
-                          ${hotel.prices.atlasWholesale.perNight}
+                          {formatPrice(hotel.prices.atlasWholesale.perNight)}
                         </span>
                         <span className="text-xs text-slate-300">/ night</span>
                         <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-md border border-amber-400/30">
-                          Save ${hotel.prices.atlasWholesale.instantSavingsPerNight}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
+                          Save {formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
                         </span>
                       </div>
                       <div className="text-xs sm:text-sm text-slate-200 font-medium">
-                        Total for {nights} Nights: <strong className="text-white font-bold">${hotel.prices.atlasWholesale.total}</strong>{' '}
-                        <span className="text-emerald-400 font-bold">(You save ${hotel.prices.atlasWholesale.totalSavings} vs. {hotel.prices.lowestOta.provider})</span>
+                        Total for {nights} Nights: <strong className="text-white font-bold">{formatPrice(hotel.prices.atlasWholesale.total)}</strong>{' '}
+                        <span className="text-emerald-400 font-bold">(You save {formatPrice(hotel.prices.atlasWholesale.totalSavings)} vs. {hotel.prices.lowestOta.provider})</span>
                       </div>
                       <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>OTA Marketing Ad Tax Eliminated: -${hotel.prices.atlasWholesale.instantSavingsPerNight}/night (-${hotel.prices.atlasWholesale.adTaxEliminated} total)</span>
+                        <span>OTA Marketing Ad Tax Eliminated: -{formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/night (-{formatPrice(hotel.prices.atlasWholesale.adTaxEliminated)} total)</span>
                       </div>
                     </div>
 
