@@ -32,11 +32,15 @@ import {
   Images,
   Camera,
   Info,
-  Download
+  Download,
+  Ticket,
+  Tag,
+  Loader2
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
 import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE, getDefaultTripDates } from '@/lib/mockData';
+import { getStoredVouchers } from '@/lib/vouchers';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
@@ -53,6 +57,19 @@ export default function HotelDetailPage() {
   const [selectedRoom, setSelectedRoom] = useState<RoomOption | null>(null);
   const [isBooked, setIsBooked] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  // Dynamic Discount Voucher / Promo Code State
+  const [isVoucherOpen, setIsVoucherOpen] = useState(false);
+  const [voucherInput, setVoucherInput] = useState('');
+  const [voucherLoading, setVoucherLoading] = useState(false);
+  const [voucherError, setVoucherError] = useState<string | null>(null);
+  const [appliedVoucher, setAppliedVoucher] = useState<{
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    discountValue: number;
+    message: string;
+  } | null>(null);
 
   // Dates & Guests from query or dynamic default
   const defaultDates = getDefaultTripDates(14, 3);
@@ -151,6 +168,57 @@ export default function HotelDetailPage() {
   const activeTierPlan = user ? (MEMBERSHIP_TIERS.find((t) => t.id === user.tier) || GOLD_VIP_TIER) : GOLD_VIP_TIER;
   const tierCost = activeTierPlan.priceAnnual > 0 ? activeTierPlan.priceAnnual : GOLD_VIP_ANNUAL_FEE;
   const paybackPercent = Math.round((totalSavings / tierCost) * 100);
+
+  // Dynamic Discount Voucher Calculation & Handlers
+  const voucherDiscount = appliedVoucher ? appliedVoucher.discountAmount : 0;
+  const finalMemberPrice = Math.max(0, totalWholesale - voucherDiscount);
+  const combinedTotalSavings = totalSavings + voucherDiscount;
+
+  const handleApplyVoucher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = voucherInput.trim().toUpperCase();
+    if (!clean) return;
+
+    setVoucherLoading(true);
+    setVoucherError(null);
+    try {
+      const customVouchers = getStoredVouchers();
+      const res = await fetch('/api/vouchers/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: clean,
+          subtotal: totalWholesale,
+          currency: 'USD',
+          target: 'hotels',
+          customVouchers,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setVoucherError(data.message || 'Invalid or expired voucher code.');
+      } else {
+        setAppliedVoucher({
+          code: data.code,
+          discountAmount: data.discountAmount,
+          discountType: data.discountType,
+          discountValue: data.discountValue,
+          message: data.message,
+        });
+        setVoucherError(null);
+      }
+    } catch {
+      setVoucherError('Network error validating voucher code.');
+    } finally {
+      setVoucherLoading(false);
+    }
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherInput('');
+    setVoucherError(null);
+  };
 
   return (
     <div className="bg-slate-950 text-white min-h-screen pb-24 font-sans selection:bg-amber-400 selection:text-slate-950">
@@ -714,17 +782,98 @@ export default function HotelDetailPage() {
                   </span>
                   <span className="font-mono text-amber-300 font-bold">+{formatPrice(clearingBufferTotal)}</span>
                 </div>
+                {appliedVoucher && (
+                  <div className="flex justify-between items-center text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                    <span className="flex items-center gap-1.5">
+                      <Ticket className="w-3.5 h-3.5" />
+                      <span>Promo Voucher ({appliedVoucher.code})</span>
+                    </span>
+                    <span className="font-mono">-{formatPrice(appliedVoucher.discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-black pt-2 border-t border-slate-800">
                   <span className="text-white">Total Member Price</span>
-                  <span className="font-mono text-emerald-400 text-lg">{formatPrice(totalWholesale)}</span>
+                  <span className="font-mono text-emerald-400 text-lg">{formatPrice(finalMemberPrice)}</span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center space-y-1 shadow-md">
                   <div className="text-sm sm:text-base font-black text-emerald-400 font-mono">
-                    ⚡ YOU SAVE {formatPrice(totalSavings)} ({Math.round((totalSavings / totalRetail) * 100)}% OFF)
+                    ⚡ YOU SAVE {formatPrice(combinedTotalSavings)} ({Math.round((combinedTotalSavings / totalRetail) * 100)}% OFF)
                   </div>
                   <div className="text-[11px] font-bold text-amber-300">
                     Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {paybackPercent}% of Annual Membership ({activeTierPlan.name})
                   </div>
+                </div>
+
+                {/* Promo Code / Discount Voucher Input Box */}
+                <div className="pt-2 border-t border-slate-800/80">
+                  {!appliedVoucher ? (
+                    <div>
+                      {!isVoucherOpen ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsVoucherOpen(true)}
+                          className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Ticket className="w-3.5 h-3.5" />
+                          <span>Have a promo voucher or discount code?</span>
+                        </button>
+                      ) : (
+                        <form onSubmit={handleApplyVoucher} className="space-y-2 animate-fade-in">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
+                            <span className="flex items-center gap-1.5 text-amber-400">
+                              <Ticket className="w-3.5 h-3.5" />
+                              <span>Apply Promo Voucher</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => { setIsVoucherOpen(false); setVoucherError(null); }}
+                              className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="e.g. ATLAS100, WELCOME20"
+                              value={voucherInput}
+                              onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                              className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs uppercase text-white placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                            />
+                            <button
+                              type="submit"
+                              disabled={voucherLoading || !voucherInput.trim()}
+                              className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              {voucherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                            </button>
+                          </div>
+                          {voucherError && (
+                            <p className="text-[11px] text-rose-400 font-semibold">{voucherError}</p>
+                          )}
+                        </form>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs animate-fade-in">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div>
+                          <span className="font-mono font-black text-white">{appliedVoucher.code}</span>
+                          <span className="text-[11px] text-emerald-300 ml-1.5">
+                            ({appliedVoucher.message})
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveVoucher}
+                        className="text-[11px] font-bold text-slate-400 hover:text-rose-400 transition-colors ml-2 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Transparency Notice Box */}
@@ -776,10 +925,15 @@ export default function HotelDetailPage() {
                   <div className="font-black text-white text-base">Wholesale Allocation Confirmed!</div>
                   <p className="text-xs text-emerald-300">
                     Reservation #{hotel.audit.auditHash.substring(0, 10).toUpperCase()} has been secured at 0% markup for {nights} nights.
+                    {appliedVoucher && (
+                      <span className="block text-amber-300 font-mono mt-1">
+                        Promo Voucher {appliedVoucher.code} (-{formatPrice(appliedVoucher.discountAmount)}) Applied
+                      </span>
+                    )}
                   </p>
                   <div className="pt-2 border-t border-emerald-800/80 flex flex-col gap-2">
                     <a
-                      href={`/api/bookings/voucher?format=html&bookingRef=ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}&hotelName=${encodeURIComponent(hotel.name)}&guestName=${encodeURIComponent(user?.displayName || 'VIP Member')}&checkIn=${checkIn}&checkOut=${checkOut}&roomType=${encodeURIComponent(currentRoom?.name || hotel.roomType)}&nights=${nights}&totalPaid=${totalWholesale}&savings=${totalSavings}`}
+                      href={`/api/bookings/voucher?format=html&bookingRef=ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}&hotelName=${encodeURIComponent(hotel.name)}&guestName=${encodeURIComponent(user?.displayName || 'VIP Member')}&checkIn=${checkIn}&checkOut=${checkOut}&roomType=${encodeURIComponent(currentRoom?.name || hotel.roomType)}&nights=${nights}&totalPaid=${finalMemberPrice}&savings=${combinedTotalSavings}${appliedVoucher ? `&voucherCode=${appliedVoucher.code}` : ''}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="py-2.5 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-1.5 shadow-lg"
@@ -804,11 +958,11 @@ export default function HotelDetailPage() {
               ) : !isMember ? (
                 <div className="space-y-2.5">
                   <Link
-                    href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${wholesalePerNight}&savings=${savingsPerNight}&totalSavings=${totalSavings}&totalWholesale=${totalWholesale}&totalRetail=${totalRetail}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
+                    href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${wholesalePerNight}&savings=${savingsPerNight}&totalSavings=${totalSavings}&totalWholesale=${finalMemberPrice}&totalRetail=${totalRetail}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
                     className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer text-center"
                   >
                     <Lock className="w-4 h-4 text-slate-950 shrink-0" />
-                    <span>Join Club to Book Closed Bed Rate ({formatPrice(totalWholesale)})</span>
+                    <span>Join Club to Book Closed Bed Rate ({formatPrice(finalMemberPrice)})</span>
                     <ArrowRight className="w-4 h-4 text-slate-950 shrink-0" />
                   </Link>
 
@@ -836,8 +990,8 @@ export default function HotelDetailPage() {
                       nights,
                       guests: 2,
                       totalPublicPrice: totalRetail,
-                      totalMemberPaid: totalWholesale,
-                      totalSaved: totalSavings,
+                      totalMemberPaid: finalMemberPrice,
+                      totalSaved: combinedTotalSavings,
                       status: 'confirmed',
                       confirmationCode: `ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}`,
                     });
@@ -846,7 +1000,7 @@ export default function HotelDetailPage() {
                   className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-slate-950" />
-                  <span>Reserve at Wholesale ({formatPrice(totalWholesale)})</span>
+                  <span>Reserve at Wholesale ({formatPrice(finalMemberPrice)})</span>
                 </button>
               )}
 

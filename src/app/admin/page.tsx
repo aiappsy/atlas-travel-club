@@ -7,6 +7,7 @@ import { ATLAS_TRAINING_MANUALS } from '@/lib/manualsData';
 import { ATLAS_OPERATOR_ROLES, OperatorRoleId, AdminTabId, AdminHub, AdminHubId, AdminHubTabItem } from '@/lib/rbacData';
 import { PROVIDER_INSTRUCTION_GUIDES, MOCK_NOMAD_VISAS, MOCK_VAULT_ACCOUNT, MOCK_VILLAS, MOCK_STATUS_MATCH_PROGRAMS, MOCK_FAST_TRACK_SERVICES, MOCK_CARD_ORDERS, MOCK_FLIGHT_CLAIMS, MOCK_PRIVATE_JETS, MOCK_PRICE_DROP_RECORDS, MOCK_YACHTS, MOCK_SUPERCARS } from '@/lib/mockData';
 import { TESTED_GEMINI_MODELS, resolveActiveGeminiModel, getGeminiFallbackChain } from '@/lib/geminiModels';
+import { DiscountVoucher, INITIAL_DISCOUNT_VOUCHERS, getStoredVouchers, saveStoredVouchers } from '@/lib/vouchers';
 import {
   ShieldCheck,
   Zap,
@@ -52,14 +53,19 @@ import {
   Users,
   UserCheck,
   AlertTriangle,
-  ShieldAlert
+  ShieldAlert,
+  Ticket,
+  Trash2,
+  Percent,
+  Search,
+  Filter
 } from 'lucide-react';
 
 export default function AdminPage() {
   const { features, updateFeatures, publishLive } = usePlatform();
   const { currency, setCurrency, currencies, updateExchangeRate } = useCurrency();
   const [activeTab, setActiveTab] = useState<
-    'rbac_permissions' | 'academy_manuals' | 'switchboard' | 'currency_engine' | 'hotel_inventory' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'voucher_settings' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
+    'rbac_permissions' | 'academy_manuals' | 'switchboard' | 'currency_engine' | 'hotel_inventory' | 'nomad_hub' | 'vault_manager' | 'luxury_villas' | 'status_match' | 'fast_track' | 'yachts_supercars' | 'auto_rebooker' | 'private_jets' | 'flight_claims' | 'insurance' | 'visa_manager' | 'card_agent' | 'wallet_pass' | 'messaging_bridge' | 'voucher_settings' | 'discount_vouchers' | 'ai_studio' | 'guides' | 'suppliers' | 'paypal'
   >('switchboard');
 
   // Hotel Inventory & Rate Overrides State
@@ -73,7 +79,99 @@ export default function AdminPage() {
   const [voucherRateParityClause, setVoucherRateParityClause] = useState('Strict Closed-Loop Member Net Rate. Rate Parity Non-Disclosure Clause: Net wholesale billing is settled directly via ATLAS Sovereign Banking Pool. Front desk should not collect room charges except incidentals.');
   const [voucherHeaderBrand, setVoucherHeaderBrand] = useState('ATLAS VIP Sovereign Travel & Bedbank Network');
 
-  // Messaging Bridge State (Telegram & WhatsApp)
+  // Dynamic Discount Vouchers State
+  const [vouchersList, setVouchersList] = useState<DiscountVoucher[]>(INITIAL_DISCOUNT_VOUCHERS);
+  const [voucherSearch, setVoucherSearch] = useState('');
+  const [voucherFilter, setVoucherFilter] = useState<'all' | 'active' | 'expired'>('all');
+  const [isCreateVoucherOpen, setIsCreateVoucherOpen] = useState(false);
+  const [newVoucher, setNewVoucher] = useState({
+    code: '',
+    description: '',
+    discountType: 'fixed' as 'fixed' | 'percentage',
+    discountValue: 50,
+    currency: 'USD',
+    minSpend: 0,
+    maxRedemptions: 250,
+    expiresAt: '2026-12-31',
+    appliesTo: 'all' as 'all' | 'hotels' | 'membership',
+  });
+  const [voucherAlert, setVoucherAlert] = useState<string | null>(null);
+
+  useEffect(() => {
+    setVouchersList(getStoredVouchers());
+  }, []);
+
+  const handleToggleVoucher = (id: string) => {
+    const updated = vouchersList.map((v) =>
+      v.id === id ? { ...v, isActive: !v.isActive } : v
+    );
+    setVouchersList(updated);
+    saveStoredVouchers(updated);
+    setVoucherAlert('Voucher status updated successfully.');
+    setTimeout(() => setVoucherAlert(null), 3000);
+  };
+
+  const handleDeleteVoucher = (id: string) => {
+    if (!confirm('Are you sure you want to permanently delete this discount voucher?')) return;
+    const updated = vouchersList.filter((v) => v.id !== id);
+    setVouchersList(updated);
+    saveStoredVouchers(updated);
+    setVoucherAlert('Voucher deleted.');
+    setTimeout(() => setVoucherAlert(null), 3000);
+  };
+
+  const handleCreateVoucher = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = newVoucher.code.trim().toUpperCase();
+    if (!cleanCode) {
+      alert('Please enter a voucher code.');
+      return;
+    }
+    if (vouchersList.some((v) => v.code === cleanCode)) {
+      alert(`Voucher code "${cleanCode}" already exists.`);
+      return;
+    }
+    const created: DiscountVoucher = {
+      id: `vch-${Date.now()}`,
+      code: cleanCode,
+      description: newVoucher.description || `${newVoucher.discountType === 'percentage' ? newVoucher.discountValue + '% off' : '$' + newVoucher.discountValue + ' credit'} promotional discount`,
+      discountType: newVoucher.discountType,
+      discountValue: Number(newVoucher.discountValue) || 10,
+      currency: newVoucher.currency,
+      minSpend: Number(newVoucher.minSpend) || 0,
+      maxRedemptions: Number(newVoucher.maxRedemptions) || 100,
+      redemptionCount: 0,
+      expiresAt: newVoucher.expiresAt || '2026-12-31',
+      appliesTo: newVoucher.appliesTo,
+      isActive: true,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    const updated = [created, ...vouchersList];
+    setVouchersList(updated);
+    saveStoredVouchers(updated);
+    setIsCreateVoucherOpen(false);
+    setNewVoucher({
+      code: '',
+      description: '',
+      discountType: 'fixed',
+      discountValue: 50,
+      currency: 'USD',
+      minSpend: 0,
+      maxRedemptions: 250,
+      expiresAt: '2026-12-31',
+      appliesTo: 'all',
+    });
+    setVoucherAlert(`Voucher ${cleanCode} created and active!`);
+    setTimeout(() => setVoucherAlert(null), 3500);
+  };
+
+  const handleResetVouchers = () => {
+    if (!confirm('Reset all promo vouchers to initial default seed values?')) return;
+    setVouchersList(INITIAL_DISCOUNT_VOUCHERS);
+    saveStoredVouchers(INITIAL_DISCOUNT_VOUCHERS);
+    setVoucherAlert('Vouchers reset to defaults.');
+    setTimeout(() => setVoucherAlert(null), 3000);
+  };
   const [telegramBotToken, setTelegramBotToken] = useState('7819204812:AAH99X_AtlasConciergeBotKey');
   const [telegramBotUser, setTelegramBotUser] = useState('@AtlasConciergeBot');
   const [twilioAccountSid, setTwilioAccountSid] = useState('AC9941824701298418294102948120');
@@ -240,6 +338,7 @@ export default function AdminPage() {
       description: 'Stripe Issuing Visa cards, Sovereign Vault 20% dividends, multi-currency FX, and metal card dispatch.',
       subTabs: [
         { id: 'visa_manager', label: '💳 Visa Prepaid Manager', icon: CreditCard },
+        { id: 'discount_vouchers', label: '🎟️ Discount & Promo Vouchers', icon: Ticket },
         { id: 'vault_manager', label: '🪙 Travel Vault & Dividends', icon: Coins },
         { id: 'card_agent', label: '🚚 Metal Card Fulfillment', icon: Truck },
         { id: 'currency_engine', label: '💱 Currency & FX Engine', icon: DollarSign },
@@ -2040,6 +2139,434 @@ export default function AdminPage() {
                 Save & Update Voucher Template
               </button>
             </div>
+          </div>
+        )}
+
+        {/* TAB: DYNAMIC DISCOUNT & PROMO VOUCHERS */}
+        {activeTab === 'discount_vouchers' && (
+          <div className="space-y-6 max-w-6xl mx-auto">
+            {/* Alert banner if present */}
+            {voucherAlert && (
+              <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center justify-between animate-fade-in">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>{voucherAlert}</span>
+                </div>
+                <button onClick={() => setVoucherAlert(null)} className="text-emerald-400 hover:text-white">✕</button>
+              </div>
+            )}
+
+            {/* Header & Subtitle */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="p-2 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                    <Ticket className="w-5 h-5 text-amber-400" />
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-black text-white">Dynamic Discount & Promo Voucher Engine</h3>
+                </div>
+                <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+                  Generate promotional discount codes, VIP member gift credits, and custom influencer vouchers. Discounts apply dynamically at hotel wholesale checkout and membership onboarding with strict rate parity guardrails.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                <button
+                  onClick={handleResetVouchers}
+                  className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold border border-slate-700 transition-colors flex items-center gap-1.5"
+                  title="Reset to default seed vouchers"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Reset Defaults</span>
+                </button>
+                <button
+                  onClick={() => setIsCreateVoucherOpen(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create Promo Voucher</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Metrics Overview Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                  <Ticket className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Active Vouchers</span>
+                </div>
+                <div className="text-2xl font-black text-white font-mono">
+                  {vouchersList.filter(v => v.isActive).length} <span className="text-xs text-slate-500 font-normal">/ {vouchersList.length}</span>
+                </div>
+                <div className="text-[10px] text-emerald-400 font-semibold">100% Client Sync Ready</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Total Redemptions</span>
+                </div>
+                <div className="text-2xl font-black text-white font-mono">
+                  {vouchersList.reduce((acc, v) => acc + v.redemptionCount, 0).toLocaleString()}
+                </div>
+                <div className="text-[10px] text-sky-400 font-semibold">Across bookings & tiers</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Disbursed Savings</span>
+                </div>
+                <div className="text-2xl font-black text-emerald-400 font-mono">
+                  ${vouchersList.reduce((acc, v) => acc + (v.redemptionCount * (v.discountType === 'fixed' ? v.discountValue : 50)), 0).toLocaleString()}
+                </div>
+                <div className="text-[10px] text-slate-400 font-semibold">Net member savings delivered</div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <div className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Rate Parity Guard</span>
+                </div>
+                <div className="text-2xl font-black text-white">Closed-Loop</div>
+                <div className="text-[10px] text-indigo-300 font-semibold">Protected wholesale margin</div>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search code or description..."
+                  value={voucherSearch}
+                  onChange={(e) => setVoucherSearch(e.target.value)}
+                  className="w-full pl-9 pr-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+                  <button
+                    onClick={() => setVoucherFilter('all')}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                      voucherFilter === 'all' ? 'bg-amber-400 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    All ({vouchersList.length})
+                  </button>
+                  <button
+                    onClick={() => setVoucherFilter('active')}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                      voucherFilter === 'active' ? 'bg-amber-400 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Active ({vouchersList.filter(v => v.isActive).length})
+                  </button>
+                  <button
+                    onClick={() => setVoucherFilter('expired')}
+                    className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                      voucherFilter === 'expired' ? 'bg-amber-400 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Expired
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Vouchers Table */}
+            <div className="rounded-3xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-950 text-slate-400 uppercase font-mono text-[10px] tracking-wider border-b border-slate-800">
+                    <tr>
+                      <th className="py-3 px-4">Voucher Code</th>
+                      <th className="py-3 px-4">Discount</th>
+                      <th className="py-3 px-4">Target</th>
+                      <th className="py-3 px-4">Min Spend</th>
+                      <th className="py-3 px-4">Redemptions</th>
+                      <th className="py-3 px-4">Expires</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 font-sans">
+                    {vouchersList
+                      .filter((v) => {
+                        const q = voucherSearch.toLowerCase();
+                        const matches = v.code.toLowerCase().includes(q) || v.description.toLowerCase().includes(q);
+                        if (!matches) return false;
+                        if (voucherFilter === 'active') return v.isActive;
+                        if (voucherFilter === 'expired') {
+                          return v.expiresAt && new Date(v.expiresAt + 'T23:59:59Z') < new Date();
+                        }
+                        return true;
+                      })
+                      .map((voucher) => {
+                        const isExpired = voucher.expiresAt && new Date(voucher.expiresAt + 'T23:59:59Z') < new Date();
+                        const usagePercent = voucher.maxRedemptions > 0
+                          ? Math.min(100, Math.round((voucher.redemptionCount / voucher.maxRedemptions) * 100))
+                          : 0;
+
+                        return (
+                          <tr key={voucher.id} className="hover:bg-slate-800/40 transition-colors">
+                            {/* Code */}
+                            <td className="py-3.5 px-4 font-mono font-black text-white">
+                              <div className="flex items-center gap-2">
+                                <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 text-amber-300 tracking-wider">
+                                  {voucher.code}
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(voucher.code);
+                                    setVoucherAlert(`Copied "${voucher.code}" to clipboard!`);
+                                    setTimeout(() => setVoucherAlert(null), 2500);
+                                  }}
+                                  className="text-slate-500 hover:text-amber-400 transition-colors"
+                                  title="Copy Code"
+                                >
+                                  <Copy className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <div className="text-[11px] font-sans font-normal text-slate-400 mt-1 max-w-xs truncate">
+                                {voucher.description}
+                              </div>
+                            </td>
+
+                            {/* Discount */}
+                            <td className="py-3.5 px-4">
+                              <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md font-bold ${
+                                voucher.discountType === 'percentage'
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                              }`}>
+                                {voucher.discountType === 'percentage' ? (
+                                  <>
+                                    <Percent className="w-3 h-3" />
+                                    <span>{voucher.discountValue}% OFF</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <DollarSign className="w-3 h-3" />
+                                    <span>{voucher.currency === 'NOK' ? `${voucher.discountValue * 10} NOK` : `$${voucher.discountValue}`} Off</span>
+                                  </>
+                                )}
+                              </span>
+                            </td>
+
+                            {/* Target */}
+                            <td className="py-3.5 px-4">
+                              <span className="text-[11px] font-semibold text-slate-300">
+                                {voucher.appliesTo === 'all' && '🌐 Universal'}
+                                {voucher.appliesTo === 'hotels' && '🏨 Hotel Bookings'}
+                                {voucher.appliesTo === 'membership' && '👑 Memberships'}
+                              </span>
+                            </td>
+
+                            {/* Min Spend */}
+                            <td className="py-3.5 px-4 font-mono text-slate-300">
+                              {voucher.minSpend > 0 ? `$${voucher.minSpend}` : <span className="text-slate-500 font-sans">No Min</span>}
+                            </td>
+
+                            {/* Redemptions */}
+                            <td className="py-3.5 px-4">
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-[11px] font-mono text-slate-400">
+                                  <span>{voucher.redemptionCount} used</span>
+                                  <span>{voucher.maxRedemptions} max</span>
+                                </div>
+                                <div className="w-24 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 rounded-full"
+                                    style={{ width: `${usagePercent}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Expiry */}
+                            <td className="py-3.5 px-4">
+                              <span className={`font-mono text-[11px] ${isExpired ? 'text-rose-400 font-bold' : 'text-slate-300'}`}>
+                                {voucher.expiresAt}
+                              </span>
+                              {isExpired && <span className="block text-[9px] uppercase font-bold text-rose-400">Expired</span>}
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3.5 px-4 text-center">
+                              <button
+                                onClick={() => handleToggleVoucher(voucher.id)}
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase transition-all cursor-pointer ${
+                                  voucher.isActive && !isExpired
+                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
+                                    : 'bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30'
+                                }`}
+                              >
+                                {voucher.isActive && !isExpired ? 'Active' : 'Inactive'}
+                              </button>
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-3.5 px-4 text-right">
+                              <button
+                                onClick={() => handleDeleteVoucher(voucher.id)}
+                                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                                title="Delete Voucher"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Create Voucher Modal */}
+            {isCreateVoucherOpen && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl animate-fade-in">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="p-2 rounded-xl bg-amber-400/20 text-amber-400 border border-amber-400/30">
+                        <Plus className="w-4 h-4" />
+                      </span>
+                      <h4 className="text-base font-black text-white">Create New Promotional Voucher</h4>
+                    </div>
+                    <button
+                      onClick={() => setIsCreateVoucherOpen(false)}
+                      className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <form onSubmit={handleCreateVoucher} className="space-y-4 text-xs">
+                    <div>
+                      <label className="block font-bold uppercase text-slate-400 mb-1">Voucher Code (Uppercase)</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. SUMMER25, NORDIC100, VIPWELCOME"
+                        value={newVoucher.code}
+                        onChange={(e) => setNewVoucher({ ...newVoucher, code: e.target.value.toUpperCase() })}
+                        className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-white text-xs font-bold tracking-wider placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-bold uppercase text-slate-400 mb-1">Campaign Description</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. 20% off summer luxury hotel bookings in Mallorca"
+                        value={newVoucher.description}
+                        onChange={(e) => setNewVoucher({ ...newVoucher, description: e.target.value })}
+                        className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">Discount Type</label>
+                        <select
+                          value={newVoucher.discountType}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, discountType: e.target.value as 'fixed' | 'percentage' })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-amber-400"
+                        >
+                          <option value="percentage">Percentage (% Off)</option>
+                          <option value="fixed">Fixed Currency Credit ($ / NOK)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">
+                          {newVoucher.discountType === 'percentage' ? 'Percentage Value (%)' : 'Amount Value ($)'}
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min={1}
+                          max={newVoucher.discountType === 'percentage' ? 90 : 5000}
+                          value={newVoucher.discountValue}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, discountValue: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">Applies To</label>
+                        <select
+                          value={newVoucher.appliesTo}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, appliesTo: e.target.value as any })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-amber-400"
+                        >
+                          <option value="all">Universal (Hotels & Memberships)</option>
+                          <option value="hotels">Hotel Bookings Only</option>
+                          <option value="membership">Membership Tiers Only</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">Min Spend ($)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={newVoucher.minSpend}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, minSpend: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">Max Redemptions</label>
+                        <input
+                          type="number"
+                          min={1}
+                          value={newVoucher.maxRedemptions}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, maxRedemptions: Number(e.target.value) })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-bold uppercase text-slate-400 mb-1">Expiration Date</label>
+                        <input
+                          type="date"
+                          value={newVoucher.expiresAt}
+                          onChange={(e) => setNewVoucher({ ...newVoucher, expiresAt: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateVoucherOpen(false)}
+                        className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer"
+                      >
+                        Publish & Activate Voucher
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

@@ -19,6 +19,7 @@ export type AdminTabId =
   | 'wallet_pass'
   | 'messaging_bridge'
   | 'voucher_settings'
+  | 'discount_vouchers'
   | 'ai_studio'
   | 'guides'
   | 'suppliers'
@@ -100,6 +101,7 @@ export const ATLAS_OPERATOR_ROLES: OperatorRole[] = [
       'wallet_pass',
       'messaging_bridge',
       'voucher_settings',
+      'discount_vouchers',
       'ai_studio',
       'guides',
       'suppliers',
@@ -172,6 +174,7 @@ export const ATLAS_OPERATOR_ROLES: OperatorRole[] = [
       'flight_claims',
       'hotel_inventory',
       'voucher_settings',
+      'discount_vouchers',
     ],
   },
   {
@@ -193,6 +196,7 @@ export const ATLAS_OPERATOR_ROLES: OperatorRole[] = [
       'yachts_supercars',
       'ai_studio',
       'vault_manager',
+      'discount_vouchers',
     ],
   },
 ];

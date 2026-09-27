@@ -16,6 +16,8 @@ export async function POST(req: NextRequest) {
       publicRetailPricePerNight,
       memberId,
       isMember,
+      voucherCode,
+      discountAmount = 0,
     } = body;
 
     // Strict Closed-Loop Rate Parity Enforcement:
@@ -51,7 +53,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      booking: bookingResult,
+      booking: {
+        ...bookingResult,
+        voucherCode: voucherCode || null,
+        discountApplied: discountAmount > 0 ? discountAmount : 0,
+      },
     });
   } catch (error: any) {
     return NextResponse.json(
