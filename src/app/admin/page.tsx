@@ -58,7 +58,8 @@ import {
   Trash2,
   Percent,
   Search,
-  Filter
+  Filter,
+  Edit3
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -84,6 +85,7 @@ export default function AdminPage() {
   const [voucherSearch, setVoucherSearch] = useState('');
   const [voucherFilter, setVoucherFilter] = useState<'all' | 'active' | 'expired'>('all');
   const [isCreateVoucherOpen, setIsCreateVoucherOpen] = useState(false);
+  const [editingVoucherId, setEditingVoucherId] = useState<string | null>(null);
   const [newVoucher, setNewVoucher] = useState({
     code: '',
     description: '',
@@ -100,6 +102,38 @@ export default function AdminPage() {
   useEffect(() => {
     setVouchersList(getStoredVouchers());
   }, []);
+
+  const handleOpenCreateModal = () => {
+    setEditingVoucherId(null);
+    setNewVoucher({
+      code: '',
+      description: '',
+      discountType: 'fixed',
+      discountValue: 50,
+      currency: 'USD',
+      minSpend: 0,
+      maxRedemptions: 250,
+      expiresAt: '2026-12-31',
+      appliesTo: 'all',
+    });
+    setIsCreateVoucherOpen(true);
+  };
+
+  const handleOpenEditModal = (voucher: DiscountVoucher) => {
+    setEditingVoucherId(voucher.id);
+    setNewVoucher({
+      code: voucher.code,
+      description: voucher.description,
+      discountType: voucher.discountType,
+      discountValue: voucher.discountValue,
+      currency: voucher.currency,
+      minSpend: voucher.minSpend,
+      maxRedemptions: voucher.maxRedemptions,
+      expiresAt: voucher.expiresAt,
+      appliesTo: voucher.appliesTo,
+    });
+    setIsCreateVoucherOpen(true);
+  };
 
   const handleToggleVoucher = (id: string) => {
     const updated = vouchersList.map((v) =>
@@ -120,49 +154,69 @@ export default function AdminPage() {
     setTimeout(() => setVoucherAlert(null), 3000);
   };
 
-  const handleCreateVoucher = (e: React.FormEvent) => {
+  const handleSaveVoucher = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanCode = newVoucher.code.trim().toUpperCase();
     if (!cleanCode) {
       alert('Please enter a voucher code.');
       return;
     }
-    if (vouchersList.some((v) => v.code === cleanCode)) {
-      alert(`Voucher code "${cleanCode}" already exists.`);
-      return;
+
+    if (editingVoucherId) {
+      if (vouchersList.some((v) => v.id !== editingVoucherId && v.code === cleanCode)) {
+        alert(`Voucher code "${cleanCode}" already exists on another voucher.`);
+        return;
+      }
+      const updated = vouchersList.map((v) => {
+        if (v.id === editingVoucherId) {
+          return {
+            ...v,
+            code: cleanCode,
+            description: newVoucher.description || `${newVoucher.discountType === 'percentage' ? newVoucher.discountValue + '% off' : '$' + newVoucher.discountValue + ' credit'} promotional discount`,
+            discountType: newVoucher.discountType,
+            discountValue: Number(newVoucher.discountValue) || 10,
+            currency: newVoucher.currency,
+            minSpend: Number(newVoucher.minSpend) || 0,
+            maxRedemptions: Number(newVoucher.maxRedemptions) || 100,
+            expiresAt: newVoucher.expiresAt || '2026-12-31',
+            appliesTo: newVoucher.appliesTo,
+          };
+        }
+        return v;
+      });
+      setVouchersList(updated);
+      saveStoredVouchers(updated);
+      setIsCreateVoucherOpen(false);
+      setEditingVoucherId(null);
+      setVoucherAlert(`Voucher "${cleanCode}" updated and saved!`);
+      setTimeout(() => setVoucherAlert(null), 3500);
+    } else {
+      if (vouchersList.some((v) => v.code === cleanCode)) {
+        alert(`Voucher code "${cleanCode}" already exists.`);
+        return;
+      }
+      const created: DiscountVoucher = {
+        id: `vch-${Date.now()}`,
+        code: cleanCode,
+        description: newVoucher.description || `${newVoucher.discountType === 'percentage' ? newVoucher.discountValue + '% off' : '$' + newVoucher.discountValue + ' credit'} promotional discount`,
+        discountType: newVoucher.discountType,
+        discountValue: Number(newVoucher.discountValue) || 10,
+        currency: newVoucher.currency,
+        minSpend: Number(newVoucher.minSpend) || 0,
+        maxRedemptions: Number(newVoucher.maxRedemptions) || 100,
+        redemptionCount: 0,
+        expiresAt: newVoucher.expiresAt || '2026-12-31',
+        appliesTo: newVoucher.appliesTo,
+        isActive: true,
+        createdAt: new Date().toISOString().split('T')[0],
+      };
+      const updated = [created, ...vouchersList];
+      setVouchersList(updated);
+      saveStoredVouchers(updated);
+      setIsCreateVoucherOpen(false);
+      setVoucherAlert(`Voucher "${cleanCode}" created and active!`);
+      setTimeout(() => setVoucherAlert(null), 3500);
     }
-    const created: DiscountVoucher = {
-      id: `vch-${Date.now()}`,
-      code: cleanCode,
-      description: newVoucher.description || `${newVoucher.discountType === 'percentage' ? newVoucher.discountValue + '% off' : '$' + newVoucher.discountValue + ' credit'} promotional discount`,
-      discountType: newVoucher.discountType,
-      discountValue: Number(newVoucher.discountValue) || 10,
-      currency: newVoucher.currency,
-      minSpend: Number(newVoucher.minSpend) || 0,
-      maxRedemptions: Number(newVoucher.maxRedemptions) || 100,
-      redemptionCount: 0,
-      expiresAt: newVoucher.expiresAt || '2026-12-31',
-      appliesTo: newVoucher.appliesTo,
-      isActive: true,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    const updated = [created, ...vouchersList];
-    setVouchersList(updated);
-    saveStoredVouchers(updated);
-    setIsCreateVoucherOpen(false);
-    setNewVoucher({
-      code: '',
-      description: '',
-      discountType: 'fixed',
-      discountValue: 50,
-      currency: 'USD',
-      minSpend: 0,
-      maxRedemptions: 250,
-      expiresAt: '2026-12-31',
-      appliesTo: 'all',
-    });
-    setVoucherAlert(`Voucher ${cleanCode} created and active!`);
-    setTimeout(() => setVoucherAlert(null), 3500);
   };
 
   const handleResetVouchers = () => {
@@ -2180,7 +2234,7 @@ export default function AdminPage() {
                   <span>Reset Defaults</span>
                 </button>
                 <button
-                  onClick={() => setIsCreateVoucherOpen(true)}
+                  onClick={handleOpenCreateModal}
                   className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
@@ -2411,13 +2465,22 @@ export default function AdminPage() {
 
                             {/* Actions */}
                             <td className="py-3.5 px-4 text-right">
-                              <button
-                                onClick={() => handleDeleteVoucher(voucher.id)}
-                                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
-                                title="Delete Voucher"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  onClick={() => handleOpenEditModal(voucher)}
+                                  className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition-colors cursor-pointer"
+                                  title="Edit Voucher"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteVoucher(voucher.id)}
+                                  className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                                  title="Delete Voucher"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -2427,26 +2490,28 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Create Voucher Modal */}
+            {/* Create / Edit Voucher Modal */}
             {isCreateVoucherOpen && (
               <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
                 <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl animate-fade-in">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div className="flex items-center gap-2">
                       <span className="p-2 rounded-xl bg-amber-400/20 text-amber-400 border border-amber-400/30">
-                        <Plus className="w-4 h-4" />
+                        {editingVoucherId ? <Edit3 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                       </span>
-                      <h4 className="text-base font-black text-white">Create New Promotional Voucher</h4>
+                      <h4 className="text-base font-black text-white">
+                        {editingVoucherId ? 'Edit Promotional Voucher' : 'Create New Promotional Voucher'}
+                      </h4>
                     </div>
                     <button
                       onClick={() => setIsCreateVoucherOpen(false)}
-                      className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+                      className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 cursor-pointer"
                     >
                       ✕
                     </button>
                   </div>
 
-                  <form onSubmit={handleCreateVoucher} className="space-y-4 text-xs">
+                  <form onSubmit={handleSaveVoucher} className="space-y-4 text-xs">
                     <div>
                       <label className="block font-bold uppercase text-slate-400 mb-1">Voucher Code (Uppercase)</label>
                       <input
@@ -2560,7 +2625,7 @@ export default function AdminPage() {
                         type="submit"
                         className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all cursor-pointer"
                       >
-                        Publish & Activate Voucher
+                        {editingVoucherId ? 'Save & Update Voucher' : 'Publish & Activate Voucher'}
                       </button>
                     </div>
                   </form>
