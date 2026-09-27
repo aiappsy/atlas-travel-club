@@ -30,7 +30,8 @@ import {
   X,
   Maximize2,
   Images,
-  Camera
+  Camera,
+  Info
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
@@ -135,10 +136,16 @@ export default function HotelDetailPage() {
   const currentRoom = selectedRoom || hotel.roomOptions?.[0];
   const wholesalePerNight = currentRoom ? currentRoom.wholesaleRate : hotel.prices.atlasWholesale.perNight;
   const retailPerNight = currentRoom ? currentRoom.publicRetailRate : hotel.prices.lowestOta.perNight;
-  const totalWholesale = wholesalePerNight * nights;
+  
+  // Transparent 3.8% Club Clearing & Merchant Payment Processing Buffer:
+  // Covers credit card interchange (Visa/Mastercard/Stripe ~2.5%), multi-currency FX clearing, and 24/7 B2B settlement guarantee
+  const rawWholesaleTotal = wholesalePerNight * nights;
+  const clearingBufferPercent = 3.8;
+  const clearingBufferTotal = Math.round(rawWholesaleTotal * 0.038);
+  const totalWholesale = rawWholesaleTotal + clearingBufferTotal;
   const totalRetail = retailPerNight * nights;
-  const totalSavings = totalRetail - totalWholesale;
-  const savingsPerNight = retailPerNight - wholesalePerNight;
+  const totalSavings = Math.max(0, totalRetail - totalWholesale);
+  const savingsPerNight = Math.round(totalSavings / nights);
 
   const activeTierPlan = user ? (MEMBERSHIP_TIERS.find((t) => t.id === user.tier) || GOLD_VIP_TIER) : GOLD_VIP_TIER;
   const tierCost = activeTierPlan.priceAnnual > 0 ? activeTierPlan.priceAnnual : GOLD_VIP_ANNUAL_FEE;
@@ -693,19 +700,21 @@ export default function HotelDetailPage() {
               {/* Price Breakdown */}
               <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs">
                 <div className="flex justify-between text-slate-400">
-                  <span>Wholesale Base ({formatPrice(wholesalePerNight)} × {nights} nts)</span>
-                  <span className="font-mono text-white font-bold">{formatPrice(totalWholesale)}</span>
+                  <span>Raw Bedbank Wholesale Net ({formatPrice(wholesalePerNight)} × {nights} nts)</span>
+                  <span className="font-mono text-white font-bold">{formatPrice(rawWholesaleTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span>OTA Marketing Ad Tax (18-35%)</span>
                   <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Eliminated)</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
-                  <span>Resort Surcharges & Tech Fees</span>
-                  <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Waived)</span>
+                  <span className="flex items-center gap-1.5 text-slate-300 font-medium">
+                    <span>Payment & Clearing Buffer (3.8%)</span>
+                  </span>
+                  <span className="font-mono text-amber-300 font-bold">+{formatPrice(clearingBufferTotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm font-black pt-2 border-t border-slate-800">
-                  <span className="text-white">Total Wholesale Cost</span>
+                  <span className="text-white">Total Member Price</span>
                   <span className="font-mono text-emerald-400 text-lg">{formatPrice(totalWholesale)}</span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center space-y-1 shadow-md">
@@ -715,6 +724,17 @@ export default function HotelDetailPage() {
                   <div className="text-[11px] font-bold text-amber-300">
                     Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {paybackPercent}% of Annual Membership ({activeTierPlan.name})
                   </div>
+                </div>
+
+                {/* Transparency Notice Box */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-1.5 text-[11px]">
+                  <div className="flex items-center gap-1.5 font-bold text-sky-400">
+                    <Info className="w-3.5 h-3.5 shrink-0" />
+                    <span>Transparent Pricing Policy</span>
+                  </div>
+                  <p className="text-slate-400 leading-relaxed">
+                    Commercial OTAs mark up hotels by 18%–35% to fund advertising. ATLAS passes through raw bedbank wholesale rates. The 3.8% buffer covers direct credit card processing (Visa/Mastercard/Stripe), multi-currency FX settlement, and 24/7 B2B clearing guarantees so you receive pure wholesale pricing with zero hidden margins.
+                  </p>
                 </div>
               </div>
 
