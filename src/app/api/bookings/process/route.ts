@@ -14,7 +14,22 @@ export async function POST(req: NextRequest) {
       roomName,
       wholesalePricePerNight,
       publicRetailPricePerNight,
+      memberId,
+      isMember,
     } = body;
+
+    // Strict Closed-Loop Rate Parity Enforcement:
+    // Bedbank wholesale allocations legally cannot be booked by unauthenticated non-members
+    if (!isMember && !memberId) {
+      return NextResponse.json(
+        {
+          error: 'Closed-Loop Rate Parity Violation: Direct wholesale booking through Hotelbeds/Bedbanks is strictly restricted to authenticated club members.',
+          code: 'CLOSED_LOOP_MEMBERSHIP_REQUIRED',
+          redirect: '/membership',
+        },
+        { status: 403 }
+      );
+    }
 
     if (!manifest || !manifest.email || !hotelName) {
       return NextResponse.json(
