@@ -2049,32 +2049,49 @@ function parseOtaUrl(input: string): ParsedOtaQuery {
   return { isOtaUrl: false, cleanQuery: trimmed };
 }
 
-// Real hotel lookup via Wikipedia for any global destination — no fake names
+// Real hotel lookup via Wikipedia for any global destination — strictly local & validated
 async function fetchRealHotelsForDestination(destination: string): Promise<Array<{name: string, slug: string}>> {
   const city = destination.split(',')[0].trim();
   const queries = [
-    `famous luxury hotels ${city}`,
     `hotels in ${city}`,
     `resorts in ${city}`,
   ];
   const hotelNames: Array<{name: string, slug: string}> = [];
+  const otherMajorCities = ['london', 'paris', 'new york', 'las vegas', 'dubai', 'tokyo', 'rome', 'los angeles', 'miami', 'chicago', 'singapore']
+    .filter((c) => !city.toLowerCase().includes(c));
 
   for (const q of queries) {
     try {
-      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=12&origin=*`;
-      const res = await fetch(url, { next: { revalidate: 3600 } });
+      const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&format=json&srlimit=15&origin=*`;
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'AtlasTravelClub/1.0 (info@atlastravel.club)' },
+        next: { revalidate: 3600 }
+      });
       if (!res.ok) continue;
       const data = await res.json();
-      const results: Array<{ title: string }> = data?.query?.search || [];
+      const results: Array<{ title: string; snippet?: string }> = data?.query?.search || [];
       for (const r of results) {
         const title = r.title;
         const lowerTitle = title.toLowerCase().trim();
+        const snippetText = (r.snippet || '').toLowerCase();
+        
+        // Exclude non-hotel facilities, water parks, or theme parks
+        if (/theme park|water park|amusement park/i.test(title + ' ' + snippetText)) continue;
+        if (/\((philippines|wisconsin|florida|texas|united states|uk|australia)\)/i.test(title)) continue;
+
+        // Strict geographic relevance: destination city must actually be mentioned in title or snippet
+        const mentionsCity = lowerTitle.includes(city.toLowerCase()) || snippetText.includes(city.toLowerCase());
+        if (!mentionsCity) continue;
+
+        // Reject if it explicitly mentions a different major world city in its title
+        if (otherMajorCities.some((oc) => lowerTitle.includes(oc))) continue;
+
         const isGeneric =
           /^(hotel|hotels|resort|resorts|boutique hotel|hotel chain|hotel rating)$/i.test(lowerTitle) ||
           lowerTitle.includes('company') ||
           lowerTitle.includes('group') ||
           lowerTitle.includes('corporation') ||
-          lowerTitle.length < 8;
+          lowerTitle.length < 6;
 
         if (
           /hotel|resort|palace|grand|ritz|hilton|marriott|hyatt|sheraton|westin|intercontinental|fairmont|four seasons|peninsula|mandarin|raffles|waldorf|oberoi|taj|kempinski|bulgari|aman|banyan|rosewood|sofitel|belmond|lodge|chalet|inn/i.test(title) &&
@@ -2083,14 +2100,15 @@ async function fetchRealHotelsForDestination(destination: string): Promise<Array
           !title.toLowerCase().includes('disambiguation') &&
           !isGeneric
         ) {
-          const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+          const cleanName = title.replace(/\s*\([^)]*\)/g, '').trim();
+          const slug = cleanName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
           if (!hotelNames.some((h) => h.slug === slug)) {
-            hotelNames.push({ name: title, slug });
+            hotelNames.push({ name: cleanName, slug });
           }
         }
         if (hotelNames.length >= 12) break;
       }
-      if (hotelNames.length >= 8) break;
+      if (hotelNames.length >= 6) break;
     } catch {
       // ignore fetch errors
     }
