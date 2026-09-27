@@ -29,10 +29,13 @@ import {
   ChevronRight,
   ShieldAlert,
   Percent,
-  Compass
+  Compass,
+  Ticket,
+  Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
+import { getStoredVouchers } from '@/lib/vouchers';
 
 function MembershipContent() {
   const { user, isMember, upgradeTier, bookings, toggleDemoMode } = useAuth();
@@ -46,6 +49,65 @@ function MembershipContent() {
   const [authSubtitle, setAuthSubtitle] = useState<string | undefined>(undefined);
   const [billingCycle, setBillingCycle] = useState<'annual' | 'monthly'>('annual');
   const [selectedTier, setSelectedTier] = useState<string>('gold');
+
+  // Dynamic Membership Discount Voucher State
+  const [membershipVoucherInput, setMembershipVoucherInput] = useState('');
+  const [appliedMembershipVoucher, setAppliedMembershipVoucher] = useState<{
+    code: string;
+    discountAmount: number;
+    discountType: string;
+    discountValue: number;
+    message: string;
+  } | null>(null);
+  const [isMembershipVoucherOpen, setIsMembershipVoucherOpen] = useState(false);
+  const [membershipVoucherLoading, setMembershipVoucherLoading] = useState(false);
+  const [membershipVoucherError, setMembershipVoucherError] = useState<string | null>(null);
+
+  const handleApplyMembershipVoucher = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = membershipVoucherInput.trim().toUpperCase();
+    if (!clean) return;
+
+    setMembershipVoucherLoading(true);
+    setMembershipVoucherError(null);
+    try {
+      const customVouchers = getStoredVouchers();
+      const res = await fetch('/api/vouchers/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: clean,
+          subtotal: 500, // sample membership tier baseline
+          currency: 'USD',
+          target: 'membership',
+          customVouchers,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setMembershipVoucherError(data.message || 'Invalid or expired voucher code.');
+      } else {
+        setAppliedMembershipVoucher({
+          code: data.code,
+          discountAmount: data.discountAmount,
+          discountType: data.discountType,
+          discountValue: data.discountValue,
+          message: data.message,
+        });
+        setMembershipVoucherError(null);
+      }
+    } catch {
+      setMembershipVoucherError('Network error validating voucher.');
+    } finally {
+      setMembershipVoucherLoading(false);
+    }
+  };
+
+  const handleRemoveMembershipVoucher = () => {
+    setAppliedMembershipVoucher(null);
+    setMembershipVoucherInput('');
+    setMembershipVoucherError(null);
+  };
 
   // Pending hotel parameters if navigated from a hotel page or search card
   const hotelId = searchParams.get('hotelId');
@@ -498,6 +560,78 @@ function MembershipContent() {
               Monthly Billing
             </button>
           </div>
+
+          {/* Promo Code Input for Membership */}
+          <div className="pt-2 max-w-md mx-auto">
+            {!appliedMembershipVoucher ? (
+              <div>
+                {!isMembershipVoucherOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsMembershipVoucherOpen(true)}
+                    className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer mx-auto"
+                  >
+                    <Ticket className="w-3.5 h-3.5" />
+                    <span>Have an invitation promo code or voucher?</span>
+                  </button>
+                ) : (
+                  <form onSubmit={handleApplyMembershipVoucher} className="space-y-2 animate-fade-in bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <Ticket className="w-3.5 h-3.5" />
+                        <span>Apply Membership Voucher</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => { setIsMembershipVoucherOpen(false); setMembershipVoucherError(null); }}
+                        className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. WELCOME20, FOUNDER50"
+                        value={membershipVoucherInput}
+                        onChange={(e) => setMembershipVoucherInput(e.target.value.toUpperCase())}
+                        className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs uppercase text-white placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                      />
+                      <button
+                        type="submit"
+                        disabled={membershipVoucherLoading || !membershipVoucherInput.trim()}
+                        className="px-4 py-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        {membershipVoucherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
+                      </button>
+                    </div>
+                    {membershipVoucherError && (
+                      <p className="text-xs text-rose-400 font-semibold">{membershipVoucherError}</p>
+                    )}
+                  </form>
+                )}
+              </div>
+            ) : (
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs animate-fade-in max-w-sm mx-auto">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="font-mono font-black text-white">{appliedMembershipVoucher.code}</span>
+                    <span className="text-[11px] text-emerald-300 ml-1.5">
+                      ({appliedMembershipVoucher.message})
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveMembershipVoucher}
+                  className="text-xs font-bold text-slate-400 hover:text-rose-400 transition-colors ml-2 cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tiers Grid */}
@@ -505,7 +639,16 @@ function MembershipContent() {
           {MEMBERSHIP_TIERS.map((tier) => {
             const isFeatured = tier.id === 'gold';
             const rawPrice = billingCycle === 'annual' ? tier.priceAnnual : tier.priceMonthly;
-            const price = rawPrice === 0 ? 'Free' : formatPrice(rawPrice);
+            let discountedPrice = rawPrice;
+            if (rawPrice > 0 && appliedMembershipVoucher) {
+              if (appliedMembershipVoucher.discountType === 'percentage') {
+                discountedPrice = Math.round(rawPrice * (1 - appliedMembershipVoucher.discountValue / 100));
+              } else {
+                discountedPrice = Math.max(0, rawPrice - appliedMembershipVoucher.discountValue);
+              }
+            }
+            const hasDiscount = rawPrice > 0 && discountedPrice < rawPrice;
+            const price = rawPrice === 0 ? 'Free' : formatPrice(discountedPrice);
             const cycleLabel = rawPrice === 0 ? '' : billingCycle === 'annual' ? '/year' : '/month';
 
             return (
@@ -535,7 +678,12 @@ function MembershipContent() {
 
                   <h3 className="text-xl font-black text-white mt-2">{tier.name}</h3>
 
-                  <div className="mt-4 flex items-baseline gap-1">
+                  <div className="mt-4 flex items-baseline gap-1.5 flex-wrap">
+                    {hasDiscount && (
+                      <span className="text-xl font-bold text-slate-500 line-through font-mono">
+                        {formatPrice(rawPrice)}
+                      </span>
+                    )}
                     <span className="text-3xl sm:text-4xl font-black text-white font-mono">{price}</span>
                     {cycleLabel && <span className="text-xs text-slate-400 font-medium">{cycleLabel}</span>}
                   </div>
