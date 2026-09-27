@@ -41,6 +41,8 @@ export default function LiveHotelSearch({
   const [scanStep, setScanStep] = useState(0);
   const [hotels, setHotels] = useState<ComparedHotel[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(8);
+  const [isUrlAudited, setIsUrlAudited] = useState(false);
 
   // Calculate nights
   const d1 = new Date(checkIn);
@@ -51,6 +53,10 @@ export default function LiveHotelSearch({
     { name: 'All Destinations', query: '' },
     { name: 'Las Vegas', query: 'Las Vegas' },
     { name: 'Paris', query: 'Paris' },
+    { name: 'Zermatt (Alps)', query: 'Zermatt' },
+    { name: 'Santorini', query: 'Santorini' },
+    { name: 'Aspen', query: 'Aspen' },
+    { name: 'Maui', query: 'Maui' },
     { name: 'Dubai', query: 'Dubai' },
     { name: 'New York', query: 'New York' },
     { name: 'Oslo', query: 'Oslo' },
@@ -71,6 +77,7 @@ export default function LiveHotelSearch({
     setIsScanning(true);
     setScanStep(0);
     setHasSearched(true);
+    setVisibleCount(8);
 
     const stepsInterval = setInterval(() => {
       setScanStep((prev) => {
@@ -87,6 +94,7 @@ export default function LiveHotelSearch({
       const data = await res.json();
       setTimeout(() => {
         setHotels(data.hotels || []);
+        setIsUrlAudited(!!data.isOtaUrlAudited);
         setIsScanning(false);
       }, 800);
     } catch (e) {
@@ -198,6 +206,16 @@ export default function LiveHotelSearch({
             </button>
           </div>
         </form>
+
+        {/* Live URL Audit Banner */}
+        {(/^https?:\/\//i.test(destination.trim()) || isUrlAudited) && (
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs">
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0 animate-pulse" />
+            <span>
+              <strong>Universal OTA Link Detected:</strong> ATLAS is scanning confidential B2B bedbank clearing rates for this specific property to unmask live retail markups and eliminate OTA commissions.
+            </span>
+          </div>
+        )}
 
         {/* Quick Destination Pills */}
         <div className="flex items-center gap-2 pt-2 overflow-x-auto scrollbar-none text-xs">
@@ -311,7 +329,7 @@ export default function LiveHotelSearch({
 
           {/* Hotel Result Cards */}
           <div className="space-y-6">
-            {filteredHotels.map((hotel) => (
+            {filteredHotels.slice(0, visibleCount).map((hotel) => (
               <div
                 key={hotel.id}
                 className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
@@ -571,6 +589,24 @@ export default function LiveHotelSearch({
               </div>
             ))}
           </div>
+
+          {/* Load More Properties Pagination */}
+          {filteredHotels.length > visibleCount && (
+            <div className="flex flex-col items-center justify-center pt-8 pb-4 gap-3">
+              <button
+                type="button"
+                onClick={() => setVisibleCount((prev) => Math.min(prev + 8, filteredHotels.length))}
+                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center gap-2.5 transition-all transform hover:scale-[1.02] cursor-pointer"
+              >
+                <Sparkles className="w-4 h-4 text-slate-950" />
+                <span>Load More Properties ({filteredHotels.length - visibleCount} More Available)</span>
+                <ArrowRight className="w-4 h-4 text-slate-950" />
+              </button>
+              <span className="text-xs text-slate-400 font-mono">
+                Showing {Math.min(visibleCount, filteredHotels.length)} of {filteredHotels.length} Audited Properties
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

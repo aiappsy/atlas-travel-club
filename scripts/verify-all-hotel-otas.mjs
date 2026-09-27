@@ -97,14 +97,19 @@ async function runAll() {
   console.log('STARTING FOOLPROOF HOTEL & OTA INTEGRITY AUDIT...');
   
   const testCases = [
-    { name: 'Curated Oslo Search (6 hotels)', url: `${baseUrl}/api/hotels/compare?destination=Oslo&nights=3&checkIn=2026-10-15&checkOut=2026-10-18` },
-    { name: 'Curated London Search (6 hotels)', url: `${baseUrl}/api/hotels/compare?destination=London&nights=4&checkIn=2026-11-01&checkOut=2026-11-05` },
-    { name: 'Curated Las Vegas Search (4 hotels)', url: `${baseUrl}/api/hotels/compare?destination=Las%20Vegas&nights=3` },
-    { name: 'Curated Paris Search (3 hotels)', url: `${baseUrl}/api/hotels/compare?destination=Paris&nights=3` },
-    { name: 'Curated New York Search (3 hotels)', url: `${baseUrl}/api/hotels/compare?destination=New%20York&nights=3` },
-    { name: 'Curated Dubai Search (3 hotels)', url: `${baseUrl}/api/hotels/compare?destination=Dubai&nights=3` },
+    { name: 'Curated Oslo Search', url: `${baseUrl}/api/hotels/compare?destination=Oslo&nights=3&checkIn=2026-10-15&checkOut=2026-10-18` },
+    { name: 'Curated London Search', url: `${baseUrl}/api/hotels/compare?destination=London&nights=4&checkIn=2026-11-01&checkOut=2026-11-05` },
+    { name: 'Curated Las Vegas Search', url: `${baseUrl}/api/hotels/compare?destination=Las%20Vegas&nights=3` },
+    { name: 'Curated Paris Search', url: `${baseUrl}/api/hotels/compare?destination=Paris&nights=3` },
+    { name: 'Curated New York Search', url: `${baseUrl}/api/hotels/compare?destination=New%20York&nights=3` },
+    { name: 'Curated Dubai Search', url: `${baseUrl}/api/hotels/compare?destination=Dubai&nights=3` },
     { name: 'Global Dynamic Search: Rome', url: `${baseUrl}/api/hotels/compare?destination=Rome&nights=3` },
     { name: 'Global Dynamic Search: Tokyo', url: `${baseUrl}/api/hotels/compare?destination=Tokyo&nights=3` },
+    { name: 'Unrestricted Alpine Search: Zermatt (Ski Resort, 16 Properties)', url: `${baseUrl}/api/hotels/compare?destination=Zermatt&nights=3` },
+    { name: 'Unrestricted Beach/Island Search: Santorini (16 Properties)', url: `${baseUrl}/api/hotels/compare?destination=Santorini&nights=3` },
+    { name: 'Unrestricted Global Search: Kyoto (16 Properties)', url: `${baseUrl}/api/hotels/compare?destination=Kyoto&nights=3` },
+    { name: 'Pasted Booking.com OTA Link Audit', url: `${baseUrl}/api/hotels/compare?destination=${encodeURIComponent('https://www.booking.com/hotel/fr/the-ritz-paris.html')}&nights=3` },
+    { name: 'Pasted Expedia OTA Link Audit with Custom Dates', url: `${baseUrl}/api/hotels/compare?destination=${encodeURIComponent('https://www.expedia.com/Hotel-Search?destination=Aspen&startDate=2026-12-01&endDate=2026-12-05&adults=2')}&nights=4` },
     { name: 'Single Hotel Lookup: Grand Hotel Oslo', url: `${baseUrl}/api/hotels/compare?id=grand-hotel-oslo&nights=3&checkIn=2026-10-15&checkOut=2026-10-18` },
     { name: 'Single Hotel Lookup: The Ritz London', url: `${baseUrl}/api/hotels/compare?id=the-ritz-london&nights=3` },
   ];
