@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePlatform } from '@/context/PlatformContext';
 import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { ATLAS_TRAINING_MANUALS } from '@/lib/manualsData';
@@ -112,6 +112,33 @@ export default function AdminPage() {
     setOtaAffiliateSaved(true);
     setTimeout(() => setOtaAffiliateSaved(false), 3000);
   };
+
+  // Hotelbeds APItude Live Gateway Status
+  const [hotelbedsStatus, setHotelbedsStatus] = useState<{
+    connected: boolean;
+    latencyMs: number;
+    environment: string;
+    apiStatus: string;
+    authType?: string;
+  } | null>(null);
+  const [checkingHbStatus, setCheckingHbStatus] = useState<boolean>(false);
+
+  const checkHotelbedsLiveStatus = async () => {
+    setCheckingHbStatus(true);
+    try {
+      const res = await fetch('/api/providers/hotelbeds/status');
+      const data = await res.json();
+      setHotelbedsStatus(data);
+    } catch (err) {
+      console.warn('Failed to ping Hotelbeds gateway:', err);
+    } finally {
+      setCheckingHbStatus(false);
+    }
+  };
+
+  useEffect(() => {
+    checkHotelbedsLiveStatus();
+  }, []);
 
 
   // Travel Vault State
@@ -1158,6 +1185,48 @@ export default function AdminPage() {
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>50+ Curated Flagships Synced</span>
                   </span>
+                </div>
+              </div>
+
+              {/* Hotelbeds APItude Live Gateway Monitor */}
+              <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3.5 h-3.5 rounded-full ${hotelbedsStatus?.connected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`}></div>
+                  <div>
+                    <div className="text-xs font-black text-white flex items-center gap-2">
+                      <span>Hotelbeds APItude B2B Bedbank Gateway</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                        hotelbedsStatus?.connected
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      }`}>
+                        {hotelbedsStatus?.connected ? `LIVE CONNECTED (${hotelbedsStatus.latencyMs}ms)` : 'CHECKING GATEWAY...'}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      HMAC-SHA256 signature authenticated • Live wholesale allotments & direct closed-loop parity clearing active
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={checkHotelbedsLiveStatus}
+                    disabled={checkingHbStatus}
+                    className="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{checkingHbStatus ? 'Pinging Gateway...' : 'Ping APItude Live'}</span>
+                  </button>
+                  <a
+                    href="/api/providers/hotelbeds/availability?destination=Palma+de+Mallorca"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-1.5 px-3 bg-slate-900 hover:bg-slate-800 text-sky-400 text-xs font-bold rounded-xl border border-slate-800 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>View Live Feed ↗</span>
+                  </a>
                 </div>
               </div>
 
