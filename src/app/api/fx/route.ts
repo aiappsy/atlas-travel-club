@@ -1,4 +1,7 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface FxCache {
   timestamp: number;
@@ -9,7 +12,7 @@ interface FxCache {
 let cachedFx: FxCache | null = null;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour cache
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const now = Date.now();
 
   // Return cached rates if fresh
@@ -25,7 +28,7 @@ export async function GET() {
 
   try {
     const res = await fetch('https://api.frankfurter.dev/v1/latest?base=USD', {
-      next: { revalidate: 3600 }
+      cache: 'no-store',
     });
 
     if (!res.ok) {

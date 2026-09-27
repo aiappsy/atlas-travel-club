@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { INITIAL_DISCOUNT_VOUCHERS, validateVoucherCode, DiscountVoucher } from '@/lib/vouchers';
 
+export const dynamic = 'force-dynamic';
+
 // GET: List active discount vouchers for public/member or admin reference
 export async function GET(request: NextRequest) {
   try {

@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { hotelbedsProvider } from '@/lib/providers/hotelbeds';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
   try {
     const status = await hotelbedsProvider.checkStatus();
     const isSandbox = process.env.HOTELBEDS_ENV !== 'live';
