@@ -34,6 +34,28 @@ export default function FlightClaimsPage() {
 
   const [step, setStep] = useState<'calculator' | 'filing' | 'confirmed'>('calculator');
   const [claimsList, setClaimsList] = useState<FlightClaimRecord[]>(MOCK_FLIGHT_CLAIMS);
+  const [isScanningFlight, setIsScanningFlight] = useState<boolean>(false);
+  const [scanFeedback, setScanFeedback] = useState<string | null>(null);
+
+  const scanLiveFlight = async (flightNum: string) => {
+    if (!flightNum || flightNum.trim().length < 3) return;
+    setIsScanningFlight(true);
+    try {
+      const res = await fetch(`/api/flights/scan?flight=${encodeURIComponent(flightNum.trim())}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.success) {
+        setAirline(data.airline);
+        setDepartureAirport(data.departureAirport);
+        setArrivalAirport(data.arrivalAirport);
+        setScanFeedback(`✓ Verified: ${data.airline} (${data.distanceTier}) — Statutory Max: €${data.legalEntitlements.delayOver3HoursEur} ($${data.legalEntitlements.delayOver3HoursUsd})`);
+      }
+    } catch (err) {
+      console.warn('Flight scan error:', err);
+    } finally {
+      setIsScanningFlight(false);
+    }
+  };
 
   // Compensation calculation based on EU261 / US DOT rules
   const payoutPerPassenger = Number(delayHours) >= 3 ? 650 : 275;
@@ -105,16 +127,49 @@ export default function FlightClaimsPage() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                        Flight Number
-                      </label>
-                      <input
-                        type="text"
-                        value={flightNumber}
-                        onChange={(e) => setFlightNumber(e.target.value)}
-                        placeholder="e.g. LH442, BA178, AA100"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
-                      />
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block text-[11px] font-bold text-slate-500 uppercase">
+                          Flight Number
+                        </label>
+                        <div className="flex items-center gap-1">
+                          {['SK810', 'DY1234', 'LH442'].map((code) => (
+                            <button
+                              key={code}
+                              type="button"
+                              onClick={() => {
+                                setFlightNumber(code);
+                                scanLiveFlight(code);
+                              }}
+                              className="text-[10px] font-bold text-sky-600 hover:text-sky-800 bg-sky-50 px-1.5 py-0.5 rounded cursor-pointer"
+                            >
+                              {code}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={flightNumber}
+                          onChange={(e) => setFlightNumber(e.target.value)}
+                          placeholder="e.g. SK810, DY1234, LH442"
+                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => scanLiveFlight(flightNumber)}
+                          disabled={isScanningFlight}
+                          className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shrink-0 flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                        >
+                          <Search className="w-3.5 h-3.5 text-amber-400" />
+                          <span>{isScanningFlight ? 'Scanning...' : 'Scan'}</span>
+                        </button>
+                      </div>
+                      {scanFeedback && (
+                        <div className="mt-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg">
+                          {scanFeedback}
+                        </div>
+                      )}
                     </div>
 
                     <div>
