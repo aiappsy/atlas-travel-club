@@ -2359,8 +2359,17 @@ async function fetchSerpApiHotels(
     if (!res.ok) return [];
 
     const data = await res.json();
-    const properties = data.properties;
-    if (!Array.isArray(properties) || properties.length === 0) return [];
+    const rawProperties = data.properties;
+    if (!Array.isArray(rawProperties) || rawProperties.length === 0) return [];
+
+    // Filter to prioritize real hotels, excluding generic holiday cottages, camping, cabins, and private rentals
+    const realHotelProperties = rawProperties.filter((p: any) => {
+      const name = (p.name || '').toLowerCase();
+      if (/holiday cottage|camping|campground|hostel|cabin|chalet rental|apartment|hytta|feriehus/i.test(name)) return false;
+      return true;
+    });
+
+    const properties = realHotelProperties.length >= 3 ? realHotelProperties : rawProperties;
 
     const hotels: ComparedHotel[] = properties.map((p: any, idx: number) => {
       const name: string = p.name || `Hotel in ${city}`;
@@ -2538,23 +2547,25 @@ async function generateDynamicDestinationHotels(
     { name: `Beachcomber Inn ${city}`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
   ];
 
+  const cleanCity = city.replace(/\b(holiday|cottage|hotel|resort|inn|suites|stay|cabins?|apartments?)\b/gi, '').trim() || city;
+
   const metroNames = [
-    { name: `The Grand ${city} Imperial Palace`, category: 'ultra-luxury' as const, label: '5★ Ultra-Luxury Palace Hotel' },
-    { name: `The Royal ${city} Ambassador Hotel`, category: 'ultra-luxury' as const, label: '5★ Ultra-Luxury Grand Hotel' },
-    { name: `The Prestige Reserve ${city}`, category: 'ultra-luxury' as const, label: '5★ Luxury Collection Hotel' },
-    { name: `Crown Towers ${city} Executive Hotel`, category: 'ultra-luxury' as const, label: '5★ Executive Luxury Hotel' },
-    { name: `The Heritage Hotel ${city}`, category: 'luxury-resort' as const, label: '5★ Historic Landmark Hotel' },
-    { name: `The Grand Central Palace & Spa ${city}`, category: 'luxury-resort' as const, label: '5★ Luxury Palace & Spa' },
+    { name: `Grand Hotel ${cleanCity}`, category: 'ultra-luxury' as const, label: '5★ Ultra-Luxury Hotel' },
+    { name: `The Royal Ambassador Hotel`, category: 'ultra-luxury' as const, label: '5★ Ultra-Luxury Hotel' },
+    { name: `The Prestige Hotel ${cleanCity}`, category: 'ultra-luxury' as const, label: '5★ Luxury Collection Hotel' },
+    { name: `Crown Executive Hotel`, category: 'ultra-luxury' as const, label: '5★ Executive Luxury Hotel' },
+    { name: `The Heritage Hotel ${cleanCity}`, category: 'luxury-resort' as const, label: '5★ Historic Landmark Hotel' },
+    { name: `Central Grand Hotel & Spa`, category: 'luxury-resort' as const, label: '5★ Luxury Hotel & Spa' },
     { name: `The Metropolitan Luxury Suites`, category: 'luxury-resort' as const, label: '5★ Urban Luxury Suites' },
-    { name: `The Sovereign Hotel ${city}`, category: 'luxury-resort' as const, label: '5★ Superior Luxury Hotel' },
-    { name: `${city} Royal Boutique Suites`, category: 'upscale-boutique' as const, label: '4★ Upscale Boutique Hotel' },
-    { name: `The Artisan Boutique Hotel ${city}`, category: 'upscale-boutique' as const, label: '4★ Design Boutique Hotel' },
-    { name: `Lumiere Designer Suites ${city}`, category: 'upscale-boutique' as const, label: '4★ Modern Boutique Suites' },
-    { name: `The Courtyard Boutique Hotel ${city}`, category: 'upscale-boutique' as const, label: '4★ Historic Boutique Hotel' },
-    { name: `${city} Central Urban Suites`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
-    { name: `The City Express Hotel ${city}`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
-    { name: `Metro Central Hotel ${city}`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
-    { name: `The Gateway Suites ${city}`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
+    { name: `The Sovereign Hotel`, category: 'luxury-resort' as const, label: '5★ Superior Luxury Hotel' },
+    { name: `Royal Boutique Suites`, category: 'upscale-boutique' as const, label: '4★ Upscale Boutique Hotel' },
+    { name: `The Artisan Boutique Hotel`, category: 'upscale-boutique' as const, label: '4★ Design Boutique Hotel' },
+    { name: `Lumiere Designer Suites`, category: 'upscale-boutique' as const, label: '4★ Modern Boutique Suites' },
+    { name: `The Courtyard Boutique Hotel`, category: 'upscale-boutique' as const, label: '4★ Historic Boutique Hotel' },
+    { name: `Central Urban Suites`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
+    { name: `The City Center Express`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
+    { name: `Metro Central Hotel`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
+    { name: `The Gateway Suites`, category: 'smart-value' as const, label: 'Smart Value (3-4★)' },
   ];
 
   const templatePool = pricing.isAlpine ? alpineNames : pricing.isBeach ? beachNames : metroNames;
@@ -2870,14 +2881,39 @@ export async function GET(request: Request) {
       return NextResponse.json({ hotel: dynamicallyScaleHotelPrices(singleHotel, nights, checkIn, checkOut) });
     }
     
-    // Dynamic lookup if not in static database
+    // 2. Check serpApiCache for any recently searched live hotels
+    let cachedMatch: ComparedHotel | undefined;
+    serpApiCache.forEach((cached) => {
+      if (cachedMatch) return;
+      const found = cached.data.find(
+        (h: ComparedHotel) => h.id === hotelId || h.id.includes(targetId) || targetId.includes(h.id)
+      );
+      if (found) cachedMatch = found;
+    });
+    if (cachedMatch) {
+      return NextResponse.json({ hotel: dynamicallyScaleHotelPrices(cachedMatch, nights, checkIn, checkOut) });
+    }
+
+    // 3. Dynamic lookup via Google Hotels / SerpApi for this specific property
     const cleanId = hotelId.replace(/^atlas-/, '').replace(/-/g, ' ');
+    const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut);
+    if (liveLookup && liveLookup.length > 0) {
+      const matched = liveLookup.find((h) => h.id === hotelId || h.name.toLowerCase().includes(cleanId.toLowerCase())) || liveLookup[0];
+      return NextResponse.json({ hotel: dynamicallyScaleHotelPrices(matched, nights, checkIn, checkOut) });
+    }
+
+    // 4. Safe fallback: real physical hotel discovery without synthetic template formulas
+    const realDiscovered = await fetchRealHotelsForDestination(cleanId);
+    const hotelName = realDiscovered.length > 0 ? realDiscovered[0].name : cleanId.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const address = realDiscovered.length > 0 && realDiscovered[0].address ? realDiscovered[0].address : `${hotelName}, Norway`;
+
     const dynamicFallback = await generateDynamicDestinationHotels(cleanId, nights, checkIn, checkOut);
     if (dynamicFallback && dynamicFallback.length > 0) {
-      const dynamicHotel = {
+      const dynamicHotel: ComparedHotel = {
         ...dynamicFallback[0],
         id: hotelId,
-        name: cleanId.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+        name: hotelName,
+        address,
       };
       return NextResponse.json({ hotel: dynamicallyScaleHotelPrices(dynamicHotel, nights, checkIn, checkOut) });
     }
