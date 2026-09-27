@@ -36,19 +36,28 @@ export class UnifiedTravelRouter {
     wholesalePricePerNight: number,
     publicRetailPricePerNight: number
   ): Promise<BookingResponse> {
+    if (provider === 'hotelbeds') {
+      return hotelbedsProvider.confirmWholesaleBooking(rateKey, manifest, nights, {
+        hotelName,
+        roomName,
+        wholesalePricePerNight,
+        publicRetailPricePerNight,
+      });
+    }
+
     const wholesalePaid = wholesalePricePerNight * nights;
     const publicTotal = publicRetailPricePerNight * nights;
     const providerRef = `${provider.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
     return {
       success: true,
-      bookingReference: `HC-${provider.slice(0, 2).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`,
+      bookingReference: `ATLAS-${provider.slice(0, 2).toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`,
       providerReference: providerRef,
       provider,
       hotelName,
       roomName,
-      checkInDate: '2026-09-15',
-      checkOutDate: '2026-09-18',
+      checkInDate: '2026-11-15',
+      checkOutDate: '2026-11-18',
       nights,
       guests: 2,
       totalPublicPrice: publicTotal,
