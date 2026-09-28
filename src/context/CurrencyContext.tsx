@@ -68,6 +68,35 @@ interface CurrencyContextType {
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
+function detectBrowserCurrency(): CurrencyCode | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!tz) return null;
+    if (tz.includes('Oslo')) return 'NOK';
+    if (tz.includes('Stockholm')) return 'SEK';
+    if (tz.includes('Copenhagen')) return 'DKK';
+    if (tz.includes('London')) return 'GBP';
+    if (tz.includes('Manila')) return 'PHP';
+    if (tz.includes('Tokyo')) return 'JPY';
+    if (tz.includes('Singapore')) return 'SGD';
+    if (tz.includes('Bangkok')) return 'THB';
+    if (tz.includes('Hong_Kong')) return 'HKD';
+    if (tz.includes('Kolkata') || tz.includes('Calcutta')) return 'INR';
+    if (tz.includes('Jakarta')) return 'IDR';
+    if (tz.includes('Kuala_Lumpur')) return 'MYR';
+    if (tz.includes('Dubai')) return 'AED';
+    if (tz.includes('Zurich')) return 'CHF';
+    if (tz.includes('Sydney') || tz.includes('Melbourne') || tz.includes('Brisbane') || tz.includes('Perth')) return 'AUD';
+    if (tz.includes('Auckland')) return 'NZD';
+    if (tz.includes('Toronto') || tz.includes('Vancouver') || tz.includes('Montreal')) return 'CAD';
+    if (tz.startsWith('Europe/')) return 'EUR';
+    if (tz.startsWith('America/')) return 'USD';
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
   const [currencies, setCurrencies] = useState<Record<CurrencyCode, CurrencyConfig>>(DEFAULT_CURRENCIES);
@@ -75,10 +104,12 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [fxLastUpdated, setFxLastUpdated] = useState<string | null>(null);
 
   useEffect(() => {
+    let hasCustomCurrency = false;
     try {
       const saved = localStorage.getItem('atlas_currency') as CurrencyCode | null;
       if (saved && DEFAULT_CURRENCIES[saved]) {
         setCurrencyState(saved);
+        hasCustomCurrency = true;
       }
       const savedRates = localStorage.getItem('atlas_fx_rates');
       if (savedRates) {
@@ -89,6 +120,26 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (e) {
       console.error('Failed to load currency preferences', e);
+    }
+
+    // Auto-detect visitor currency based on IP and locale if not explicitly selected
+    if (!hasCustomCurrency) {
+      const fastDetect = detectBrowserCurrency();
+      if (fastDetect && DEFAULT_CURRENCIES[fastDetect]) {
+        setCurrencyState(fastDetect);
+      }
+
+      fetch('/api/geo')
+        .then((r) => r.json())
+        .then((data) => {
+          const currentSaved = localStorage.getItem('atlas_currency');
+          if (!currentSaved && data?.currency && DEFAULT_CURRENCIES[data.currency as CurrencyCode]) {
+            setCurrencyState(data.currency as CurrencyCode);
+          }
+        })
+        .catch(() => {
+          // ignore network failure
+        });
     }
 
     // Fetch live ECB rates from our internal /api/fx endpoint

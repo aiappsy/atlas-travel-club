@@ -46,32 +46,11 @@ const DEFAULT_USER: UserProfile = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
-  const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [bookings, setBookings] = useState<BookingRecord[]>([
-    {
-      id: 'bk-9120',
-      userId: 'demo-vip-member-777',
-      hotelId: 'bellagio-vegas',
-      hotelName: 'The Grand Bellagio & Casino Resort',
-      hotelImage: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80',
-      hotelCity: 'Las Vegas, NV',
-      roomId: 'deluxe-king',
-      roomName: 'Deluxe Fountain View King Suite',
-      checkInDate: '2026-09-12',
-      checkOutDate: '2026-09-15',
-      nights: 3,
-      guests: 2,
-      totalPublicPrice: 1167,
-      totalMemberPaid: 594,
-      totalSaved: 573,
-      status: 'confirmed',
-      confirmationCode: 'HC-NV-882941',
-      createdAt: '2026-08-10',
-    }
-  ]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [bookings, setBookings] = useState<BookingRecord[]>([]);
 
   useEffect(() => {
     // Listen to Firebase Auth state
@@ -106,6 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.warn('Firestore fallback to local state:', e);
           // Retain state
         }
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });

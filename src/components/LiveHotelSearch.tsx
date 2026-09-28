@@ -574,13 +574,21 @@ export default function LiveHotelSearch({
 
                   {/* Highlighted ATLAS Wholesale Price Box */}
                   <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 border border-emerald-500/40 shadow-2xl">
-                    <div className="space-y-1.5 text-center sm:text-left">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30">
+                    <Link
+                      href={
+                        isMember
+                          ? `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`
+                          : `/login?redirect=${encodeURIComponent(`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`)}&hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}`
+                      }
+                      className="space-y-1.5 text-center sm:text-left group cursor-pointer block"
+                      title={isMember ? 'View wholesale booking options' : 'Log in to book this confidential wholesale rate'}
+                    >
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 group-hover:bg-emerald-500/30 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30 transition-colors">
                         <Zap className="w-3.5 h-3.5 text-emerald-400" />
                         ATLAS Confidential B2B Wholesale Rate
                       </div>
                       <div className="flex items-baseline gap-2 justify-center sm:justify-start">
-                        <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
+                        <span className="text-3xl sm:text-4xl font-black text-emerald-400 group-hover:text-emerald-300 font-mono transition-colors">
                           {formatPrice(hotel.prices.atlasWholesale.perNight)}
                         </span>
                         <span className="text-xs text-slate-300">/ night</span>
@@ -596,7 +604,7 @@ export default function LiveHotelSearch({
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                         <span>OTA Marketing Ad Tax Eliminated: -{formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/night (-{formatPrice(hotel.prices.atlasWholesale.adTaxEliminated)} total)</span>
                       </div>
-                    </div>
+                    </Link>
 
                     <div className="flex flex-col gap-2.5 w-full lg:w-80 shrink-0">
                       <div className="grid grid-cols-2 gap-2 w-full">
@@ -637,7 +645,7 @@ export default function LiveHotelSearch({
                           title="Sign in to unlock confidential wholesale rates"
                         >
                           <Lock className="w-3.5 h-3.5 shrink-0" />
-                          <span className="whitespace-nowrap font-black">Unlock Closed Bed Rate</span>
+                          <span className="whitespace-nowrap font-black">Book Wholesale Rate (Log In)</span>
                           <ArrowRight className="w-4 h-4 shrink-0" />
                         </Link>
                       )}
