@@ -459,15 +459,28 @@ export default function LiveHotelSearch({
                     <div className="pt-3.5 border-t border-slate-800/80">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-black text-[10px]">
+                          <a
+                            href={hotel.prices.googleHotels.verifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-5 h-5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 hover:text-sky-300 font-black text-[10px] transition-colors cursor-pointer"
+                            title={`Open Google Travel rates for ${hotel.name}`}
+                          >
                             G
-                          </div>
+                          </a>
                           <div>
                             <div className="text-[11px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                               <span>Official Public Retail Rates</span>
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">
-                                Google Travel Verified
-                              </span>
+                              <a
+                                href={hotel.prices.googleHotels.verifyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/glink"
+                                title={`Verify live rates for ${hotel.name} on Google Travel`}
+                              >
+                                <span>Google Travel Verified</span>
+                                <ExternalLink className="w-2.5 h-2.5 group-hover/glink:translate-x-0.5 transition-transform" />
+                              </a>
                             </div>
                             <p className="text-[10px] text-slate-400">
                               Real-time live prices across major retail booking platforms for this stay:

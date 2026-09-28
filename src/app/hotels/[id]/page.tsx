@@ -512,9 +512,16 @@ export default function HotelDetailPage() {
               <div>
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
                   <span>Official Market Rate Audit</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">
-                    Google Travel Verified
-                  </span>
+                  <a
+                    href={hotel.prices.googleHotels.verifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/badge"
+                    title={`Verify ${hotel.name} on Google Travel`}
+                  >
+                    <span>Google Travel Verified</span>
+                    <ExternalLink className="w-2.5 h-2.5 group-hover/badge:translate-x-0.5 transition-transform" />
+                  </a>
                 </h4>
                 <p className="text-xs text-slate-400">
                   Independent third-party public rate comparison for {checkIn} to {checkOut}. Audit live prices across providers:
