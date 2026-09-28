@@ -148,12 +148,12 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 348, total: 1044, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Grand+Hotel+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
-      hotelsCom: { perNight: 346, total: 1038, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Grand+Hotel+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
-      agoda: { perNight: 357, total: 1071, verifyUrl: 'https://www.agoda.com/search?city=Oslo&hotelName=Grand+Hotel+Oslo&checkIn=2026-10-15&checkOut=2026-10-18&los=3&rooms=1&adults=2' },
-      kayak: { perNight: 350, total: 1050, verifyUrl: 'https://www.kayak.com/hotels/Oslo,Norway/Grand-Hotel-Oslo/2026-10-15/2026-10-18/2adults' },
+      expedia: { perNight: 348, total: 1044, verifyUrl: 'https://www.expedia.com/Oslo-Hotels-Grand-Hotel-Oslo.h8209.Hotel-Information?startDate=2026-10-15&endDate=2026-10-18&adults=2' },
+      hotelsCom: { perNight: 346, total: 1038, verifyUrl: 'https://www.hotels.com/ho115858/grand-hotel-oslo-oslo-norway/?chkin=2026-10-15&chkout=2026-10-18&adults=2' },
+      agoda: { perNight: 357, total: 1071, verifyUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html?checkIn=2026-10-15&checkOut=2026-10-18&los=3&rooms=1&adults=2' },
+      kayak: { perNight: 350, total: 1050, verifyUrl: 'https://www.kayak.com/hotels/Grand-Hotel-Oslo-by-Scandic,Oslo,Norway-c194307638-hotel-details/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 365, total: 1095, verifyUrl: 'https://www.grand.no' },
-      googleHotels: { verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+rates&dates=2026-10-15,2026-10-18' },
+      googleHotels: { verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+Norway&dates=2026-10-15,2026-10-18' },
       lowestOta: { provider: 'Hotels.com', perNight: 346, total: 1038 },
       atlasWholesale: {
         perNight: 169,
