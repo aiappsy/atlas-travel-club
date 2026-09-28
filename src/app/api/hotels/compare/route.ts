@@ -309,13 +309,13 @@ function mapSerpApiPropertyToHotel(
         if (src.includes('expedia')) {
           expediaRate = extracted;
           if (clickUrl) expediaUrl = clickUrl;
-        } else if (src.includes('hotels.com')) {
+        } else if (src.includes('hotels.com') || src.includes('hoteis.com')) {
           hotelsComRate = extracted;
           if (clickUrl) hotelsComUrl = clickUrl;
         } else if (src.includes('agoda')) {
           agodaRate = extracted;
           if (clickUrl) agodaUrl = clickUrl;
-        } else if (src.includes('kayak')) {
+        } else if (src.includes('kayak') || src.includes('hotelscombined')) {
           kayakRate = extracted;
           if (clickUrl) kayakUrl = clickUrl;
         } else if (src.includes('booking.com')) {
@@ -327,6 +327,10 @@ function mapSerpApiPropertyToHotel(
       }
     }
   }
+
+  // Ensure OTAs without verified partner clickout links point to Google Travel's live rates for this exact hotel
+  if (agodaUrl === urls.agoda) agodaUrl = urls.googleHotels;
+  if (kayakUrl === urls.kayak) kayakUrl = urls.googleHotels;
 
   // Live retail price extraction
   let retailPrice = 0;
