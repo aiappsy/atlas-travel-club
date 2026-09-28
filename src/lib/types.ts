@@ -59,6 +59,7 @@ export interface SavingsProofAudit {
   totalNetValueDelivered: number;
   lastAuditedTimestamp: string;
   auditHash: string;
+  googleHotelsVerifyUrl?: string;
 }
 
 export interface LiveReceipt {

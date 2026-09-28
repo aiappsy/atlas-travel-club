@@ -25,8 +25,11 @@ import {
   Download
 } from 'lucide-react';
 import Link from 'next/link';
+import { useCurrency } from '@/context/CurrencyContext';
+import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
 
 export default function SavingsProofPage() {
+  const { formatPrice, currency } = useCurrency();
   const [selectedAuditId, setSelectedAuditId] = useState<string>('proof-bellagio-vegas');
   const [urlInput, setUrlInput] = useState('');
   const [isAuditingUrl, setIsAuditingUrl] = useState(false);
@@ -44,7 +47,7 @@ export default function SavingsProofPage() {
 
     setIsAuditingUrl(true);
     try {
-      const res = await fetch(`/api/hotels/compare?hotel=${encodeURIComponent(urlInput.trim())}&nights=3`);
+      const res = await fetch(`/api/hotels/compare?hotel=${encodeURIComponent(urlInput.trim())}&nights=3&currency=${currency}`);
       if (res.ok) {
         const data = await res.json();
         const hotel = data.hotels?.[0] || data.hotel;
@@ -53,6 +56,10 @@ export default function SavingsProofPage() {
           const wholesaleRate = hotel.prices.atlasWholesale.perNight;
           const savingsPerNight = hotel.prices.atlasWholesale.instantSavingsPerNight;
           const totalSavings = hotel.prices.atlasWholesale.totalSavings;
+          const gVerify = hotel.prices?.googleHotels?.verifyUrl
+            ? formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)
+            : undefined;
+
           setUrlAuditResult({
             id: 'live-audit-' + hotel.id,
             hotelName: hotel.name,
@@ -78,7 +85,8 @@ export default function SavingsProofPage() {
             },
             totalNetValueDelivered: totalSavings + Math.round(savingsPerNight * 0.6) + Math.round(wholesaleRate * 3 * 0.02),
             lastAuditedTimestamp: 'Just now (Audited Live from Bedbank Feed)',
-            auditHash: hotel.audit?.auditHash || ('0x' + Math.random().toString(16).substring(2, 10) + '...verified')
+            auditHash: hotel.audit?.auditHash || ('0x' + Math.random().toString(16).substring(2, 10) + '...verified'),
+            googleHotelsVerifyUrl: gVerify,
           });
           setIsAuditingUrl(false);
           return;
@@ -385,31 +393,48 @@ export default function SavingsProofPage() {
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-bold text-slate-400">You Save:</span>
                   <div className="font-mono text-2xl font-black text-emerald-400">
-                    ${urlAuditResult.instantCashSaved}
+                    {formatPrice(urlAuditResult.instantCashSaved)}
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700">
-                  <span className="text-[10px] uppercase font-bold text-rose-400 block">Public Expedia Total:</span>
+                  <span className="text-[10px] uppercase font-bold text-rose-400 block">Public Retail Total:</span>
                   <span className="font-mono text-base font-bold text-white line-through">
-                    ${urlAuditResult.publicTotalRetailPrice.toLocaleString()}
+                    {formatPrice(urlAuditResult.publicTotalRetailPrice)}
                   </span>
                 </div>
                 <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-700">
                   <span className="text-[10px] uppercase font-bold text-emerald-300 block">Wholesale Member Total:</span>
                   <span className="font-mono text-base font-black text-emerald-400">
-                    ${urlAuditResult.hotelsClubTotalPaid.toLocaleString()}
+                    {formatPrice(urlAuditResult.hotelsClubTotalPaid)}
                   </span>
                 </div>
                 <div className="p-3 bg-indigo-950/60 rounded-xl border border-indigo-700">
                   <span className="text-[10px] uppercase font-bold text-indigo-300 block">Total Net Value:</span>
                   <span className="font-mono text-base font-black text-amber-400">
-                    ${urlAuditResult.totalNetValueDelivered.toLocaleString()}
+                    {formatPrice(urlAuditResult.totalNetValueDelivered)}
                   </span>
                 </div>
               </div>
+
+              {urlAuditResult.googleHotelsVerifyUrl && (
+                <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between gap-3 flex-wrap">
+                  <span className="text-[11px] text-slate-400">
+                    Cross-referenced against live global rates in {currency}:
+                  </span>
+                  <a
+                    href={urlAuditResult.googleHotelsVerifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all"
+                  >
+                    <span>Verify Live on Google Travel ({currency})</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
             </div>
           )}
         </div>

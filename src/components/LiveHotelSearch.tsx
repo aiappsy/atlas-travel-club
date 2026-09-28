@@ -24,7 +24,8 @@ import {
   BedDouble,
   Info
 } from 'lucide-react';
-import { ComparedHotel } from '@/app/api/hotels/compare/route';
+import type { ComparedHotel } from '@/app/api/hotels/compare/route';
+import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAuth } from '@/context/AuthContext';
 
@@ -506,7 +507,7 @@ export default function LiveHotelSearch({
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
                         <div className="flex items-center gap-2">
                           <a
-                            href={hotel.prices.googleHotels.verifyUrl}
+                            href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-5 h-5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 hover:text-sky-300 font-black text-[10px] transition-colors cursor-pointer"
@@ -518,7 +519,7 @@ export default function LiveHotelSearch({
                             <div className="text-[11px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                               <span>Official Public Retail Rates</span>
                               <a
-                                href={hotel.prices.googleHotels.verifyUrl}
+                                href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/glink"
@@ -675,7 +676,7 @@ export default function LiveHotelSearch({
 
                       {/* Single Unified Google Travel Verification CTA */}
                       <a
-                        href={hotel.prices.googleHotels.verifyUrl}
+                        href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm group"
@@ -1055,7 +1056,7 @@ export default function LiveHotelSearch({
             {/* Action Buttons */}
             <div className="space-y-3 pt-2">
               <a
-                href={auditingHotel.prices.googleHotels.verifyUrl}
+                href={formatGoogleTravelUrlWithCurrency(auditingHotel.prices.googleHotels.verifyUrl, currency)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm"

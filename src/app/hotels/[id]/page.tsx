@@ -39,13 +39,14 @@ import {
   BedDouble
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
-import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
+import type { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
+import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
 import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE, getDefaultTripDates } from '@/lib/mockData';
 import { getStoredVouchers } from '@/lib/vouchers';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
   const params = useParams();
   const searchParams = useSearchParams();
   const hotelId = params?.id as string;
@@ -86,7 +87,7 @@ export default function HotelDetailPage() {
   useEffect(() => {
     async function loadHotel() {
       try {
-        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`);
+        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}`);
         const data = await res.json();
         if (data?.hotel) {
           setHotel(data.hotel);
@@ -103,7 +104,7 @@ export default function HotelDetailPage() {
     if (hotelId) {
       loadHotel();
     }
-  }, [hotelId, nights, checkIn, checkOut]);
+  }, [hotelId, nights, checkIn, checkOut, currency]);
 
   // Lock body scroll and enable keyboard shortcuts when fullscreen gallery modal is open
   useEffect(() => {
@@ -550,7 +551,7 @@ export default function HotelDetailPage() {
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
                   <span>Official Market Rate Audit</span>
                   <a
-                    href={hotel.prices.googleHotels.verifyUrl}
+                    href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/badge"
@@ -566,7 +567,7 @@ export default function HotelDetailPage() {
               </div>
             </div>
             <a
-              href={hotel.prices.googleHotels.verifyUrl}
+              href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all shadow-sm self-start sm:self-auto shrink-0"
@@ -637,7 +638,7 @@ export default function HotelDetailPage() {
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
             {/* Booking.com */}
             <a
-              href={hotel.prices.booking?.verifyUrl || hotel.prices.googleHotels.verifyUrl}
+              href={hotel.prices.booking?.verifyUrl || formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
               target="_blank"
               rel="noopener noreferrer"
               className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group"

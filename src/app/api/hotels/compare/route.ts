@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { CURRENCY_TO_GOOGLE_LOCALE, buildGoogleHotelsDirectUrl } from '@/lib/googleTravel';
 
 export interface RoomOption {
   id: string;
@@ -217,15 +218,6 @@ function cleanHotelSearchQuery(hotelName: string, city: string): string {
   return clean;
 }
 
-// Generate official Google Travel search URL cleanly without broken tokens that trigger 'Ingen resultater'
-function buildGoogleHotelsDirectUrl(
-  cleanDest: string,
-  ciParam: string,
-  coParam: string
-): string {
-  const enc = encodeURIComponent;
-  return `https://www.google.com/travel/search?q=${enc(cleanDest)}&dates=${ciParam},${coParam}`;
-}
 
 // Build real OTA deep-link URLs for ANY hotel name + destination + dates dynamically
 function buildOtaUrls(
@@ -234,11 +226,13 @@ function buildOtaUrls(
   country: string,
   checkIn?: string,
   checkOut?: string,
-  nights: number = 3
+  nights: number = 3,
+  currency: string = 'USD'
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
   const cleanDest = cleanHotelSearchQuery(hotelName, city);
   const cleanHotel = hotelName.replace(/\s*\([^)]*\)/g, '').replace(/[®™]/g, '').trim();
+  const upperCurr = (currency || 'USD').toUpperCase();
 
   // 1. Expedia Search Deep-Link
   const expediaUrl = new URL('https://www.expedia.com/Hotel-Search');
@@ -262,12 +256,13 @@ function buildOtaUrls(
   agodaUrl.searchParams.set('los', String(Math.max(1, nights)));
   agodaUrl.searchParams.set('rooms', '1');
   agodaUrl.searchParams.set('adults', '2');
+  agodaUrl.searchParams.set('currency', upperCurr);
 
   // 4. Kayak Search Deep-Link
   const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanDest)}/${encodeURIComponent(cleanHotel)}/${ciParam}/${coParam}/2adults`;
 
-  // 5. Google Hotels Deep-Link
-  const googleHotelsUrl = buildGoogleHotelsDirectUrl(cleanDest, ciParam, coParam);
+  // 5. Google Hotels Deep-Link with currency force
+  const googleHotelsUrl = buildGoogleHotelsDirectUrl(cleanDest, ciParam, coParam, upperCurr);
 
   // 6. Booking.com Deep-Link
   const bookingUrl = new URL('https://www.booking.com/searchresults.html');
@@ -276,6 +271,7 @@ function buildOtaUrls(
   bookingUrl.searchParams.set('checkout', coParam);
   bookingUrl.searchParams.set('no_rooms', '1');
   bookingUrl.searchParams.set('group_adults', '2');
+  bookingUrl.searchParams.set('selected_currency', upperCurr);
 
   return {
     expedia: expediaUrl.toString(),
@@ -361,7 +357,8 @@ function mapSerpApiPropertyToHotel(
   ciParam: string,
   coParam: string,
   nights: number,
-  idx: number = 0
+  idx: number = 0,
+  currency: string = 'USD'
 ): ComparedHotel {
   const name: string = p.name || `Hotel in ${defaultCity}`;
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -378,7 +375,7 @@ function mapSerpApiPropertyToHotel(
     }
   }
 
-  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights);
+  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights, currency);
 
   // Parse live rates & verified clickout redirect links from Google Hotels
   let expediaRate: number | null = null;
@@ -646,13 +643,16 @@ async function fetchSerpApiHotels(
   destQuery: string,
   nights: number,
   checkIn?: string,
-  checkOut?: string
+  checkOut?: string,
+  currency: string = 'USD'
 ): Promise<ComparedHotel[]> {
   const apiKey = process.env.SERPAPI_API_KEY || '8734475c2939fb473328bf53733518ec599dfb284e16abc7f0b204f78eca3094';
   if (!apiKey) return [];
 
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
-  const cacheKey = `${destQuery.toLowerCase().trim()}_${ciParam}_${coParam}_${nights}`;
+  const upperCurr = (currency || 'USD').toUpperCase();
+  const locale = CURRENCY_TO_GOOGLE_LOCALE[upperCurr] || { gl: 'us', hl: 'en' };
+  const cacheKey = `${destQuery.toLowerCase().trim()}_${ciParam}_${coParam}_${nights}_${upperCurr}`;
 
   const cached = serpApiCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < SERPAPI_CACHE_TTL) {
@@ -677,7 +677,7 @@ async function fetchSerpApiHotels(
   const q = isSpecificHotel ? normQuery : `${city}${country ? ' ' + country : ''} hotels`;
 
   try {
-    const url = `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=2&currency=USD&gl=us&hl=en&api_key=${apiKey}`;
+    const url = `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=2&currency=${upperCurr}&gl=${locale.gl}&hl=${locale.hl}&api_key=${apiKey}`;
 
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) return [];
@@ -686,7 +686,7 @@ async function fetchSerpApiHotels(
 
     // Case 1: Specific single hotel entity returned at root
     if (data.name && typeof data.name === 'string') {
-      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0);
+      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0, upperCurr);
       const result = [hotel];
       serpApiCache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
@@ -703,7 +703,7 @@ async function fetchSerpApiHotels(
 
       const properties = realHotelProperties.length > 0 ? realHotelProperties : rawProperties;
       const hotels = properties.map((p: any, idx: number) =>
-        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx)
+        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr)
       );
 
       serpApiCache.set(cacheKey, { data: hotels, timestamp: Date.now() });
@@ -723,6 +723,7 @@ export async function GET(request: Request) {
   const hotelQuery = (searchParams.get('hotel') || '').trim();
   const hotelId = (searchParams.get('id') || '').trim().toLowerCase();
   const nights = Math.max(1, parseInt(searchParams.get('nights') || '3', 10));
+  const currency = (searchParams.get('currency') || 'USD').trim().toUpperCase();
   let checkIn = searchParams.get('checkIn') || undefined;
   let checkOut = searchParams.get('checkOut') || undefined;
 
@@ -756,7 +757,7 @@ export async function GET(request: Request) {
     }
 
     // Dynamic live lookup via Google Hotels
-    const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut);
+    const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut, currency);
     if (liveLookup && liveLookup.length > 0) {
       const matched =
         liveLookup.find(
@@ -773,7 +774,7 @@ export async function GET(request: Request) {
     ? rawSearch
     : 'luxury hotels in Oslo';
 
-  const liveHotels = await fetchSerpApiHotels(searchQuery, nights, checkIn, checkOut);
+  const liveHotels = await fetchSerpApiHotels(searchQuery, nights, checkIn, checkOut, currency);
 
   return NextResponse.json({
     destination: rawSearch || 'Curated Global Portfolio',
