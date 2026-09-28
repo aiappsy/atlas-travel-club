@@ -202,12 +202,12 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsAuthOpen(true)}
+                  <Link
+                    href="/login"
                     className="px-3.5 py-1.5 text-slate-300 hover:text-white text-xs font-bold transition-colors cursor-pointer"
                   >
                     Sign In
-                  </button>
+                  </Link>
                   <Link
                     href="/membership"
                     className="px-4 py-2 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all transform hover:scale-105 cursor-pointer"
