@@ -20,7 +20,8 @@ import {
   ChevronRight,
   Lock,
   ArrowUpDown,
-  X
+  X,
+  BedDouble
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -35,7 +36,7 @@ export default function LiveHotelSearch({
   initialDestination = '',
   isCompact = false,
 }: LiveHotelSearchProps) {
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
   const { isMember } = useAuth();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
@@ -81,6 +82,16 @@ export default function LiveHotelSearch({
     { id: 'smart-value', label: '🏷️ Smart Value (3-4★)' },
   ];
 
+  const handleCheckInChange = (newCheckIn: string) => {
+    setCheckIn(newCheckIn);
+    const dIn = new Date(newCheckIn);
+    const dOut = new Date(checkOut);
+    if (isNaN(dOut.getTime()) || dOut.getTime() <= dIn.getTime()) {
+      const nextOut = new Date(dIn.getTime() + 3 * 86400000);
+      setCheckOut(nextOut.toISOString().split('T')[0]);
+    }
+  };
+
   const performSearch = async (targetDest: string) => {
     setIsScanning(true);
     setScanStep(0);
@@ -97,7 +108,7 @@ export default function LiveHotelSearch({
 
     try {
       const res = await fetch(
-        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`
+        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}`
       );
       const data = await res.json();
       setTimeout(() => {
@@ -177,8 +188,9 @@ export default function LiveHotelSearch({
               </label>
               <input
                 type="date"
+                min={new Date().toISOString().split('T')[0]}
                 value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
+                onChange={(e) => handleCheckInChange(e.target.value)}
                 className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </div>
@@ -195,6 +207,7 @@ export default function LiveHotelSearch({
               </label>
               <input
                 type="date"
+                min={checkIn || new Date().toISOString().split('T')[0]}
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
                 className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
@@ -457,7 +470,7 @@ export default function LiveHotelSearch({
 
                     {/* Multi-OTA Price Comparison Grid WITH INDEPENDENT GOOGLE TRAVEL AUDIT */}
                     <div className="pt-3.5 border-t border-slate-800/80">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
                         <div className="flex items-center gap-2">
                           <a
                             href={hotel.prices.googleHotels.verifyUrl}
@@ -486,6 +499,18 @@ export default function LiveHotelSearch({
                               Real-time live prices across major retail booking platforms for this stay:
                             </p>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* Standard Room Baseline & Stay Dates Alignment Bar */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 py-2 px-3 mb-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px]">
+                        <div className="flex items-center gap-1.5 text-amber-300 font-bold">
+                          <BedDouble className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>Standard Room (Room Only Baseline)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+                          <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                          <span>Exact Stay: <strong className="text-white font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
                         </div>
                       </div>
 
@@ -579,9 +604,12 @@ export default function LiveHotelSearch({
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                         </span>
-                        <span>Verify All Live OTA Rates on Google Travel (Opens {hotel.name})</span>
+                        <span>Verify All Live OTA Rates on Google Travel (Opens {hotel.name} for {checkIn} to {checkOut})</span>
                         <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       </a>
+                      <p className="text-[10px] text-slate-400 text-center mt-1.5">
+                        💡 Comparison benchmarked against standard entry room (room only). Higher rates on Google Travel reflect breakfast packages or free cancellation add-ons.
+                      </p>
                     </div>
                   </div>
 
@@ -734,13 +762,19 @@ export default function LiveHotelSearch({
             </div>
 
             {/* Trust Notice */}
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1">
-              <div className="font-bold text-slate-200 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Strictly Pinned Rate Comparison</span>
+            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+              <div className="font-bold text-slate-200 flex flex-wrap items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5 text-amber-300">
+                  <BedDouble className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Standard Room (Room Only Baseline)</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sky-400 font-mono text-[11px]">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{checkIn} ➔ {checkOut} ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+                </div>
               </div>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                This audit is strictly isolated to <strong>{auditingHotel.name}</strong>. Public OTA rates are pulled in real time without competing properties.
+                This audit is strictly isolated to <strong>{auditingHotel.name}</strong> for the standard room tier. Public OTA rates are verified via Google Travel for the exact dates without competing properties.
               </p>
             </div>
 
@@ -872,7 +906,7 @@ export default function LiveHotelSearch({
                 rel="noopener noreferrer"
                 className="w-full py-3 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
               >
-                <span>Verify Live on Google Travel (Opens strictly {auditingHotel.name})</span>
+                <span>Verify Live on Google Travel (Opens {auditingHotel.name} for {checkIn} to {checkOut})</span>
                 <ExternalLink className="w-4 h-4" />
               </a>
 

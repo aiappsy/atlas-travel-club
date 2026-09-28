@@ -534,7 +534,7 @@ export default function HotelDetailPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all shadow-sm self-start sm:self-auto shrink-0"
             >
-              <span>Verify on Google Travel</span>
+              <span>Verify on Google Travel ({checkIn} to {checkOut})</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
