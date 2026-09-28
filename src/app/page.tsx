@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { MOCK_HOTELS, MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
+import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
+import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import LiveHotelSearch from '@/components/LiveHotelSearch';
 import SavingsCalculator from '@/components/SavingsCalculator';
 import AuthModal from '@/components/AuthModal';
@@ -64,21 +65,42 @@ export default function HomePage() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
 
-  // Dynamic calculations for Hero Payback & Featured Hotels
-  const sampleHotel = MOCK_HOTELS.find((h) => h.id === 'bellagio-vegas') || MOCK_HOTELS[0];
+  // Dynamic live hotel state for Hero Payback & Featured Hotels
+  const [featuredHotels, setFeaturedHotels] = useState<ComparedHotel[]>([]);
+
+  useEffect(() => {
+    fetch('/api/hotels/compare?destination=luxury%20hotels%20in%20Oslo')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.hotels && data.hotels.length > 0) {
+          setFeaturedHotels(data.hotels.slice(0, 4));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const sampleHotel = featuredHotels[0];
+  const sampleHotelName = sampleHotel ? sampleHotel.name : 'Grand Hotel Oslo';
   const sampleStayNights = 3;
-  const sampleSavingsPerNight = sampleHotel.publicPricePerNight - sampleHotel.memberPricePerNight;
+  const samplePublicRate = sampleHotel ? sampleHotel.prices.lowestOta.perNight : 355;
+  const sampleMemberRate = sampleHotel ? sampleHotel.prices.atlasWholesale.perNight : 231;
+  const sampleSavingsPerNight = samplePublicRate - sampleMemberRate;
   const sampleStaySavings = sampleSavingsPerNight * sampleStayNights;
   const sampleNetProfit = sampleStaySavings - GOLD_VIP_ANNUAL_FEE;
   const sampleRoiPercent = Math.round((sampleStaySavings / GOLD_VIP_ANNUAL_FEE) * 100);
 
-  const featuredHotels = MOCK_HOTELS.filter((h) => h.featured);
-  const avgSavingsPct = Math.round(
-    featuredHotels.reduce((acc, h) => acc + ((h.publicPricePerNight - h.memberPricePerNight) / h.publicPricePerNight) * 100, 0) /
-      (featuredHotels.length || 1)
-  );
-  const minSavings3Nts = Math.min(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
-  const maxSavings3Nts = Math.max(...featuredHotels.map((h) => (h.publicPricePerNight - h.memberPricePerNight) * 3));
+  const avgSavingsPct = featuredHotels.length > 0
+    ? Math.round(
+        featuredHotels.reduce((acc, h) => acc + h.prices.atlasWholesale.savingsPercent, 0) /
+          featuredHotels.length
+      )
+    : 35;
+  const minSavings3Nts = featuredHotels.length > 0
+    ? Math.min(...featuredHotels.map((h) => h.prices.atlasWholesale.totalSavings))
+    : 372;
+  const maxSavings3Nts = featuredHotels.length > 0
+    ? Math.max(...featuredHotels.map((h) => h.prices.atlasWholesale.totalSavings))
+    : 1866;
 
   return (
     <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
@@ -101,7 +123,7 @@ export default function HomePage() {
               <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Member Booking:</span>
             </div>
             <div className="text-slate-300 text-xs truncate text-center sm:text-left flex-1">
-              <span className="font-bold text-white">{sampleHotel.name.replace(' & Casino Resort', '')}</span> • Public: <span className="line-through text-rose-400">{formatPrice(sampleHotel.publicPricePerNight)}/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">{formatPrice(sampleHotel.memberPricePerNight)}/nt</span> • <strong className="text-amber-300 font-black">Member Saved {formatPrice(sampleStaySavings)} on {sampleStayNights} nights ({Math.round((sampleSavingsPerNight / sampleHotel.publicPricePerNight) * 100)}% OFF)</strong>
+              <span className="font-bold text-white">{sampleHotelName}</span> • Public: <span className="line-through text-rose-400">{formatPrice(samplePublicRate)}/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">{formatPrice(sampleMemberRate)}/nt</span> • <strong className="text-amber-300 font-black">Member Saved {formatPrice(sampleStaySavings)} on {sampleStayNights} nights ({Math.round((sampleSavingsPerNight / (samplePublicRate || 1)) * 100)}% OFF)</strong>
             </div>
             <span className="hidden md:inline-flex px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-bold text-emerald-300 shrink-0">
               ⚡ Recouped {sampleRoiPercent}% of {GOLD_VIP_TIER.name}
@@ -132,7 +154,7 @@ export default function HomePage() {
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">Recoups 100%+ Day 1</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-200 font-medium mt-0.5 leading-relaxed">
-                  A single {sampleStayNights}-night stay at {sampleHotel.name.replace(' & Casino Resort', '')} saves <strong className="text-emerald-400 font-bold">{formatPrice(sampleStaySavings)}</strong> — completely paying off your annual {GOLD_VIP_TIER.name} membership ({formatPrice(GOLD_VIP_ANNUAL_FEE)}) + putting <strong className="text-amber-300 font-bold">+{formatPrice(sampleNetProfit)} pure cash profit</strong> in your pocket on Day 1 ({sampleRoiPercent}% immediate ROI).
+                  A single {sampleStayNights}-night stay at {sampleHotelName} saves <strong className="text-emerald-400 font-bold">{formatPrice(sampleStaySavings)}</strong> — completely paying off your annual {GOLD_VIP_TIER.name} membership ({formatPrice(GOLD_VIP_ANNUAL_FEE)}) + putting <strong className="text-amber-300 font-bold">+{formatPrice(sampleNetProfit)} pure cash profit</strong> in your pocket on Day 1 ({sampleRoiPercent}% immediate ROI).
                 </p>
               </div>
             </div>
@@ -202,9 +224,11 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredHotels.slice(0, 4).map((hotel) => {
-            const savingsPerNight = hotel.publicPricePerNight - hotel.memberPricePerNight;
-            const savingsPercent = Math.round((savingsPerNight / hotel.publicPricePerNight) * 100);
-            const savings3Nights = savingsPerNight * 3;
+            const publicRate = hotel.prices.lowestOta.perNight;
+            const memberRate = hotel.prices.atlasWholesale.perNight;
+            const savingsPerNight = hotel.prices.atlasWholesale.instantSavingsPerNight;
+            const savingsPercent = hotel.prices.atlasWholesale.savingsPercent;
+            const savings3Nights = hotel.prices.atlasWholesale.totalSavings;
             const paybackPercent = Math.round((savings3Nights / GOLD_VIP_ANNUAL_FEE) * 100);
 
             return (
@@ -214,12 +238,12 @@ export default function HomePage() {
               >
                 <div className="relative h-48 overflow-hidden">
                   <img
-                    src={hotel.thumbnail || hotel.images[0]}
+                    src={hotel.image}
                     alt={hotel.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
-                    {hotel.category}
+                    {hotel.categoryLabel || `${hotel.starRating}★ Hotel`}
                   </div>
                   <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <span>SAVE {savingsPercent}%</span>
@@ -230,7 +254,7 @@ export default function HomePage() {
                   <div className="space-y-1.5">
                     <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                      <span>{hotel.city}, {hotel.stateCountry}</span>
+                      <span>{hotel.city}{hotel.country ? `, ${hotel.country}` : ''}</span>
                     </div>
                     <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1">
                       {hotel.name}
@@ -250,10 +274,10 @@ export default function HomePage() {
                   <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
                     <div>
                       <div className="text-[11px] text-slate-400 line-through">
-                        Public: {formatPrice(hotel.publicPricePerNight)}/nt
+                        Public: {formatPrice(publicRate)}/nt
                       </div>
                       <div className="text-lg font-black text-slate-900 font-mono">
-                        {formatPrice(hotel.memberPricePerNight)}
+                        {formatPrice(memberRate)}
                         <span className="text-xs font-normal text-slate-500"> /nt</span>
                       </div>
                     </div>

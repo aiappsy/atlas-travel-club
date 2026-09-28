@@ -1,36 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MOCK_HOTELS } from '@/lib/mockData';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const city = searchParams.get('city')?.toLowerCase();
+  const city = searchParams.get('city') || 'Las Vegas';
   const category = searchParams.get('category');
   const minStars = Number(searchParams.get('minStars') || 0);
 
-  let results = MOCK_HOTELS;
+  const compareUrl = new URL('/api/hotels/compare', req.url);
+  compareUrl.searchParams.set('destination', city);
 
-  if (city) {
-    results = results.filter(
-      (h) =>
-        h.city.toLowerCase().includes(city) ||
-        h.name.toLowerCase().includes(city) ||
-        h.stateCountry.toLowerCase().includes(city)
+  try {
+    const res = await fetch(compareUrl.toString());
+    const data = await res.json();
+    let hotels = data.hotels || [];
+
+    if (category && category !== 'All') {
+      hotels = hotels.filter((h: any) => h.category === category);
+    }
+
+    if (minStars > 0) {
+      hotels = hotels.filter((h: any) => h.starRating >= minStars);
+    }
+
+    return NextResponse.json({
+      success: true,
+      total: hotels.length,
+      timestamp: new Date().toISOString(),
+      provider: 'Live Google Hotels & B2B Clearing Adapter',
+      hotels,
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to retrieve live hotels' },
+      { status: 500 }
     );
   }
-
-  if (category && category !== 'All') {
-    results = results.filter((h) => h.category === category);
-  }
-
-  if (minStars > 0) {
-    results = results.filter((h) => h.stars >= minStars);
-  }
-
-  return NextResponse.json({
-    success: true,
-    total: results.length,
-    timestamp: new Date().toISOString(),
-    provider: 'Cloud Run Aggregator (Amadeus/Hotelbeds Adapter)',
-    hotels: results,
-  });
 }
