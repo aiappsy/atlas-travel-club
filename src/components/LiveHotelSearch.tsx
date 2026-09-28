@@ -453,22 +453,34 @@ export default function LiveHotelSearch({
                       ))}
                     </div>
 
-                    {/* Multi-OTA Price Comparison Grid WITH LIVE VERIFICATION LINKS */}
-                    <div className="pt-3 border-t border-slate-800">
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                          <span>Public Retail Prices on Other Platforms:</span>
-                          <span className="text-[10px] text-amber-400 font-normal normal-case">(Click any OTA to verify live)</span>
+                    {/* Multi-OTA Price Comparison Grid WITH INDEPENDENT GOOGLE TRAVEL AUDIT */}
+                    <div className="pt-3.5 border-t border-slate-800/80">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-black text-[10px]">
+                            G
+                          </div>
+                          <div>
+                            <div className="text-[11px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                              <span>Official Public Retail Rates</span>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">
+                                Google Travel Verified
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-400">
+                              Live public prices across major OTAs. Click any platform to audit live:
+                            </p>
+                          </div>
                         </div>
                         <a
                           href={hotel.prices.googleHotels.verifyUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[11px] font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
-                          title="Open Google Hotels search in a new tab"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all shadow-sm self-start sm:self-auto shrink-0"
+                          title="Open official Google Travel rate audit in a new tab"
                         >
-                          <span>Compare on Google Hotels</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <span>Verify on Google Travel</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </div>
 
@@ -479,7 +491,7 @@ export default function LiveHotelSearch({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Expedia in new tab"
+                          title="Click to check live price for Expedia in new tab"
                         >
                           <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
@@ -495,7 +507,7 @@ export default function LiveHotelSearch({
                             {formatPrice(hotel.prices.expedia.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-blue-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Expedia ↗
+                            Verify Rate ↗
                           </div>
                         </a>
 
@@ -505,7 +517,7 @@ export default function LiveHotelSearch({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Hotels.com in new tab"
+                          title="Click to check live price for Hotels.com in new tab"
                         >
                           <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
@@ -521,7 +533,7 @@ export default function LiveHotelSearch({
                             {formatPrice(hotel.prices.hotelsCom.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-rose-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Hotels.com ↗
+                            Verify Rate ↗
                           </div>
                         </a>
 
@@ -531,7 +543,7 @@ export default function LiveHotelSearch({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Agoda in new tab"
+                          title="Click to check live price for Agoda in new tab"
                         >
                           <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
@@ -547,7 +559,7 @@ export default function LiveHotelSearch({
                             {formatPrice(hotel.prices.agoda.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-purple-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Agoda ↗
+                            Verify Rate ↗
                           </div>
                         </a>
 
@@ -557,7 +569,7 @@ export default function LiveHotelSearch({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price on Kayak in new tab"
+                          title="Click to check live price for Kayak in new tab"
                         >
                           <div className="font-bold text-amber-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
@@ -573,7 +585,7 @@ export default function LiveHotelSearch({
                             {formatPrice(hotel.prices.kayak.total)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-amber-400 font-semibold mt-1 group-hover:underline">
-                            Verify on Kayak ↗
+                            Verify Rate ↗
                           </div>
                         </a>
                       </div>

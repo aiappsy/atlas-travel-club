@@ -2319,7 +2319,7 @@ function buildOtaUrls(
 
   // 5. Google Hotels Deep-Link (Directly opens hotel rate comparison)
   const googleUrl = new URL('https://www.google.com/travel/hotels');
-  googleUrl.searchParams.set('q', `${cleanDest} rates`);
+  googleUrl.searchParams.set('q', cleanDest);
   googleUrl.searchParams.set('dates', `${ciParam},${coParam}`);
 
   // 6. Booking.com Deep-Link
@@ -2900,21 +2900,21 @@ function dynamicallyScaleHotelPrices(
       expedia: {
         perNight: expediaRate,
         total: expediaRate * nights,
-        verifyUrl: hotel.prices?.expedia?.verifyUrl
+        verifyUrl: hotel.prices?.expedia?.verifyUrl && !hotel.prices.expedia.verifyUrl.includes('/Hotel-Search')
           ? updateDatesOnUrl(hotel.prices.expedia.verifyUrl, effCheckIn, effCheckOut)
-          : otaUrls.expedia,
+          : otaUrls.googleHotels,
       },
       hotelsCom: {
         perNight: hotelsComRate,
         total: hotelsComRate * nights,
-        verifyUrl: hotel.prices?.hotelsCom?.verifyUrl
+        verifyUrl: hotel.prices?.hotelsCom?.verifyUrl && !hotel.prices.hotelsCom.verifyUrl.includes('/Hotel-Search')
           ? updateDatesOnUrl(hotel.prices.hotelsCom.verifyUrl, effCheckIn, effCheckOut)
-          : otaUrls.hotelsCom,
+          : otaUrls.googleHotels,
       },
       agoda: {
         perNight: agodaRate,
         total: agodaRate * nights,
-        verifyUrl: hotel.prices?.agoda?.verifyUrl
+        verifyUrl: hotel.prices?.agoda?.verifyUrl && !hotel.prices.agoda.verifyUrl.includes('/Hotel-Search')
           ? updateDatesOnUrl(hotel.prices.agoda.verifyUrl, effCheckIn, effCheckOut)
           : otaUrls.agoda,
       },
@@ -2931,9 +2931,7 @@ function dynamicallyScaleHotelPrices(
         verifyUrl: hotel.officialWebsite || otaUrls.googleHotels,
       },
       googleHotels: {
-        verifyUrl: hotel.prices?.googleHotels?.verifyUrl
-          ? updateDatesOnUrl(hotel.prices.googleHotels.verifyUrl, effCheckIn, effCheckOut)
-          : otaUrls.googleHotels,
+        verifyUrl: otaUrls.googleHotels,
       },
       lowestOta: {
         provider: lowestOta.provider,
