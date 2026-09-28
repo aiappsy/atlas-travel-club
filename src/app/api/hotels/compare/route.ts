@@ -148,12 +148,12 @@ const MASTER_HOTELS_DB: ComparedHotel[] = [
       }
     ],
     prices: {
-      expedia: { perNight: 348, total: 1044, verifyUrl: 'https://www.expedia.com/Hotel-Search?destination=Grand+Hotel+Oslo,+Karl+Johans+gate+31,+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
-      hotelsCom: { perNight: 346, total: 1038, verifyUrl: 'https://www.hotels.com/Hotel-Search?destination=Grand+Hotel+Oslo,+Karl+Johans+gate+31,+Oslo&startDate=2026-10-15&endDate=2026-10-18&adults=2' },
+      expedia: { perNight: 348, total: 1044, verifyUrl: 'https://www.expedia.com/Oslo-Hotels-Grand-Hotel-Oslo.h8209.Hotel-Information?startDate=2026-10-15&endDate=2026-10-18&adults=2' },
+      hotelsCom: { perNight: 346, total: 1038, verifyUrl: 'https://www.hotels.com/ho115858/grand-hotel-oslo-oslo-norway/?chkin=2026-10-15&chkout=2026-10-18&adults=2' },
       agoda: { perNight: 357, total: 1071, verifyUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html?checkIn=2026-10-15&checkOut=2026-10-18&los=3&rooms=1&adults=2' },
       kayak: { perNight: 350, total: 1050, verifyUrl: 'https://www.kayak.com/hotels/Grand-Hotel-Oslo-by-Scandic,Oslo,Norway-c194307638-hotel-details/2026-10-15/2026-10-18/2adults' },
       officialDirect: { perNight: 365, total: 1095, verifyUrl: 'https://www.grand.no' },
-      googleHotels: { verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+Karl+Johans+gate+rates&dates=2026-10-15,2026-10-18' },
+      googleHotels: { verifyUrl: 'https://www.google.com/travel/hotels?q=Grand+Hotel+Oslo+Norway&dates=2026-10-15,2026-10-18' },
       lowestOta: { provider: 'Hotels.com', perNight: 346, total: 1038 },
       atlasWholesale: {
         perNight: 169,
@@ -2743,6 +2743,29 @@ async function generateDynamicDestinationHotels(
   });
 }
 
+// Safely update dates on any existing OTA link without altering the property slug, hotel ID, or path
+function updateDatesOnUrl(urlStr: string, checkIn: string, checkOut: string): string {
+  if (!urlStr) return '';
+  try {
+    const url = new URL(urlStr);
+    if (url.searchParams.has('startDate')) url.searchParams.set('startDate', checkIn);
+    if (url.searchParams.has('endDate')) url.searchParams.set('endDate', checkOut);
+    if (url.searchParams.has('checkIn')) url.searchParams.set('checkIn', checkIn);
+    if (url.searchParams.has('checkOut')) url.searchParams.set('checkOut', checkOut);
+    if (url.searchParams.has('chkin')) url.searchParams.set('chkin', checkIn);
+    if (url.searchParams.has('chkout')) url.searchParams.set('chkout', checkOut);
+    if (url.searchParams.has('checkin')) url.searchParams.set('checkin', checkIn);
+    if (url.searchParams.has('checkout')) url.searchParams.set('checkout', checkOut);
+    if (url.searchParams.has('dates')) url.searchParams.set('dates', `${checkIn},${checkOut}`);
+    if (url.hostname.includes('kayak.com')) {
+      url.pathname = url.pathname.replace(/\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}/, `/${checkIn}/${checkOut}`);
+    }
+    return url.toString();
+  } catch {
+    return urlStr;
+  }
+}
+
 function dynamicallyScaleHotelPrices(
   hotel: ComparedHotel,
   nights: number,
@@ -2794,22 +2817,30 @@ function dynamicallyScaleHotelPrices(
       expedia: {
         perNight: expediaRate,
         total: expediaRate * nights,
-        verifyUrl: otaUrls.expedia,
+        verifyUrl: hotel.prices?.expedia?.verifyUrl
+          ? updateDatesOnUrl(hotel.prices.expedia.verifyUrl, effCheckIn, effCheckOut)
+          : otaUrls.expedia,
       },
       hotelsCom: {
         perNight: hotelsComRate,
         total: hotelsComRate * nights,
-        verifyUrl: otaUrls.hotelsCom,
+        verifyUrl: hotel.prices?.hotelsCom?.verifyUrl
+          ? updateDatesOnUrl(hotel.prices.hotelsCom.verifyUrl, effCheckIn, effCheckOut)
+          : otaUrls.hotelsCom,
       },
       agoda: {
         perNight: agodaRate,
         total: agodaRate * nights,
-        verifyUrl: otaUrls.agoda,
+        verifyUrl: hotel.prices?.agoda?.verifyUrl
+          ? updateDatesOnUrl(hotel.prices.agoda.verifyUrl, effCheckIn, effCheckOut)
+          : otaUrls.agoda,
       },
       kayak: {
         perNight: kayakRate,
         total: kayakRate * nights,
-        verifyUrl: otaUrls.kayak,
+        verifyUrl: hotel.prices?.kayak?.verifyUrl
+          ? updateDatesOnUrl(hotel.prices.kayak.verifyUrl, effCheckIn, effCheckOut)
+          : otaUrls.kayak,
       },
       officialDirect: {
         perNight: directRate,
@@ -2817,7 +2848,9 @@ function dynamicallyScaleHotelPrices(
         verifyUrl: hotel.officialWebsite || otaUrls.googleHotels,
       },
       googleHotels: {
-        verifyUrl: otaUrls.googleHotels,
+        verifyUrl: hotel.prices?.googleHotels?.verifyUrl
+          ? updateDatesOnUrl(hotel.prices.googleHotels.verifyUrl, effCheckIn, effCheckOut)
+          : otaUrls.googleHotels,
       },
       lowestOta: {
         provider: lowestOta.provider,
@@ -2922,8 +2955,28 @@ export async function GET(request: Request) {
 
   let matchedHotels: ComparedHotel[] = [];
 
+  function normalizeSearchText(str: string): string {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/hoteller|hotell|hoteler|hotel/g, 'hotel')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
   if (rawSearch && rawSearch.toLowerCase() !== 'all' && rawSearch.toLowerCase() !== 'global') {
     const rawLower = rawSearch.toLowerCase().trim();
+    const normRaw = normalizeSearchText(rawSearch);
+    const queryTokens = normRaw.split(' ').filter(Boolean);
+
+    // Check if query is targeting a specific hotel name in our database
+    const isHotelNameSearch = MASTER_HOTELS_DB.some((h) => {
+      const normName = normalizeSearchText(h.name);
+      return queryTokens.length > 0 && queryTokens.every((token) => normName.includes(token));
+    });
+
     // Parse "Hamar, Norway" -> cityPart = "hamar", countryPart = "norway"
     const commaParts = rawLower.split(',').map((p) => p.trim()).filter(Boolean);
     const cityPart = commaParts[0];
@@ -2932,26 +2985,33 @@ export async function GET(request: Request) {
     matchedHotels = MASTER_HOTELS_DB.filter((h) => {
       const hCity = h.city.toLowerCase().trim();
       const hCountry = h.country.toLowerCase().trim();
-      const hName = h.name.toLowerCase().trim();
+      const normName = normalizeSearchText(h.name);
+      const normCity = normalizeSearchText(h.city);
+      const normCountry = normalizeSearchText(h.country);
+      const normCombined = `${normName} ${normCity} ${normCountry}`;
 
-      // 1. Direct hotel name match (e.g. "Bellagio" or "The Ritz")
-      if (hName.includes(rawLower) || rawLower.includes(hName)) return true;
-      if (hName.includes(cityPart) || cityPart.includes(hName)) return true;
+      // 1. Direct token match across name, city, and country (handles Norwegian "hotell" -> "hotel")
+      if (queryTokens.length > 0 && queryTokens.every((token) => normCombined.includes(token))) {
+        return true;
+      }
 
-      // 2. City + Country query e.g. "Hamar, Norway" or "Paris, France"
+      // 2. Direct hotel name or city match
+      if (normName.includes(normRaw) || normRaw.includes(normName)) return true;
+      if (normCity.includes(normRaw) || normRaw.includes(normCity)) return true;
+
+      // 3. City + Country query e.g. "Hamar, Norway" or "Paris, France"
       if (commaParts.length > 1) {
-        // MUST match the city strictly! Oslo MUST NOT match when searching Hamar, Norway
         const cityMatches = hCity === cityPart || hCity.startsWith(cityPart) || cityPart.startsWith(hCity);
         const countryMatches = !countryPart || hCountry === countryPart || hCountry.startsWith(countryPart) || countryPart.startsWith(hCountry);
         return cityMatches && countryMatches;
       }
 
-      // 3. Single token city search e.g. "Oslo" or "Las Vegas"
+      // 4. Single token city search e.g. "Oslo" or "Las Vegas"
       if (hCity === rawLower || hCity.includes(rawLower) || rawLower.includes(hCity)) {
         return true;
       }
 
-      // 4. Pure country search e.g. "Norway"
+      // 5. Pure country search e.g. "Norway"
       if (hCountry === rawLower) {
         return true;
       }
@@ -2959,22 +3019,24 @@ export async function GET(request: Request) {
       return false;
     });
 
-    // Rank matching hotels: hotels whose city or name directly matches the search term come first
+    // Rank matching hotels: hotels whose name directly matches the query tokens come first
     matchedHotels.sort((a, b) => {
-      const aCity = a.city.toLowerCase();
-      const bCity = b.city.toLowerCase();
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-      const aMatches = aCity.includes(cityPart) || aName.includes(cityPart);
-      const bMatches = bCity.includes(cityPart) || bName.includes(cityPart);
-      if (aMatches && !bMatches) return -1;
-      if (!aMatches && bMatches) return 1;
-      return 0;
+      const aName = normalizeSearchText(a.name);
+      const bName = normalizeSearchText(b.name);
+      const aMatchesAll = queryTokens.length > 0 && queryTokens.every((t) => aName.includes(t));
+      const bMatchesAll = queryTokens.length > 0 && queryTokens.every((t) => bName.includes(t));
+      if (aMatchesAll && !bMatchesAll) return -1;
+      if (!aMatchesAll && bMatchesAll) return 1;
+      const aScore = (aName.includes(normRaw) ? 20 : 0) + queryTokens.filter((t) => aName.includes(t)).length * 5;
+      const bScore = (bName.includes(normRaw) ? 20 : 0) + queryTokens.filter((t) => bName.includes(t)).length * 5;
+      return bScore - aScore;
     });
 
-    // If zero static matches (e.g. "Lillehammer, Norway", "Hamar, Norway", "Zermatt", "Santorini"),
-    // first try SerpApi for 100% live Google Hotels rates and authentic photos
-    if (matchedHotels.length === 0) {
+    // If searching for a specific hotel and found it, do NOT flood with 15 random properties!
+    if (isHotelNameSearch && matchedHotels.length > 0) {
+      // Keep only the targeted matching hotel(s)
+    } else if (matchedHotels.length === 0) {
+      // If zero static matches, try live Google Hotels / SerpApi
       const liveHotels = await fetchSerpApiHotels(rawSearch, nights, checkIn, checkOut);
       if (liveHotels.length > 0) {
         matchedHotels = liveHotels;
@@ -2982,7 +3044,7 @@ export async function GET(request: Request) {
         matchedHotels = await generateDynamicDestinationHotels(rawSearch, nights, checkIn, checkOut);
       }
     } else if (matchedHotels.length < 16) {
-      // If destination search yielded fewer than 16 properties, supplement with live Google Hotels
+      // General destination search: supplement up to 16
       const liveSupplement = await fetchSerpApiHotels(rawSearch, nights, checkIn, checkOut);
       const existingSlugs = new Set(matchedHotels.map((h) => h.id.replace(/^atlas-/, '')));
       for (const live of liveSupplement) {
