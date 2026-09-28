@@ -24,6 +24,7 @@ import {
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAuth } from '@/context/AuthContext';
+import UnlockRateModal from './UnlockRateModal';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
@@ -49,6 +50,8 @@ export default function LiveHotelSearch({
   const [hasSearched, setHasSearched] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const [isUrlAudited, setIsUrlAudited] = useState(false);
+  const [unlockModalHotel, setUnlockModalHotel] = useState<ComparedHotel | null>(null);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
 
   // Calculate nights
   const d1 = new Date(checkIn);
@@ -629,19 +632,31 @@ export default function LiveHotelSearch({
                         </a>
                       </div>
 
-                      <Link
-                        href={
-                          isMember
-                            ? `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`
-                            : `/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${hotel.prices.atlasWholesale.perNight}&savings=${hotel.prices.atlasWholesale.instantSavingsPerNight}&totalSavings=${hotel.prices.atlasWholesale.totalSavings}&totalWholesale=${hotel.prices.atlasWholesale.total}&totalRetail=${hotel.prices.lowestOta.total}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`
-                        }
-                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
-                        title={isMember ? "Book confidential wholesale net rate" : "Member sign-up required to access confidential closed-bed wholesale rates"}
-                      >
-                        <Lock className="w-3.5 h-3.5 shrink-0" />
-                        <span className="whitespace-nowrap font-black">{isMember ? 'Book Wholesale Rate' : 'Unlock Closed Bed Rate'}</span>
-                        <ArrowRight className="w-4 h-4 shrink-0" />
-                      </Link>
+                      {isMember ? (
+                        <Link
+                          href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                          className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
+                          title="Book confidential wholesale net rate"
+                        >
+                          <Lock className="w-3.5 h-3.5 shrink-0" />
+                          <span className="whitespace-nowrap font-black">Book Wholesale Rate</span>
+                          <ArrowRight className="w-4 h-4 shrink-0" />
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUnlockModalHotel(hotel);
+                            setIsUnlockModalOpen(true);
+                          }}
+                          className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
+                          title="Member sign-up or login required to access confidential closed-bed wholesale rates"
+                        >
+                          <Lock className="w-3.5 h-3.5 shrink-0" />
+                          <span className="whitespace-nowrap font-black">Unlock Closed Bed Rate</span>
+                          <ArrowRight className="w-4 h-4 shrink-0" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -668,6 +683,19 @@ export default function LiveHotelSearch({
           )}
         </div>
       )}
+
+      {/* VIP Unlock Rate Modal (Sign In or Choose Membership) */}
+      <UnlockRateModal
+        isOpen={isUnlockModalOpen}
+        onClose={() => {
+          setIsUnlockModalOpen(false);
+          setUnlockModalHotel(null);
+        }}
+        hotel={unlockModalHotel}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        nights={nights}
+      />
     </div>
   );
 }

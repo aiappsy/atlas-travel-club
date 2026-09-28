@@ -458,6 +458,20 @@ function MembershipContent() {
                 </div>
               </div>
             </div>
+
+            <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <span className="text-slate-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Already hold an ATLAS Club membership?</span>
+              </span>
+              <button
+                type="button"
+                onClick={openSignInModal}
+                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer text-xs"
+              >
+                <span>Sign In to Unlock &amp; Book Rate ➔</span>
+              </button>
+            </div>
           </div>
         )}
 
