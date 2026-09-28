@@ -35,7 +35,8 @@ import {
   Download,
   Ticket,
   Tag,
-  Loader2
+  Loader2,
+  BedDouble
 } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
@@ -57,6 +58,7 @@ export default function HotelDetailPage() {
   const [selectedRoom, setSelectedRoom] = useState<RoomOption | null>(null);
   const [isBooked, setIsBooked] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [showAllInclusive, setShowAllInclusive] = useState<boolean>(true);
 
   // Dynamic Discount Voucher / Promo Code State
   const [isVoucherOpen, setIsVoucherOpen] = useState(false);
@@ -152,8 +154,37 @@ export default function HotelDetailPage() {
 
   const activeImage = hotel.gallery && hotel.gallery.length > 0 ? hotel.gallery[activePhotoIdx] || hotel.image : hotel.image;
   const currentRoom = selectedRoom || hotel.roomOptions?.[0];
-  const wholesalePerNight = currentRoom ? currentRoom.wholesaleRate : hotel.prices.atlasWholesale.perNight;
-  const retailPerNight = currentRoom ? currentRoom.publicRetailRate : hotel.prices.lowestOta.perNight;
+  const taxBreakdown = hotel.prices.taxBreakdown;
+  const taxPercent = taxBreakdown?.taxPercent || 20;
+
+  const wholesalePerNight = currentRoom
+    ? (showAllInclusive ? currentRoom.wholesaleRate : (currentRoom.baseWholesaleRate || Math.round(currentRoom.wholesaleRate / (1 + taxPercent / 100))))
+    : (showAllInclusive ? (hotel.prices.atlasWholesale.withTaxesPerNight || hotel.prices.atlasWholesale.perNight) : (hotel.prices.atlasWholesale.basePerNight || Math.round(hotel.prices.atlasWholesale.perNight / (1 + taxPercent / 100))));
+
+  const retailPerNight = currentRoom
+    ? (showAllInclusive ? currentRoom.publicRetailRate : Math.round(currentRoom.publicRetailRate / (1 + taxPercent / 100)))
+    : (showAllInclusive ? (hotel.prices.lowestOta.withTaxesPerNight || hotel.prices.lowestOta.perNight) : (hotel.prices.lowestOta.basePerNight || Math.round(hotel.prices.lowestOta.perNight / (1 + taxPercent / 100))));
+
+  // Individual OTA rates based on tax display mode
+  const bookingPerNight = showAllInclusive
+    ? (hotel.prices.booking?.withTaxesPerNight || hotel.prices.booking?.perNight || hotel.prices.expedia.perNight)
+    : (hotel.prices.booking?.basePerNight || Math.round((hotel.prices.booking?.perNight || hotel.prices.expedia.perNight) / (1 + taxPercent / 100)));
+
+  const hotelsComPerNight = showAllInclusive
+    ? (hotel.prices.hotelsCom?.withTaxesPerNight || hotel.prices.hotelsCom?.perNight)
+    : (hotel.prices.hotelsCom?.basePerNight || Math.round(hotel.prices.hotelsCom.perNight / (1 + taxPercent / 100)));
+
+  const agodaPerNight = showAllInclusive
+    ? (hotel.prices.agoda?.withTaxesPerNight || hotel.prices.agoda?.perNight)
+    : (hotel.prices.agoda?.basePerNight || Math.round(hotel.prices.agoda.perNight / (1 + taxPercent / 100)));
+
+  const expediaPerNight = showAllInclusive
+    ? (hotel.prices.expedia?.withTaxesPerNight || hotel.prices.expedia?.perNight)
+    : (hotel.prices.expedia?.basePerNight || Math.round(hotel.prices.expedia.perNight / (1 + taxPercent / 100)));
+
+  const directPerNight = showAllInclusive
+    ? (hotel.prices.officialDirect?.withTaxesPerNight || hotel.prices.officialDirect?.perNight || retailPerNight)
+    : (hotel.prices.officialDirect?.basePerNight || Math.round(retailPerNight / (1 + taxPercent / 100)));
   
   // Transparent 3.8% Club Clearing & Merchant Payment Processing Buffer:
   // Covers credit card interchange (Visa/Mastercard/Stripe ~2.5%), multi-currency FX clearing, and 24/7 B2B settlement guarantee
@@ -539,21 +570,81 @@ export default function HotelDetailPage() {
             </a>
           </div>
 
+          {/* Interactive Tax Transparency & Room Baseline Alignment Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1.5 text-amber-300 font-bold">
+                <BedDouble className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Standard Room Baseline</span>
+              </div>
+              <span className="text-slate-600 hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-slate-300">
+                <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span>Stay: <strong className="text-white font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+              </div>
+            </div>
+
+            {/* Mode Toggle */}
+            <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-xl border border-slate-800 shrink-0 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => setShowAllInclusive(true)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  showAllInclusive
+                    ? 'bg-emerald-500 text-slate-950 font-black shadow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Includes mandatory destination taxes and resort fees matching Google Travel headline pricing"
+              >
+                ✓ Taxes & Fees Included
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAllInclusive(false)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  !showAllInclusive
+                    ? 'bg-slate-800 text-amber-300 font-black shadow border border-amber-400/30'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+                title="Base room cost before regional taxes and mandatory fees"
+              >
+                Base Room Only
+              </button>
+            </div>
+          </div>
+
+          <div className="text-[11px] text-slate-400 px-1 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+            <span>
+              {showAllInclusive ? (
+                <>
+                  <strong className="text-emerald-400 font-semibold">Taxes & Fees Included:</strong> Rates include ~{taxPercent}% {taxBreakdown?.taxLabel || 'local hospitality taxes & fees'} (matching Google Travel European/Norwegian live rates).
+                </>
+              ) : (
+                <>
+                  <strong className="text-amber-400 font-semibold">Base Room Only:</strong> Excludes ~{taxPercent}% destination lodging taxes collected at check-in.
+                </>
+              )}
+            </span>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+            {/* Booking.com */}
             <a
-              href={hotel.prices.expedia.verifyUrl}
+              href={hotel.prices.booking?.verifyUrl || hotel.prices.googleHotels.verifyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group"
             >
-              <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
-                <span>Expedia</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+              <div className="font-bold text-sky-400 text-xs flex items-center justify-center gap-1">
+                <span>Booking.com</span>
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.expedia.perNight)}</div>
-              <div className="text-[10px] text-blue-400 font-semibold mt-0.5">Verify Rate ↗</div>
+              <div className="text-base font-bold text-slate-300 line-through mt-1">{formatPrice(bookingPerNight)}</div>
+              <div className="text-[10px] text-sky-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
             </a>
 
+            {/* Hotels.com */}
             <a
               href={hotel.prices.hotelsCom.verifyUrl}
               target="_blank"
@@ -564,10 +655,11 @@ export default function HotelDetailPage() {
                 <span>Hotels.com</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.hotelsCom.perNight)}</div>
-              <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Verify Rate ↗</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
+              <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
             </a>
 
+            {/* Agoda */}
             <a
               href={hotel.prices.agoda.verifyUrl}
               target="_blank"
@@ -578,24 +670,26 @@ export default function HotelDetailPage() {
                 <span>Agoda</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.agoda.perNight)}</div>
-              <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Verify Rate ↗</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(agodaPerNight)}</div>
+              <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Promo Direct ↗</div>
             </a>
 
+            {/* Expedia */}
             <a
-              href={hotel.prices.kayak.verifyUrl}
+              href={hotel.prices.expedia.verifyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all text-center group"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group"
             >
-              <div className="font-bold text-amber-400 text-xs flex items-center justify-center gap-1">
-                <span>Kayak</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400" />
+              <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
+                <span>Expedia</span>
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.kayak.perNight)}</div>
-              <div className="text-[10px] text-amber-400 font-semibold mt-0.5">Verify Rate ↗</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(expediaPerNight)}</div>
+              <div className="text-[10px] text-blue-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
             </a>
 
+            {/* Hotel Direct */}
             <a
               href={hotel.officialWebsite}
               target="_blank"
@@ -606,7 +700,7 @@ export default function HotelDetailPage() {
                 <span>Hotel Direct</span>
                 <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-emerald-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotel.prices.officialDirect?.perNight || retailPerNight)}</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(directPerNight)}</div>
               <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">Official Direct ↗</div>
             </a>
           </div>
@@ -788,6 +882,14 @@ export default function HotelDetailPage() {
                   <span className="font-mono text-white font-bold">{formatPrice(rawWholesaleTotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-400">
+                  <span className="flex items-center gap-1">
+                    <span>Est. Destination Taxes & Fees ({taxPercent}%)</span>
+                  </span>
+                  <span className="font-mono text-emerald-400 font-bold">
+                    {showAllInclusive ? '✓ Included in Total' : `+${formatPrice(Math.round(rawWholesaleTotal * (taxPercent / 100)))} at Check-in`}
+                  </span>
+                </div>
+                <div className="flex justify-between text-slate-400">
                   <span>OTA Marketing Ad Tax (20-45%)</span>
                   <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Eliminated)</span>
                 </div>
@@ -796,6 +898,14 @@ export default function HotelDetailPage() {
                     <span>Payment & Clearing Buffer (3.8%)</span>
                   </span>
                   <span className="font-mono text-amber-300 font-bold">+{formatPrice(clearingBufferTotal)}</span>
+                </div>
+                <div className="text-[10px] text-slate-400 pt-0.5 flex items-center gap-1">
+                  <Info className="w-3 h-3 text-sky-400 shrink-0" />
+                  <span>
+                    {showAllInclusive
+                      ? `Includes ~${taxPercent}% local taxes & mandatory fees (${taxBreakdown?.taxLabel || 'Tourism & Municipal VAT'}).`
+                      : `Excludes ~${taxPercent}% local hospitality taxes paid directly to property.`}
+                  </span>
                 </div>
                 {appliedVoucher && (
                   <div className="flex justify-between items-center text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">

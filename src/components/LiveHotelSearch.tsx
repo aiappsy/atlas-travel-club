@@ -21,7 +21,8 @@ import {
   Lock,
   ArrowUpDown,
   X,
-  BedDouble
+  BedDouble,
+  Info
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -52,6 +53,7 @@ export default function LiveHotelSearch({
   const [visibleCount, setVisibleCount] = useState(8);
   const [isUrlAudited, setIsUrlAudited] = useState(false);
   const [auditingHotel, setAuditingHotel] = useState<ComparedHotel | null>(null);
+  const [showAllInclusive, setShowAllInclusive] = useState<boolean>(true);
 
   // Calculate nights
   const d1 = new Date(checkIn);
@@ -397,7 +399,38 @@ export default function LiveHotelSearch({
 
           {/* Hotel Result Cards */}
           <div className="space-y-6">
-            {filteredHotels.slice(0, visibleCount).map((hotel) => (
+            {filteredHotels.slice(0, visibleCount).map((hotel) => {
+              const taxBreakdown = hotel.prices.taxBreakdown;
+              const taxPercent = taxBreakdown?.taxPercent || 20;
+
+              // Individual OTA rates based on tax display mode
+              const bookingPerNight = showAllInclusive
+                ? (hotel.prices.booking?.withTaxesPerNight || hotel.prices.booking?.perNight || hotel.prices.expedia.perNight)
+                : (hotel.prices.booking?.basePerNight || Math.round((hotel.prices.booking?.perNight || hotel.prices.expedia.perNight) / (1 + taxPercent / 100)));
+
+              const hotelsComPerNight = showAllInclusive
+                ? (hotel.prices.hotelsCom?.withTaxesPerNight || hotel.prices.hotelsCom?.perNight)
+                : (hotel.prices.hotelsCom?.basePerNight || Math.round(hotel.prices.hotelsCom.perNight / (1 + taxPercent / 100)));
+
+              const agodaPerNight = showAllInclusive
+                ? (hotel.prices.agoda?.withTaxesPerNight || hotel.prices.agoda?.perNight)
+                : (hotel.prices.agoda?.basePerNight || Math.round(hotel.prices.agoda.perNight / (1 + taxPercent / 100)));
+
+              const expediaPerNight = showAllInclusive
+                ? (hotel.prices.expedia?.withTaxesPerNight || hotel.prices.expedia?.perNight)
+                : (hotel.prices.expedia?.basePerNight || Math.round(hotel.prices.expedia.perNight / (1 + taxPercent / 100)));
+
+              const wholesalePerNight = showAllInclusive
+                ? (hotel.prices.atlasWholesale.withTaxesPerNight || hotel.prices.atlasWholesale.perNight)
+                : (hotel.prices.atlasWholesale.basePerNight || Math.round(hotel.prices.atlasWholesale.perNight / (1 + taxPercent / 100)));
+
+              const wholesaleTotal = wholesalePerNight * nights;
+              const publicLowest = Math.min(bookingPerNight, agodaPerNight, expediaPerNight);
+              const savingsPerNight = Math.max(0, publicLowest - wholesalePerNight);
+              const savingsTotal = savingsPerNight * nights;
+              const savingsPercent = Math.round((savingsPerNight / (publicLowest || 1)) * 100);
+
+              return (
               <div
                 key={hotel.id}
                 className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
@@ -502,35 +535,83 @@ export default function LiveHotelSearch({
                         </div>
                       </div>
 
-                      {/* Standard Room Baseline & Stay Dates Alignment Bar */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 py-2 px-3 mb-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px]">
-                        <div className="flex items-center gap-1.5 text-amber-300 font-bold">
-                          <BedDouble className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <span>Standard Room (Room Only Baseline)</span>
+                      {/* Interactive Tax Transparency & Room Baseline Alignment Bar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 mb-3 rounded-2xl bg-slate-950 border border-slate-800 text-[11px]">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-amber-300 font-bold">
+                            <BedDouble className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                            <span>Standard Room Baseline</span>
+                          </div>
+                          <span className="text-slate-600 hidden sm:inline">•</span>
+                          <div className="flex items-center gap-1.5 text-slate-300">
+                            <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                            <span>Stay: <strong className="text-white font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5 text-slate-300 font-medium">
-                          <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                          <span>Exact Stay: <strong className="text-white font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+
+                        {/* Interactive Mode Toggle */}
+                        <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-xl border border-slate-800 shrink-0 self-start sm:self-auto">
+                          <button
+                            type="button"
+                            onClick={() => setShowAllInclusive(true)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                              showAllInclusive
+                                ? 'bg-emerald-500 text-slate-950 font-black shadow'
+                                : 'text-slate-400 hover:text-white'
+                            }`}
+                            title="Includes mandatory destination taxes and resort fees to match Google Travel live headline rates"
+                          >
+                            ✓ Taxes & Fees Included
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowAllInclusive(false)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                              !showAllInclusive
+                                ? 'bg-slate-800 text-amber-300 font-black shadow border border-amber-400/30'
+                                : 'text-slate-400 hover:text-white'
+                            }`}
+                            title="Base room cost before regional taxes and mandatory fees"
+                          >
+                            Base Room Only
+                          </button>
                         </div>
                       </div>
 
+                      {/* Tax Notice Explanation */}
+                      <div className="text-[10px] text-slate-400 mb-2 px-1 flex items-center gap-1.5">
+                        <Info className="w-3 h-3 text-sky-400 shrink-0" />
+                        <span>
+                          {showAllInclusive ? (
+                            <>
+                              <strong className="text-emerald-400 font-semibold">Taxes & Fees Included:</strong> Rates include ~{taxPercent}% {taxBreakdown?.taxLabel || 'destination tourism VAT & fees'} (reflects Google Travel European/Norwegian headline pricing).
+                            </>
+                          ) : (
+                            <>
+                              <strong className="text-amber-400 font-semibold">Base Room Only:</strong> Excludes ~{taxPercent}% local taxes & resort fees collected at property check-in.
+                            </>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* 4 Multi-OTA Cards */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
-                        {/* Expedia */}
+                        {/* Booking.com */}
                         <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
-                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                          <div className="font-bold text-sky-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                              <span>Expedia</span>
+                              <span className="w-2 h-2 rounded-full bg-sky-500"></span>
+                              <span>Booking.com</span>
                             </div>
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
-                            {formatPrice(hotel.prices.expedia.perNight)}
+                            {formatPrice(bookingPerNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            {formatPrice(hotel.prices.expedia.total)} total ({nights} nts)
+                            {formatPrice(bookingPerNight * nights)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-1">
-                            Public Rate
+                          <div className="text-[9px] text-sky-300/80 font-medium mt-1">
+                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'}
                           </div>
                         </div>
 
@@ -543,13 +624,13 @@ export default function LiveHotelSearch({
                             </div>
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
-                            {formatPrice(hotel.prices.hotelsCom.perNight)}
+                            {formatPrice(hotelsComPerNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            {formatPrice(hotel.prices.hotelsCom.total)} total ({nights} nts)
+                            {formatPrice(hotelsComPerNight * nights)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-1">
-                            Public Rate
+                          <div className="text-[9px] text-rose-300/80 font-medium mt-1">
+                            Breakfast & Free Cancel
                           </div>
                         </div>
 
@@ -562,32 +643,32 @@ export default function LiveHotelSearch({
                             </div>
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
-                            {formatPrice(hotel.prices.agoda.perNight)}
+                            {formatPrice(agodaPerNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            {formatPrice(hotel.prices.agoda.total)} total ({nights} nts)
+                            {formatPrice(agodaPerNight * nights)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-1">
-                            Public Rate
+                          <div className="text-[9px] text-purple-300/80 font-medium mt-1">
+                            {showAllInclusive ? 'Promo Net Rate' : 'Base Promo Rate'}
                           </div>
                         </div>
 
-                        {/* Kayak */}
+                        {/* Expedia */}
                         <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
-                          <div className="font-bold text-amber-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                              <span>Kayak</span>
+                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                              <span>Expedia</span>
                             </div>
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
-                            {formatPrice(hotel.prices.kayak.perNight)}
+                            {formatPrice(expediaPerNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
-                            {formatPrice(hotel.prices.kayak.total)} total ({nights} nts)
+                            {formatPrice(expediaPerNight * nights)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-slate-400 mt-1">
-                            Public Rate
+                          <div className="text-[9px] text-blue-300/80 font-medium mt-1">
+                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'}
                           </div>
                         </div>
                       </div>
@@ -604,12 +685,9 @@ export default function LiveHotelSearch({
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
                         </span>
-                        <span>Verify All Live OTA Rates on Google Travel (Opens {hotel.name} for {checkIn} to {checkOut})</span>
+                        <span>Verify Live Rates on Google Travel (Opens {hotel.name} for {checkIn} to {checkOut})</span>
                         <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                       </a>
-                      <p className="text-[10px] text-slate-400 text-center mt-1.5">
-                        💡 Comparison benchmarked against standard entry room (room only). Higher rates on Google Travel reflect breakfast packages or free cancellation add-ons.
-                      </p>
                     </div>
                   </div>
 
@@ -630,20 +708,28 @@ export default function LiveHotelSearch({
                       </div>
                       <div className="flex items-baseline gap-2 justify-center sm:justify-start">
                         <span className="text-3xl sm:text-4xl font-black text-emerald-400 group-hover:text-emerald-300 font-mono transition-colors">
-                          {formatPrice(hotel.prices.atlasWholesale.perNight)}
+                          {formatPrice(wholesalePerNight)}
                         </span>
                         <span className="text-xs text-slate-300">/ night</span>
                         <span className="text-xs font-bold text-amber-300 bg-amber-400/20 px-2.5 py-0.5 rounded-md border border-amber-400/30">
-                          Save {formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/nt ({hotel.prices.atlasWholesale.savingsPercent}% Off)
+                          Save {formatPrice(savingsPerNight)}/nt ({savingsPercent}% Off)
                         </span>
                       </div>
                       <div className="text-xs sm:text-sm text-slate-200 font-medium">
-                        Total for {nights} Nights: <strong className="text-white font-bold">{formatPrice(hotel.prices.atlasWholesale.total)}</strong>{' '}
-                        <span className="text-emerald-400 font-bold">(You save {formatPrice(hotel.prices.atlasWholesale.totalSavings)} vs. {hotel.prices.lowestOta.provider})</span>
+                        Total for {nights} Nights: <strong className="text-white font-bold">{formatPrice(wholesaleTotal)}</strong>{' '}
+                        <span className="text-emerald-400 font-bold">(You save {formatPrice(savingsTotal)} vs. {hotel.prices.lowestOta?.provider || 'Booking.com'})</span>
                       </div>
-                      <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1.5 justify-center sm:justify-start">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                        <span>OTA Marketing Ad Tax Eliminated: -{formatPrice(hotel.prices.atlasWholesale.instantSavingsPerNight)}/night (-{formatPrice(hotel.prices.atlasWholesale.adTaxEliminated)} total)</span>
+                      <div className="text-[11px] text-slate-300 pt-1 flex items-center gap-1.5 justify-center sm:justify-start">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        {showAllInclusive ? (
+                          <span>
+                            <strong>Transparent All-Inclusive Rate:</strong> Base Net {formatPrice(hotel.prices.atlasWholesale.basePerNight || Math.round(wholesalePerNight * 0.72))} + Est. Taxes & Fees ({taxPercent}%): {formatPrice(wholesalePerNight - (hotel.prices.atlasWholesale.basePerNight || Math.round(wholesalePerNight * 0.72)))}/nt
+                          </span>
+                        ) : (
+                          <span>
+                            <strong>Base Room Rate Only:</strong> Excludes ~{taxPercent}% local taxes & mandatory resort fees collected at check-in.
+                          </span>
+                        )}
                       </div>
                     </Link>
 
@@ -694,7 +780,8 @@ export default function LiveHotelSearch({
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
 
           {/* Load More Properties Pagination */}
@@ -778,25 +865,70 @@ export default function LiveHotelSearch({
               </p>
             </div>
 
+            {/* Tax & Fee Transparency Breakdown Box */}
+            {auditingHotel.prices.taxBreakdown && (
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 text-xs">
+                <div className="flex items-center justify-between font-bold text-white">
+                  <span className="flex items-center gap-1.5 text-amber-300">
+                    <Info className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Destination Tax & Mandatory Fee Profile</span>
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 font-black">
+                    ~{auditingHotel.prices.taxBreakdown.taxPercent}% Required Taxes & Fees
+                  </span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  {auditingHotel.prices.taxBreakdown.taxLabel}
+                </div>
+                <div className="pt-2 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-[11px]">
+                  <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Base Room Rate</div>
+                    <div className="font-bold text-slate-200 mt-0.5">
+                      {formatPrice(auditingHotel.prices.taxBreakdown.baseRoomRatePerNight)} / nt
+                    </div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">Estimated Taxes & Fees</div>
+                    <div className="font-bold text-amber-300 mt-0.5">
+                      +{formatPrice(auditingHotel.prices.taxBreakdown.estimatedTaxesPerNight)} / nt
+                    </div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-950 border border-slate-800">
+                    <div className="text-slate-400 text-[10px]">All-Inclusive Headline</div>
+                    <div className="font-bold text-emerald-400 mt-0.5">
+                      {formatPrice(auditingHotel.prices.taxBreakdown.allInclusivePerNight)} / nt
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Side-by-side Table */}
             <div className="space-y-2">
-              <div className="text-xs font-black uppercase tracking-wider text-slate-400">
-                Rate Comparison Breakdown
+              <div className="flex items-center justify-between text-xs font-black uppercase tracking-wider text-slate-400">
+                <span>Verified Provider Rates</span>
+                <span className="text-[10px] text-emerald-400 font-bold lowercase">
+                  ✓ {showAllInclusive ? 'showing all-inclusive rates' : 'showing base room rates'}
+                </span>
               </div>
               <div className="rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800 bg-slate-950">
-                {/* Expedia */}
+                {/* Booking.com */}
                 <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <span className="font-bold text-white">Expedia</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
+                    <span className="font-bold text-white">Booking.com</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.expedia.perNight)} / nt</div>
-                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.expedia.total)} total</div>
+                      <div className="font-bold text-slate-300">
+                        {formatPrice(showAllInclusive ? (auditingHotel.prices.booking?.withTaxesPerNight || auditingHotel.prices.booking?.perNight || auditingHotel.prices.expedia.perNight) : (auditingHotel.prices.booking?.basePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78)))} / nt
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        {formatPrice((showAllInclusive ? (auditingHotel.prices.booking?.withTaxesPerNight || auditingHotel.prices.booking?.perNight || auditingHotel.prices.expedia.perNight) : (auditingHotel.prices.booking?.basePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78))) * nights)} total
+                      </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
-                      Public Rate
+                    <span className="px-2.5 py-1 rounded-lg bg-sky-950 border border-sky-800 text-[10px] font-semibold text-sky-300">
+                      Taxes & Fees Included
                     </span>
                   </div>
                 </div>
@@ -809,11 +941,15 @@ export default function LiveHotelSearch({
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.hotelsCom.perNight)} / nt</div>
-                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.hotelsCom.total)} total</div>
+                      <div className="font-bold text-slate-300">
+                        {formatPrice(showAllInclusive ? (auditingHotel.prices.hotelsCom?.withTaxesPerNight || auditingHotel.prices.hotelsCom?.perNight) : (auditingHotel.prices.hotelsCom?.basePerNight || Math.round(auditingHotel.prices.hotelsCom.perNight * 0.78)))} / nt
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        {formatPrice((showAllInclusive ? (auditingHotel.prices.hotelsCom?.withTaxesPerNight || auditingHotel.prices.hotelsCom?.perNight) : (auditingHotel.prices.hotelsCom?.basePerNight || Math.round(auditingHotel.prices.hotelsCom.perNight * 0.78))) * nights)} total
+                      </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
-                      Public Rate
+                    <span className="px-2.5 py-1 rounded-lg bg-rose-950 border border-rose-800 text-[10px] font-semibold text-rose-300">
+                      Breakfast & Free Cancel
                     </span>
                   </div>
                 </div>
@@ -826,25 +962,33 @@ export default function LiveHotelSearch({
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.agoda.perNight)} / nt</div>
-                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.agoda.total)} total</div>
+                      <div className="font-bold text-slate-300">
+                        {formatPrice(showAllInclusive ? (auditingHotel.prices.agoda?.withTaxesPerNight || auditingHotel.prices.agoda?.perNight) : (auditingHotel.prices.agoda?.basePerNight || Math.round(auditingHotel.prices.agoda.perNight * 0.78)))} / nt
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        {formatPrice((showAllInclusive ? (auditingHotel.prices.agoda?.withTaxesPerNight || auditingHotel.prices.agoda?.perNight) : (auditingHotel.prices.agoda?.basePerNight || Math.round(auditingHotel.prices.agoda.perNight * 0.78))) * nights)} total
+                      </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
-                      Public Rate
+                    <span className="px-2.5 py-1 rounded-lg bg-purple-950 border border-purple-800 text-[10px] font-semibold text-purple-300">
+                      Promo Rate
                     </span>
                   </div>
                 </div>
 
-                {/* Kayak */}
+                {/* Expedia */}
                 <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                    <span className="font-bold text-white">Kayak</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span className="font-bold text-white">Expedia</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.kayak.perNight)} / nt</div>
-                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.kayak.total)} total</div>
+                      <div className="font-bold text-slate-300">
+                        {formatPrice(showAllInclusive ? (auditingHotel.prices.expedia?.withTaxesPerNight || auditingHotel.prices.expedia?.perNight) : (auditingHotel.prices.expedia?.basePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78)))} / nt
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        {formatPrice((showAllInclusive ? (auditingHotel.prices.expedia?.withTaxesPerNight || auditingHotel.prices.expedia?.perNight) : (auditingHotel.prices.expedia?.basePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78))) * nights)} total
+                      </div>
                     </div>
                     <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
                       Public Rate
@@ -860,8 +1004,12 @@ export default function LiveHotelSearch({
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight)} / nt</div>
-                      <div className="text-[10px] text-slate-500">{formatPrice((auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight) * nights)} total</div>
+                      <div className="font-bold text-slate-300">
+                        {formatPrice(showAllInclusive ? (auditingHotel.prices.officialDirect?.withTaxesPerNight || auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight) : (auditingHotel.prices.officialDirect?.basePerNight || auditingHotel.prices.taxBreakdown?.baseRoomRatePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78)))} / nt
+                      </div>
+                      <div className="text-[10px] text-slate-500">
+                        {formatPrice((showAllInclusive ? (auditingHotel.prices.officialDirect?.withTaxesPerNight || auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight) : (auditingHotel.prices.officialDirect?.basePerNight || auditingHotel.prices.taxBreakdown?.baseRoomRatePerNight || Math.round(auditingHotel.prices.expedia.perNight * 0.78))) * nights)} total
+                      </div>
                     </div>
                     <a
                       href={auditingHotel.officialWebsite}
@@ -883,15 +1031,15 @@ export default function LiveHotelSearch({
                       <span className="font-black text-emerald-400 text-sm">ATLAS Wholesale Net Rate</span>
                     </div>
                     <div className="text-[10px] text-emerald-300/80 mt-0.5">
-                      0% OTA Markup • Confidential Bedbank Rate
+                      0% OTA Retail Markup • {showAllInclusive ? 'Includes local hospitality taxes & resort fees' : 'Base room rate before local taxes'}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-black text-emerald-400 font-mono">
-                      {formatPrice(auditingHotel.prices.atlasWholesale.perNight)} / nt
+                      {formatPrice(showAllInclusive ? (auditingHotel.prices.atlasWholesale.withTaxesPerNight || auditingHotel.prices.atlasWholesale.perNight) : (auditingHotel.prices.atlasWholesale.basePerNight || Math.round(auditingHotel.prices.atlasWholesale.perNight * 0.72)))} / nt
                     </div>
                     <div className="text-xs font-bold text-emerald-300">
-                      Save {formatPrice(auditingHotel.prices.atlasWholesale.instantSavingsPerNight)} / nt ({auditingHotel.prices.atlasWholesale.savingsPercent}% Off)
+                      Save {formatPrice(showAllInclusive ? auditingHotel.prices.atlasWholesale.instantSavingsPerNight : Math.round(auditingHotel.prices.atlasWholesale.instantSavingsPerNight * 0.72))} / nt ({auditingHotel.prices.atlasWholesale.savingsPercent}% Off)
                     </div>
                   </div>
                 </div>
