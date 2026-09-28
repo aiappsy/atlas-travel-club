@@ -895,17 +895,22 @@ export default function HotelDetailPage() {
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                    <span>Payment & Clearing Buffer (3.8%)</span>
+                    <span>Transaction & Merchant Clearing Fee (3.8%)</span>
                   </span>
                   <span className="font-mono text-amber-300 font-bold">+{formatPrice(clearingBufferTotal)}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 pt-0.5 flex items-center gap-1">
-                  <Info className="w-3 h-3 text-sky-400 shrink-0" />
-                  <span>
-                    {showAllInclusive
-                      ? `Includes ~${taxPercent}% local taxes & mandatory fees (${taxBreakdown?.taxLabel || 'Tourism & Municipal VAT'}).`
-                      : `Excludes ~${taxPercent}% local hospitality taxes paid directly to property.`}
-                  </span>
+                <div className="text-[10px] text-slate-400 pt-0.5 space-y-1">
+                  <div className="flex items-center gap-1">
+                    <Info className="w-3 h-3 text-sky-400 shrink-0" />
+                    <span>
+                      {showAllInclusive
+                        ? `Includes ~${taxPercent}% local taxes & mandatory fees (${taxBreakdown?.taxLabel || 'Tourism & Municipal VAT'}).`
+                        : `Excludes ~${taxPercent}% local hospitality taxes paid directly to property.`}
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-amber-300/80 leading-tight">
+                    * 0% Hotel Room Markup. Transaction fee is billed at cost to cover credit card interchange (Visa/Mastercard) and secure B2B booking settlement.
+                  </div>
                 </div>
                 {appliedVoucher && (
                   <div className="flex justify-between items-center text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">

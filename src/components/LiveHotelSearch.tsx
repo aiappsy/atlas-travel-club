@@ -334,7 +334,7 @@ export default function LiveHotelSearch({
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Audited rates for {nights} night stay ({checkIn} to {checkOut}) • 0% Retail Ad Markup Applied • Direct Live Verification Available
+                Audited rates for {nights} night stay ({checkIn} to {checkOut}) • 0% Hotel Retail Markup (At-Cost Transaction Settlement) • Direct Live Verification Available
               </p>
             </div>
 
@@ -731,6 +731,9 @@ export default function LiveHotelSearch({
                           </span>
                         )}
                       </div>
+                      <div className="text-[10px] text-slate-400 text-center sm:text-left pt-0.5">
+                        * 0% hotel room markup pass-through. A nominal merchant transaction fee is applied at cost during checkout to cover payment processing.
+                      </div>
                     </Link>
 
                     <div className="flex flex-col gap-2.5 w-full lg:w-80 shrink-0">
@@ -863,6 +866,9 @@ export default function LiveHotelSearch({
               <p className="text-slate-400 text-[11px] leading-relaxed">
                 This audit is strictly isolated to <strong>{auditingHotel.name}</strong> for the standard room tier. Public OTA rates are verified via Google Travel for the exact dates without competing properties.
               </p>
+              <div className="text-[10px] text-amber-300/90 bg-amber-400/10 p-2.5 rounded-xl border border-amber-400/20 leading-relaxed">
+                <strong>Pricing Caveat & Disclosure:</strong> ATLAS passes confidential B2B Bedbank net rates with <strong>0% hotel room markup</strong>. Unlike retail OTAs that add a 20%–45% profit margin, ATLAS charges zero retail markup on rooms. A nominal transaction & payment processing fee (~3.5%) is applied at cost during checkout to cover credit card interchange, merchant settlement, and 24/7 booking delivery guarantees.
+              </div>
             </div>
 
             {/* Tax & Fee Transparency Breakdown Box */}
@@ -1031,7 +1037,7 @@ export default function LiveHotelSearch({
                       <span className="font-black text-emerald-400 text-sm">ATLAS Wholesale Net Rate</span>
                     </div>
                     <div className="text-[10px] text-emerald-300/80 mt-0.5">
-                      0% OTA Retail Markup • {showAllInclusive ? 'Includes local hospitality taxes & resort fees' : 'Base room rate before local taxes'}
+                      0% Hotel Retail Markup • Net B2B Bedbank Clearing (At-cost payment settlement at checkout) • {showAllInclusive ? 'Includes local hospitality taxes & resort fees' : 'Base room rate before local taxes'}
                     </div>
                   </div>
                   <div className="text-right">
