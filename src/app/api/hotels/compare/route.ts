@@ -2225,36 +2225,6 @@ const KNOWN_KAYAK_PATHS: Record<string, string> = {
   'rove-downtown-dubai': 'Rove-Downtown,Dubai,United-Arab-Emirates-c194307692-hotel-details',
 };
 
-// Known Google Travel property tokens for strictly pinned single-property rate sheet landing
-const KNOWN_PROPERTY_TOKENS: Record<string, string> = {
-  'grand-hotel-oslo': 'ChYIoLThmbbLqrMnGgovbS8wM25weHF4EAE',
-  'clarion-hotel-the-hub-oslo': 'ChYItbyirK-MzoZHGgovbS8wYzAyaGtjEAE',
-  'the-thief-oslo': 'ChYIqsWg6avezKI_GgovbS8wdzMybXhnEAE',
-  'sommerro-hotel-oslo': 'ChYIrq7-1vP82O4VGgovbS8wdzMyYnB4EAE',
-  'hotel-continental-oslo': 'ChYIrvyP15Gz28EBGgovbS8wMzNncnk0EAE',
-  'radisson-blu-plaza-hotel-oslo': 'ChYI66rO9P71w4N3GgovbS8wMzNncngyEAE',
-  'the-ritz-london': 'ChYIzYjXspL-m_91GgovbS8wMWN0NHdnEAE',
-  'the-savoy-london': 'ChYI762V9-Oevs1LGgovbS8wMms3Z3hxGAE',
-  'the-langham-london': 'ChYI8bLptZ3z0q-CGgovbS8wMWN0NHdnEAE',
-  'corinthia-hotel-london': 'ChYIr5a065uB2vW1GgovbS8wMWN0NHdnEAE',
-  'citizenm-tower-of-london': 'ChYI573p46-3_d-4GgovbS8wMWN0NHdnEAE',
-  'zedwell-piccadilly-circus-london': 'ChYI9eX_6aT57bF6GgovbS8wMWN0NHdnEAE',
-  'bellagio-las-vegas': 'ChYIo-ffz9O-3YmDARoKL20vMDEyeHJwcBAB',
-  'wynn-las-vegas': 'ChYIlaXy0d-B8L0RGgovbS8wMnh5OTY0EAE',
-  'horseshoe-las-vegas': 'ChYIm-rZ9-jG3e_VGgovbS8wMnk5cGNnEAE',
-  'park-mgm-las-vegas': 'ChYIk8iC37-z74wCGgovbS8wMnk5cGNnEAE',
-  'ritz-paris': 'ChYI2e-r3qPfxO9TGgovbS8wMXBicmg4EAE',
-  'four-seasons-george-v-paris': 'ChYIl4m6hLz84-4HGgovbS8wMms3Z3hxGAE',
-  'citizenm-paris-champs-elysees': 'ChYI9ef447_4tY9BGgovbS8wMXBicmg4EAE',
-  'the-plaza-new-york': 'ChYIrdfF5e-B3e9XGgovbS8wMXBnNWdxEAE',
-  'the-standard-high-line-nyc': 'ChYI34_F2u-67-o8GgovbS8wMXBnNWdxEAE',
-  'pod-times-square-nyc': 'ChYIt4b4hL__3-g3GgovbS8wMXBnNWdxEAE',
-  'burj-al-arab-dubai': 'ChYI163j0aO1_u85GgovbS8wMWN0NHdnEAE',
-  'atlantis-the-royal-dubai': 'ChYIn5T_2r-Mxs-RGgovbS8wM25weHF4EAE',
-  'rove-downtown-dubai': 'ChYI56v819-B4c3MGgovbS8wMWN0NHdnEAE',
-  'hotel-jerome-aspen': 'ChcImL_74sXd1MuLARoKL20vMGgzcHM3YxAB',
-};
-
 // Computes bulletproof upcoming stay dates (guaranteed never in the past)
 function getEffectiveDates(checkIn?: string, checkOut?: string, nights: number = 3) {
   const isValidDate = (d?: string) => {
@@ -2308,30 +2278,14 @@ function cleanHotelSearchQuery(hotelName: string, city: string): string {
   return clean;
 }
 
-// Generate official direct Google Travel URL strictly pinned to the hotel property via protobuf qs parameter
+// Generate official Google Travel search URL cleanly without broken tokens that trigger 'Ingen resultater'
 function buildGoogleHotelsDirectUrl(
   cleanDest: string,
   ciParam: string,
-  coParam: string,
-  propertyToken?: string
+  coParam: string
 ): string {
   const enc = encodeURIComponent;
-  if (propertyToken) {
-    try {
-      const qs = Buffer.concat([
-        Buffer.from([0x32, propertyToken.length]),
-        Buffer.from(propertyToken, 'ascii'),
-        Buffer.from([0x38, 0x00]),
-      ]).toString('base64url');
-      return `https://www.google.com/travel/search?q=${enc(cleanDest)}&qs=${qs}&dates=${ciParam},${coParam}`;
-    } catch {
-      // fallback if encoding fails
-    }
-  }
-  const googleUrl = new URL('https://www.google.com/travel/hotels');
-  googleUrl.searchParams.set('q', cleanDest);
-  googleUrl.searchParams.set('dates', `${ciParam},${coParam}`);
-  return googleUrl.toString();
+  return `https://www.google.com/travel/search?q=${enc(cleanDest)}&dates=${ciParam},${coParam}`;
 }
 
 // Build real OTA deep-link URLs for ANY hotel name + destination + dates dynamically
@@ -2341,8 +2295,7 @@ function buildOtaUrls(
   country: string,
   checkIn?: string,
   checkOut?: string,
-  nights: number = 3,
-  propertyToken?: string
+  nights: number = 3
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
   const cleanDest = cleanHotelSearchQuery(hotelName, city);
@@ -2362,10 +2315,9 @@ function buildOtaUrls(
   hotelsComUrl.searchParams.set('endDate', coParam);
   hotelsComUrl.searchParams.set('adults', '2');
 
-  // 3. Agoda Search Deep-Link (Pre-fills city, hotelName, checkIn, checkOut, los, rooms, and adults)
+  // 3. Agoda Direct Hotel Search Link
   const agodaUrl = new URL('https://www.agoda.com/search');
-  agodaUrl.searchParams.set('city', city);
-  agodaUrl.searchParams.set('hotelName', cleanHotel);
+  agodaUrl.searchParams.set('text', `${cleanHotel} ${city}`);
   agodaUrl.searchParams.set('checkIn', ciParam);
   agodaUrl.searchParams.set('checkOut', coParam);
   agodaUrl.searchParams.set('los', String(Math.max(1, nights)));
@@ -2375,8 +2327,8 @@ function buildOtaUrls(
   // 4. Kayak Search / Details Deep-Link
   const kayakUrl = buildKayakUrl(cleanHotel, city, country, ciParam, coParam);
 
-  // 5. Google Hotels Deep-Link (Entity-pinned direct property view if propertyToken is available)
-  const googleHotelsUrl = buildGoogleHotelsDirectUrl(cleanDest, ciParam, coParam, propertyToken);
+  // 5. Google Hotels Deep-Link
+  const googleHotelsUrl = buildGoogleHotelsDirectUrl(cleanDest, ciParam, coParam);
 
   // 6. Booking.com Deep-Link
   const bookingUrl = new URL('https://www.booking.com/searchresults.html');
@@ -2467,25 +2419,38 @@ function mapSerpApiPropertyToHotel(
     ? p.amenities
     : ['High-Speed Wi-Fi', '24/7 Front Desk', 'En-Suite Bathroom', 'Climate Control', 'Breakfast Available'];
 
-  const propertyToken: string | undefined = p.property_token;
-  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights, propertyToken);
+  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights);
   const roomType = p.deal_description ? `${p.deal_description} Room` : `${categoryLabel} Room`;
 
-  // Parse live OTA prices if available
+  // Parse live OTA prices and direct landing links if available
   let expediaRate = Math.round(retailPrice * 0.99);
+  let expediaUrl = urls.expedia;
   let hotelsComRate = retailPrice;
+  let hotelsComUrl = urls.hotelsCom;
   let agodaRate = Math.round(retailPrice * 0.97);
+  let agodaUrl = urls.agoda;
   let kayakRate = Math.round(retailPrice * 0.98);
+  let kayakUrl = urls.kayak;
 
   if (Array.isArray(p.prices) && p.prices.length > 0) {
     for (const pr of p.prices) {
       const src = (pr.source || '').toLowerCase();
       const extracted = pr.rate_per_night?.extracted_lowest;
+      const directOtaLink = pr.link;
       if (extracted && typeof extracted === 'number') {
-        if (src.includes('expedia')) expediaRate = extracted;
-        else if (src.includes('hotels.com')) hotelsComRate = extracted;
-        else if (src.includes('agoda')) agodaRate = extracted;
-        else if (src.includes('kayak')) kayakRate = extracted;
+        if (src.includes('expedia')) {
+          expediaRate = extracted;
+          if (directOtaLink) expediaUrl = directOtaLink;
+        } else if (src.includes('hotels.com')) {
+          hotelsComRate = extracted;
+          if (directOtaLink) hotelsComUrl = directOtaLink;
+        } else if (src.includes('agoda')) {
+          agodaRate = extracted;
+          if (directOtaLink) agodaUrl = directOtaLink;
+        } else if (src.includes('kayak')) {
+          kayakRate = extracted;
+          if (directOtaLink) kayakUrl = directOtaLink;
+        }
       }
     }
   }
@@ -2498,7 +2463,7 @@ function mapSerpApiPropertyToHotel(
     city,
     country,
     address,
-    propertyToken,
+    propertyToken: p.property_token,
     starRating,
     guestRating,
     reviewCount,
@@ -2529,10 +2494,10 @@ function mapSerpApiPropertyToHotel(
       }
     ],
     prices: {
-      expedia: { perNight: expediaRate, total: expediaRate * nights, verifyUrl: urls.expedia },
-      hotelsCom: { perNight: hotelsComRate, total: hotelsComRate * nights, verifyUrl: urls.hotelsCom },
-      agoda: { perNight: agodaRate, total: agodaRate * nights, verifyUrl: urls.agoda },
-      kayak: { perNight: kayakRate, total: kayakRate * nights, verifyUrl: urls.kayak },
+      expedia: { perNight: expediaRate, total: expediaRate * nights, verifyUrl: expediaUrl },
+      hotelsCom: { perNight: hotelsComRate, total: hotelsComRate * nights, verifyUrl: hotelsComUrl },
+      agoda: { perNight: agodaRate, total: agodaRate * nights, verifyUrl: agodaUrl },
+      kayak: { perNight: kayakRate, total: kayakRate * nights, verifyUrl: kayakUrl },
       officialDirect: { perNight: retailPrice, total: retailPrice * nights, verifyUrl: p.link || urls.googleHotels },
       googleHotels: { verifyUrl: urls.googleHotels },
       lowestOta: { provider: 'Google Hotels Live', perNight: lowestOtaRate, total: lowestOtaRate * nights },
@@ -2914,11 +2879,7 @@ function dynamicallyScaleHotelPrices(
   checkOut?: string
 ): ComparedHotel {
   const { checkIn: effCheckIn, checkOut: effCheckOut } = getEffectiveDates(checkIn, checkOut, nights);
-  const effectiveToken =
-    hotel.propertyToken ||
-    KNOWN_PROPERTY_TOKENS[hotel.id] ||
-    KNOWN_PROPERTY_TOKENS[hotel.id.replace(/^atlas-/, '')];
-  const otaUrls = buildOtaUrls(hotel.name, hotel.city, hotel.country, effCheckIn, effCheckOut, nights, effectiveToken);
+  const otaUrls = buildOtaUrls(hotel.name, hotel.city, hotel.country, effCheckIn, effCheckOut, nights);
 
   // Exact public OTA prices per night
   const expediaRate = hotel.prices.expedia.perNight;
@@ -2957,27 +2918,26 @@ function dynamicallyScaleHotelPrices(
 
   return {
     ...hotel,
-    propertyToken: effectiveToken,
     roomOptions: scaledRooms,
     prices: {
       expedia: {
         perNight: expediaRate,
         total: expediaRate * nights,
-        verifyUrl: hotel.prices?.expedia?.verifyUrl && !hotel.prices.expedia.verifyUrl.includes('/Hotel-Search')
+        verifyUrl: hotel.prices?.expedia?.verifyUrl
           ? updateDatesOnUrl(hotel.prices.expedia.verifyUrl, effCheckIn, effCheckOut)
-          : otaUrls.googleHotels,
+          : otaUrls.expedia,
       },
       hotelsCom: {
         perNight: hotelsComRate,
         total: hotelsComRate * nights,
-        verifyUrl: hotel.prices?.hotelsCom?.verifyUrl && !hotel.prices.hotelsCom.verifyUrl.includes('/Hotel-Search')
+        verifyUrl: hotel.prices?.hotelsCom?.verifyUrl
           ? updateDatesOnUrl(hotel.prices.hotelsCom.verifyUrl, effCheckIn, effCheckOut)
-          : otaUrls.googleHotels,
+          : otaUrls.hotelsCom,
       },
       agoda: {
         perNight: agodaRate,
         total: agodaRate * nights,
-        verifyUrl: hotel.prices?.agoda?.verifyUrl && !hotel.prices.agoda.verifyUrl.includes('/Hotel-Search')
+        verifyUrl: hotel.prices?.agoda?.verifyUrl
           ? updateDatesOnUrl(hotel.prices.agoda.verifyUrl, effCheckIn, effCheckOut)
           : otaUrls.agoda,
       },
