@@ -19,7 +19,8 @@ import {
   SlidersHorizontal,
   ChevronRight,
   Lock,
-  ArrowUpDown
+  ArrowUpDown,
+  X
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -49,6 +50,7 @@ export default function LiveHotelSearch({
   const [hasSearched, setHasSearched] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
   const [isUrlAudited, setIsUrlAudited] = useState(false);
+  const [auditingHotel, setAuditingHotel] = useState<ComparedHotel | null>(null);
 
   // Calculate nights
   const d1 = new Date(checkIn);
@@ -629,16 +631,15 @@ export default function LiveHotelSearch({
                           <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         </Link>
 
-                        <a
-                          href={hotel.prices.googleHotels.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors text-center whitespace-nowrap shadow-sm"
-                          title="Verify real-time rates on Google Hotels in new window"
+                        <button
+                          type="button"
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors text-center whitespace-nowrap shadow-sm cursor-pointer"
+                          title="Audit live price breakdown for this hotel"
                         >
-                          <span>Verify Live Prices</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        </a>
+                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>Audit Live Rates</span>
+                        </button>
                       </div>
 
                       {isMember ? (
@@ -686,6 +687,230 @@ export default function LiveHotelSearch({
               </span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Single-Property Live Rate Audit & OTA Price Breakdown Modal */}
+      {auditingHotel && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setAuditingHotel(null)}
+        >
+          <div
+            className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl text-white space-y-6 max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider mb-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Single-Property Live Rate Audit</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">{auditingHotel.name}</h3>
+                <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+                  <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{auditingHotel.address}</span>
+                </p>
+                <div className="flex items-center gap-3 text-xs text-slate-300 mt-2 font-medium">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                    <span>{checkIn} to {checkOut} ({nights} nts)</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-purple-400" />
+                    <span>2 Adults</span>
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAuditingHotel(null)}
+                className="p-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Trust Notice */}
+            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 space-y-1">
+              <div className="font-bold text-slate-200 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Strictly Pinned Rate Comparison</span>
+              </div>
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                This audit is strictly isolated to <strong>{auditingHotel.name}</strong>. Public OTA rates are pulled in real time without competing properties.
+              </p>
+            </div>
+
+            {/* Side-by-side Table */}
+            <div className="space-y-2">
+              <div className="text-xs font-black uppercase tracking-wider text-slate-400">
+                Rate Comparison Breakdown
+              </div>
+              <div className="rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800 bg-slate-950">
+                {/* Expedia */}
+                <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                    <span className="font-bold text-white">Expedia</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.expedia.perNight)} / nt</div>
+                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.expedia.total)} total</div>
+                    </div>
+                    <a
+                      href={auditingHotel.prices.expedia.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-blue-600 text-blue-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Verify</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Hotels.com */}
+                <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                    <span className="font-bold text-white">Hotels.com</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.hotelsCom.perNight)} / nt</div>
+                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.hotelsCom.total)} total</div>
+                    </div>
+                    <a
+                      href={auditingHotel.prices.hotelsCom.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-rose-600 text-rose-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Verify</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Agoda */}
+                <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <span className="font-bold text-white">Agoda</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.agoda.perNight)} / nt</div>
+                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.agoda.total)} total</div>
+                    </div>
+                    <a
+                      href={auditingHotel.prices.agoda.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-purple-600 text-purple-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Verify</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Kayak */}
+                <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                    <span className="font-bold text-white">Kayak</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.kayak.perNight)} / nt</div>
+                      <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.kayak.total)} total</div>
+                    </div>
+                    <a
+                      href={auditingHotel.prices.kayak.verifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-amber-600 text-amber-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Verify</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Hotel Direct */}
+                <div className="p-3 flex items-center justify-between text-xs hover:bg-slate-900/50 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <span className="font-bold text-white">Hotel Direct</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight)} / nt</div>
+                      <div className="text-[10px] text-slate-500">{formatPrice((auditingHotel.prices.officialDirect?.perNight || auditingHotel.prices.expedia.perNight) * nights)} total</div>
+                    </div>
+                    <a
+                      href={auditingHotel.officialWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
+                    >
+                      <span>Direct</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+
+                {/* ATLAS Wholesale Net */}
+                <div className="p-4 flex items-center justify-between text-xs bg-emerald-950/40 border-t-2 border-emerald-500/40">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-emerald-400" />
+                      <span className="font-black text-emerald-400 text-sm">ATLAS Wholesale Net Rate</span>
+                    </div>
+                    <div className="text-[10px] text-emerald-300/80 mt-0.5">
+                      0% OTA Markup • Confidential Bedbank Rate
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-black text-emerald-400 font-mono">
+                      {formatPrice(auditingHotel.prices.atlasWholesale.perNight)} / nt
+                    </div>
+                    <div className="text-xs font-bold text-emerald-300">
+                      Save {formatPrice(auditingHotel.prices.atlasWholesale.instantSavingsPerNight)} / nt ({auditingHotel.prices.atlasWholesale.savingsPercent}% Off)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-2">
+              <a
+                href={auditingHotel.prices.googleHotels.verifyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+              >
+                <span>Verify Live on Google Travel (Opens strictly {auditingHotel.name})</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+
+              <Link
+                href={`/hotels/${auditingHotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xl"
+              >
+                <Lock className="w-4 h-4" />
+                <span>Book at Wholesale Rate ({formatPrice(auditingHotel.prices.atlasWholesale.total)} total)</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       )}
     </div>
