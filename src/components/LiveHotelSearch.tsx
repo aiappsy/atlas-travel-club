@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { ComparedHotel } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
@@ -34,6 +35,7 @@ export default function LiveHotelSearch({
   isCompact = false,
 }: LiveHotelSearchProps) {
   const { formatPrice } = useCurrency();
+  const { isMember } = useAuth();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
   const [checkOut, setCheckOut] = useState('2026-10-18');
@@ -579,7 +581,7 @@ export default function LiveHotelSearch({
                   </div>
 
                   {/* Highlighted ATLAS Wholesale Price Box */}
-                  <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row items-center justify-between gap-5 border border-emerald-500/40 shadow-2xl">
+                  <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 border border-emerald-500/40 shadow-2xl">
                     <div className="space-y-1.5 text-center sm:text-left">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30">
                         <Zap className="w-3.5 h-3.5 text-emerald-400" />
@@ -604,35 +606,41 @@ export default function LiveHotelSearch({
                       </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
-                      <Link
-                        href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
-                        className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
-                        title="View all room options, suites, and property gallery"
-                      >
-                        <span>View Rooms ({hotel.roomOptions?.length || 1})</span>
-                        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                      </Link>
+                    <div className="flex flex-col gap-2.5 w-full lg:w-80 shrink-0">
+                      <div className="grid grid-cols-2 gap-2 w-full">
+                        <Link
+                          href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors text-center whitespace-nowrap shadow-sm"
+                          title="View all room options, suites, and property gallery"
+                        >
+                          <span>View Rooms ({hotel.roomOptions?.length || 1})</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        </Link>
 
-                      <a
-                        href={hotel.prices.googleHotels.verifyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors"
-                        title="Verify real-time rates on Google Hotels in new window"
-                      >
-                        <span>Verify Live Prices</span>
-                        <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                      </a>
+                        <a
+                          href={hotel.prices.googleHotels.verifyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors text-center whitespace-nowrap shadow-sm"
+                          title="Verify real-time rates on Google Hotels in new window"
+                        >
+                          <span>Verify Live Prices</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        </a>
+                      </div>
 
                       <Link
-                        href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${hotel.prices.atlasWholesale.perNight}&savings=${hotel.prices.atlasWholesale.instantSavingsPerNight}&totalSavings=${hotel.prices.atlasWholesale.totalSavings}&totalWholesale=${hotel.prices.atlasWholesale.total}&totalRetail=${hotel.prices.lowestOta.total}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
-                        className="w-full sm:w-auto py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-105 shrink-0"
-                        title="Member sign-up required to access confidential closed-bed wholesale rates"
+                        href={
+                          isMember
+                            ? `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`
+                            : `/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${hotel.prices.atlasWholesale.perNight}&savings=${hotel.prices.atlasWholesale.instantSavingsPerNight}&totalSavings=${hotel.prices.atlasWholesale.totalSavings}&totalWholesale=${hotel.prices.atlasWholesale.total}&totalRetail=${hotel.prices.lowestOta.total}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`
+                        }
+                        className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
+                        title={isMember ? "Book confidential wholesale net rate" : "Member sign-up required to access confidential closed-bed wholesale rates"}
                       >
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>Unlock Closed Bed Rate</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <Lock className="w-3.5 h-3.5 shrink-0" />
+                        <span className="whitespace-nowrap font-black">{isMember ? 'Book Wholesale Rate' : 'Unlock Closed Bed Rate'}</span>
+                        <ArrowRight className="w-4 h-4 shrink-0" />
                       </Link>
                     </div>
                   </div>
