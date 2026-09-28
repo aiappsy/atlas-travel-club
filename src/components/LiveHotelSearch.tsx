@@ -470,127 +470,105 @@ export default function LiveHotelSearch({
                               </span>
                             </div>
                             <p className="text-[10px] text-slate-400">
-                              Live public prices across major OTAs. Click any platform to audit live:
+                              Real-time live prices across major retail booking platforms for this stay:
                             </p>
                           </div>
                         </div>
-                        <a
-                          href={hotel.prices.googleHotels.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all shadow-sm self-start sm:self-auto shrink-0"
-                          title="Open official Google Travel rate audit in a new tab"
-                        >
-                          <span>Verify on Google Travel</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
                       </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         {/* Expedia */}
-                        <a
-                          href={hotel.prices.expedia.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price for Expedia in new tab"
-                        >
+                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
                           <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                               <span>Expedia</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
                           </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotel.prices.expedia.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
                             {formatPrice(hotel.prices.expedia.total)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-blue-400 font-semibold mt-1 group-hover:underline">
-                            Verify Rate ↗
+                          <div className="text-[9px] text-slate-400 mt-1">
+                            Public Rate
                           </div>
-                        </a>
+                        </div>
 
                         {/* Hotels.com */}
-                        <a
-                          href={hotel.prices.hotelsCom.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price for Hotels.com in new tab"
-                        >
+                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
                           <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                               <span>Hotels.com</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
                           </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotel.prices.hotelsCom.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
                             {formatPrice(hotel.prices.hotelsCom.total)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-rose-400 font-semibold mt-1 group-hover:underline">
-                            Verify Rate ↗
+                          <div className="text-[9px] text-slate-400 mt-1">
+                            Public Rate
                           </div>
-                        </a>
+                        </div>
 
                         {/* Agoda */}
-                        <a
-                          href={hotel.prices.agoda.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price for Agoda in new tab"
-                        >
+                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
                           <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                               <span>Agoda</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
                           </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotel.prices.agoda.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
                             {formatPrice(hotel.prices.agoda.total)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-purple-400 font-semibold mt-1 group-hover:underline">
-                            Verify Rate ↗
+                          <div className="text-[9px] text-slate-400 mt-1">
+                            Public Rate
                           </div>
-                        </a>
+                        </div>
 
                         {/* Kayak */}
-                        <a
-                          href={hotel.prices.kayak.verifyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition-all group block text-left sm:text-center"
-                          title="Click to check live price for Kayak in new tab"
-                        >
+                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
                           <div className="font-bold text-amber-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                               <span>Kayak</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-amber-400 transition-colors" />
                           </div>
-                          <div className="text-base font-bold text-slate-400 line-through mt-1.5">
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotel.prices.kayak.perNight)}
                           </div>
                           <div className="text-[10px] text-slate-500">
                             {formatPrice(hotel.prices.kayak.total)} total ({nights} nts)
                           </div>
-                          <div className="text-[9px] text-amber-400 font-semibold mt-1 group-hover:underline">
-                            Verify Rate ↗
+                          <div className="text-[9px] text-slate-400 mt-1">
+                            Public Rate
                           </div>
-                        </a>
+                        </div>
                       </div>
+
+                      {/* Single Unified Google Travel Verification CTA */}
+                      <a
+                        href={hotel.prices.googleHotels.verifyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm group"
+                        title={`Verify live rates across all OTAs on Google Travel for ${hotel.name}`}
+                      >
+                        <span className="flex h-2 w-2 relative">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                        </span>
+                        <span>Verify All Live OTA Rates on Google Travel (Opens {hotel.name})</span>
+                        <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                      </a>
                     </div>
                   </div>
 
@@ -762,15 +740,9 @@ export default function LiveHotelSearch({
                       <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.expedia.perNight)} / nt</div>
                       <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.expedia.total)} total</div>
                     </div>
-                    <a
-                      href={auditingHotel.prices.expedia.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-blue-600 text-blue-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>Verify</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
+                      Public Rate
+                    </span>
                   </div>
                 </div>
 
@@ -785,15 +757,9 @@ export default function LiveHotelSearch({
                       <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.hotelsCom.perNight)} / nt</div>
                       <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.hotelsCom.total)} total</div>
                     </div>
-                    <a
-                      href={auditingHotel.prices.hotelsCom.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-rose-600 text-rose-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>Verify</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
+                      Public Rate
+                    </span>
                   </div>
                 </div>
 
@@ -808,15 +774,9 @@ export default function LiveHotelSearch({
                       <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.agoda.perNight)} / nt</div>
                       <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.agoda.total)} total</div>
                     </div>
-                    <a
-                      href={auditingHotel.prices.agoda.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-purple-600 text-purple-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>Verify</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
+                      Public Rate
+                    </span>
                   </div>
                 </div>
 
@@ -831,15 +791,9 @@ export default function LiveHotelSearch({
                       <div className="font-bold text-slate-300">{formatPrice(auditingHotel.prices.kayak.perNight)} / nt</div>
                       <div className="text-[10px] text-slate-500">{formatPrice(auditingHotel.prices.kayak.total)} total</div>
                     </div>
-                    <a
-                      href={auditingHotel.prices.kayak.verifyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-amber-600 text-amber-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-colors inline-flex items-center gap-1"
-                    >
-                      <span>Verify</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[10px] font-semibold text-slate-400">
+                      Public Rate
+                    </span>
                   </div>
                 </div>
 
