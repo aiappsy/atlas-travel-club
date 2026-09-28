@@ -710,11 +710,16 @@ async function fetchSerpApiHotels(
     if (Array.isArray(rawProperties) && rawProperties.length > 0) {
       const realHotelProperties = rawProperties.filter((p: any) => {
         const name = (p.name || '').toLowerCase();
-        if (/holiday cottage|camping|campground|hostel|cabin|chalet rental|apartment|hytta|feriehus/i.test(name)) return false;
+        if (/holiday cottage|camping|campground|hostel|cabin|chalet rental|apartment|hytta|feriehus|condo|condominium|private lanai|remodeled|top floor|oceanfront view/i.test(name)) return false;
         return true;
       });
 
       const properties = realHotelProperties.length > 0 ? realHotelProperties : rawProperties;
+      properties.sort((a: any, b: any) => {
+        const starA = Number(a.extracted_hotel_class || a.hotel_class || 0);
+        const starB = Number(b.extracted_hotel_class || b.hotel_class || 0);
+        return starB - starA;
+      });
       const hotels = properties.map((p: any, idx: number) =>
         mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr)
       );
