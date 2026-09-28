@@ -454,7 +454,13 @@ export default function HotelDetailPage() {
                   <Camera className="w-5 h-5" />
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-base sm:text-lg font-black text-white truncate">{hotel.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base sm:text-lg font-black text-white truncate">{hotel.name}</h3>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-1 shrink-0">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                      Offisielle Google Travel Bilder
+                    </span>
+                  </div>
                   <p className="text-xs text-slate-400 flex items-center gap-1 truncate">
                     <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                     <span className="truncate">{hotel.address}</span>
