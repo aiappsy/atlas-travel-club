@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import AuthModal from '@/components/AuthModal';
+import GoogleMarketAuditModal from '@/components/GoogleMarketAuditModal';
 import {
   Star,
   MapPin,
@@ -64,6 +65,7 @@ export default function HotelDetailPage() {
   const [isBooked, setIsBooked] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [showAllInclusive, setShowAllInclusive] = useState<boolean>(true);
+  const [isMarketAuditOpen, setIsMarketAuditOpen] = useState(false);
 
   // Dynamic Discount Voucher / Promo Code State
   const [isVoucherOpen, setIsVoucherOpen] = useState(false);
@@ -550,31 +552,30 @@ export default function HotelDetailPage() {
               <div>
                 <h4 className="text-sm font-black text-white flex items-center gap-2">
                   <span>Official Market Rate Audit</span>
-                  <a
-                    href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => setIsMarketAuditOpen(true)}
                     className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/badge"
-                    title={`Verify ${hotel.name} on Google Travel`}
+                    title={`Open Google Travel audit modal for ${hotel.name}`}
                   >
                     <span>Google Travel Verified</span>
-                    <ExternalLink className="w-2.5 h-2.5 group-hover/badge:translate-x-0.5 transition-transform" />
-                  </a>
+                    <Maximize2 className="w-2.5 h-2.5 group-hover/badge:translate-x-0.5 transition-transform" />
+                  </button>
                 </h4>
                 <p className="text-xs text-slate-400">
-                  Independent third-party public rate comparison for {checkIn} to {checkOut}. Audit live prices across providers:
+                  Live third-party public rate comparison for {checkIn} to {checkOut}. Inspect side-by-side rates from Google Travel:
                 </p>
               </div>
             </div>
-            <a
-              href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all shadow-sm self-start sm:self-auto shrink-0"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500/20 via-sky-500/10 to-emerald-500/20 hover:from-sky-500/30 hover:to-emerald-500/30 text-sky-300 hover:text-white border border-sky-500/40 text-xs font-bold transition-all shadow-md self-start sm:self-auto shrink-0 cursor-pointer"
             >
-              <span>Verify on Google Travel ({checkIn} to {checkOut})</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Audit All Google Providers ({checkIn} to {checkOut})</span>
+              <Maximize2 className="w-3.5 h-3.5 text-sky-400" />
+            </button>
           </div>
 
           {/* Interactive Tax Transparency & Room Baseline Alignment Bar */}
@@ -637,79 +638,79 @@ export default function HotelDetailPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
             {/* Booking.com */}
-            <a
-              href={hotel.prices.booking?.verifyUrl || formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Booking.com price vs ATLAS Wholesale"
             >
               <div className="font-bold text-sky-400 text-xs flex items-center justify-center gap-1">
                 <span>Booking.com</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
               </div>
               <div className="text-base font-bold text-slate-300 line-through mt-1">{formatPrice(bookingPerNight)}</div>
               <div className="text-[10px] text-sky-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
-            </a>
+            </button>
 
             {/* Hotels.com */}
-            <a
-              href={hotel.prices.hotelsCom.verifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Hotels.com price vs ATLAS Wholesale"
             >
               <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
                 <span>Hotels.com</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
               <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
-            </a>
+            </button>
 
             {/* Agoda */}
-            <a
-              href={hotel.prices.agoda.verifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Agoda price vs ATLAS Wholesale"
             >
               <div className="font-bold text-purple-400 text-xs flex items-center justify-center gap-1">
                 <span>Agoda</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(agodaPerNight)}</div>
               <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Promo Direct ↗</div>
-            </a>
+            </button>
 
             {/* Expedia */}
-            <a
-              href={hotel.prices.expedia.verifyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Expedia price vs ATLAS Wholesale"
             >
               <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
                 <span>Expedia</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(expediaPerNight)}</div>
               <div className="text-[10px] text-blue-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
-            </a>
+            </button>
 
             {/* Hotel Direct */}
-            <a
-              href={hotel.officialWebsite}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition-all text-center group"
+            <button
+              type="button"
+              onClick={() => setIsMarketAuditOpen(true)}
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Hotel Direct price vs ATLAS Wholesale"
             >
               <div className="font-bold text-emerald-400 text-xs flex items-center justify-center gap-1">
                 <span>Hotel Direct</span>
-                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-emerald-400" />
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-emerald-400" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(directPerNight)}</div>
               <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">Official Direct ↗</div>
-            </a>
+            </button>
           </div>
         </div>
 
@@ -757,7 +758,7 @@ export default function HotelDetailPage() {
             </div>
 
             {/* Room Options & Wholesale Pricing Matrix */}
-            <div className="space-y-4">
+            <div id="room-selection" className="space-y-4 scroll-mt-24">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-black text-white">Select Your Wholesale Room Tier</h3>
                 <span className="text-xs text-amber-400 font-bold">
@@ -1156,6 +1157,21 @@ export default function HotelDetailPage() {
         defaultMode="signup"
         customTitle={`Join ATLAS to Book ${hotel.name}`}
         customSubtitle={`Rate parity agreements require private closed-loop membership to reserve wholesale rates at 0% markup. You save ${formatPrice(totalSavings)} on this reservation.`}
+      />
+
+      {/* Full-Screen Google Travel Live Market Audit Modal */}
+      <GoogleMarketAuditModal
+        isOpen={isMarketAuditOpen}
+        onClose={() => setIsMarketAuditOpen(false)}
+        hotel={hotel}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        nights={nights}
+        onBookNow={() => {
+          setIsMarketAuditOpen(false);
+          const el = document.getElementById('room-selection');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
       />
     </div>
   );

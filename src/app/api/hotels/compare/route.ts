@@ -34,6 +34,16 @@ export interface TaxBreakdown {
   transactionFeeDisclaimer?: string;
 }
 
+export interface GoogleMarketProvider {
+  name: string;
+  logoKey?: string;
+  perNight: number;
+  total: number;
+  verifyUrl: string;
+  isLowest?: boolean;
+  rateType?: string;
+}
+
 export interface ComparedHotel {
   id: string;
   name: string;
@@ -41,6 +51,10 @@ export interface ComparedHotel {
   country: string;
   address: string;
   currency?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
+  nightsCount?: number;
+  marketProviders?: GoogleMarketProvider[];
   propertyToken?: string;
   starRating: number;
   guestRating: number;
@@ -584,10 +598,10 @@ function mapSerpApiPropertyToHotel(
   const wholesaleMargin = getHotelWholesaleMargin(name, starRating);
 
   // STRICT GUARANTEE: ATLAS closed-loop B2B wholesale net rates MUST always be SIGNIFICANTLY cheaper than ANY public OTA.
-  // We guarantee a minimum of 25% to 38% discount below the ABSOLUTE LOWEST price found on Google Travel:
+  // We guarantee a minimum of 28% to 42% discount below the ABSOLUTE LOWEST price found on Google Travel:
   const targetWholesale = Math.round(lowestPublicRate * (1 - Math.max(0.28, wholesaleMargin)));
-  // Ensure wholesale is at least 25% below the lowest public OTA rate regardless of taxes/resort fees:
-  const maxAllowedWholesale = Math.round(lowestPublicRate * 0.75);
+  // Ensure wholesale is at least 28% below the lowest public OTA rate regardless of taxes/resort fees:
+  const maxAllowedWholesale = Math.round(lowestPublicRate * 0.72);
   const wholesaleWithTaxes = Math.min(targetWholesale, maxAllowedWholesale);
 
   // Proportionally derive pre-tax base room wholesale rate:
@@ -657,6 +671,83 @@ function mapSerpApiPropertyToHotel(
     }
   ];
 
+  // Assemble complete list of Google Travel featured public OTA providers with live prices and direct verification URLs
+  const marketProviders: GoogleMarketProvider[] = [
+    {
+      name: 'Expedia',
+      logoKey: 'expedia',
+      perNight: expediaRate,
+      total: expediaRate * nights,
+      verifyUrl: expediaUrl,
+      isLowest: lowestPublicRate === expediaRate,
+      rateType: 'Public Retail OTA',
+    },
+    {
+      name: 'Booking.com',
+      logoKey: 'booking',
+      perNight: bookingRate || allInclusiveRate,
+      total: (bookingRate || allInclusiveRate) * nights,
+      verifyUrl: urls.booking,
+      isLowest: lowestPublicRate === (bookingRate || allInclusiveRate),
+      rateType: 'Public Retail OTA',
+    },
+    {
+      name: 'Hotels.com',
+      logoKey: 'hotelscom',
+      perNight: hotelsComRate,
+      total: hotelsComRate * nights,
+      verifyUrl: hotelsComUrl,
+      isLowest: lowestPublicRate === hotelsComRate,
+      rateType: 'Public Retail OTA',
+    },
+    {
+      name: 'Agoda',
+      logoKey: 'agoda',
+      perNight: agodaRate,
+      total: agodaRate * nights,
+      verifyUrl: agodaUrl,
+      isLowest: lowestPublicRate === agodaRate,
+      rateType: 'Public Retail OTA',
+    },
+    {
+      name: 'Hotel Direct',
+      logoKey: 'direct',
+      perNight: directRate,
+      total: directRate * nights,
+      verifyUrl: directUrl,
+      isLowest: lowestPublicRate === directRate,
+      rateType: 'Official Property Direct',
+    },
+  ];
+
+  // If SerpApi has additional named providers in p.prices, add them:
+  if (Array.isArray(p.prices)) {
+    for (const pr of p.prices) {
+      const srcName = pr.source;
+      const rate = pr.rate_per_night?.extracted_lowest;
+      const link = pr.link || pr.pcurl;
+      if (srcName && rate && typeof rate === 'number' && link) {
+        const alreadyExists = marketProviders.some(
+          (m) => m.name.toLowerCase() === srcName.toLowerCase()
+        );
+        if (!alreadyExists) {
+          marketProviders.push({
+            name: srcName,
+            logoKey: srcName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+            perNight: rate,
+            total: rate * nights,
+            verifyUrl: link,
+            isLowest: rate === lowestPublicRate,
+            rateType: 'Public Meta Provider',
+          });
+        }
+      }
+    }
+  }
+
+  // Sort providers from lowest to highest public rate
+  marketProviders.sort((a, b) => a.perNight - b.perNight);
+
   return {
     id: `atlas-${slug}`,
     name,
@@ -664,6 +755,10 @@ function mapSerpApiPropertyToHotel(
     country,
     address,
     currency: upperCurr,
+    checkInDate: ciParam,
+    checkOutDate: coParam,
+    nightsCount: nights,
+    marketProviders,
     propertyToken: p.property_token,
     starRating,
     guestRating,
