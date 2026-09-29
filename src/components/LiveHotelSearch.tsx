@@ -22,7 +22,8 @@ import {
   ArrowUpDown,
   X,
   BedDouble,
-  Info
+  Info,
+  Maximize2
 } from 'lucide-react';
 import type { ComparedHotel } from '@/app/api/hotels/compare/route';
 import GoogleMarketAuditModal from '@/components/GoogleMarketAuditModal';
