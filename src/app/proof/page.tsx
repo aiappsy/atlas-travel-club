@@ -424,15 +424,13 @@ export default function SavingsProofPage() {
                   <span className="text-[11px] text-slate-400">
                     Cross-referenced against live global rates in {currency}:
                   </span>
-                  <a
-                    href={urlAuditResult.googleHotelsVerifyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs font-bold transition-all"
+                  <Link
+                    href={`/hotels?destination=${encodeURIComponent(urlAuditResult.hotelName)}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all"
                   >
-                    <span>Verify Live on Google Travel ({currency})</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                    <span>View Live Rate Audit on ATLAS ({currency})</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               )}
             </div>

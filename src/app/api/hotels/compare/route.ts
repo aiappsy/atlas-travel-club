@@ -544,8 +544,8 @@ function mapSerpApiPropertyToHotel(
   if (!kayakRate || kayakRate > allInclusiveRate * 1.05) kayakRate = allInclusiveRate;
   if (!directRate || directRate > allInclusiveRate * 1.05) directRate = allInclusiveRate;
 
-  // Lowest public retail rate across major verified OTAs (strictly bounded by Google Hotels' lowest headline rate)
-  const lowestPublicRate = Math.min(
+  // 1. Lowest public retail rate across major verified OTAs (strictly checking all Google Travel providers first)
+  let lowestPublicRate = Math.min(
     allInclusiveRate,
     bookingRate || allInclusiveRate,
     agodaRate || allInclusiveRate,
@@ -553,12 +553,25 @@ function mapSerpApiPropertyToHotel(
     hotelsComRate || allInclusiveRate,
     directRate || allInclusiveRate
   );
-  let lowestProvider = 'Hotels.com';
+  let lowestProvider = 'Expedia';
   if (lowestPublicRate === expediaRate) lowestProvider = 'Expedia';
   else if (lowestPublicRate === agodaRate) lowestProvider = 'Agoda';
   else if (lowestPublicRate === bookingRate) lowestProvider = 'Booking.com';
   else if (lowestPublicRate === hotelsComRate) lowestProvider = 'Hotels.com';
   else if (lowestPublicRate === directRate) lowestProvider = 'Hotel Direct';
+
+  // 2. Inspect every other provider in Google Hotels prices array to guarantee NO provider is cheaper
+  if (Array.isArray(p.prices)) {
+    for (const pr of p.prices) {
+      const extracted = pr.rate_per_night?.extracted_lowest;
+      if (extracted && typeof extracted === 'number' && extracted > 0) {
+        if (extracted < lowestPublicRate) {
+          lowestPublicRate = extracted;
+          lowestProvider = pr.source || lowestProvider;
+        }
+      }
+    }
+  }
 
   // Extract real photos
   const realImages: string[] = [];

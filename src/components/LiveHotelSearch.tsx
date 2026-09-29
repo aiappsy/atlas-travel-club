@@ -510,28 +510,26 @@ export default function LiveHotelSearch({
                     <div className="pt-3.5 border-t border-slate-800/80">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-2">
                         <div className="flex items-center gap-2">
-                          <a
-                            href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => setAuditingHotel(hotel)}
                             className="w-5 h-5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 hover:text-sky-300 font-black text-[10px] transition-colors cursor-pointer"
-                            title={`Open Google Travel rates for ${hotel.name}`}
+                            title={`Open Live Google Travel Audit for ${hotel.name}`}
                           >
                             G
-                          </a>
+                          </button>
                           <div>
                             <div className="text-[11px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
                               <span>Official Public Retail Rates</span>
-                              <a
-                                href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                              <button
+                                type="button"
+                                onClick={() => setAuditingHotel(hotel)}
                                 className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/glink"
-                                title={`Verify live rates for ${hotel.name} on Google Travel`}
+                                title={`Open Live Market Audit for ${hotel.name}`}
                               >
                                 <span>Google Travel Verified</span>
-                                <ExternalLink className="w-2.5 h-2.5 group-hover/glink:translate-x-0.5 transition-transform" />
-                              </a>
+                                <Maximize2 className="w-2.5 h-2.5 group-hover/glink:scale-110 transition-transform" />
+                              </button>
                             </div>
                             <p className="text-[10px] text-slate-400">
                               Real-time live prices across major retail booking platforms for this stay:
@@ -602,12 +600,17 @@ export default function LiveHotelSearch({
                       {/* 4 Multi-OTA Cards */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         {/* Booking.com */}
-                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-sky-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Booking.com vs ATLAS Wholesale in live audit"
+                        >
                           <div className="font-bold text-sky-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                               <span>Booking.com</span>
                             </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(bookingPerNight)}
@@ -616,17 +619,22 @@ export default function LiveHotelSearch({
                             {formatPrice(bookingPerNight * nights)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-sky-300/80 font-medium mt-1">
-                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'}
+                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
                         </div>
 
                         {/* Hotels.com */}
-                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-rose-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Hotels.com vs ATLAS Wholesale in live audit"
+                        >
                           <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                               <span>Hotels.com</span>
                             </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotelsComPerNight)}
@@ -635,17 +643,22 @@ export default function LiveHotelSearch({
                             {formatPrice(hotelsComPerNight * nights)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-rose-300/80 font-medium mt-1">
-                            Breakfast & Free Cancel
+                            Breakfast & Free Cancel ↗
                           </div>
                         </div>
 
                         {/* Agoda */}
-                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Agoda vs ATLAS Wholesale in live audit"
+                        >
                           <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                               <span>Agoda</span>
                             </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(agodaPerNight)}
@@ -654,17 +667,22 @@ export default function LiveHotelSearch({
                             {formatPrice(agodaPerNight * nights)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-purple-300/80 font-medium mt-1">
-                            {showAllInclusive ? 'Promo Net Rate' : 'Base Promo Rate'}
+                            {showAllInclusive ? 'Promo Net Rate' : 'Base Promo Rate'} ↗
                           </div>
                         </div>
 
                         {/* Expedia */}
-                        <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 text-left sm:text-center">
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Expedia vs ATLAS Wholesale in live audit"
+                        >
                           <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                               <span>Expedia</span>
                             </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(expediaPerNight)}
@@ -673,26 +691,25 @@ export default function LiveHotelSearch({
                             {formatPrice(expediaPerNight * nights)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-blue-300/80 font-medium mt-1">
-                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'}
+                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
                         </div>
                       </div>
 
-                      {/* Single Unified Google Travel Verification CTA */}
-                      <a
-                        href={formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 hover:text-sky-300 border border-sky-500/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-sm group"
-                        title={`Verify live rates across all OTAs on Google Travel for ${hotel.name}`}
+                      {/* Single Unified Live Rate Audit Modal CTA (Zero external redirects) */}
+                      <button
+                        type="button"
+                        onClick={() => setAuditingHotel(hotel)}
+                        className="mt-3 w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-sky-500/20 via-sky-500/10 to-emerald-500/20 hover:from-sky-500/30 hover:to-emerald-500/30 text-sky-300 hover:text-white border border-sky-500/40 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer group"
+                        title={`Compare all Google Travel provider rates vs ATLAS Wholesale for ${hotel.name}`}
                       >
                         <span className="flex h-2 w-2 relative">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
                         </span>
-                        <span>Verify Live Rates on Google Travel (Opens {hotel.name} for {checkIn} to {checkOut})</span>
-                        <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                      </a>
+                        <span>Compare All Google Provider Rates ({hotel.name} • {checkIn} to {checkOut})</span>
+                        <Maximize2 className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
+                      </button>
                     </div>
                   </div>
 
