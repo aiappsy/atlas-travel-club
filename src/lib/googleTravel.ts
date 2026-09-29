@@ -19,6 +19,9 @@ export const CURRENCY_TO_GOOGLE_LOCALE: Record<string, { gl: string; hl: string 
   PLN: { gl: 'pl', hl: 'pl' },
   THB: { gl: 'th', hl: 'th' },
   HKD: { gl: 'hk', hl: 'en' },
+  PHP: { gl: 'ph', hl: 'en' },
+  IDR: { gl: 'id', hl: 'id' },
+  MYR: { gl: 'my', hl: 'en' },
 };
 
 export function formatGoogleTravelUrlWithCurrency(baseUrl: string, currencyCode: string = 'USD'): string {

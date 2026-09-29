@@ -46,7 +46,11 @@ import { getStoredVouchers } from '@/lib/vouchers';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice: rawFormatPrice, formatHotelPrice, currency } = useCurrency();
+  // Hotel rates from the API are already in the requested currency (matching Google Travel live rates).
+  // Use formatHotelPrice so numbers are formatted with the proper symbol without being double-converted.
+  const formatPrice = (amt: number, options?: { showCode?: boolean; roundWhole?: boolean }) =>
+    formatHotelPrice(amt, hotel?.currency || currency, options);
   const params = useParams();
   const searchParams = useSearchParams();
   const hotelId = params?.id as string;
@@ -187,12 +191,8 @@ export default function HotelDetailPage() {
     ? (hotel.prices.officialDirect?.withTaxesPerNight || hotel.prices.officialDirect?.perNight || retailPerNight)
     : (hotel.prices.officialDirect?.basePerNight || Math.round(retailPerNight / (1 + taxPercent / 100)));
   
-  // Transparent 3.8% Club Clearing & Merchant Payment Processing Buffer:
-  // Covers credit card interchange (Visa/Mastercard/Stripe ~2.5%), multi-currency FX clearing, and 24/7 B2B settlement guarantee
   const rawWholesaleTotal = wholesalePerNight * nights;
-  const clearingBufferPercent = 3.8;
-  const clearingBufferTotal = Math.round(rawWholesaleTotal * 0.038);
-  const totalWholesale = rawWholesaleTotal + clearingBufferTotal;
+  const totalWholesale = rawWholesaleTotal;
   const totalRetail = retailPerNight * nights;
   const totalSavings = Math.max(0, totalRetail - totalWholesale);
   const savingsPerNight = Math.round(totalSavings / nights);

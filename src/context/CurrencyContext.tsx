@@ -59,7 +59,8 @@ interface CurrencyContextType {
   setCurrency: (code: CurrencyCode) => void;
   currencies: Record<CurrencyCode, CurrencyConfig>;
   updateExchangeRate: (code: CurrencyCode, newRate: number) => void;
-  formatPrice: (amountInUSD: number, options?: { showCode?: boolean; roundWhole?: boolean }) => string;
+  formatPrice: (amountInUSD: number, options?: { showCode?: boolean; roundWhole?: boolean; isAlreadyConverted?: boolean; sourceCurrency?: string }) => string;
+  formatHotelPrice: (amount: number, sourceCurrency?: string, options?: { showCode?: boolean; roundWhole?: boolean }) => string;
   convertPrice: (amountInUSD: number) => number;
   currentConfig: CurrencyConfig;
   fxSource: string;
@@ -207,10 +208,52 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     return (amountInUSD || 0) * (currentConfig.rate || 1.0);
   };
 
-  const formatPrice = (
-    amountInUSD: number,
+  const formatHotelPrice = (
+    amount: number,
+    sourceCurrency?: string,
     options?: { showCode?: boolean; roundWhole?: boolean }
   ): string => {
+    let finalAmount = Number(amount) || 0;
+    const src = (sourceCurrency || currency).toUpperCase() as CurrencyCode;
+
+    // Only convert if source currency is explicitly given AND different from active currency
+    if (sourceCurrency && src !== currency) {
+      const srcRate = currencies[src]?.rate || 1.0;
+      const targetRate = currentConfig.rate || 1.0;
+      const amountInUSD = finalAmount / srcRate;
+      finalAmount = amountInUSD * targetRate;
+    }
+
+    const noDecimalCurrencies = ['JPY', 'IDR', 'PHP', 'THB', 'INR', 'NOK', 'SEK', 'DKK', 'AED'];
+    const shouldRound = options?.roundWhole ?? (noDecimalCurrencies.includes(currency) || finalAmount >= 50);
+
+    const formattedNumber = shouldRound
+      ? Math.round(finalAmount).toLocaleString('en-US')
+      : finalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const codeSuffix = options?.showCode ? ` ${currentConfig.code}` : '';
+
+    if (currentConfig.symbolPosition === 'suffix') {
+      return `${formattedNumber} ${currentConfig.symbol}${codeSuffix}`;
+    }
+
+    if (currentConfig.code === 'AED' || currentConfig.code === 'CHF' || currentConfig.code === 'IDR') {
+      return `${currentConfig.symbol} ${formattedNumber}${codeSuffix}`;
+    }
+
+    return `${currentConfig.symbol}${formattedNumber}${codeSuffix}`;
+  };
+
+  const formatPrice = (
+    amountInUSD: number,
+    options?: { showCode?: boolean; roundWhole?: boolean; isAlreadyConverted?: boolean; sourceCurrency?: string }
+  ): string => {
+    if (options?.isAlreadyConverted || (options?.sourceCurrency && options.sourceCurrency.toUpperCase() === currency)) {
+      return formatHotelPrice(amountInUSD, currency, options);
+    }
+    if (options?.sourceCurrency && options.sourceCurrency.toUpperCase() !== currency) {
+      return formatHotelPrice(amountInUSD, options.sourceCurrency, options);
+    }
     const converted = convertPrice(amountInUSD);
     const noDecimalCurrencies = ['JPY', 'IDR', 'PHP', 'THB', 'INR', 'NOK', 'SEK', 'DKK', 'AED'];
     const shouldRound = options?.roundWhole ?? (noDecimalCurrencies.includes(currency) || converted >= 50);
@@ -240,6 +283,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
         currencies,
         updateExchangeRate,
         formatPrice,
+        formatHotelPrice,
         convertPrice,
         currentConfig,
         fxSource,

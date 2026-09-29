@@ -38,7 +38,10 @@ export default function LiveHotelSearch({
   initialDestination = '',
   isCompact = false,
 }: LiveHotelSearchProps) {
-  const { formatPrice, currency } = useCurrency();
+  const { formatPrice: rawFormatPrice, formatHotelPrice, currency } = useCurrency();
+  // Hotel search rates from the API are already in the requested currency (matching Google Travel live rates).
+  const formatPrice = (amt: number, hotelCurrency?: string, options?: { showCode?: boolean; roundWhole?: boolean }) =>
+    formatHotelPrice(amt, hotelCurrency || currency, options);
   const { isMember } = useAuth();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
