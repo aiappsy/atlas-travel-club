@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server';
 import { CURRENCY_TO_GOOGLE_LOCALE, buildGoogleHotelsDirectUrl } from '@/lib/googleTravel';
+import { hotelbedsProvider } from '@/lib/providers/hotelbeds';
+
+// Map of normalised hotel name → live Hotelbeds wholesale rate per night (in search currency)
+type HotelbedsRateMap = Map<string, { ratePerNight: number; currency: string; rateKey: string; roomType: string }>;
+
+// Minimum discount Hotelbeds rate must beat vs lowest public OTA before we use it instead of the estimate
+const HOTELBEDS_MIN_DISCOUNT_PCT = 0.10; // 10%
 
 export interface RoomOption {
   id: string;
@@ -430,7 +437,8 @@ function mapSerpApiPropertyToHotel(
   coParam: string,
   nights: number,
   idx: number = 0,
-  currency: string = 'USD'
+  currency: string = 'USD',
+  hbRates: HotelbedsRateMap = new Map()
 ): ComparedHotel {
   const upperCurr = (currency || 'USD').toUpperCase();
   const name: string = p.name || `Hotel in ${defaultCity}`;
@@ -634,21 +642,39 @@ function mapSerpApiPropertyToHotel(
 
   const roomType = p.deal_description ? `${p.deal_description} Room` : `${categoryLabel} Room`;
 
-  // Dynamic property-specific B2B bedbank margin (Hotelbeds & WebBeds contract tiers: 20% to 42%)
-  const wholesaleMargin = getHotelWholesaleMargin(name, starRating);
+  // ── Wholesale rate resolution: Hotelbeds live rate first, estimated fallback ──
+  //
+  // 1. Try to find a matching Hotelbeds live rate for this hotel.
+  // 2. Only accept it if it's at least 10% cheaper than the lowest public OTA.
+  // 3. If no qualifying Hotelbeds rate, fall back to the calculated estimate (28–42% off).
 
-  // STRICT GUARANTEE: ATLAS closed-loop B2B wholesale net rates MUST always be SIGNIFICANTLY cheaper than ANY public OTA.
-  // We guarantee a minimum of 28% to 42% discount below the ABSOLUTE LOWEST price found on Google Travel:
-  const targetWholesale = Math.round(lowestPublicRate * (1 - Math.max(0.28, wholesaleMargin)));
-  // Ensure wholesale is at least 28% below the lowest public OTA rate regardless of taxes/resort fees:
-  const maxAllowedWholesale = Math.round(lowestPublicRate * 0.72);
-  const wholesaleWithTaxes = Math.min(targetWholesale, maxAllowedWholesale);
+  const hbMatch = resolveHotelbedsRate(name, lowestPublicRate, hbRates);
 
-  // Proportionally derive pre-tax base room wholesale rate:
-  const taxFraction = allInclusiveRate > 0 ? estimatedTaxPerNight / allInclusiveRate : 0.2;
-  const wholesaleBase = Math.round(wholesaleWithTaxes * (1 - taxFraction));
+  let wholesaleWithTaxes: number;
+  let wholesaleBase: number;
+  let atlasRateSource: 'hotelbeds_live' | 'estimated';
+  let hbRateKey: string | undefined;
+  let hbRoomType: string | undefined;
 
-  // Transaction clearing fee at cost (covers payment processing, merchant acquiring & B2B settlement buffer)
+  if (hbMatch) {
+    // ✅ Real Hotelbeds live wholesale rate — qualifies (≥10% below lowest OTA)
+    wholesaleWithTaxes = hbMatch.ratePerNight;
+    wholesaleBase = Math.round(wholesaleWithTaxes / (1 + taxInfo.taxPercent / 100));
+    atlasRateSource = 'hotelbeds_live';
+    hbRateKey = hbMatch.rateKey;
+    hbRoomType = hbMatch.roomType;
+  } else {
+    // ⬇️ No qualifying Hotelbeds rate — use calculated estimate
+    const wholesaleMargin = getHotelWholesaleMargin(name, starRating);
+    const targetWholesale = Math.round(lowestPublicRate * (1 - Math.max(0.28, wholesaleMargin)));
+    const maxAllowedWholesale = Math.round(lowestPublicRate * 0.72);
+    wholesaleWithTaxes = Math.min(targetWholesale, maxAllowedWholesale);
+    const taxFraction = allInclusiveRate > 0 ? estimatedTaxPerNight / allInclusiveRate : 0.2;
+    wholesaleBase = Math.round(wholesaleWithTaxes * (1 - taxFraction));
+    atlasRateSource = 'estimated';
+  }
+
+  // Transaction clearing fee at cost
   const transactionFeePercent = 3.5;
   const transactionFeePerNight = Math.round(wholesaleWithTaxes * (transactionFeePercent / 100));
   const transactionFeeTotal = transactionFeePerNight * nights;
@@ -843,14 +869,142 @@ function mapSerpApiPropertyToHotel(
     },
     audit: {
       timestamp: new Date().toISOString(),
-      auditHash: '0x' + Math.random().toString(16).substring(2, 12) + '...live_google_hotels',
-      bedbankGateway: 'Google Hotels Live Meta-Search & Wholesale Clearing',
-      parityStatus: '100% Live Real-Time OTA Price Matched',
+      auditHash: '0x' + Math.random().toString(16).substring(2, 12) + (atlasRateSource === 'hotelbeds_live' ? '...hotelbeds_live' : '...estimated'),
+      bedbankGateway: atlasRateSource === 'hotelbeds_live'
+        ? 'Hotelbeds APItude Live B2B Rate (api.test.hotelbeds.com)'
+        : 'Estimated Wholesale Rate (28–42% below Google Hotels lowest OTA)',
+      parityStatus: atlasRateSource === 'hotelbeds_live'
+        ? 'Live Hotelbeds Net Rate — Real B2B Bedbank Allotment'
+        : 'Estimated Rate — No Hotelbeds Match ≥10% Discount Found',
+      ...(hbRateKey ? { hbRateKey, hbRoomType } : {}),
     },
   };
 }
 
-// SerpApi in-memory cache to save API searches & provide instant sub-second response
+// ─── Hotelbeds live rate integration ────────────────────────────────────────
+
+// Normalise hotel names for fuzzy matching between Google Hotels and Hotelbeds
+function normaliseHotelName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // strip accents
+    .replace(/[®™&,.'"\-]/g, ' ')      // remove punctuation
+    .replace(/\b(hotel|hotels|resort|resorts|the|a|an|and|de|le|la|les|el|los|las)\b/g, '') // strip generic words
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// Score how similar two hotel names are (0 = no match, 1 = exact match)
+function hotelNameSimilarity(a: string, b: string): number {
+  const na = normaliseHotelName(a);
+  const nb = normaliseHotelName(b);
+  if (na === nb) return 1;
+  const wordsA = new Set(na.split(' ').filter(w => w.length > 2));
+  const wordsB = new Set(nb.split(' ').filter(w => w.length > 2));
+  if (wordsA.size === 0 || wordsB.size === 0) return 0;
+  let shared = 0;
+  wordsA.forEach(w => { if (wordsB.has(w)) shared++; });
+  return shared / Math.max(wordsA.size, wordsB.size);
+}
+
+// Hotelbeds in-memory cache (5 min TTL — rates change less often than availability)
+const hotelbedsCache = new Map<string, { data: HotelbedsRateMap; timestamp: number }>();
+const HOTELBEDS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Fetch wholesale rates from Hotelbeds for a given destination + dates.
+ * Returns a Map of normalised hotel name → rate data for fast lookup.
+ * Results are cached per destination+dates to avoid redundant API calls.
+ */
+async function fetchHotelbedsRates(
+  destination: string,
+  checkIn: string,
+  checkOut: string,
+  currency: string
+): Promise<HotelbedsRateMap> {
+  const cacheKey = `hb_${destination.toLowerCase().trim()}_${checkIn}_${checkOut}`;
+  const cached = hotelbedsCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < HOTELBEDS_CACHE_TTL) {
+    return cached.data;
+  }
+
+  const rateMap: HotelbedsRateMap = new Map();
+
+  try {
+    const rates = await hotelbedsProvider.searchWholesaleRates(
+      destination,
+      checkIn,
+      checkOut,
+      { adults: 2, rooms: 1 }
+    );
+
+    // Hotelbeds returns rates in EUR. Convert to the user's requested currency.
+    const EUR_TO_USD = 1 / 0.92;
+    const CURRENCY_RATES_TO_USD: Record<string, number> = {
+      USD: 1.0, EUR: 0.92, GBP: 0.79, AED: 3.67, NOK: 10.8, SEK: 10.6,
+      DKK: 6.85, CHF: 0.88, AUD: 1.52, CAD: 1.38, SGD: 1.34, JPY: 155.0,
+      THB: 36.5, PHP: 58.5, IDR: 15800.0, HKD: 7.8, MYR: 4.72, INR: 83.5, NZD: 1.65,
+    };
+    const targetRate = CURRENCY_RATES_TO_USD[currency.toUpperCase()] || 1.0;
+
+    for (const r of rates) {
+      // Convert from EUR (Hotelbeds native) to target currency
+      const rateInTargetCurrency = Math.round(r.rawWholesaleNetPrice * EUR_TO_USD * targetRate);
+      const normName = normaliseHotelName(r.hotelName);
+      // If same hotel appears multiple times keep the cheapest room rate
+      const existing = rateMap.get(normName);
+      if (!existing || rateInTargetCurrency < existing.ratePerNight) {
+        rateMap.set(normName, {
+          ratePerNight: rateInTargetCurrency,
+          currency: currency.toUpperCase(),
+          rateKey: r.rateKey,
+          roomType: r.roomType,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[Hotelbeds] Rate fetch failed, will use estimated rates:', err);
+  }
+
+  hotelbedsCache.set(cacheKey, { data: rateMap, timestamp: Date.now() });
+  return rateMap;
+}
+
+/**
+ * Given a Google Hotels hotel name and the Hotelbeds rate map,
+ * find the best matching Hotelbeds rate if it exists AND beats the
+ * lowest public OTA rate by at least HOTELBEDS_MIN_DISCOUNT_PCT (10%).
+ * Returns null if no qualifying match found — caller uses estimated rate instead.
+ */
+function resolveHotelbedsRate(
+  hotelName: string,
+  lowestPublicRate: number,
+  hbRates: HotelbedsRateMap
+): { ratePerNight: number; rateKey: string; roomType: string; currency: string } | null {
+  let bestMatch: { score: number; key: string } | null = null;
+
+  hbRates.forEach((_, normKey) => {
+    const score = hotelNameSimilarity(hotelName, normKey);
+    if (score >= 0.5 && (!bestMatch || score > bestMatch.score)) {
+      bestMatch = { score, key: normKey };
+    }
+  });
+
+  if (!bestMatch) return null;
+
+  const hbRate = hbRates.get(bestMatch.key)!;
+
+  // Guard: only use Hotelbeds rate if it's at least 10% cheaper than the lowest public OTA
+  const discountVsOta = (lowestPublicRate - hbRate.ratePerNight) / lowestPublicRate;
+  if (discountVsOta < HOTELBEDS_MIN_DISCOUNT_PCT) {
+    return null; // Hotelbeds rate doesn't beat the threshold — use estimated rate
+  }
+
+  return hbRate;
+}
+
+// ─── SerpApi in-memory cache to save API searches & provide instant sub-second response ──
 const serpApiCache = new Map<string, { data: ComparedHotel[]; timestamp: number }>();
 const SERPAPI_CACHE_TTL = 3600 * 1000; // 1 hour
 
@@ -893,16 +1047,22 @@ async function fetchSerpApiHotels(
   const q = isSpecificHotel ? normQuery : `${city}${country ? ' ' + country : ''} hotels`;
 
   try {
-    const url = `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=2&currency=${upperCurr}&gl=${locale.gl}&hl=${locale.hl}&api_key=${apiKey}`;
+    // Fetch SerpApi (Google Hotels) AND Hotelbeds in parallel — no extra latency
+    const [serpRes, hbRates] = await Promise.all([
+      fetch(
+        `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=2&currency=${upperCurr}&gl=${locale.gl}&hl=${locale.hl}&api_key=${apiKey}`,
+        { next: { revalidate: 3600 } }
+      ),
+      fetchHotelbedsRates(city || destQuery, ciParam, coParam, upperCurr),
+    ]);
 
-    const res = await fetch(url, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
+    if (!serpRes.ok) return [];
 
-    const data = await res.json();
+    const data = await serpRes.json();
 
     // Case 1: Specific single hotel entity returned at root
     if (data.name && typeof data.name === 'string') {
-      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0, upperCurr);
+      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0, upperCurr, hbRates);
       const result = [hotel];
       serpApiCache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
@@ -924,7 +1084,7 @@ async function fetchSerpApiHotels(
         return starB - starA;
       });
       const hotels = properties.map((p: any, idx: number) =>
-        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr)
+        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr, hbRates)
       );
 
       serpApiCache.set(cacheKey, { data: hotels, timestamp: Date.now() });
