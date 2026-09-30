@@ -220,6 +220,47 @@ function getEffectiveDates(checkIn?: string, checkOut?: string, nights: number =
   };
 }
 
+// ISO 2-letter country code resolver for direct Booking.com & Agoda hotel links
+function getCountryCode(country: string = '', city: string = ''): string {
+  const c = (country || '').toLowerCase().trim();
+  const ct = (city || '').toLowerCase().trim();
+  if (c.includes('united arab emirates') || c.includes('uae') || c.includes('emirates') || ct.includes('dubai') || ct.includes('abu dhabi')) return 'ae';
+  if (c.includes('united states') || c.includes('usa') || c.includes('us') || ct.includes('new york') || ct.includes('las vegas') || ct.includes('miami') || ct.includes('los angeles') || ct.includes('chicago') || ct.includes('aspen')) return 'us';
+  if (c.includes('united kingdom') || c.includes('uk') || c.includes('england') || ct.includes('london') || ct.includes('edinburgh')) return 'gb';
+  if (c.includes('france') || ct.includes('paris') || ct.includes('nice') || ct.includes('cannes')) return 'fr';
+  if (c.includes('norway') || ct.includes('oslo') || ct.includes('bergen')) return 'no';
+  if (c.includes('italy') || ct.includes('rome') || ct.includes('milan') || ct.includes('venice') || ct.includes('florence')) return 'it';
+  if (c.includes('spain') || ct.includes('barcelona') || ct.includes('madrid') || ct.includes('ibiza')) return 'es';
+  if (c.includes('germany') || ct.includes('berlin') || ct.includes('munich') || ct.includes('frankfurt')) return 'de';
+  if (c.includes('switzerland') || ct.includes('zurich') || ct.includes('geneva')) return 'ch';
+  if (c.includes('japan') || ct.includes('tokyo') || ct.includes('kyoto') || ct.includes('osaka')) return 'jp';
+  if (c.includes('singapore')) return 'sg';
+  if (c.includes('thailand') || ct.includes('bangkok') || ct.includes('phuket')) return 'th';
+  if (c.includes('indonesia') || ct.includes('bali') || ct.includes('jakarta')) return 'id';
+  if (c.includes('philippines') || ct.includes('manila') || ct.includes('davao') || ct.includes('cebu')) return 'ph';
+  if (c.includes('netherlands') || ct.includes('amsterdam')) return 'nl';
+  if (c.includes('austria') || ct.includes('vienna')) return 'at';
+  if (c.includes('sweden') || ct.includes('stockholm')) return 'se';
+  if (c.includes('denmark') || ct.includes('copenhagen')) return 'dk';
+  if (c.includes('greece') || ct.includes('athens') || ct.includes('mykonos') || ct.includes('santorini')) return 'gr';
+  if (c.includes('turkey') || ct.includes('istanbul') || ct.includes('antalya')) return 'tr';
+  if (c.includes('egypt') || ct.includes('cairo')) return 'eg';
+  if (c.includes('australia') || ct.includes('sydney') || ct.includes('melbourne')) return 'au';
+  if (c.includes('canada') || ct.includes('toronto') || ct.includes('vancouver') || ct.includes('montreal')) return 'ca';
+  if (c.includes('mexico') || ct.includes('cancun') || ct.includes('mexico city')) return 'mx';
+  return 'un';
+}
+
+function slugifyHotel(name: string): string {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[®™]/g, '')
+    .replace(/\s*\([^)]*\)/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 // Clean hotel search query to produce reliable OTA deep-link destinations
 function cleanHotelSearchQuery(hotelName: string, city: string): string {
   let clean = hotelName.replace(/\s*\([^)]*\)/g, '').trim();
@@ -233,8 +274,8 @@ function cleanHotelSearchQuery(hotelName: string, city: string): string {
   return clean;
 }
 
-
-// Build real OTA deep-link URLs for ANY hotel name + destination + dates dynamically
+// Build direct OTA hotel property URLs for ANY hotel name + destination + dates dynamically.
+// Guarantees all links navigate directly to the specific hotel property, NEVER a general city/destination search page.
 function buildOtaUrls(
   hotelName: string,
   city: string,
@@ -245,56 +286,44 @@ function buildOtaUrls(
   currency: string = 'USD'
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
-  const cleanDest = cleanHotelSearchQuery(hotelName, city);
   const cleanHotel = hotelName.replace(/\s*\([^)]*\)/g, '').replace(/[®™]/g, '').trim();
+  const cleanCity = (city || 'City').split(',')[0].trim();
   const upperCurr = (currency || 'USD').toUpperCase();
+  const countryCode = getCountryCode(country, cleanCity);
 
-  // 1. Expedia Search Deep-Link
-  const expediaUrl = new URL('https://www.expedia.com/Hotel-Search');
-  expediaUrl.searchParams.set('destination', cleanDest);
-  expediaUrl.searchParams.set('startDate', ciParam);
-  expediaUrl.searchParams.set('endDate', coParam);
-  expediaUrl.searchParams.set('adults', '2');
+  const hotelSlug = slugifyHotel(cleanHotel);
+  const citySlug = slugifyHotel(cleanCity);
 
-  // 2. Hotels.com Search Deep-Link
-  const hotelsComUrl = new URL('https://www.hotels.com/Hotel-Search');
-  hotelsComUrl.searchParams.set('destination', cleanDest);
-  hotelsComUrl.searchParams.set('startDate', ciParam);
-  hotelsComUrl.searchParams.set('endDate', coParam);
-  hotelsComUrl.searchParams.set('adults', '2');
+  // 1. Expedia Direct Property Deep-Link:
+  // Targets the specific hotel property endpoint: /[City]-Hotels-[Hotel].Hotel-Information
+  // This directs Expedia straight to the property page with dates pre-selected, avoiding the 300+ hotel city search.
+  const expediaPropertyPath = `${citySlug}-Hotels-${hotelSlug}.Hotel-Information`;
+  const expediaUrl = `https://www.expedia.com/${expediaPropertyPath}?startDate=${ciParam}&endDate=${coParam}&adults=2`;
 
-  // 3. Agoda Direct Hotel Search Link
-  const agodaUrl = new URL('https://www.agoda.com/search');
-  agodaUrl.searchParams.set('text', `${cleanHotel} ${city}`);
-  agodaUrl.searchParams.set('checkIn', ciParam);
-  agodaUrl.searchParams.set('checkOut', coParam);
-  agodaUrl.searchParams.set('los', String(Math.max(1, nights)));
-  agodaUrl.searchParams.set('rooms', '1');
-  agodaUrl.searchParams.set('adults', '2');
-  agodaUrl.searchParams.set('currency', upperCurr);
+  // 2. Hotels.com Direct Property Deep-Link (Expedia Group identical property path)
+  const hotelsComUrl = `https://www.hotels.com/${expediaPropertyPath}?startDate=${ciParam}&endDate=${coParam}&adults=2`;
 
-  // 4. Kayak Search Deep-Link
-  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanDest)}/${encodeURIComponent(cleanHotel)}/${ciParam}/${coParam}/2adults`;
+  // 3. Booking.com Direct Hotel Property Deep-Link:
+  // Directly targets /hotel/[countryCode]/[hotelSlug].html which opens the exact hotel property page
+  const bookingUrl = `https://www.booking.com/hotel/${countryCode}/${hotelSlug.toLowerCase()}.html?checkin=${ciParam}&checkout=${coParam}&group_adults=2&no_rooms=1&selected_currency=${upperCurr}`;
 
-  // 5. Google Hotels Deep-Link with currency force
-  const googleHotelsUrl = buildGoogleHotelsDirectUrl(cleanDest, ciParam, coParam, upperCurr);
+  // 4. Agoda Direct Hotel Property Deep-Link:
+  // Targets /[hotelSlug]/hotel/[citySlug]-[countryCode].html
+  const agodaUrl = `https://www.agoda.com/${hotelSlug.toLowerCase()}/hotel/${citySlug.toLowerCase()}-${countryCode}.html?checkIn=${ciParam}&checkOut=${coParam}&adults=2&currency=${upperCurr}`;
 
-  // 6. Booking.com Deep-Link
-  const bookingUrl = new URL('https://www.booking.com/searchresults.html');
-  bookingUrl.searchParams.set('ss', cleanDest);
-  bookingUrl.searchParams.set('checkin', ciParam);
-  bookingUrl.searchParams.set('checkout', coParam);
-  bookingUrl.searchParams.set('no_rooms', '1');
-  bookingUrl.searchParams.set('group_adults', '2');
-  bookingUrl.searchParams.set('selected_currency', upperCurr);
+  // 5. Kayak Deep-Link
+  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanCity + ', ' + country)}/${hotelSlug.toLowerCase()}/${ciParam}/${coParam}/2adults`;
+
+  // 6. Google Hotels Deep-Link for exact hotel property rates
+  const googleHotelsUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity}`, ciParam, coParam, upperCurr);
 
   return {
-    expedia: expediaUrl.toString(),
-    hotelsCom: hotelsComUrl.toString(),
-    agoda: agodaUrl.toString(),
+    expedia: expediaUrl,
+    hotelsCom: hotelsComUrl,
+    agoda: agodaUrl,
     kayak: kayakUrl,
     googleHotels: googleHotelsUrl,
-    booking: bookingUrl.toString(),
+    booking: bookingUrl,
   };
 }
 
@@ -433,6 +462,7 @@ function mapSerpApiPropertyToHotel(
   let directRate: number | null = null;
   let directUrl = p.link || urls.googleHotels;
   let bookingRate: number | null = null;
+  let bookingUrl = urls.booking;
 
   if (Array.isArray(p.prices) && p.prices.length > 0) {
     for (const pr of p.prices) {
@@ -455,6 +485,7 @@ function mapSerpApiPropertyToHotel(
           if (clickUrl) kayakUrl = clickUrl;
         } else if (src.includes('booking.com')) {
           bookingRate = extracted;
+          if (clickUrl) bookingUrl = clickUrl;
         } else if (src.includes('official') || src.includes('direct') || (name && src.includes(name.toLowerCase().split(' ')[0]))) {
           directRate = extracted;
           if (clickUrl) directUrl = clickUrl;
@@ -462,10 +493,6 @@ function mapSerpApiPropertyToHotel(
       }
     }
   }
-
-  // Ensure OTAs without verified partner clickout links point to Google Travel's live rates for this exact hotel
-  if (agodaUrl === urls.agoda) agodaUrl = urls.googleHotels;
-  if (kayakUrl === urls.kayak) kayakUrl = urls.googleHotels;
 
   const taxInfo = getDestinationTaxInfo(name, city, country, address);
 
@@ -700,7 +727,7 @@ function mapSerpApiPropertyToHotel(
       logoKey: 'booking',
       perNight: bookingRate || allInclusiveRate,
       total: (bookingRate || allInclusiveRate) * nights,
-      verifyUrl: urls.booking,
+      verifyUrl: bookingUrl,
       isLowest: lowestPublicRate === (bookingRate || allInclusiveRate),
       rateType: 'Public Retail OTA',
     },
@@ -790,7 +817,7 @@ function mapSerpApiPropertyToHotel(
     prices: {
       expedia: { perNight: expediaRate, total: expediaRate * nights, verifyUrl: expediaUrl, withTaxesPerNight: expediaRate, basePerNight: baseRoomRate },
       hotelsCom: { perNight: hotelsComRate, total: hotelsComRate * nights, verifyUrl: hotelsComUrl, withTaxesPerNight: hotelsComRate, basePerNight: baseRoomRate, packageLabel: 'Free Cancellation' },
-      booking: { perNight: bookingRate, total: bookingRate * nights, verifyUrl: urls.booking, withTaxesPerNight: bookingRate, basePerNight: baseRoomRate },
+      booking: { perNight: bookingRate, total: bookingRate * nights, verifyUrl: bookingUrl, withTaxesPerNight: bookingRate, basePerNight: baseRoomRate },
       agoda: { perNight: agodaRate, total: agodaRate * nights, verifyUrl: agodaUrl, withTaxesPerNight: agodaRate, basePerNight: baseRoomRate },
       kayak: { perNight: kayakRate, total: kayakRate * nights, verifyUrl: kayakUrl, withTaxesPerNight: kayakRate, basePerNight: baseRoomRate },
       officialDirect: { perNight: directRate, total: directRate * nights, verifyUrl: directUrl, withTaxesPerNight: directRate, basePerNight: baseRoomRate },

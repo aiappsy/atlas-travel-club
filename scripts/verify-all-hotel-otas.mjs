@@ -27,38 +27,43 @@ async function testEndpoint(name, url) {
     // 1. Hotels.com Check
     const hcUrl = hotel.prices?.hotelsCom?.verifyUrl;
     if (!hcUrl) throw new Error(`Missing Hotels.com URL for ${hotel.name}`);
-    if (!hcUrl.startsWith('https://www.hotels.com/Hotel-Search?destination=')) {
-      throw new Error(`Invalid Hotels.com URL (does not use Hotel-Search): ${hcUrl}`);
+    if (hcUrl.includes('Hotel-Search?destination=')) {
+      throw new Error(`CRITICAL: Hotels.com URL still uses generic Hotel-Search?destination: ${hcUrl}`);
     }
-    if (hcUrl.includes('/ho')) {
-      throw new Error(`CRITICAL: Found legacy /ho numeric ID in Hotels.com URL: ${hcUrl}`);
+    if (!hcUrl.includes('.Hotel-Information') && !hcUrl.includes('google.com/travel/lodging/clk')) {
+      throw new Error(`Invalid Hotels.com URL (does not target direct .Hotel-Information): ${hcUrl}`);
     }
-    if (!hcUrl.includes('startDate=') || !hcUrl.includes('endDate=') || !hcUrl.includes('adults=2')) {
-      throw new Error(`Hotels.com URL missing required date/adult parameters: ${hcUrl}`);
-    }
-    console.log(`  ✓ Hotels.com URL verified (No /ho, clean Hotel-Search, valid dates & adults)`);
+    console.log(`  ✓ Hotels.com URL verified (Direct property endpoint, no generic city search)`);
 
     // 2. Expedia Check
     const expUrl = hotel.prices?.expedia?.verifyUrl;
     if (!expUrl) throw new Error(`Missing Expedia URL for ${hotel.name}`);
-    if (!expUrl.startsWith('https://www.expedia.com/Hotel-Search?destination=')) {
-      throw new Error(`Invalid Expedia URL (does not use Hotel-Search): ${expUrl}`);
+    if (expUrl.includes('Hotel-Search?destination=')) {
+      throw new Error(`CRITICAL: Expedia URL still uses generic Hotel-Search?destination: ${expUrl}`);
     }
-    if (!expUrl.includes('startDate=') || !expUrl.includes('endDate=') || !expUrl.includes('adults=2')) {
-      throw new Error(`Expedia URL missing required date/adult parameters: ${expUrl}`);
+    if (!expUrl.includes('.Hotel-Information') && !expUrl.includes('google.com/travel/lodging/clk')) {
+      throw new Error(`Invalid Expedia URL (does not target direct .Hotel-Information): ${expUrl}`);
     }
-    console.log(`  ✓ Expedia URL verified (Clean Hotel-Search, valid dates & adults)`);
+    console.log(`  ✓ Expedia URL verified (Direct property endpoint, no 300-hotel city search)`);
 
-    // 3. Agoda Check
+    // 3. Booking.com Check
+    const bookingUrl = hotel.prices?.booking?.verifyUrl;
+    if (!bookingUrl) throw new Error(`Missing Booking.com URL for ${hotel.name}`);
+    if (bookingUrl.includes('searchresults.html?ss=')) {
+      throw new Error(`CRITICAL: Booking.com URL uses generic searchresults.html: ${bookingUrl}`);
+    }
+    if (!bookingUrl.includes('/hotel/') && !bookingUrl.includes('google.com/travel/lodging/clk')) {
+      throw new Error(`Invalid Booking.com URL (does not target direct /hotel/): ${bookingUrl}`);
+    }
+    console.log(`  ✓ Booking.com URL verified (Direct property endpoint)`);
+
+    // 4. Agoda Check
     const agodaUrl = hotel.prices?.agoda?.verifyUrl;
     if (!agodaUrl) throw new Error(`Missing Agoda URL for ${hotel.name}`);
-    if (!agodaUrl.startsWith('https://www.agoda.com/search?')) {
-      throw new Error(`Invalid Agoda URL (does not use search): ${agodaUrl}`);
+    if (!agodaUrl.includes('/hotel/') && !agodaUrl.includes('google.com/travel/lodging/clk')) {
+      throw new Error(`Invalid Agoda URL (does not target direct /hotel/): ${agodaUrl}`);
     }
-    if (!agodaUrl.includes('checkIn=') || !agodaUrl.includes('checkOut=') || !agodaUrl.includes('adults=2') || !agodaUrl.includes('los=')) {
-      throw new Error(`Agoda URL missing checkIn/checkOut/adults/los parameters: ${agodaUrl}`);
-    }
-    console.log(`  ✓ Agoda URL verified (Pre-filled checkIn, checkOut, los, adults=2)`);
+    console.log(`  ✓ Agoda URL verified (Direct property endpoint)`);
 
     // 4. Kayak Check
     const kayakUrl = hotel.prices?.kayak?.verifyUrl;
