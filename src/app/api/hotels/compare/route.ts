@@ -993,7 +993,7 @@ function resolveHotelbedsRate(
 
   if (!bestMatch) return null;
 
-  const hbRate = hbRates.get(bestMatch.key)!;
+  const hbRate = hbRates.get((bestMatch as { score: number; key: string }).key)!;
 
   // Guard: only use Hotelbeds rate if it's at least 10% cheaper than the lowest public OTA
   const discountVsOta = (lowestPublicRate - hbRate.ratePerNight) / lowestPublicRate;

@@ -905,7 +905,7 @@ export default function HotelDetailPage() {
                   <span className="flex items-center gap-1.5 text-slate-300 font-medium">
                     <span>Transaction & Merchant Clearing Fee (3.8%)</span>
                   </span>
-                  <span className="font-mono text-amber-300 font-bold">+{formatPrice(clearingBufferTotal)}</span>
+                  <span className="font-mono text-amber-300 font-bold">+{formatPrice(Math.round(rawWholesaleTotal * 0.038))}</span>
                 </div>
                 <div className="text-[10px] text-slate-400 pt-0.5 space-y-1">
                   <div className="flex items-center gap-1">

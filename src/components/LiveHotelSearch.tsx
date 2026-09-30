@@ -129,8 +129,18 @@ export default function LiveHotelSearch({
     }
   };
 
+  // Re-fetch when currency changes (converts all prices server-side via SerpApi)
+  useEffect(() => {
+    if (hasSearched) {
+      performSearch(destination);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currency]);
+
+  // Initial load only
   useEffect(() => {
     performSearch(destination);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
