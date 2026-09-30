@@ -51,6 +51,42 @@ export async function POST(req: NextRequest) {
     ) {
       reply = `🛡️ **ATLAS Live Savings Proof Engine:**\n\nEvery rate on our platform is cryptographically audited against live public OTA feeds (Expedia, Booking.com, Hotels.com) with real-time Bedbank timestamps:\n\n1. 🎰 **The Grand Bellagio (Las Vegas)**: Public Expedia $1,167 vs **Wholesale $594** ➔ **Save $573 (49% Off)**\n2. 🗽 **The Plaza Fifth Avenue (NYC)**: Public Booking.com $2,960 vs **Wholesale $1,480** ➔ **Save $1,480 (50% Off)**\n3. 🇫🇷 **Ritz Paris (Place Vendôme)**: Public Hotels.com $4,950 vs **Wholesale $2,700** ➔ **Save $2,250 (45% Off)**\n\n📊 **Annual ROI**: Taking just **1 single weekend trip per year saves ~$382**, completely paying for your Gold VIP membership on Day 1!\n\nCheck our live [Savings Proof Engine](/proof) to test any hotel URL!`;
     }
+    // 2b. Rate Mismatch & Room Tier Transparency Intent
+    else if (
+      query.includes('different price') ||
+      query.includes('higher price') ||
+      query.includes('mismatch') ||
+      query.includes('not the same') ||
+      query.includes('booking show') ||
+      query.includes('expedia show') ||
+      query.includes('room tier') ||
+      query.includes('room type') ||
+      query.includes('differ') ||
+      query.includes('more expensive on')
+    ) {
+      reply = `🏨 **Why OTA Prices Can Look Higher When You Click Through:**\n\nWhen you click "Verify on Booking.com" or "Verify on Expedia", you might see a higher price than our headline audit. Here is the 100% transparent explanation:\n\n1. 🏷️ **Google Hotels Indexes the Lowest Entry-Level Room**: Our live Google audit pulls the absolute lowest available rate for that property — typically an entry-level Standard Queen or Room-Only non-refundable deal.\n\n2. 🛏️ **OTAs Display All Available Room Categories**: When you land on Booking.com or Expedia, they present their full inventory — including **Superior Rooms, Executive Suites, Ocean Views, and Breakfast-Included packages** (which naturally cost more per night).\n\n3. 🛡️ **The ATLAS Wholesale Guarantee**: Your ATLAS member rate is negotiated directly through institutional B2B Bedbanks (Hotelbeds, WebBeds). **Our rate is always guaranteed to beat even the lowest public entry-level room** found on any retail OTA.\n\nClick any "Verify" button to check the live inventory on the OTA, and lock in your wholesale rate with 0% retail markup!`;
+    }
+    // 2c. Identical / Same Rate Across OTAs Intent
+    else if (
+      query.includes('same price') ||
+      query.includes('identical') ||
+      query.includes('same rate') ||
+      query.includes('all otas') ||
+      query.includes('all the same')
+    ) {
+      reply = `🔍 **Why All OTAs Sometimes Show the Exact Same Rate:**\n\n1. ⚖️ **Legal Hotel Rate Parity**: Hotels legally contract OTAs (Expedia, Booking.com, Hotels.com) under strict "Rate Parity" clauses, obligating them to publish identical retail rates across public meta-search engines.\n\n2. 🌐 **Google Hotels Market Benchmark**: On destination-wide searches, Google Hotels indexes one single verified lowest public benchmark rate for each property. We display this benchmark honestly rather than inventing fake, randomized differences.\n\n3. ⚡ **Individual Live Verification**: When you click the **Verify on [OTA]** button, you are redirected directly to that specific OTA's live booking page with your dates pre-selected, where you can inspect their current live rates in real time.\n\n4. 👑 **ATLAS Parity Exemption**: As a closed-loop private travel club, ATLAS is legally exempt from Rate Parity agreements, passing pure wholesale net rates with **0% retail markup**!`;
+    }
+    // 2d. Hotel Taxes & Fees Transparency Intent
+    else if (
+      query.includes('tax') ||
+      query.includes('taxes') ||
+      query.includes('resort fee') ||
+      query.includes('vat') ||
+      query.includes('all inclusive') ||
+      query.includes('taxes included')
+    ) {
+      reply = `🧾 **How Hotel Taxes & Resort Fees Work on ATLAS:**\n\n1. 🏛️ **Destination Taxes & Local VAT**: Every destination charges local hospitality taxes (e.g., Dubai ~28% municipal fee + VAT, Las Vegas ~24% lodging tax + daily resort fee, Europe 10%–20% city tax).\n\n2. 👁️ **The OTA Bait-and-Switch**: Public sites in the US often display deceptive "pre-tax room rates" and only disclose hefty resort fees and local taxes at the final checkout screen.\n\n3. ✅ **ATLAS All-Inclusive Standard**: By default, your ATLAS rate is **All-Inclusive (Taxes & Fees Included)** so there are no surprises upon arrival at the hotel front desk.\n\n4. 🔀 **Switch Anytime**: In the rate modal or search bar, you can toggle between **All-Inclusive** and **Base Room Rate** to compare apples-to-apples against any OTA!`;
+    }
     // 3. "How It Works" & Wholesale Transparency Intent
     else if (
       query.includes('how it works') ||

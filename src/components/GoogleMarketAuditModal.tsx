@@ -14,6 +14,7 @@ import {
   Check,
   Info,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 import type { ComparedHotel, GoogleMarketProvider } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -425,16 +426,35 @@ export default function GoogleMarketAuditModal({
         </div>
 
         {/* ── WHY DIFFERENT PRICES ── */}
-        <div className="mx-5 sm:mx-8 mb-4 p-4 rounded-2xl bg-slate-900 border border-amber-500/20">
-          <div className="flex items-center gap-2 text-slate-200 font-bold text-xs mb-2">
-            <Info className="w-4 h-4 text-amber-400 shrink-0" />
-            Why might the OTA show a different price when I click through?
+        <div className="mx-5 sm:mx-8 mb-4 p-4 rounded-2xl bg-slate-900 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 text-slate-200 font-bold text-xs mb-1.5">
+              <Info className="w-4 h-4 text-amber-400 shrink-0" />
+              Why might the OTA show a different price when I click through?
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              The prices above are sourced live from Google Hotels for the <strong className="text-slate-300">cheapest available room</strong> at this property.
+              When you click through to an OTA, you&apos;ll see <strong className="text-slate-300">all room types</strong> — superior rooms, suites, breakfast-inclusive options etc.
+              <strong className="text-slate-300"> Your Atlas wholesale rate is guaranteed to be lower than even the cheapest Google Hotels room.</strong>
+            </p>
           </div>
-          <p className="text-[11px] text-slate-400 leading-relaxed">
-            The prices above are sourced live from Google Hotels for the <strong className="text-slate-300">cheapest available room</strong> at this property.
-            When you click through to an OTA, you&apos;ll see <strong className="text-slate-300">all room types</strong> — standard rooms, superior rooms, suites, rooms with breakfast, free cancellation options etc.
-            Premium rooms naturally cost more. <strong className="text-slate-300">Your Atlas rate is always guaranteed to be lower than the cheapest Google Hotels room.</strong>
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent('open-concierge', {
+                  detail: {
+                    prompt: `Explain why OTA prices on Booking.com or Expedia might differ from the Google Hotels lowest rate for ${hotel.name} in ${hotel.city}.`,
+                  },
+                })
+              );
+            }}
+            className="shrink-0 px-3.5 py-2.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+            title="Ask AI Concierge for an instant explanation of this rate"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Ask Aura to explain</span>
+          </button>
         </div>
 
         {/* ── HOW ATLAS WORKS ── */}

@@ -61,12 +61,30 @@ export default function AITravelConcierge() {
   const [activeGapIndex, setActiveGapIndex] = useState<number>(0);
   const [isMarketScanning, setIsMarketScanning] = useState(false);
   const [marketLastScannedAgo, setMarketLastScannedAgo] = useState(14);
+  const [showProactiveHint, setShowProactiveHint] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setMarketLastScannedAgo((prev) => (prev >= 60 ? 1 : prev + 1));
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Listen for external trigger to open concierge with custom prompt (e.g. from Rate Audit Modal)
+  useEffect(() => {
+    const handleOpenConcierge = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt?: string }>;
+      setIsOpen(true);
+      setShowProactiveHint(false);
+      if (customEvent.detail?.prompt) {
+        setTimeout(() => {
+          handleSend(customEvent.detail.prompt);
+        }, 150);
+      }
+    };
+
+    window.addEventListener('open-concierge', handleOpenConcierge);
+    return () => window.removeEventListener('open-concierge', handleOpenConcierge);
   }, []);
 
   const activeModel = resolveActiveGeminiModel({
@@ -95,6 +113,9 @@ export default function AITravelConcierge() {
   const activeGap = MOCK_ACTIVE_GAP_ALERTS[activeGapIndex];
 
   const quickPrompts = [
+    'Why do OTA prices differ by room type?',
+    'Why are all OTA rates sometimes identical?',
+    'Explain hotel taxes & resort fees',
     'Scan live travel market for freshest wholesale drops',
     'How does ATLAS wholesale pricing work?',
     'Check Southampton train vs cruise boarding gap',
@@ -233,11 +254,41 @@ export default function AITravelConcierge() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+      {/* Floating Trigger Button & Proactive Helper */}
+      <div className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5">
+        {/* Proactive Floating Rate Hint */}
+        {!isOpen && showProactiveHint && (
+          <div className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-950/95 text-slate-200 border border-amber-400/40 text-[11px] shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-right-4 duration-300">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+            <span
+              className="cursor-pointer hover:text-amber-300 transition-colors font-medium"
+              onClick={() => {
+                setIsOpen(true);
+                setShowProactiveHint(false);
+                handleSend('Why do OTA prices differ by room type?');
+              }}
+            >
+              Comparing rates? Ask Aura about room tiers &amp; taxes
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowProactiveHint(false);
+              }}
+              className="text-slate-500 hover:text-white ml-1 p-0.5"
+              title="Dismiss tip"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="group relative flex items-center gap-2 px-3.5 py-3 rounded-full bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 hover:from-slate-900 hover:to-indigo-900 text-white border border-amber-500/40 font-bold text-xs shadow-2xl transition-all transform hover:scale-105"
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setShowProactiveHint(false);
+          }}
+          className="group relative flex items-center gap-2 px-3.5 py-3 rounded-full bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 hover:from-slate-900 hover:to-indigo-900 text-white border border-amber-500/40 font-bold text-xs shadow-2xl transition-all transform hover:scale-105 cursor-pointer"
         >
           <span className="flex h-2 w-2 relative">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
