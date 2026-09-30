@@ -307,21 +307,23 @@ function buildOtaUrls(
   const expediaPropertyPath = `${citySlug}-Hotels-${hotelSlug}.Hotel-Information`;
   const expediaUrl = `https://www.expedia.com/${expediaPropertyPath}?startDate=${ciParam}&endDate=${coParam}&adults=2`;
 
-  // 2. Hotels.com Direct Property Deep-Link (Expedia Group identical property path)
-  const hotelsComUrl = `https://www.hotels.com/${expediaPropertyPath}?startDate=${ciParam}&endDate=${coParam}&adults=2`;
-
   // 3. Booking.com Direct Hotel Property Deep-Link:
   // Directly targets /hotel/[countryCode]/[hotelSlug].html which opens the exact hotel property page
   const bookingUrl = `https://www.booking.com/hotel/${countryCode}/${hotelSlug.toLowerCase()}.html?checkin=${ciParam}&checkout=${coParam}&group_adults=2&no_rooms=1&selected_currency=${upperCurr}`;
 
-  // 4. Agoda Direct Hotel Property Deep-Link:
-  // Targets /[hotelSlug]/hotel/[citySlug]-[countryCode].html
-  const agodaUrl = `https://www.agoda.com/${hotelSlug.toLowerCase()}/hotel/${citySlug.toLowerCase()}-${countryCode}.html?checkIn=${ciParam}&checkOut=${coParam}&adults=2&currency=${upperCurr}`;
+  // 4. Agoda — use search URL which respects date params even when user has an active session cookie.
+  //    Direct property URLs (/slug/hotel/city-cc.html) are overridden by Agoda's cookie session dates.
+  //    The search URL (?q=hotel+name) correctly applies checkIn/checkOut from the URL on every visit.
+  const agodaUrl = `https://www.agoda.com/search?q=${encodeURIComponent(cleanHotel + ' ' + cleanCity)}&checkIn=${ciParam}&checkOut=${coParam}&adults=2&rooms=1`;
 
-  // 5. Kayak Deep-Link
+  // 5. Hotels.com — does NOT support the Expedia .Hotel-Information URL format (same company, different system).
+  //    Use their search URL which always resolves correctly with name + dates pre-filled.
+  const hotelsComUrl = `https://www.hotels.com/search.do?q-destination=${encodeURIComponent(cleanHotel + ' ' + cleanCity)}&q-check-in=${ciParam}&q-check-out=${coParam}&q-rooms=1&q-room-0-adults=2`;
+
+  // 6. Kayak Deep-Link
   const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanCity + ', ' + country)}/${hotelSlug.toLowerCase()}/${ciParam}/${coParam}/2adults`;
 
-  // 6. Google Hotels Deep-Link for exact hotel property rates
+  // 7. Google Hotels Deep-Link for exact hotel property rates
   const googleHotelsUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity}`, ciParam, coParam, upperCurr);
 
   return {
