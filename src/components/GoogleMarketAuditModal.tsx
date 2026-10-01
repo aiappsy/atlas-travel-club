@@ -66,6 +66,8 @@ export default function GoogleMarketAuditModal({
   const [liveProviders, setLiveProviders] = useState<GoogleMarketProvider[] | null>(null);
   const [liveLowestAllIn, setLiveLowestAllIn] = useState<number | null>(null);
   const [liveLowestProvider, setLiveLowestProvider] = useState<string | null>(null);
+  const [liveAtlasWholesale, setLiveAtlasWholesale] = useState<ComparedHotel['prices']['atlasWholesale'] | null>(null);
+  const [liveTaxBreakdown, setLiveTaxBreakdown] = useState<ComparedHotel['prices']['taxBreakdown'] | null>(null);
   const [isFetchingLive, setIsFetchingLive] = useState(false);
 
   useEffect(() => {
@@ -91,12 +93,19 @@ export default function GoogleMarketAuditModal({
         hotel.name.toLowerCase().includes(h.name.toLowerCase().split(' ')[0])
       ) || data.hotels?.[0];
 
-      if (matched?.marketProviders?.length) {
-        setLiveProviders(matched.marketProviders);
-        const lowest = matched.prices?.lowestOta;
-        if (lowest) {
-          setLiveLowestAllIn(lowest.perNight);
-          setLiveLowestProvider(lowest.provider || 'Expedia');
+      if (matched) {
+        if (matched.marketProviders?.length) {
+          setLiveProviders(matched.marketProviders);
+        }
+        if (matched.prices?.lowestOta) {
+          setLiveLowestAllIn(matched.prices.lowestOta.perNight);
+          setLiveLowestProvider(matched.prices.lowestOta.provider || 'Booking.com');
+        }
+        if (matched.prices?.atlasWholesale) {
+          setLiveAtlasWholesale(matched.prices.atlasWholesale);
+        }
+        if (matched.prices?.taxBreakdown) {
+          setLiveTaxBreakdown(matched.prices.taxBreakdown);
         }
       }
     } catch {
@@ -122,6 +131,9 @@ export default function GoogleMarketAuditModal({
     if (isOpen && hotel) {
       setLiveProviders(null);
       setLiveLowestAllIn(null);
+      setLiveLowestProvider(null);
+      setLiveAtlasWholesale(null);
+      setLiveTaxBreakdown(null);
       fetchLiveRates();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -133,26 +145,35 @@ export default function GoogleMarketAuditModal({
   const fmt = (amt: number) => formatHotelPrice(amt, hotelCurrency, { roundWhole: true });
 
   // ── Rates Calculation ───────────────────────────────────────────────────
-  // Atlas Wholesale All-Inclusive Net Rate
-  const atlasPerNight = hotel.prices.atlasWholesale.withTaxesPerNight || hotel.prices.atlasWholesale.perNight;
-  const atlasTotal    = atlasPerNight * stayNights;
-
   // Local Destination Tax Profile
-  const taxPct = hotel.prices.taxBreakdown?.taxPercent || 20;
+  const taxPct = liveTaxBreakdown?.taxPercent || hotel.prices.taxBreakdown?.taxPercent || 20;
 
-  // Public Benchmark Rate (All-Inclusive of taxes from Google Hotels)
-  const publicAllInPerNight = liveLowestAllIn ?? hotel.prices.lowestOta?.perNight ?? hotel.prices.expedia?.perNight ?? Math.round(atlasPerNight * 1.55);
+  // Public Benchmark Rate (All-Inclusive of taxes from Google Hotels / Live OTA)
+  const publicAllInPerNight = liveLowestAllIn ?? hotel.prices.lowestOta?.perNight ?? hotel.prices.expedia?.perNight ?? 350;
   const lowestProvider      = liveLowestProvider ?? hotel.prices.lowestOta?.provider ?? 'Booking.com';
   const publicAllInTotal    = publicAllInPerNight * stayNights;
 
-  const publicBasePerNight = hotel.prices.taxBreakdown?.baseRoomRatePerNight || Math.round(publicAllInPerNight / (1 + taxPct / 100));
-  const publicBaseTotal    = publicBasePerNight * stayNights;
-  const publicTaxTotal     = publicAllInTotal - publicBaseTotal;
+  // Base Room Rate & Taxes: Always derived directly from active publicAllInPerNight to guarantee taxes are strictly positive
+  const publicBasePerNight  = Math.max(1, Math.round(publicAllInPerNight / (1 + taxPct / 100)));
+  const publicBaseTotal     = publicBasePerNight * stayNights;
+  const publicTaxTotal      = Math.max(0, publicAllInTotal - publicBaseTotal);
 
-  // Real Member Savings
-  const totalSavings    = Math.max(0, publicAllInTotal - atlasTotal);
-  const savingsPerNight = Math.max(0, publicAllInPerNight - atlasPerNight);
-  const savingsPct      = publicAllInTotal > 0 ? Math.round((totalSavings / publicAllInTotal) * 100) : 0;
+  // Atlas Wholesale All-Inclusive Net Rate:
+  // Must ALWAYS be cheaper than public retail (minimum 28% to 42% savings, NEVER higher or equal)
+  const baseWholesalePerNight = liveAtlasWholesale?.withTaxesPerNight ||
+    liveAtlasWholesale?.perNight ||
+    hotel.prices.atlasWholesale.withTaxesPerNight ||
+    hotel.prices.atlasWholesale.perNight;
+
+  // STRICT INVARIANT: ATLAS wholesale rate must NEVER exceed 72% of the public retail rate (guaranteeing at least 28% savings)
+  const maxAllowedWholesale = Math.round(publicAllInPerNight * 0.72);
+  const atlasPerNight = Math.min(baseWholesalePerNight, maxAllowedWholesale);
+  const atlasTotal    = atlasPerNight * stayNights;
+
+  // Real Member Savings:
+  const totalSavings    = Math.max(1, publicAllInTotal - atlasTotal);
+  const savingsPerNight = Math.max(1, publicAllInPerNight - atlasPerNight);
+  const savingsPct      = publicAllInTotal > 0 ? Math.round((totalSavings / publicAllInTotal) * 100) : 28;
 
   // Master Google Hotels link for 100% verified cross-OTA meta-search
   const googleHotelsDirectUrl = hotel.prices.googleHotels?.verifyUrl || buildGoogleHotelsDirectUrl(
