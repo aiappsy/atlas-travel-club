@@ -341,20 +341,23 @@ function buildOtaUrls(
   const childAges = guestOptions?.childAges || [];
   const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
 
-  // 1. Expedia Verified Property Search:
-  let expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  // 1. Expedia Direct Hotel Property Deep-Link:
+  // Points directly to /[City]-Hotels-[Hotel].Hotel-Information to open the exact hotel page
+  let expediaUrl = `https://www.expedia.com/${citySlug}-Hotels-${hotelSlug}.Hotel-Information?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
   if (childrenCount > 0 && childAges.length > 0) {
     expediaUrl += `&children=${childAges.join('_')}`;
   }
 
-  // 2. Hotels.com Verified Property Search (modern Expedia Group endpoint):
-  let hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  // 2. Hotels.com Direct Hotel Property Deep-Link:
+  // Modern Expedia Group direct hotel endpoint for Hotels.com
+  let hotelsComUrl = `https://www.hotels.com/${citySlug}-Hotels-${hotelSlug}.Hotel-Information?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
   if (childrenCount > 0 && childAges.length > 0) {
     hotelsComUrl += `&children=${childAges.join('_')}`;
   }
 
-  // 3. Booking.com Verified Property Search (using .en-us.html endpoint to prevent redirects):
-  let bookingUrl = `https://www.booking.com/searchresults.en-us.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
+  // 3. Booking.com Direct Hotel Property Deep-Link:
+  // Directly targets /hotel/[countryCode]/[hotelSlug].html to open the exact hotel property page
+  let bookingUrl = `https://www.booking.com/hotel/${countryCode}/${hotelSlug.toLowerCase()}.html?checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
   if (childrenCount > 0) {
     bookingUrl += `&group_children=${childrenCount}`;
     for (const age of childAges) {
@@ -362,10 +365,12 @@ function buildOtaUrls(
     }
   }
 
-  // 4. Agoda Verified Property Search:
-  let agodaUrl = `https://www.agoda.com/partners/partnersearch.aspx?hotelName=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&NumberofAdults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
+  // 4. Agoda Direct Hotel Property Deep-Link:
+  // Points directly to /[hotelSlug]/hotel/[citySlug]-[countryCode].html
+  // Avoids partnersearch.aspx or /search? which redirects to the Agoda homepage
+  let agodaUrl = `https://www.agoda.com/${hotelSlug.toLowerCase()}/hotel/${citySlug.toLowerCase()}-${countryCode}.html?checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
   if (childrenCount > 0) {
-    agodaUrl += `&NumberOfChildren=${childrenCount}`;
+    agodaUrl += `&children=${childrenCount}`;
     if (childAges.length > 0) {
       agodaUrl += `&childages=${childAges.join(',')}`;
     }

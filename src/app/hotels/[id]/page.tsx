@@ -657,64 +657,68 @@ export default function HotelDetailPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
             {/* Booking.com */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Booking.com price vs ATLAS Wholesale"
+            <a
+              href={hotel.prices.booking?.verifyUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group cursor-pointer block"
+              title={`Verify ${hotel.name} directly on Booking.com`}
             >
               <div className="font-bold text-sky-400 text-xs flex items-center justify-center gap-1">
                 <span>Booking.com</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-sky-400 transition-colors" />
               </div>
               <div className="text-base font-bold text-slate-300 line-through mt-1">{formatPrice(bookingPerNight)}</div>
               <div className="text-[10px] text-sky-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
-            </button>
+            </a>
 
             {/* Hotels.com */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Hotels.com price vs ATLAS Wholesale"
+            <a
+              href={hotel.prices.hotelsCom?.verifyUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer block"
+              title={`Verify ${hotel.name} directly on Hotels.com`}
             >
               <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
                 <span>Hotels.com</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
               <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
-            </button>
+            </a>
 
             {/* Agoda */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Agoda price vs ATLAS Wholesale"
+            <a
+              href={hotel.prices.agoda?.verifyUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group cursor-pointer block"
+              title={`Verify ${hotel.name} directly on Agoda`}
             >
               <div className="font-bold text-purple-400 text-xs flex items-center justify-center gap-1">
                 <span>Agoda</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(agodaPerNight)}</div>
               <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Promo Direct ↗</div>
-            </button>
+            </a>
 
             {/* Expedia */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Expedia price vs ATLAS Wholesale"
+            <a
+              href={hotel.prices.expedia?.verifyUrl || '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group cursor-pointer block"
+              title={`Verify ${hotel.name} directly on Expedia`}
             >
               <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
                 <span>Expedia</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+                <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(expediaPerNight)}</div>
               <div className="text-[10px] text-blue-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
-            </button>
+            </a>
           </div>
         </div>
 
