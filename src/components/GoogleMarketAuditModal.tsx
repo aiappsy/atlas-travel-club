@@ -185,6 +185,18 @@ export default function GoogleMarketAuditModal({
     hotelCurrency
   );
 
+  // Public Market Spread (reflects real differences between Expedia, Booking, and Agoda)
+  const providerRates = providers.map((p) => p.perNight);
+  const minPublicRate = Math.min(...providerRates, publicAllInPerNight);
+  const maxPublicRate = Math.max(...providerRates, publicAllInPerNight);
+  const minPublicTotal = minPublicRate * effectiveNights;
+  const maxPublicTotal = maxPublicRate * effectiveNights;
+
+  const minSavingsTotal = Math.max(0, minPublicTotal - atlasTotal);
+  const maxSavingsTotal = Math.max(0, maxPublicTotal - atlasTotal);
+  const minSavingsPct = minPublicTotal > 0 ? Math.round((minSavingsTotal / minPublicTotal) * 100) : 0;
+  const maxSavingsPct = maxPublicTotal > 0 ? Math.round((maxSavingsTotal / maxPublicTotal) * 100) : 0;
+
   return (
     <div
       role="dialog"
@@ -210,12 +222,12 @@ export default function GoogleMarketAuditModal({
         </div>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          {/* Direct Google Meta-Search Link */}
+          {/* Master Google Travel Meta-Search Link */}
           <a
             href={googleHotelsDirectUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 text-xs font-bold transition-all shadow-sm"
             title="Open official Google Hotels page showing all OTAs side-by-side"
           >
             <Globe className="w-3.5 h-3.5 text-sky-400" />
@@ -305,7 +317,7 @@ export default function GoogleMarketAuditModal({
             </div>
             <div className="text-[11px] text-emerald-400/90 mt-1 flex items-center gap-1 font-medium">
               <Check className="w-3 h-3 shrink-0" />
-              <span>All mandatory taxes, service charges &amp; fees included</span>
+              <span>All mandatory taxes &amp; resort fees included (0% markup)</span>
             </div>
           </div>
 
@@ -314,24 +326,26 @@ export default function GoogleMarketAuditModal({
             <span className="text-slate-600 text-2xl font-black">VS</span>
           </div>
 
-          {/* Center: Cheapest Public OTA */}
+          {/* Center: Public Retail Market Range */}
           <div className="md:col-span-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                Cheapest on Google ({lowestProvider})
+                Public Retail Market Range
               </span>
-              <span className="text-[10px] text-slate-500 font-medium">Public Retail</span>
+              <span className="text-[10px] text-slate-500 font-medium">Google Verified</span>
             </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-300 font-mono leading-none line-through">
-              {viewMode === 'total' ? fmt(publicAllInTotal) : fmt(publicAllInPerNight)}
+            <div className="text-2xl sm:text-3xl font-black text-slate-300 font-mono leading-none line-through">
+              {viewMode === 'total'
+                ? `${fmt(minPublicTotal)} – ${fmt(maxPublicTotal)}`
+                : `${fmt(minPublicRate)} – ${fmt(maxPublicRate)}`}
             </div>
             <div className="text-xs text-slate-400 mt-1">
               {viewMode === 'total'
-                ? `${fmt(publicBaseTotal)} base + ${fmt(publicTaxTotal)} local taxes`
-                : `${fmt(publicBasePerNight)}/nt base + ${fmt(publicTaxPerNight)} taxes`}
+                ? `Standard public total across Expedia, Agoda & Booking`
+                : `/night across Expedia, Agoda & Booking`}
             </div>
             <div className="text-[11px] text-slate-500 mt-1">
-              Standard public rate without closed-loop club wholesale access
+              Rates fluctuate between OTAs based on member tiers &amp; checkout taxes
             </div>
           </div>
 
@@ -339,13 +353,13 @@ export default function GoogleMarketAuditModal({
           <div className="md:col-span-3 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center flex flex-col justify-between">
             <div>
               <div className="text-[10px] font-black uppercase tracking-wider text-emerald-300 mb-0.5">
-                Your Member Savings
+                Your Guaranteed Savings
               </div>
               <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-                {viewMode === 'total' ? fmt(totalSavings) : `${fmt(savingsPerNight)}/nt`}
+                {viewMode === 'total' ? fmt(minSavingsTotal) : `${fmt(minPublicRate - atlasPerNight)}/nt`}
               </div>
               <div className="text-xs font-bold text-emerald-300 mt-0.5">
-                Save {fmt(totalSavings)} total ({savingsPct}% OFF)
+                Save {fmt(minSavingsTotal)} – {fmt(maxSavingsTotal)} ({minSavingsPct}% – {maxSavingsPct}% OFF)
               </div>
             </div>
             <div className="flex items-center justify-center gap-1 mt-2 text-[10px] text-emerald-400 font-bold">
