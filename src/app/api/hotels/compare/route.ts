@@ -293,8 +293,23 @@ function buildOtaUrls(
   currency: string = 'USD'
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
-  const cleanHotel = hotelName.replace(/\s*\([^)]*\)/g, '').replace(/[®™]/g, '').trim();
-  const cleanCity = (city || 'City').split(',')[0].trim();
+
+  // Comprehensive hotel name sanitization:
+  // 1. Remove bracketed text: e.g. "Hotel Name (Staten Island)" -> "Hotel Name"
+  // 2. Replace slashes: e.g. "New York/Staten Island" -> "New York Staten Island"
+  // 3. Replace hyphens with spaces: e.g. "Atlantis - The Palm" -> "Atlantis The Palm"
+  // 4. Remove trademarks: ®, ™
+  // 5. Remove quotes: ", ', ’
+  // 6. Collapse multiple spaces into one
+  const cleanHotel = hotelName
+    .replace(/\s*\([^)]*\)/g, ' ')
+    .replace(/\//g, ' ')
+    .replace(/[-–—]/g, ' ')
+    .replace(/[®™"']/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const cleanCity = (city || 'City').split(',')[0].replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
   const upperCurr = (currency || 'USD').toUpperCase();
   const countryCode = getCountryCode(country, cleanCity);
 
@@ -478,11 +493,25 @@ function mapSerpApiPropertyToHotel(
   let bookingRate: number | null = null;
   let bookingUrl = urls.booking;
 
+  // Helper to extract clean direct partner URL from Google lodging clickout URLs
+  const extractDirectOtaUrl = (raw?: string | null): string | null => {
+    if (!raw) return null;
+    const match = raw.match(/[?&]pcurl=([^&]+)/);
+    if (match) {
+      try {
+        return decodeURIComponent(match[1]);
+      } catch {
+        return raw;
+      }
+    }
+    return raw;
+  };
+
   if (Array.isArray(p.prices) && p.prices.length > 0) {
     for (const pr of p.prices) {
       const src = (pr.source || '').toLowerCase();
       const extracted = pr.rate_per_night?.extracted_lowest;
-      const clickUrl = pr.link || pr.pcurl;
+      const clickUrl = extractDirectOtaUrl(pr.pcurl || pr.link);
 
       if (extracted && typeof extracted === 'number') {
         if (src.includes('expedia')) {
