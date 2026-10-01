@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -55,6 +55,8 @@ export default function LiveHotelSearch({
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
   const [checkOut, setCheckOut] = useState('2026-10-18');
+  const checkInRef = useRef<HTMLInputElement>(null);
+  const checkOutRef = useRef<HTMLInputElement>(null);
   const [guestConfig, setGuestConfig] = useState<GuestRoomConfig>({
     rooms: initialRooms,
     adults: initialAdults,
@@ -119,13 +121,30 @@ export default function LiveHotelSearch({
     setCheckIn(newCheckIn);
     const dIn = new Date(newCheckIn);
     const dOut = new Date(checkOut);
+    let nextOutStr = checkOut;
     if (isNaN(dOut.getTime()) || dOut.getTime() <= dIn.getTime()) {
       const nextOut = new Date(dIn.getTime() + 3 * 86400000);
-      setCheckOut(nextOut.toISOString().split('T')[0]);
+      nextOutStr = nextOut.toISOString().split('T')[0];
+      setCheckOut(nextOutStr);
+    }
+    if (hasSearched) {
+      performSearch(destination, newCheckIn, nextOutStr);
     }
   };
 
-  const performSearch = async (targetDest: string, currentGuests = guestConfig) => {
+  const handleCheckOutChange = (newCheckOut: string) => {
+    setCheckOut(newCheckOut);
+    if (hasSearched) {
+      performSearch(destination, checkIn, newCheckOut);
+    }
+  };
+
+  const performSearch = async (
+    targetDest: string = destination,
+    inDate: string = checkIn,
+    outDate: string = checkOut,
+    currentGuests = guestConfig
+  ) => {
     setIsScanning(true);
     setScanStep(0);
     setHasSearched(true);
@@ -139,10 +158,14 @@ export default function LiveHotelSearch({
       });
     }, 200);
 
+    const dIn = new Date(inDate);
+    const dOut = new Date(outDate);
+    const currentNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)) || 3);
+
     try {
       const childAgesParam = currentGuests.childrenAges.length > 0 ? `&childAges=${currentGuests.childrenAges.join(',')}` : '';
       const res = await fetch(
-        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}&rooms=${currentGuests.rooms}&adults=${currentGuests.adults}&children=${currentGuests.childrenAges.length}${childAgesParam}`
+        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${currentNights}&checkIn=${inDate}&checkOut=${outDate}&currency=${currency}&rooms=${currentGuests.rooms}&adults=${currentGuests.adults}&children=${currentGuests.childrenAges.length}${childAgesParam}`
       );
       const data = await res.json();
       setTimeout(() => {
@@ -158,20 +181,20 @@ export default function LiveHotelSearch({
   // Re-fetch when currency changes (converts all prices server-side via SerpApi)
   useEffect(() => {
     if (hasSearched) {
-      performSearch(destination);
+      performSearch(destination, checkIn, checkOut);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currency]);
 
   // Initial load only
   useEffect(() => {
-    performSearch(destination);
+    performSearch(destination, checkIn, checkOut);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch(destination);
+    performSearch(destination, checkIn, checkOut);
   };
 
   const filteredHotels = hotels
@@ -222,18 +245,34 @@ export default function LiveHotelSearch({
           </div>
 
           {/* 2. Check-In Date */}
-          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => {
+              try {
+                checkInRef.current?.showPicker?.();
+              } catch {
+                checkInRef.current?.focus();
+              }
+            }}
+            className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3 cursor-pointer select-none"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0 pointer-events-none">
               <Calendar className="w-5 h-5 text-sky-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 cursor-pointer pointer-events-none">
                 Check-In
               </label>
               <input
+                ref={checkInRef}
                 type="date"
                 min={new Date().toISOString().split('T')[0]}
                 value={checkIn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  try {
+                    (e.target as HTMLInputElement).showPicker?.();
+                  } catch {}
+                }}
                 onChange={(e) => handleCheckInChange(e.target.value)}
                 className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
               />
@@ -241,19 +280,35 @@ export default function LiveHotelSearch({
           </div>
 
           {/* 3. Check-Out Date */}
-          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => {
+              try {
+                checkOutRef.current?.showPicker?.();
+              } catch {
+                checkOutRef.current?.focus();
+              }
+            }}
+            className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3 cursor-pointer select-none"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/30 text-sky-300 flex items-center justify-center shrink-0 pointer-events-none">
               <Calendar className="w-5 h-5 text-sky-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 cursor-pointer pointer-events-none">
                 Check-Out ({nights} Nts)
               </label>
               <input
+                ref={checkOutRef}
                 type="date"
                 min={checkIn || new Date().toISOString().split('T')[0]}
                 value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  try {
+                    (e.target as HTMLInputElement).showPicker?.();
+                  } catch {}
+                }}
+                onChange={(e) => handleCheckOutChange(e.target.value)}
                 className="w-full bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer [color-scheme:dark]"
               />
             </div>
