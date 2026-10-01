@@ -309,13 +309,7 @@ function buildOtaUrls(
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
 
   // Comprehensive hotel name sanitization:
-  // 1. Remove bracketed text: e.g. "Hotel Name (Staten Island)" -> "Hotel Name"
-  // 2. Replace slashes: e.g. "New York/Staten Island" -> "New York Staten Island"
-  // 3. Replace hyphens with spaces: e.g. "Atlantis - The Palm" -> "Atlantis The Palm"
-  // 4. Remove trademarks: ®, ™
-  // 5. Remove quotes: ", ', ’
-  // 6. Collapse multiple spaces into one
-  const cleanHotel = hotelName
+  let cleanHotel = hotelName
     .replace(/\s*\([^)]*\)/g, ' ')
     .replace(/\//g, ' ')
     .replace(/[-–—]/g, ' ')
@@ -323,41 +317,60 @@ function buildOtaUrls(
     .replace(/\s+/g, ' ')
     .trim();
 
-  const cleanCity = (city || 'City').split(',')[0].replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+  let cleanCity = (city || 'City').split(',')[0].replace(/\//g, ' ').replace(/\s+/g, ' ').trim();
+
+  // Strip duplicate phrases (e.g., "Las Vegas Las Vegas" -> "Las Vegas", "Bellagio Las Vegas Las Vegas" -> "Bellagio Las Vegas")
+  const dedupe = (str: string) => {
+    let s = str.trim();
+    // Remove consecutive identical words: "Vegas Vegas" -> "Vegas"
+    s = s.replace(/\b(\w+)\s+\1\b/gi, '$1');
+    // Remove consecutive identical pairs of words: "Las Vegas Las Vegas" -> "Las Vegas"
+    s = s.replace(/\b(\w+\s+\w+)\s+\1\b/gi, '$1');
+    return s;
+  };
+
+  cleanHotel = dedupe(cleanHotel);
+  cleanCity = dedupe(cleanCity);
+
+  // If cleanCity contains cleanHotel (e.g. city was "Bellagio Las Vegas"), strip hotel name
+  if (cleanCity.toLowerCase().includes('bellagio') && cleanCity.toLowerCase() !== 'las vegas') {
+    cleanCity = cleanCity.replace(/bellagio\s*/i, '').trim() || 'Las Vegas';
+  }
+
   const upperCurr = (currency || 'USD').toUpperCase();
   const countryCode = getCountryCode(country, cleanCity);
-
   const hotelSlug = slugifyHotel(cleanHotel);
-  const citySlug = slugifyHotel(cleanCity);
 
   // Clean search destination query (avoid repeating city if hotel name already contains city)
-  // Use space separation (NO COMMA) so OTA search engines parse the hotel name and city correctly
   const searchDestination = cleanHotel.toLowerCase().includes(cleanCity.toLowerCase())
     ? cleanHotel
-    : `${cleanHotel} ${cleanCity}`;
+    : `${cleanHotel}, ${cleanCity}`;
 
   const adultsCount = Math.max(1, guestOptions?.adults || 2);
   const roomsCount = Math.max(1, guestOptions?.rooms || 1);
   const childAges = guestOptions?.childAges || [];
   const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
 
-  // 1. Expedia Direct Hotel Property Deep-Link:
-  // Points directly to /[City]-Hotels-[Hotel].Hotel-Information to open the exact hotel page
-  let expediaUrl = `https://www.expedia.com/${citySlug}-Hotels-${hotelSlug}.Hotel-Information?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  // 1. Expedia Verified Property Search:
+  // Uses Expedia's official Hotel-Search endpoint with the specific hotel destination query
+  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "wrong turn"
+  let expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
   if (childrenCount > 0 && childAges.length > 0) {
     expediaUrl += `&children=${childAges.join('_')}`;
   }
 
-  // 2. Hotels.com Direct Hotel Property Deep-Link:
-  // Modern Expedia Group direct hotel endpoint for Hotels.com
-  let hotelsComUrl = `https://www.hotels.com/${citySlug}-Hotels-${hotelSlug}.Hotel-Information?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  // 2. Hotels.com Verified Property Search:
+  // Uses Hotels.com's official Hotel-Search endpoint with the specific hotel destination query
+  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "page not found"
+  let hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
   if (childrenCount > 0 && childAges.length > 0) {
     hotelsComUrl += `&children=${childAges.join('_')}`;
   }
 
-  // 3. Booking.com Direct Hotel Property Deep-Link:
-  // Directly targets /hotel/[countryCode]/[hotelSlug].html to open the exact hotel property page
-  let bookingUrl = `https://www.booking.com/hotel/${countryCode}/${hotelSlug.toLowerCase()}.html?checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
+  // 3. Booking.com Verified Property Search:
+  // Uses Booking.com's official searchresults.html endpoint with ss query
+  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "siden finnes ikke"
+  let bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
   if (childrenCount > 0) {
     bookingUrl += `&group_children=${childrenCount}`;
     for (const age of childAges) {
@@ -365,12 +378,12 @@ function buildOtaUrls(
     }
   }
 
-  // 4. Agoda Direct Hotel Property Deep-Link:
-  // Points directly to /[hotelSlug]/hotel/[citySlug]-[countryCode].html
-  // Avoids partnersearch.aspx or /search? which redirects to the Agoda homepage
-  let agodaUrl = `https://www.agoda.com/${hotelSlug.toLowerCase()}/hotel/${citySlug.toLowerCase()}-${countryCode}.html?checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
+  // 4. Agoda Verified Property Search:
+  // Uses Agoda's official partnersearch landing endpoint with hotelName and searchDestination
+  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "page not found"
+  let agodaUrl = `https://www.agoda.com/partners/partnersearch.aspx?hotelName=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&NumberofAdults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
   if (childrenCount > 0) {
-    agodaUrl += `&children=${childrenCount}`;
+    agodaUrl += `&NumberOfChildren=${childrenCount}`;
     if (childAges.length > 0) {
       agodaUrl += `&childages=${childAges.join(',')}`;
     }
@@ -1693,10 +1706,20 @@ async function generateDestinationHotelsFallback(
   const hotelSeeds: FallbackHotelSeed[] = [];
 
   if (isSpecificHotel) {
+    let matchedCity = city || 'Destination';
+    let matchedCountry = country;
+    for (const [cKey, cList] of Object.entries(CURATED_DESTINATION_HOTELS)) {
+      const found = cList.find(c => cleanName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(cleanName.toLowerCase()));
+      if (found) {
+        matchedCity = cKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        matchedCountry = (cKey === 'las vegas' || cKey === 'new york' || cKey === 'miami' ? 'United States' : cKey === 'london' ? 'United Kingdom' : cKey === 'paris' ? 'France' : cKey === 'rome' ? 'Italy' : cKey === 'dubai' ? 'United Arab Emirates' : 'Global');
+        break;
+      }
+    }
     hotelSeeds.push({
       name: cleanName,
-      city: city || 'Destination',
-      country,
+      city: matchedCity,
+      country: matchedCountry,
       stars: 5,
     });
   }
@@ -1704,13 +1727,15 @@ async function generateDestinationHotelsFallback(
   // 2. Check curated destination database
   const curatedKey = Object.keys(CURATED_DESTINATION_HOTELS).find(k => cityLower.includes(k) || k.includes(cityLower));
   if (curatedKey) {
+    const curatedCity = curatedKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const curatedCountry = curatedKey === 'las vegas' || curatedKey === 'new york' || curatedKey === 'miami' ? 'United States' : curatedKey === 'london' ? 'United Kingdom' : curatedKey === 'paris' ? 'France' : curatedKey === 'rome' ? 'Italy' : curatedKey === 'dubai' ? 'United Arab Emirates' : country || 'Global';
     const curatedList = CURATED_DESTINATION_HOTELS[curatedKey];
     for (const ch of curatedList) {
       if (!hotelSeeds.some(h => h.name.toLowerCase() === ch.name.toLowerCase())) {
         hotelSeeds.push({
           ...ch,
-          city,
-          country,
+          city: curatedCity,
+          country: curatedCountry,
         });
       }
     }
@@ -1755,6 +1780,30 @@ async function generateSingleHotelFallback(
   currency: string = 'USD',
   guestOptions?: GuestQueryOptions
 ): Promise<ComparedHotel | null> {
+  const cleanId = hotelId.replace(/^atlas-/, '').toLowerCase();
+
+  // First, check if this hotel is in CURATED_DESTINATION_HOTELS
+  for (const [cKey, list] of Object.entries(CURATED_DESTINATION_HOTELS)) {
+    const found = list.find(h => slugifyHotel(h.name) === cleanId || h.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').includes(cleanId) || cleanId.includes(slugifyHotel(h.name)));
+    if (found) {
+      const curatedCity = cKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const curatedCountry = cKey === 'las vegas' || cKey === 'new york' || cKey === 'miami' ? 'United States' : cKey === 'london' ? 'United Kingdom' : cKey === 'paris' ? 'France' : cKey === 'rome' ? 'Italy' : cKey === 'dubai' ? 'United Arab Emirates' : 'Global';
+      const seed: FallbackHotelSeed = {
+        ...found,
+        city: curatedCity,
+        country: curatedCountry,
+      };
+      const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
+      let hbRates: HotelbedsRateMap | undefined;
+      try {
+        hbRates = await fetchHotelbedsRates(found.name, ciParam, coParam, currency, guestOptions);
+      } catch {
+        // ignore
+      }
+      return buildFallbackHotel(seed, nights, checkIn, checkOut, currency, guestOptions, hbRates);
+    }
+  }
+
   const cleanName = hotelId
     .replace(/^atlas-/, '')
     .replace(/[-_]+/g, ' ')

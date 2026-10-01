@@ -74,15 +74,16 @@ export default function GoogleMarketAuditModal({
     if (!hotel) return;
     setIsFetchingLive(true);
     try {
-      const query = encodeURIComponent(`${hotel.name} ${hotel.city}`);
       const guestParams = hotel.guestConfig
         ? `&rooms=${hotel.guestConfig.rooms}&adults=${hotel.guestConfig.adults}&children=${hotel.guestConfig.childrenAges.length}${hotel.guestConfig.childrenAges.length > 0 ? `&childAges=${hotel.guestConfig.childrenAges.join(',')}` : ''}`
         : '';
-      const url = `/api/hotels/compare?destination=${query}&nights=${stayNights}&checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&currency=${currency}${guestParams}`;
+      // Pass exact hotel id so backend resolves the specific hotel without name-mangling
+      const url = `/api/hotels/compare?id=${encodeURIComponent(hotel.id)}&nights=${stayNights}&checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&currency=${currency}${guestParams}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
-      const matched: ComparedHotel | undefined = (data.hotels || []).find((h: ComparedHotel) =>
+      const matched: ComparedHotel | undefined = data.hotel || (data.hotels || []).find((h: ComparedHotel) =>
+        h.id === hotel.id ||
         h.name.toLowerCase().includes(hotel.name.toLowerCase().split(' ')[0]) ||
         hotel.name.toLowerCase().includes(h.name.toLowerCase().split(' ')[0])
       ) || data.hotels?.[0];
