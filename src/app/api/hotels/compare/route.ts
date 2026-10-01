@@ -305,7 +305,7 @@ function buildOtaUrls(
   nights: number = 3,
   currency: string = 'USD',
   guestOptions?: GuestQueryOptions,
-  directOverrides?: { expediaUrl?: string; agodaUrl?: string }
+  directOverrides?: { expediaUrl?: string; hotelsComUrl?: string; agodaUrl?: string }
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
 
@@ -338,10 +338,13 @@ function buildOtaUrls(
     cleanCity = cleanCity.replace(/bellagio\s*/i, '').trim() || 'Las Vegas';
   }
 
-  // If cleanHotel ends with the city name (e.g. "The Plaza Hotel New York" with city "New York"), strip the city suffix
-  const citySuffixRegex = new RegExp(`\\s*,?\\s*${cleanCity.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}$`, 'i');
-  if (citySuffixRegex.test(cleanHotel)) {
-    cleanHotel = cleanHotel.replace(citySuffixRegex, '').trim();
+  // If cleanHotel ends with the city name (but is not identical to city name), strip city suffix
+  if (cleanHotel.toLowerCase() !== cleanCity.toLowerCase()) {
+    const citySuffixRegex = new RegExp(`\\s*,?\\s*${cleanCity.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}$`, 'i');
+    if (citySuffixRegex.test(cleanHotel)) {
+      const stripped = cleanHotel.replace(citySuffixRegex, '').trim();
+      if (stripped.length > 0) cleanHotel = stripped;
+    }
   }
 
   const upperCurr = (currency || 'USD').toUpperCase();
@@ -349,7 +352,7 @@ function buildOtaUrls(
   const hotelSlug = slugifyHotel(cleanHotel);
 
   // Clean search destination query (avoid repeating city if hotel name already contains city)
-  const searchDestination = cleanHotel.toLowerCase().includes(cleanCity.toLowerCase())
+  const searchDestination = (!cleanCity || cleanCity.toLowerCase() === 'destination' || cleanHotel.toLowerCase().includes(cleanCity.toLowerCase()))
     ? cleanHotel
     : `${cleanHotel}, ${cleanCity}`;
 
@@ -370,22 +373,27 @@ function buildOtaUrls(
     }
   }
 
-  // 3. Expedia: Use direct verified property page if available, else Google Hotels verified card
+  // 3. Expedia: Direct verified property page if available, else direct Expedia search
   const expediaUrl = directOverrides?.expediaUrl
     ? (directOverrides.expediaUrl.includes('?')
         ? `${directOverrides.expediaUrl}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`
         : `${directOverrides.expediaUrl}?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`)
-    : googleHotelsUrl;
+    : `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
 
-  // 4. Hotels.com: Use Google Hotels verified card
-  const hotelsComUrl = googleHotelsUrl;
+  // 4. Hotels.com: Direct verified property page (or derived from expediaUrl), else direct Hotels.com search
+  const directHotelsCom = directOverrides?.hotelsComUrl || (directOverrides?.expediaUrl ? directOverrides.expediaUrl.replace('www.expedia.com', 'www.hotels.com') : undefined);
+  const hotelsComUrl = directHotelsCom
+    ? (directHotelsCom.includes('?')
+        ? `${directHotelsCom}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`
+        : `${directHotelsCom}?startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`)
+    : `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
 
-  // 5. Agoda: Use direct verified property page if available, else Google Hotels verified card
+  // 5. Agoda: Direct verified property page if available, else direct Agoda search
   const agodaUrl = directOverrides?.agodaUrl
     ? (directOverrides.agodaUrl.includes('?')
         ? `${directOverrides.agodaUrl}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`
         : `${directOverrides.agodaUrl}?checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`)
-    : googleHotelsUrl;
+    : `https://www.agoda.com/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
 
   // 6. Kayak: Use Google Hotels verified card
   const kayakUrl = googleHotelsUrl;
@@ -1184,6 +1192,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
   roomType: string;
   basePrice?: number;
   expediaUrl?: string;
+  hotelsComUrl?: string;
   agodaUrl?: string;
 }>> = {
   oslo: [
@@ -1199,6 +1208,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Superior Deluxe Room',
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Grand-Hotel.h10372.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Grand-Hotel.h10372.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html'
     },
     {
@@ -1212,6 +1222,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Deluxe King Room',
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Hotel-Continental.h11364.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Hotel-Continental.h11364.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/hotel-continental/hotel/oslo-no.html'
     },
     {
@@ -1225,6 +1236,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Waterfront Design Room',
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-THE-THIEF.h5358057.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-THE-THIEF.h5358057.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-thief/hotel/oslo-no.html'
     },
     {
@@ -1238,6 +1250,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Art Deco Heritage Room',
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Sommerro.h86358890.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Sommerro.h86358890.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/sommerro/hotel/oslo-no.html'
     },
     {
@@ -1251,6 +1264,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Superior Double Room',
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Clarion-Hotel-The-Hub.h11365.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Clarion-Hotel-The-Hub.h11365.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/clarion-hotel-the-hub/hotel/oslo-no.html'
     },
   ],
@@ -1266,6 +1280,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Grand Superior King Room',
       expediaUrl: 'https://www.expedia.com/Paris-Hotels-Ritz-Paris.h1886.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Paris-Hotels-Ritz-Paris.h1886.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/ritz-paris/hotel/paris-fr.html'
     },
     {
@@ -1278,6 +1293,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Deluxe Palais King Room',
       expediaUrl: 'https://www.expedia.com/Paris-Hotels-Le-Bristol-Paris-an-Oetker-Collection-Hotel.h10052.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Paris-Hotels-Le-Bristol-Paris-an-Oetker-Collection-Hotel.h10052.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/le-bristol-paris-an-oetker-collection-hotel/hotel/paris-fr.html'
     },
     {
@@ -1290,6 +1306,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Premier Avenue Room',
       expediaUrl: 'https://www.expedia.com/Paris-Hotels-The-Peninsula-Paris.h8366965.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Paris-Hotels-The-Peninsula-Paris.h8366965.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-peninsula-paris/hotel/paris-fr.html'
     },
     {
@@ -1302,6 +1319,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Deluxe King Suite',
       expediaUrl: 'https://www.expedia.com/Paris-Hotels-Four-Seasons-Hotel-George-V.h10051.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Paris-Hotels-Four-Seasons-Hotel-George-V.h10051.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/four-seasons-hotel-george-v-paris/hotel/paris-fr.html'
     },
   ],
@@ -1316,7 +1334,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Premier Fountain View King Room',
-      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-Bellagio.h127040.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-Bellagio.h11394.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Las-Vegas-Hotels-Bellagio.h11394.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/bellagio-hotel/hotel/las-vegas-nv-us.html'
     },
     {
@@ -1328,7 +1347,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Luxury King Suite (650 sq ft)',
-      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-The-Venetian-Resort-Las-Vegas.h128892.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-The-Venetian-Resort-Las-Vegas.h6686.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Las-Vegas-Hotels-The-Venetian-Resort-Las-Vegas.h6686.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-venetian-resort-hotel-casino/hotel/las-vegas-nv-us.html'
     },
     {
@@ -1340,7 +1360,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Wynn Tower Suite King',
-      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-Wynn-Las-Vegas.h1073867.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Wynn-Las-Vegas-Hotels-Wynn-Las-Vegas.h1184243.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Wynn-Las-Vegas-Hotels-Wynn-Las-Vegas.h1184243.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/wynn-las-vegas/hotel/las-vegas-nv-us.html'
     },
     {
@@ -1352,7 +1373,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Deluxe King Room Strip View',
-      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-ARIA-Resort-Casino.h2911956.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Las-Vegas-Hotels-ARIA-Resort-Casino.h2565776.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Las-Vegas-Hotels-ARIA-Resort-Casino.h2565776.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/aria-resort-casino/hotel/las-vegas-nv-us.html'
     },
   ],
@@ -1367,7 +1389,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Grand Luxe King Room',
-      expediaUrl: 'https://www.expedia.com/New-York-Hotels-The-Plaza-Hotel.h10543.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/New-York-Hotels-The-Plaza-A-Fairmont-Managed-Hotel.h28044.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/New-York-Hotels-The-Plaza-A-Fairmont-Managed-Hotel.h28044.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-plaza-hotel/hotel/new-york-ny-us.html'
     },
     {
@@ -1380,6 +1403,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Superior King Room with Butler Service',
       expediaUrl: 'https://www.expedia.com/New-York-Hotels-The-St-Regis-New-York.h10834.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/New-York-Hotels-The-St-Regis-New-York.h10834.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-st-regis-new-york/hotel/new-york-ny-us.html'
     },
     {
@@ -1392,6 +1416,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'City View Studio King',
       expediaUrl: 'https://www.expedia.com/New-York-Hotels-1-Hotel-Central-Park.h10668048.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/New-York-Hotels-1-Hotel-Central-Park.h10668048.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/1-hotel-central-park/hotel/new-york-ny-us.html'
     },
     {
@@ -1404,6 +1429,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Standard King Room',
       expediaUrl: 'https://www.expedia.com/New-York-Hotels-Hilton-Garden-Inn-Times-Square.h1194212.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/New-York-Hotels-Hilton-Garden-Inn-Times-Square.h1194212.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/hilton-garden-inn-times-square/hotel/new-york-ny-us.html'
     }
   ],
@@ -1418,6 +1444,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Deluxe King Room River Thames View',
       expediaUrl: 'https://www.expedia.com/London-Hotels-The-Savoy.h1001.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/London-Hotels-The-Savoy.h1001.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-savoy/hotel/london-gb.html'
     },
     {
@@ -1430,6 +1457,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Superior Queen Room',
       expediaUrl: 'https://www.expedia.com/London-Hotels-The-Ritz-London.h1004.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/London-Hotels-The-Ritz-London.h1004.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/the-ritz-london-hotel/hotel/london-gb.html'
     },
     {
@@ -1442,6 +1470,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       ],
       roomType: 'Mayfair Superior King',
       expediaUrl: 'https://www.expedia.com/London-Hotels-Claridges.h1003.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/London-Hotels-Claridges.h1003.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/claridge-s/hotel/london-gb.html'
     }
   ],
@@ -1455,7 +1484,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Deluxe One-Bedroom Suite (1,830 sq ft)',
-      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Burj-Al-Arab-Jumeirah.h11306.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Jumeirah-Burj-Al-Arab-Dubai.h527497.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Dubai-Hotels-Jumeirah-Burj-Al-Arab-Dubai.h527497.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/burj-al-arab-hotel/hotel/dubai-ae.html'
     },
     {
@@ -1467,7 +1497,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Ocean King Room with Aquaventure Pass',
-      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Atlantis-The-Palm.h2316447.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Atlantis-The-Palm.h2235336.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Dubai-Hotels-Atlantis-The-Palm.h2235336.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/atlantis-the-palm/hotel/dubai-ae.html'
     },
     {
@@ -1479,7 +1510,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Armani Classic King Room',
-      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Armani-Hotel-Dubai.h3622437.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Armani-Hotel-Dubai.h3033052.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Dubai-Hotels-Armani-Hotel-Dubai.h3033052.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/armani-hotel-dubai/hotel/dubai-ae.html'
     },
     {
@@ -1492,7 +1524,8 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
       ],
       roomType: 'Fairmont King Room with Palm & Sea View',
-      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Fairmont-The-Palm.h5442562.Hotel-Information',
+      expediaUrl: 'https://www.expedia.com/Dubai-Hotels-Fairmont-The-Palm.h5527177.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Dubai-Hotels-Fairmont-The-Palm.h5527177.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/fairmont-the-palm-hotel/hotel/dubai-ae.html'
     }
   ]
@@ -1540,6 +1573,7 @@ interface FallbackHotelSeed {
   address?: string;
   basePrice?: number;
   expediaUrl?: string;
+  hotelsComUrl?: string;
   agodaUrl?: string;
 }
 
@@ -1561,7 +1595,7 @@ function buildFallbackHotel(
 
   const starRating = seed.stars || 5;
   const slug = slugifyHotel(seed.name);
-  const urls = buildOtaUrls(seed.name, seed.city, seed.country, ciParam, coParam, nights, upperCurr, guestOptions, { expediaUrl: seed.expediaUrl, agodaUrl: seed.agodaUrl });
+  const urls = buildOtaUrls(seed.name, seed.city, seed.country, ciParam, coParam, nights, upperCurr, guestOptions, { expediaUrl: seed.expediaUrl, hotelsComUrl: seed.hotelsComUrl, agodaUrl: seed.agodaUrl });
   const taxInfo = getDestinationTaxInfo(seed.name, seed.city, seed.country, seed.address);
 
   // Price calculation based on property basePrice, specific landmarks, or city tier
@@ -1833,6 +1867,7 @@ async function generateDestinationHotelsFallback(
       gallery: matchedSeed?.gallery,
       roomType: matchedSeed?.roomType,
       expediaUrl: matchedSeed?.expediaUrl,
+      hotelsComUrl: matchedSeed?.hotelsComUrl,
       agodaUrl: matchedSeed?.agodaUrl,
     });
   }
