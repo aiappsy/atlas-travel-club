@@ -27,6 +27,7 @@ export interface HotelConciergeContext {
 }
 
 // Call Google's Gemini API directly when GEMINI_API_KEY is present
+// Call Google's Gemini API directly when an API key is available
 async function queryGeminiApi(
   apiKey: string,
   modelId: string,
@@ -34,47 +35,52 @@ async function queryGeminiApi(
   userPrompt: string,
   history: Array<{ sender: 'ai' | 'user'; text: string }> = []
 ): Promise<string | null> {
-  try {
-    const model = modelId.includes('gemini-2') ? 'gemini-2.0-flash' : 'gemini-1.5-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const modelsToTry = Array.from(new Set([
+    modelId,
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro',
+    'gemini-2.0-flash-lite'
+  ]));
 
-    const contents = [];
-    for (const m of history.slice(-6)) {
-      contents.push({
-        role: m.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: m.text }],
-      });
-    }
+  const contents = [];
+  for (const m of history.slice(-6)) {
     contents.push({
-      role: 'user',
-      parts: [{ text: userPrompt }],
+      role: m.sender === 'user' ? 'user' : 'model',
+      parts: [{ text: m.text }],
     });
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
-        },
-      }),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.warn(`[Gemini API] Request failed with HTTP ${res.status}:`, errorText);
-      return null;
-    }
-
-    const data = await res.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch (err) {
-    console.error('[Gemini API] Connection error:', err);
-    return null;
   }
+  contents.push({
+    role: 'user',
+    parts: [{ text: userPrompt }],
+  });
+
+  for (const model of modelsToTry) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1000,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) return text;
+      }
+    } catch {
+      // try next model candidate
+    }
+  }
+  return null;
 }
 
 function buildAuraSystemPrompt(hotelContext?: HotelConciergeContext, userName?: string): string {
@@ -152,7 +158,7 @@ function generateDomainConciergeResponse(
   hotelContext?: HotelConciergeContext,
   features: PlatformFeatureFlags = DEFAULT_PLATFORM_CONFIG
 ): { reply: string; bookingAction?: any; showHowItWorksLink?: boolean; showNomadLink?: boolean; showProofLink?: boolean } {
-  const q = query.toLowerCase();
+  const q = query.toLowerCase().trim();
   let reply = '';
   let bookingAction: any = undefined;
   let showHowItWorksLink = false;
@@ -160,78 +166,149 @@ function generateDomainConciergeResponse(
   let showProofLink = false;
 
   const hasHotel = !!(hotelContext && hotelContext.name);
+  const hotelName = hotelContext?.name || '';
+  const city = hotelContext?.city || '';
+  const dates = hotelContext?.dates || (hotelContext?.checkIn && hotelContext?.checkOut ? `${hotelContext.checkIn} – ${hotelContext.checkOut}` : 'Selected Dates');
+  const nights = hotelContext?.nights || 3;
+  const pubRate = hotelContext?.publicLowestPerNight || 400;
+  const pubTotal = hotelContext?.publicLowestTotal || pubRate * nights;
+  const wsRate = hotelContext?.wholesalePerNight || Math.round(pubRate * 0.62);
+  const wsTotal = hotelContext?.wholesaleTotal || wsRate * nights;
+  const savings = hotelContext?.savingsTotal || Math.max(0, pubTotal - wsTotal);
+  const savingsPct = hotelContext?.savingsPercent || Math.round((savings / (pubTotal || 1)) * 100);
+  const ota = hotelContext?.lowestOtaProvider || 'Booking.com';
 
-  // 1. Hotel-Specific Rate, Booking, or Difference Queries
+  // 1. GREETINGS & CASUAL INTRODUCTIONS
   if (
-    hasHotel &&
-    (q.includes('why') || q.includes('cheaper') || q.includes('differ') || q.includes('price') ||
-     q.includes('rate') || q.includes('hotel') || q.includes('tax') || q.includes('fee') ||
-     q.includes('book') || q.includes('reserve') || q.includes('lock in') || q.includes(hotelContext.name!.toLowerCase().split(' ')[0]))
+    q === 'hi' || q === 'hello' || q === 'hey' || q.startsWith('hello') || q.startsWith('hi ') ||
+    q.includes('good morning') || q.includes('good evening') || q.includes('who are you') ||
+    q.includes('what is aura') || q === 'help' || q.includes('what can you do')
   ) {
-    const h = hotelContext!;
-    const hotelName = h.name!;
-    const city = h.city || 'Destination';
-    const dates = h.dates || (h.checkIn && h.checkOut ? `${h.checkIn} – ${h.checkOut}` : 'Selected Dates');
-    const nights = h.nights || 3;
-    const pubRate = h.publicLowestPerNight || 400;
-    const pubTotal = h.publicLowestTotal || pubRate * nights;
-    const wsRate = h.wholesalePerNight || Math.round(pubRate * 0.62);
-    const wsTotal = h.wholesaleTotal || wsRate * nights;
-    const savings = h.savingsTotal || Math.max(0, pubTotal - wsTotal);
-    const savingsPct = h.savingsPercent || Math.round((savings / (pubTotal || 1)) * 100);
-    const ota = h.lowestOtaProvider || 'Booking.com';
-
-    const isBookingIntent =
-      q.includes('reserve') ||
-      q.includes('lock in') ||
-      q.includes('how to book') ||
-      q.includes('book now') ||
-      q.includes('confirm booking') ||
-      /\bbook\s+(this|my|a|the|now)\b/i.test(q) ||
-      (q.includes('book') && !q.includes('booking.com') && !q.includes('why') && !q.includes('cheaper'));
-
-    if (
-      q.includes('differ') ||
-      q.includes('different') ||
-      q.includes('room type') ||
-      q.includes('mismatch') ||
-      q.includes('more expensive') ||
-      q.includes('price higher') ||
-      q.includes('rate higher') ||
-      (q.includes('higher') && (q.includes('price') || q.includes('rate') || q.includes('cost'))) ||
-      (q.includes('verify') && (q.includes('price') || q.includes('rate') || q.includes('show') || q.includes('see')))
-    ) {
-      reply = `🏨 **Why OTA Prices Can Differ for ${hotelName}:**\n\nWhen you click **"Verify on ${ota}"** or **"Verify on Expedia"**, you might notice higher rates than our headline audit. Here is the transparent breakdown:\n\n1. 🏷️ **Google Hotels Indexes the Baseline Room**: Our live audit pulls the lowest entry-level rate available across major OTAs for this property.\n\n2. 🛏️ **OTAs Showcase All Room Categories**: When landing on ${ota}, they display their full portfolio — including **Executive Suites, Deluxe Ocean/City Views, and Breakfast-Included packages** which naturally cost more.\n\n3. 🛡️ **The ATLAS Wholesale Guarantee**: Your wholesale member rate of **$${wsRate}/night ($${wsTotal} total)** is cleared directly through institutional B2B Bedbanks (Hotelbeds, WebBeds) and is guaranteed to beat both entry-level and premium rooms on any retail site!\n\nWould you like to lock in this wholesale rate now?`;
-    } else if (q.includes('tax') || q.includes('fee') || q.includes('resort')) {
-      reply = `🧾 **Transparent Tax & Fee Analysis for ${hotelName}:**\n\n- **Public Headline Rate**: $${pubRate}/night ($${pubTotal} total)\n- **ATLAS Wholesale All-Inclusive Rate**: **$${wsRate}/night ($${wsTotal} total)**\n- **Total Member Savings**: **$${savings} (${savingsPct}% Off)**\n\n✅ **100% All-Inclusive Standard**: Your ATLAS rate includes **${h.taxLabel || 'local hospitality lodging taxes & mandatory destination fees'} (~${h.taxPercent || 20}%)** prepaid upfront.\n\nUnlike US travel sites that bait visitors with pre-tax base room rates and add unexpected resort fees at final checkout, your stay is fully prepaid with **0% surprise fees at check-in**!`;
-    } else if (isBookingIntent) {
-      reply = `👑 **Ready to Confirm ${hotelName} (${city})!**\n\nHere are your locked-in wholesale reservation details:\n- **Property**: **${hotelName}** (${city})\n- **Stay Dates**: **${dates}** (${nights} Nights)\n- **Public Retail Benchmark**: $${pubRate}/nt ($${pubTotal} total) on ${ota}\n- **ATLAS Member Net Rate**: **$${wsRate}/nt ($${wsTotal} total)**\n- **Instant Member Profit**: **Save $${savings} (${savingsPct}% Off)**\n\nClick **Confirm Booking** below to proceed with 0% hotel room markup:`;
-      bookingAction = {
-        hotelId: h.id || 'hotel-stay',
-        hotelName,
-        city,
-        dates,
-        wholesaleRate: wsRate,
-        retailRate: pubRate,
-        savings,
-      };
+    if (hasHotel) {
+      reply = `👋 Hello! I am **Aura**, your VIP Travel Concierge for ATLAS.\n\nI see you are currently reviewing **${hotelName}** in ${city} for **${dates}** (${nights} nights):\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Member Savings**: **You pocket $${savings} (${savingsPct}% Off)**\n\nI can explain rate parity, clarify room categories, confirm tax inclusions, or help lock in your wholesale room reservation. What would you like to know?`;
     } else {
-      reply = `🏨 **Live Wholesale Rate Audit for ${hotelName} (${city}):**\n\nFor your **${nights}-night stay (${dates})**:\n\n• **Public Retail Rate**: $${pubRate}/nt ($${pubTotal} total) via **${ota}**\n• **ATLAS Wholesale Net Rate**: **$${wsRate}/nt ($${wsTotal} total)**\n• **Instant Member Profit**: **You pocket $${savings} (${savingsPct}% Off)**\n\n🛡️ **Rate Parity Exemption**: Under international hospitality contracts, hotels obligate public OTAs (Expedia, Booking.com, Hotels.com) to publish identical retail prices with 20%–45% markups for Google Ads and TV campaigns. Because ATLAS is a private closed-loop membership club, we are legally exempt from public rate parity and pass institutional Bedbank net rates directly to you with 0% hotel room markup.\n\nWould you like me to reserve your wholesale room allotment now?`;
-      bookingAction = {
-        hotelId: h.id || 'hotel-stay',
-        hotelName,
-        city,
-        dates,
-        wholesaleRate: wsRate,
-        retailRate: pubRate,
-        savings,
-      };
+      reply = `👋 Hello! I am **Aura**, your proactive VIP AI Travel Concierge for ATLAS.\n\nI am continuously connected to **50+ institutional B2B Bedbanks and wholesale clearing feeds (Hotelbeds, WebBeds)** across 1,000,000+ luxury properties worldwide. I help our members bypass the 20%–45% OTA retail ad markup, audit rate parity, and navigate sovereign travel.\n\n**Here is how I can assist you right now:**\n• **Audit Rates**: Ask why any hotel or city is cheaper on ATLAS vs Booking.com or Expedia.\n• **Rate Parity**: Understand why public OTAs contractually advertise identical prices.\n• **Taxes & Resort Fees**: See why all destination taxes and fees are prepaid upfront.\n• **Vouchers & Check-In**: Learn how B2B Bedbank confirmation vouchers work at the front desk.\n• **Digital Nomad & Visas**: Explore 0% tax nomad visas and Schengen 90/180-day compliance.\n\nWhich destination or property are you planning to visit?`;
     }
-    return { reply, bookingAction, showHowItWorksLink, showNomadLink, showProofLink };
   }
 
-  // 2. Digital Nomad & Visa Hub Intent
-  if (
+  // 2. HOTEL-SPECIFIC BOOKING INTENT
+  else if (
+    hasHotel &&
+    (q.includes('reserve') || q.includes('lock in') || q.includes('how to book') ||
+     q.includes('book now') || q.includes('confirm booking') ||
+     /\bbook\s+(this|my|a|the|now|it)\b/i.test(q) ||
+     (q.includes('book') && !q.includes('booking.com') && !q.includes('why') && !q.includes('cheaper')))
+  ) {
+    reply = `👑 **Ready to Reserve ${hotelName} (${city})!**\n\nHere is your locked-in B2B wholesale audit summary:\n- **Property**: **${hotelName}** (${city})\n- **Stay Dates**: **${dates}** (${nights} Nights)\n- **Public Retail Benchmark**: $${pubRate}/nt ($${pubTotal} total) on ${ota}\n- **ATLAS Member Net Rate**: **$${wsRate}/nt ($${wsTotal} total)**\n- **Instant Member Profit**: **Save $${savings} (${savingsPct}% Off)**\n\nAll destination taxes and resort fees are 100% prepaid. Click **Lock In Wholesale Rate** below to secure your instant B2B voucher:`;
+    bookingAction = {
+      hotelId: hotelContext!.id || 'hotel-stay',
+      hotelName,
+      city,
+      dates,
+      wholesaleRate: wsRate,
+      retailRate: pubRate,
+      savings,
+    };
+  }
+
+  // 3. ROOM CATEGORY & RATE DISCREPANCY (Why OTA prices differ on click-through)
+  else if (
+    q.includes('differ') || q.includes('different') || q.includes('room type') ||
+    q.includes('mismatch') || q.includes('more expensive') || q.includes('price higher') ||
+    q.includes('rate higher') || (q.includes('higher') && (q.includes('price') || q.includes('rate') || q.includes('cost'))) ||
+    (q.includes('verify') && (q.includes('price') || q.includes('rate') || q.includes('show') || q.includes('see')))
+  ) {
+    showHowItWorksLink = true;
+    const propName = hasHotel ? hotelName : 'a luxury hotel';
+    reply = `🏨 **Why OTA Prices Can Differ When Clicking Out for ${propName}:**\n\nWhen you click **"Verify on Booking.com"** or **"Verify on Expedia"**, you might see higher prices than the headline audit. Here is the transparent reason:\n\n1. 🏷️ **Google Hotels Indexes the Baseline Entry Room**: Our live wholesale audit pulls the lowest entry-level rate (e.g. Standard Queen, Room-Only) available across public channels.\n\n2. 🛏️ **OTAs Display Their Entire Catalog**: When you arrive on the OTA landing page, they display their full inventory — including **Executive Suites, Deluxe Ocean/City Views, and Breakfast-Included packages** which carry much higher price tags.\n\n3. 🛡️ **The ATLAS Wholesale Guarantee**: ${hasHotel ? `Your wholesale rate of **$${wsRate}/night ($${wsTotal} total)**` : 'Our wholesale member rate'} is cleared directly through institutional B2B Bedbanks (Hotelbeds, WebBeds) and is guaranteed to beat both entry-level and premium rooms on any retail site!\n\nWould you like me to help you reserve your room allotment now?`;
+  }
+
+  // 4. TAXES, RESORT FEES & AT-COST MERCHANT PROCESSING
+  else if (q.includes('tax') || q.includes('taxes') || q.includes('resort fee') || q.includes('vat') || q.includes('hidden fee') || q.includes('extra charge')) {
+    const propContext = hasHotel
+      ? `For **${hotelName}**, local taxes & fees are ~${hotelContext!.taxPercent || 20}% (${hotelContext!.taxLabel || 'Lodging Taxes & Resort Fees'}).`
+      : 'Destination taxes typically range from 12% to 28% depending on city ordinances.';
+
+    reply = `🧾 **How Hotel Taxes & Resort Fees Work on ATLAS:**\n\n1. 🏛️ **Destination Lodging Taxes & Mandatory Fees**: ${propContext}\n\n2. 👁️ **The OTA Bait-and-Switch**: Public retail sites in the US frequently display deceptive "pre-tax room rates" and only disclose high resort fees and lodging taxes on the final payment screen.\n\n3. ✅ **ATLAS All-Inclusive Standard**: By default, your ATLAS rate is **100% All-Inclusive (Taxes & Fees Included)** so there are never surprise fees at the hotel front desk upon check-in.\n\n4. 💳 **Zero Room Markup & At-Cost Processing**: ATLAS passes 100% net wholesale room rates. A nominal ~3.5% merchant processing fee is billed at cost at checkout to cover credit card processing (Visa/Mastercard) and secure B2B settlement.\n\n5. 🔀 **Switch Anytime**: You can toggle between **All-Inclusive** and **Base Room Rate** in our search bar or audit modal to compare apples-to-apples against any OTA!`;
+  }
+
+  // 5. RATE PARITY LAW & WHY OTAS HAVE IDENTICAL RATES
+  else if (
+    q.includes('same price') || q.includes('identical') || q.includes('same rate') ||
+    q.includes('rate parity') || q.includes('all otas') || q.includes('why same')
+  ) {
+    showHowItWorksLink = true;
+    reply = `⚖️ **Why All OTAs (Expedia, Booking.com, Hotels.com) Often Show Identical Rates:**\n\n1. 📜 **Contractual Rate Parity Clauses**: Major hotel chains sign contracts with Expedia and Booking.com containing strict "Rate Parity" covenants. These prohibit any public website from advertising a lower price on the open web.\n\n2. 🌐 **Google Hotels Benchmark**: Because of parity clauses, Google Hotels indexes virtually identical rates across all public OTAs.\n\n3. 👑 **ATLAS Closed-Loop Parity Exemption**: Under international competition law and EU antitrust rulings, closed-loop private membership clubs are **legally exempt from public rate parity covenants**.\n\nBecause ATLAS is not a public booking site, hotels and institutional Bedbanks (Hotelbeds, WebBeds) securely pass us confidential net wholesale inventory with **0% retail ad markup**!`;
+  }
+
+  // 6. HOW ATLAS WORKS / WHY CHEAPER / BEDBANK MECHANISM
+  else if (
+    q.includes('how it works') || q.includes('why cheaper') || q.includes('how does it work') ||
+    q.includes('wholesale') || q.includes('bedbank') || q.includes('hotelbeds') || q.includes('webbeds') ||
+    q.includes('what is atlas') || q.includes('about atlas') || q.includes('how can you be')
+  ) {
+    showHowItWorksLink = true;
+    const hotelExample = hasHotel
+      ? `On **${hotelName}**, that eliminates **$${savings}** in public ad tax for your stay!`
+      : 'That saves members an average of 20% to 45% on every booking.';
+
+    reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. 📢 **The OTA Ad Tax**: Public OTAs (Expedia, Booking.com) spend billions every year on Google Search Ads, TV commercials, and billboard campaigns. To fund this, they add a **20%–45% retail markup** on top of hotel rooms.\n\n2. 🏢 **The Institutional Bedbank Clearing Feed**: Hotels quietly allocate unsold room inventory to confidential **B2B Bedbanks (Hotelbeds, WebBeds)** at **18%–42% wholesale net discounts** to keep rooms filled without diluting their public retail pricing.\n\n3. 🔒 **0% Hotel Room Markup**: ATLAS passes **100% of the raw wholesale net room rate** directly to verified club members with zero markup. ${hotelExample}\n\n4. 🧾 **At-Cost Processing**: Unlike public sites that hide margins in inflated room prices, ATLAS charges a transparent, nominal merchant fee (~3.5%) at cost during checkout to cover credit card processing and secure B2B voucher settlement.\n\n5. 🎫 **Official B2B Vouchers**: Bookings are backed by instant, official B2B Bedbank vouchers with guaranteed check-in and 24/7 supplier support.`;
+  }
+
+  // 7. IS IT REAL / LEGITIMACY / SAFETY / LEGAL GUARANTEES
+  else if (
+    q.includes('real') || q.includes('legit') || q.includes('scam') || q.includes('fake') ||
+    q.includes('trust') || q.includes('legal') || q.includes('license') || q.includes('guarantee') ||
+    q.includes('safe') || q.includes('is this for real')
+  ) {
+    showProofLink = true;
+    reply = `🛡️ **Yes, ATLAS is 100% Real, Legal, and Fully Compliant:**\n\n1. 📜 **Institutional B2B Partnerships**: ATLAS operates under direct B2B integration with the world's largest travel wholesalers (**Hotelbeds, WebBeds, Sabre, Amadeus**), the same infrastructure used by luxury travel agencies worldwide.\n\n2. ⚖️ **Rate Parity Exemption Certified**: International hospitality antitrust regulations legally protect closed-loop private member clubs from retail rate parity restrictions.\n\n3. 🏦 **Consumer Protection & Escrow Compliance**: All bookings are fully backed and bonded under Norwegian Travel Guarantee Fund (RGF) standards and European Package Travel Directive consumer protections.\n\n4. 🔒 **PCI-DSS Level 1 Security**: Payments are processed through bank-grade encrypted payment gateways with direct B2B voucher issuance.\n\n5. 🏨 **Guaranteed Room Fulfillment**: Every reservation issues an official Bedbank voucher with an active supplier reservation code verifiable directly with hotel reservations desks.\n\nWould you like to test a live rate audit on any hotel of your choice?`;
+  }
+
+  // 8. CHECK-IN VOUCHER & FRONT DESK PROTOCOL
+  else if (
+    q.includes('voucher') || q.includes('check in') || q.includes('front desk') ||
+    q.includes('confirmation') || q.includes('how do i check in') || q.includes('what happens at check in')
+  ) {
+    reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nChecking in with an ATLAS reservation is seamless:\n\n1. 🎟️ **Instant Digital Voucher**: Upon reserving, you receive an official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code (available as PDF or Apple/Google Wallet pass).\n\n2. 🏨 **Front Desk Presentation**: Present the voucher or digital pass at check-in along with your government ID. Your room is **100% prepaid** directly through ATLAS wholesale clearing.\n\n3. 🤫 **Rate Parity Compliance**: The hotel front desk sees a confirmed, prepaid reservation from the Bedbank network and will not discuss net wholesale pricing.\n\n4. 🆘 **24/7 Priority Supplier Hotline**: If a front desk clerk has questions about the B2B allocation, our dedicated emergency supplier desk is available 24/7/365 (+1-800-847-ATLAS / +44 20 8123 4567).\n\nYour stay is guaranteed.`;
+  }
+
+  // 9. CANCELLATION & REFUND POLICIES
+  else if (q.includes('cancel') || q.includes('refund') || q.includes('change date') || q.includes('policy')) {
+    reply = `🔄 **ATLAS Cancellation & Refund Policy:**\n\n1. 🟢 **Free Cancellation**: The vast majority of ATLAS wholesale allotments include **100% Free Cancellation up to 48 hours prior to check-in**.\n\n2. ⚡ **Instant Processing**: If you need to cancel an eligible reservation, you can do so in 1 click from your Member Dashboard, and your refund is processed immediately to your original payment method.\n\n3. 📅 **Date Modifications**: Because our bookings connect directly to live Bedbank feeds, date modifications are subject to live room availability and seasonal wholesale rate adjustments.\n\n4. 🛡️ **Non-Refundable Promos**: A small subset of last-minute flash inventory is marked as non-refundable by the hotel, which is always clearly highlighted in bold before you confirm.`;
+  }
+
+  // 10. MEMBERSHIP TIERS, PRICING & ROI
+  else if (
+    q.includes('membership') || q.includes('how much') || q.includes('join') ||
+    q.includes('cost') || q.includes('subscription') || q.includes('pricing') ||
+    q.includes('tier') || q.includes('explorer') || q.includes('sovereign')
+  ) {
+    reply = `👑 **ATLAS Membership Tiers & Return on Investment (ROI):**\n\nBecause ATLAS does not take a markup on hotel rooms, we operate on a transparent membership model:\n\n• **Explorer Tier ($19.99/mo or $199/yr)**: Unlimited access to confidential wholesale rates across 1,000,000+ luxury hotels, all-inclusive tax transparency, and digital vouchers.\n• **Sovereign VIP Tier ($49.99/mo or $499/yr)**: All Explorer perks + VIP airport lounge access, EU261 automated flight delay claims, and private jet empty-leg access.\n• **Founder Lifetime Pass ($1,499 one-time)**: Permanent VIP access with zero recurring dues, dedicated concierge phone line, and sovereign banking priority.\n\n💡 **Immediate ROI**: ${hasHotel ? `On **${hotelName}** alone, you save **$${savings}** — which immediately pays for an entire year of membership on your very first booking!` : 'A single 3-night luxury hotel stay saves an average of $350–$900, instantly paying for your annual membership.'}\n\nWould you like to explore membership options?`;
+  }
+
+  // 11. SPECIFIC CITIES & DESTINATIONS
+  else if (
+    q.includes('oslo') || q.includes('las vegas') || q.includes('vegas') ||
+    q.includes('new york') || q.includes('london') || q.includes('paris') ||
+    q.includes('dubai') || q.includes('tokyo') || q.includes('barcelona') ||
+    q.includes('rome') || q.includes('singapore') || q.includes('miami')
+  ) {
+    let destName = 'this destination';
+    let savingsRange = '22% to 42%';
+    if (q.includes('las vegas') || q.includes('vegas')) { destName = 'Las Vegas'; savingsRange = '28% to 44%'; }
+    else if (q.includes('oslo')) { destName = 'Oslo'; savingsRange = '18% to 35%'; }
+    else if (q.includes('paris')) { destName = 'Paris'; savingsRange = '24% to 40%'; }
+    else if (q.includes('london')) { destName = 'London'; savingsRange = '20% to 38%'; }
+    else if (q.includes('new york')) { destName = 'New York'; savingsRange = '25% to 42%'; }
+    else if (q.includes('dubai')) { destName = 'Dubai'; savingsRange = '30% to 48%'; }
+    else if (q.includes('tokyo')) { destName = 'Tokyo'; savingsRange = '20% to 36%'; }
+
+    reply = `🌆 **Wholesale Market Intelligence for ${destName}:**\n\nATLAS maintains active B2B wholesale clearing allotments across top 4-star and 5-star properties in **${destName}**:\n\n• **Wholesale Spread**: Eliminates an average of **${savingsRange} in retail OTA markups**.\n• **Tax Compliance**: All municipal lodging taxes, tourism fees, and resort surcharges are calculated upfront.\n• **Instant Audit**: You can search "${destName}" in the ATLAS search console to see live side-by-side audits against Booking.com, Expedia, and Google Hotels.\n\nWould you like me to find the highest-saving luxury property in ${destName} for your dates?`;
+  }
+
+  // 12. DIGITAL NOMAD & VISA HUB
+  else if (
     q.includes('nomad') || q.includes('visa') || q.includes('schengen') ||
     q.includes('coliving') || q.includes('remote work') || q.includes('tax free') ||
     q.includes('spain visa') || q.includes('portugal d8') || q.includes('thailand dtv')
@@ -245,35 +322,31 @@ function generateDomainConciergeResponse(
       reply = `🌍 **ATLAS Digital Nomad & Global Visa Hub:**\n\nWe provide complete relocation and remote worker infrastructure:\n\n- 🛂 **Fast-Track Nomad Visas**: Spain (€2,646/mo), Portugal D8 (€3,280/mo), Dubai ($3,500/mo), Thailand DTV ($14k funds), Bali E33G ($60k/yr).\n- 🏡 **Monthly Coliving Stays (30+ Nights)**: Lisbon ($1,150/mo), Bali Canggu ($890/mo), Medellín ($740/mo), Bansko ($580/mo) with verified **300–1,000 Mbps Fiber Wi-Fi**.\n- 📶 **Global 5G Data**: Free 10GB monthly eSIM on the **Global Nomad Passport Tier ($29.99/mo)**.\n\nTell me where you want to live and work, and I will calculate your visa eligibility!`;
     }
   }
-  // 3. Rate Parity & Identical OTA Pricing
-  else if (q.includes('same price') || q.includes('identical') || q.includes('same rate') || q.includes('rate parity') || q.includes('all otas')) {
-    showHowItWorksLink = true;
-    reply = `🔍 **Why All OTAs (Expedia, Booking.com, Hotels.com) Often Show Identical Rates:**\n\n1. ⚖️ **Legal Hotel Rate Parity Clauses**: Major hotel chains legally contract OTAs under strict "Rate Parity" agreements, prohibiting any public site from undercutting another in search results.\n\n2. 🌐 **Google Hotels Benchmark**: Google Hotels aggregates public feeds and indexes one single lowest verified retail rate for comparison.\n\n3. 👑 **ATLAS Closed-Loop Parity Exemption**: Under international hospitality anti-trust rules, closed-loop private membership clubs like ATLAS are legally exempt from public rate parity covenants. We acquire unsold room blocks directly from institutional B2B Bedbanks (Hotelbeds, WebBeds) and pass net wholesale rates with **0% retail markup**!`;
-  }
-  // 4. How It Works & Why Cheaper
-  else if (q.includes('how it works') || q.includes('why cheaper') || q.includes('how does it work') || q.includes('is this legal') || q.includes('wholesale')) {
-    showHowItWorksLink = true;
-    reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. **The OTA Ad Tax**: Public sites (Expedia, Booking.com) spend billions on Google Search ads and television commercials, adding a **20%–45% retail markup** onto room costs.\n\n2. **The Institutional Bedbank Clearing Feed**: Hotels quietly distribute unsold rooms to confidential **B2B Bedbanks (Hotelbeds, WebBeds)** at **18%–42% wholesale net discounts** to ensure high occupancy without damaging their public retail brand.\n\n3. **0% Hotel Room Markup**: ATLAS passes **100% of the raw wholesale net room rate** directly to members with zero markup.\n\n4. **At-Cost Transaction Processing**: Unlike retail sites that hide markups in inflated prices, ATLAS charges a nominal merchant processing fee (~3.5%) at cost during checkout to cover credit card interchange (Visa/Mastercard) and secure B2B settlement.\n\n5. **Tax Transparency**: Toggle anytime between **Taxes & Fees Included** (matching European/Google Travel all-inclusive display) and **Base Room Only**.`;
-  }
-  // 5. Taxes & Resort Fees
-  else if (q.includes('tax') || q.includes('taxes') || q.includes('resort fee') || q.includes('vat')) {
-    reply = `🧾 **How Hotel Taxes & Resort Fees Work on ATLAS:**\n\n1. 🏛️ **Destination Taxes & Local VAT**: Every destination charges local lodging taxes (e.g., Dubai ~28% municipal fee + VAT, Las Vegas ~24% lodging tax + daily resort fee, Europe 10%–20% city tourism levy).\n\n2. 👁️ **The OTA Bait-and-Switch**: Public sites in the US often display deceptive "pre-tax room rates" and only disclose hefty resort fees and local taxes at the final checkout screen.\n\n3. ✅ **ATLAS All-Inclusive Standard**: By default, your ATLAS rate is **All-Inclusive (Taxes & Fees Included)** so there are no surprises upon arrival at the hotel front desk.\n\n4. 🔀 **Switch Anytime**: In the rate modal or search bar, you can toggle between **All-Inclusive** and **Base Room Rate** to compare apples-to-apples against any OTA!`;
-  }
-  // 6. Check-in & Voucher Protocol
-  else if (q.includes('voucher') || q.includes('check in') || q.includes('front desk') || q.includes('confirmation')) {
-    reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nWhen checking into a luxury property booked via ATLAS:\n\n1. 🎟️ **Instant PDF Voucher**: Download your official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code.\n2. 🏨 **Front Desk Presentation**: Present the voucher or Apple/Google Wallet pass at check-in. The room is prepaid directly through ATLAS wholesale clearing.\n3. 🤫 **Rate Parity Protected**: The hotel front desk will not see or discuss the net wholesale rate, ensuring strict compliance with supplier agreements.\n4. 🆘 **24/7 B2B Emergency Support**: If the front desk requires immediate verification, our supplier priority desk is on standby (+1-800-847-ATLAS / +44 20 8123 4567).\n\nYour room is 100% guaranteed.`;
-  }
-  // 7. Flight Delay & EU261 Compensation
-  else if (q.includes('delay') || q.includes('claim') || q.includes('cancelled flight') || q.includes('eu261') || q.includes('compensation')) {
+
+  // 13. FLIGHT DELAY & EU261 CASH COMPENSATION
+  else if (q.includes('delay') || q.includes('claim') || q.includes('cancelled flight') || q.includes('eu261') || q.includes('compensation') || q.includes('airhelp')) {
     reply = `⚖️ **ATLAS EU261 & International Flight Disruption Compensation Sentinel:**\n\nIf your flight was delayed by 3+ hours or cancelled within the last 3 years, you are legally entitled to statutory cash compensation under European Regulation 261/2004 and UK Air Passenger Rights:\n\n- ✈️ **Short-Haul (< 1,500 km, e.g. Oslo ➔ London/Stockholm)**: **€250 ($275)** per passenger.\n- ✈️ **Medium-Haul (1,500 – 3,500 km, e.g. Oslo ➔ Barcelona/Rome/Mallorca)**: **€400 ($440)** per passenger.\n- ✈️ **Long-Haul (> 3,500 km, e.g. Frankfurt/London ➔ New York/Miami)**: **€600 ($650)** per passenger.\n\n🛡️ **Instant Verification**: Enter any flight number in our [Live Flight Claims Scanner](/flight-claims) for immediate verification and direct payout straight to your ATLAS Visa Card!`;
   }
-  // 8. Private Jets & Empty Legs
-  else if (q.includes('jet') || q.includes('empty leg') || q.includes('private flight') || q.includes('lounge')) {
+
+  // 14. PRIVATE JETS & EMPTY-LEG CHARTERS
+  else if (q.includes('jet') || q.includes('empty leg') || q.includes('private flight') || q.includes('charter') || q.includes('lounge')) {
     reply = `🛩️ **ATLAS Private Aviation & Empty-Leg Clearing:**\n\nWhen private charter aircraft reposition without passengers, ATLAS members access these **Empty-Leg Seats at up to 75%–80% below retail charter rates**:\n\n• **London Luton ➔ Nice / Cannes**: From **$1,150 / seat** (Cessna Citation XLS)\n• **Miami ➔ New York Teterboro**: From **$1,450 / seat** (Bombardier Challenger 350)\n• **Geneva ➔ Dubai Al Maktoum**: From **$2,800 / seat** (Gulfstream G550)\n\n☕ **VIP Airport Lounge Access**: Includes complimentary champagne, private boarding gate, and customs escort at 500+ private FBO terminals worldwide. Explore active listings on our [Private Jets](/private-jets) portal!`;
   }
-  // 9. Default Concierge Guidance
-  else {
-    reply = `✨ I am **Aura**, your proactive VIP Travel Concierge.\n\nI continuously monitor **50+ B2B Bedbanks & wholesale GDS networks** to eliminate the 20%–45% OTA retail ad tax across 1,000,000+ luxury hotels, audit rate parity, and assist with digital nomad relocation.\n\n**What I can do for you right now:**\n• Audit live rates for any hotel or city worldwide.\n• Explain why OTAs like Booking.com and Expedia charge higher retail prices.\n• Calculate your exact savings vs public rates.\n• Check Schengen 90/180-day compliance or 0% tax Digital Nomad Visas.\n• Guide you on B2B wholesale check-in vouchers.\n\nWhere are you planning to travel next?`;
+
+  // 15. DYNAMIC CONVERSATIONAL HOTEL OR GENERAL TRAVEL RESPONSE
+  else if (hasHotel) {
+    reply = `🏨 **Wholesale Intelligence for ${hotelName} (${city}):**\n\nRegarding your question about **"${query}"** for your stay from **${dates}**:\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Instant Member Savings**: **$${savings} (${savingsPct}% Off)**\n\nEvery ATLAS booking includes all destination taxes, 0% retail markup, full rate parity protection, and guaranteed B2B Bedbank check-in vouchers. Would you like me to reserve this rate or explain room categories?`;
+    bookingAction = {
+      hotelId: hotelContext!.id || 'hotel-stay',
+      hotelName,
+      city,
+      dates,
+      wholesaleRate: wsRate,
+      retailRate: pubRate,
+      savings,
+    };
+  } else {
+    reply = `✨ I am **Aura**, your proactive VIP Travel Concierge.\n\nRegarding your question about **"${query}"**:\n\nATLAS operates directly on institutional B2B Bedbanks (Hotelbeds, WebBeds) across 1,000,000+ luxury hotels worldwide. By eliminating public retail ad costs (the 20%–45% markup charged by Booking.com and Expedia), our members access net wholesale pass-through pricing with zero retail markup.\n\n**Would you like me to:**\n1. Run a live wholesale rate audit for a specific hotel or city?\n2. Explain rate parity and the legal closed-loop exemption?\n3. Show how taxes and resort fees are prepaid upfront?\n4. Guide you through B2B check-in voucher guarantees?\n\nTell me which hotel or city you are considering!`;
   }
 
   return { reply, bookingAction, showHowItWorksLink, showNomadLink, showProofLink };
@@ -291,7 +364,7 @@ export async function POST(req: NextRequest) {
     });
 
     const marketScan = runLiveMarketScan();
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY || process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
     let reply: string | null = null;
     let bookingAction: any = undefined;
@@ -299,7 +372,7 @@ export async function POST(req: NextRequest) {
     let showNomadLink = false;
     let showProofLink = false;
 
-    // 1. If GEMINI_API_KEY is configured, call Google Gemini with full platform grounding
+    // 1. If an API key is configured, call Google Gemini with full platform grounding
     if (apiKey) {
       const systemPrompt = buildAuraSystemPrompt(hotelContext, userContext?.name);
       reply = await queryGeminiApi(apiKey, activeModel.id, systemPrompt, query, history);
