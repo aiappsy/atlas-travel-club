@@ -1448,7 +1448,8 @@ async function fetchRealHotelsViaWikipedia(city: string): Promise<Array<{ name: 
       const title = (r.title || '').replace(/\s*\([^)]*\)/g, '').trim();
       if (
         /hotel|palace|resort|ritz|hilton|marriott|hyatt|sheraton|westin|intercontinental|fairmont|four seasons|peninsula|mandarin|raffles|kempinski|sofitel/i.test(title) &&
-        !/list of|category:|history of/i.test(title)
+        !/list of|category:|history of|group|chain|brand/i.test(title) &&
+        !/hotels$/i.test(title)
       ) {
         if (!hotels.some(h => h.name.toLowerCase() === title.toLowerCase())) {
           hotels.push({ name: title, stars: 5 });
