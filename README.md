@@ -1,4 +1,4 @@
-﻿# ATLAS Private Wholesale Travel Club & FinTech Flywheel
+# ATLAS Private Wholesale Travel Club & FinTech Flywheel
 
 > **Zero Public Markup. Institutional Liquidity. Autonomous Travel AI.**  
 > Powered by Google Gemini 3.8 Flash reasoning, 52 B2B Bedbank feeds, and closed-loop Rate Parity legal exemption.
@@ -59,6 +59,14 @@
 | **Research & Economics** | `/case-study`, `/how-it-works`, `/investors` |
 | **Legal & Governance** | `/legal/rate-parity-compliance`, `/legal/eu-norway-compliance`, `/legal/norwegian-rgf`, `/legal/seller-of-travel` |
 | **Administration** | `/admin` (RBAC, Provider Guides, B2B Bedbank Switchboard, Gemini 3.8 Flash AI Studio) |
+
+---
+
+## 3-Tier Live Search & Rate Grounding Architecture
+
+1. **Tier 1 (Primary)**: Real-time Google Hotels Engine via SerpApi with direct OTA clickout tracking (Booking.com, Expedia, Hotels.com, Agoda).
+2. **Tier 2 (Secondary Live Fallback)**: Google Gemini 2.5 Flash with Google Search Grounding (`tools: [{ googleSearch: {} }]`) for autonomous live rate extraction.
+3. **Tier 3 (Tertiary Baseline)**: Calibrated destination baseline engine with live Wikipedia property discovery and guaranteed 28%–40% wholesale margin protection.
 
 ---
 
