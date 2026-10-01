@@ -866,6 +866,34 @@ export default function LiveHotelSearch({
         </div>
       )}
 
+      {/* Zero Results Helpful Fallback */}
+      {!isScanning && hasSearched && hotels.length === 0 && (
+        <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-8 border border-slate-800 text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 text-amber-300 flex items-center justify-center mx-auto">
+            <MapPin className="w-6 h-6 text-amber-400" />
+          </div>
+          <h3 className="text-xl font-black text-white">No Live Allotments Found for &quot;{destination}&quot;</h3>
+          <p className="text-xs text-slate-400 max-w-md mx-auto">
+            Try searching for one of our top luxury destinations with active B2B wholesale clearing:
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+            {['Oslo', 'Paris', 'Las Vegas', 'New York', 'London', 'Dubai'].map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => {
+                  setDestination(city);
+                  performSearch(city);
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-amber-300 font-bold text-xs transition-colors cursor-pointer"
+              >
+                Search {city}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Full-Screen Google Travel Live Market Audit Modal */}
       <GoogleMarketAuditModal
         isOpen={!!auditingHotel}
