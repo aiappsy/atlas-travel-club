@@ -9,6 +9,12 @@ import Link from 'next/link';
 function HotelsSearchContent() {
   const searchParams = useSearchParams();
   const initialCity = searchParams.get('city') || 'Las Vegas';
+  const initialRooms = parseInt(searchParams.get('rooms') || '1', 10);
+  const initialAdults = parseInt(searchParams.get('adults') || '2', 10);
+  const childAgesParam = searchParams.get('childAges');
+  const initialChildrenAges = childAgesParam
+    ? childAgesParam.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n))
+    : [];
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans">
@@ -30,7 +36,12 @@ function HotelsSearchContent() {
 
       {/* Main Live Multi-OTA Search Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <LiveHotelSearch initialDestination={initialCity} />
+        <LiveHotelSearch
+          initialDestination={initialCity}
+          initialRooms={initialRooms}
+          initialAdults={initialAdults}
+          initialChildrenAges={initialChildrenAges}
+        />
       </div>
     </div>
   );

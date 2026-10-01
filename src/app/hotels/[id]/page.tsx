@@ -84,7 +84,25 @@ export default function HotelDetailPage() {
   const defaultDates = getDefaultTripDates(14, 3);
   const checkIn = searchParams.get('checkIn') || defaultDates.checkIn;
   const checkOut = searchParams.get('checkOut') || defaultDates.checkOut;
-  const guests = searchParams.get('guests') || '2 Adults, 1 Room';
+  const roomsParam = searchParams.get('rooms');
+  const adultsParam = searchParams.get('adults');
+  const childrenParam = searchParams.get('children');
+  const childAgesParam = searchParams.get('childAges');
+
+  const rawGuestsParam = searchParams.get('guests');
+  let guests = rawGuestsParam || '2 Adults, 1 Room';
+  if (!rawGuestsParam && (roomsParam || adultsParam || childrenParam)) {
+    const roomsCount = parseInt(roomsParam || '1', 10);
+    const adultsCount = parseInt(adultsParam || '2', 10);
+    const kidsCount = parseInt(childrenParam || '0', 10);
+    const adultsStr = `${adultsCount} ${adultsCount === 1 ? 'Adult' : 'Adults'}`;
+    const roomsStr = `${roomsCount} ${roomsCount === 1 ? 'Room' : 'Rooms'}`;
+    if (kidsCount > 0) {
+      guests = `${adultsStr}, ${kidsCount} ${kidsCount === 1 ? 'Child' : 'Children'} · ${roomsStr}`;
+    } else {
+      guests = `${adultsStr} · ${roomsStr}`;
+    }
+  }
 
   const d1 = new Date(checkIn);
   const d2 = new Date(checkOut);
@@ -93,7 +111,8 @@ export default function HotelDetailPage() {
   useEffect(() => {
     async function loadHotel() {
       try {
-        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}`);
+        const guestQueryStr = `&rooms=${roomsParam || '1'}&adults=${adultsParam || '2'}&children=${childrenParam || '0'}${childAgesParam ? `&childAges=${childAgesParam}` : ''}`;
+        const res = await fetch(`/api/hotels/compare?id=${hotelId}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}${guestQueryStr}`);
         const data = await res.json();
         if (data?.hotel) {
           setHotel(data.hotel);
@@ -110,7 +129,7 @@ export default function HotelDetailPage() {
     if (hotelId) {
       loadHotel();
     }
-  }, [hotelId, nights, checkIn, checkOut, currency]);
+  }, [hotelId, nights, checkIn, checkOut, currency, roomsParam, adultsParam, childrenParam, childAgesParam]);
 
   // Lock body scroll and enable keyboard shortcuts when fullscreen gallery modal is open
   useEffect(() => {
@@ -869,7 +888,7 @@ export default function HotelDetailPage() {
                     <span>Occupancy</span>
                   </div>
                   <div className="font-bold text-white text-sm">
-                    {guests}
+                    {hotel?.guestSummary || guests}
                   </div>
                 </div>
 
@@ -1126,7 +1145,7 @@ export default function HotelDetailPage() {
                       checkInDate: checkIn,
                       checkOutDate: checkOut,
                       nights,
-                      guests: 2,
+                      guests: hotel?.guestConfig ? (hotel.guestConfig.adults + hotel.guestConfig.childrenAges.length) : 2,
                       totalPublicPrice: totalRetail,
                       totalMemberPaid: finalMemberPrice,
                       totalSaved: combinedTotalSavings,

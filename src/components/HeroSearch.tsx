@@ -16,6 +16,7 @@ import {
   TrendingDown,
   ArrowRight
 } from 'lucide-react';
+import GuestRoomPicker, { GuestRoomConfig } from '@/components/GuestRoomPicker';
 
 const TRAVEL_CATEGORIES = [
   { id: 'hotels', label: 'Hotels', icon: Building2, path: '/hotels', saveText: '20%–45% Off' },
@@ -41,13 +42,27 @@ export default function HeroSearch() {
   const [city, setCity] = useState('');
   const [checkIn, setCheckIn] = useState('2026-09-15');
   const [checkOut, setCheckOut] = useState('2026-09-18');
-  const [guests, setGuests] = useState('2 Guests, 1 Room');
+  const [guestConfig, setGuestConfig] = useState<GuestRoomConfig>({
+    rooms: 1,
+    adults: 2,
+    childrenAges: [],
+  });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const currentTabObj = TRAVEL_CATEGORIES.find((t) => t.id === activeTab) || TRAVEL_CATEGORIES[0];
-    const query = city ? `?city=${encodeURIComponent(city)}` : '';
+    const params = new URLSearchParams();
+    if (city) params.set('city', city);
+    params.set('checkIn', checkIn);
+    params.set('checkOut', checkOut);
+    params.set('rooms', String(guestConfig.rooms));
+    params.set('adults', String(guestConfig.adults));
+    params.set('children', String(guestConfig.childrenAges.length));
+    if (guestConfig.childrenAges.length > 0) {
+      params.set('childAges', guestConfig.childrenAges.join(','));
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
     router.push(`${currentTabObj.path}${query}`);
   };
 
@@ -154,23 +169,19 @@ export default function HeroSearch() {
             </div>
           </div>
 
-          {/* Guests */}
+          {/* Guests & Rooms */}
           <div>
             <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1 ml-1">
-              Guests & Party
+              Guests &amp; Rooms
             </label>
-            <div className="relative">
-              <Users className="absolute left-3.5 top-3.5 w-4 h-4 text-amber-600" />
-              <select
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all appearance-none"
-              >
-                <option value="1 Guest, 1 Room">1 Solo Traveler</option>
-                <option value="2 Guests, 1 Room">2 Guests (Couple / VIP)</option>
-                <option value="2 Adults + 2 Kids, 1 Room">Family (2 Adults, 2 Kids)</option>
-                <option value="4 Guests, 2 Rooms">Group / Villa (4+ Guests)</option>
-              </select>
+            <div className="relative flex items-center pl-3.5 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold text-xs focus-within:ring-2 focus-within:ring-amber-500 focus-within:bg-white transition-all">
+              <Users className="w-4 h-4 text-amber-600 mr-2 shrink-0" />
+              <GuestRoomPicker
+                value={guestConfig}
+                onChange={setGuestConfig}
+                theme="light"
+                className="flex-1 min-w-0"
+              />
             </div>
           </div>
 

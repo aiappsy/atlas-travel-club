@@ -20,6 +20,7 @@ import {
   Minus,
   ChevronDown,
   ChevronUp,
+  Users,
 } from 'lucide-react';
 import type { ComparedHotel, GoogleMarketProvider } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -32,6 +33,7 @@ export interface GoogleMarketAuditModalProps {
   checkIn?: string;
   checkOut?: string;
   nights?: number;
+  guestSummary?: string;
   onBookNow?: () => void;
 }
 
@@ -42,6 +44,7 @@ export default function GoogleMarketAuditModal({
   checkIn,
   checkOut,
   nights = 3,
+  guestSummary,
   onBookNow,
 }: GoogleMarketAuditModalProps) {
   const { formatHotelPrice, currency } = useCurrency();
@@ -72,7 +75,10 @@ export default function GoogleMarketAuditModal({
     setIsFetchingLive(true);
     try {
       const query = encodeURIComponent(`${hotel.name} ${hotel.city}`);
-      const url = `/api/hotels/compare?destination=${query}&nights=${stayNights}&checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&currency=${currency}`;
+      const guestParams = hotel.guestConfig
+        ? `&rooms=${hotel.guestConfig.rooms}&adults=${hotel.guestConfig.adults}&children=${hotel.guestConfig.childrenAges.length}${hotel.guestConfig.childrenAges.length > 0 ? `&childAges=${hotel.guestConfig.childrenAges.join(',')}` : ''}`
+        : '';
+      const url = `/api/hotels/compare?destination=${query}&nights=${stayNights}&checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&currency=${currency}${guestParams}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
@@ -218,13 +224,17 @@ export default function GoogleMarketAuditModal({
               {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />)}
             </div>
           </div>
-          <div className="text-xs text-slate-400 mt-0.5">
-            {hotel.city}, {hotel.country}
+          <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span>{hotel.city}, {hotel.country}</span>
             {effectiveCheckIn && (
-              <span className="ml-2 text-slate-500 font-mono">
+              <span className="text-slate-500 font-mono">
                 · {effectiveCheckIn} → {effectiveCheckOut}
               </span>
             )}
+            <span className="inline-flex items-center gap-1 text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-md text-[11px] font-medium border border-slate-700/60">
+              <Users className="w-3 h-3 text-amber-400" />
+              <span>{guestSummary || hotel.guestSummary || '2 Adults · 1 Room'}</span>
+            </span>
           </div>
         </div>
 
@@ -489,7 +499,21 @@ export default function GoogleMarketAuditModal({
             </button>
           ) : (
             <Link
-              href={`/hotels/${hotel.id}?checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&nights=${stayNights}`}
+              href={(() => {
+                const params = new URLSearchParams();
+                if (effectiveCheckIn) params.set('checkIn', effectiveCheckIn);
+                if (effectiveCheckOut) params.set('checkOut', effectiveCheckOut);
+                params.set('nights', String(stayNights));
+                if (hotel.guestConfig) {
+                  params.set('rooms', String(hotel.guestConfig.rooms));
+                  params.set('adults', String(hotel.guestConfig.adults));
+                  params.set('children', String(hotel.guestConfig.childrenAges.length));
+                  if (hotel.guestConfig.childrenAges.length > 0) {
+                    params.set('childAges', hotel.guestConfig.childrenAges.join(','));
+                  }
+                }
+                return `/hotels/${hotel.id}?${params.toString()}`;
+              })()}
               onClick={onClose}
               className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm flex items-center gap-2 transition-all shadow-xl"
             >

@@ -88,7 +88,14 @@ export class HotelbedsProvider {
     destination: string,
     checkIn: string,
     checkOut: string,
-    options?: { lat?: number; lng?: number; adults?: number; rooms?: number }
+    options?: {
+      lat?: number;
+      lng?: number;
+      adults?: number;
+      rooms?: number;
+      children?: number;
+      childAges?: number[];
+    }
   ): Promise<ProviderHotelRate[]> {
     if (!this.apiKey || !this.secret) {
       return this.getMockFallbackRates(destination);
@@ -125,13 +132,27 @@ export class HotelbedsProvider {
       const ci = checkIn || new Date(Date.now() + 86400000 * 14).toISOString().split('T')[0];
       const co = checkOut || new Date(Date.now() + 86400000 * 17).toISOString().split('T')[0];
 
+      const roomsCount = Math.max(1, options?.rooms || 1);
+      const totalAdults = Math.max(1, options?.adults || 2);
+      const childAges = options?.childAges || [];
+      const totalChildren = options?.children !== undefined ? options.children : childAges.length;
+
+      const paxes: Array<{ type: 'AD' | 'CH'; age?: number }> = [];
+      for (let a = 0; a < totalAdults; a++) {
+        paxes.push({ type: 'AD' });
+      }
+      for (const chAge of childAges) {
+        paxes.push({ type: 'CH', age: chAge });
+      }
+
       const searchBody = {
         stay: { checkIn: ci, checkOut: co },
         occupancies: [
           {
-            rooms: options?.rooms || 1,
-            adults: options?.adults || 2,
-            children: 0,
+            rooms: roomsCount,
+            adults: totalAdults,
+            children: totalChildren,
+            ...(paxes.length > 0 ? { paxes } : {})
           }
         ],
         geolocation: {

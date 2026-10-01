@@ -27,17 +27,24 @@ import {
 } from 'lucide-react';
 import type { ComparedHotel } from '@/app/api/hotels/compare/route';
 import GoogleMarketAuditModal from '@/components/GoogleMarketAuditModal';
+import GuestRoomPicker, { GuestRoomConfig, formatGuestSummary } from '@/components/GuestRoomPicker';
 import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAuth } from '@/context/AuthContext';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
+  initialRooms?: number;
+  initialAdults?: number;
+  initialChildrenAges?: number[];
   isCompact?: boolean;
 }
 
 export default function LiveHotelSearch({
   initialDestination = '',
+  initialRooms = 1,
+  initialAdults = 2,
+  initialChildrenAges = [],
   isCompact = false,
 }: LiveHotelSearchProps) {
   const { formatPrice: rawFormatPrice, formatHotelPrice, currency } = useCurrency();
@@ -48,7 +55,11 @@ export default function LiveHotelSearch({
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState('2026-10-15');
   const [checkOut, setCheckOut] = useState('2026-10-18');
-  const [guests, setGuests] = useState('2 Guests, 1 Room');
+  const [guestConfig, setGuestConfig] = useState<GuestRoomConfig>({
+    rooms: initialRooms,
+    adults: initialAdults,
+    childrenAges: initialChildrenAges,
+  });
   
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'savings' | 'price-asc' | 'price-desc' | 'rating'>('savings');
@@ -65,6 +76,20 @@ export default function LiveHotelSearch({
   const d1 = new Date(checkIn);
   const d2 = new Date(checkOut);
   const nights = Math.max(1, Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) || 3);
+
+  const getHotelUrl = (hotelId: string) => {
+    const params = new URLSearchParams();
+    params.set('checkIn', checkIn);
+    params.set('checkOut', checkOut);
+    params.set('nights', String(nights));
+    params.set('rooms', String(guestConfig.rooms));
+    params.set('adults', String(guestConfig.adults));
+    params.set('children', String(guestConfig.childrenAges.length));
+    if (guestConfig.childrenAges.length > 0) {
+      params.set('childAges', guestConfig.childrenAges.join(','));
+    }
+    return `/hotels/${hotelId}?${params.toString()}`;
+  };
 
   const popularCities = [
     { name: 'All Destinations', query: '' },
@@ -100,7 +125,7 @@ export default function LiveHotelSearch({
     }
   };
 
-  const performSearch = async (targetDest: string) => {
+  const performSearch = async (targetDest: string, currentGuests = guestConfig) => {
     setIsScanning(true);
     setScanStep(0);
     setHasSearched(true);
@@ -115,8 +140,9 @@ export default function LiveHotelSearch({
     }, 200);
 
     try {
+      const childAgesParam = currentGuests.childrenAges.length > 0 ? `&childAges=${currentGuests.childrenAges.join(',')}` : '';
       const res = await fetch(
-        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}`
+        `/api/hotels/compare?destination=${encodeURIComponent(targetDest)}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}&currency=${currency}&rooms=${currentGuests.rooms}&adults=${currentGuests.adults}&children=${currentGuests.childrenAges.length}${childAgesParam}`
       );
       const data = await res.json();
       setTimeout(() => {
@@ -234,19 +260,18 @@ export default function LiveHotelSearch({
           </div>
 
           {/* 4. Guests & Rooms */}
-          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3 relative">
             <div className="w-10 h-10 rounded-xl bg-indigo-400/10 border border-indigo-400/30 text-indigo-300 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-indigo-400" />
             </div>
             <div className="flex-1 min-w-0">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400">
-                Guests
+                Guests &amp; Rooms
               </label>
-              <input
-                type="text"
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-                className="w-full bg-transparent font-bold text-xs text-white focus:outline-none"
+              <GuestRoomPicker
+                value={guestConfig}
+                onChange={setGuestConfig}
+                theme="dark"
               />
             </div>
           </div>
@@ -453,7 +478,7 @@ export default function LiveHotelSearch({
               >
                 {/* Image & Quick Specs */}
                 <Link
-                  href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                  href={getHotelUrl(hotel.id)}
                   className="lg:col-span-4 relative min-h-[260px] lg:min-h-full block group overflow-hidden cursor-pointer"
                 >
                   <img
@@ -490,7 +515,7 @@ export default function LiveHotelSearch({
                       <div>
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                            href={getHotelUrl(hotel.id)}
                             className="text-xl sm:text-2xl font-black text-white hover:text-amber-300 transition-colors"
                           >
                             {hotel.name}
@@ -729,8 +754,8 @@ export default function LiveHotelSearch({
                     <Link
                       href={
                         isMember
-                          ? `/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`
-                          : `/login?redirect=${encodeURIComponent(`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`)}&hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}`
+                          ? getHotelUrl(hotel.id)
+                          : `/login?redirect=${encodeURIComponent(getHotelUrl(hotel.id))}&hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}`
                       }
                       className="space-y-1.5 text-center sm:text-left group cursor-pointer block"
                       title={isMember ? 'View wholesale booking options' : 'Log in to book this confidential wholesale rate'}
@@ -772,7 +797,7 @@ export default function LiveHotelSearch({
                     <div className="flex flex-col gap-2.5 w-full lg:w-80 shrink-0">
                       <div className="grid grid-cols-2 gap-2 w-full">
                         <Link
-                          href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                          href={getHotelUrl(hotel.id)}
                           className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors text-center whitespace-nowrap shadow-sm"
                           title="View all room options, suites, and property gallery"
                         >
@@ -793,7 +818,7 @@ export default function LiveHotelSearch({
 
                       {isMember ? (
                         <Link
-                          href={`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`}
+                          href={getHotelUrl(hotel.id)}
                           className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
                           title="Book confidential wholesale net rate"
                         >
@@ -803,7 +828,7 @@ export default function LiveHotelSearch({
                         </Link>
                       ) : (
                         <Link
-                          href={`/login?redirect=${encodeURIComponent(`/hotels/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&nights=${nights}`)}&hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}`}
+                          href={`/login?redirect=${encodeURIComponent(getHotelUrl(hotel.id))}&hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}`}
                           className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
                           title="Sign in to unlock confidential wholesale rates"
                         >
@@ -848,6 +873,7 @@ export default function LiveHotelSearch({
         checkIn={checkIn}
         checkOut={checkOut}
         nights={nights}
+        guestSummary={formatGuestSummary(guestConfig)}
       />
     </div>
   );

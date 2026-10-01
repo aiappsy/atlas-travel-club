@@ -51,6 +51,13 @@ export interface GoogleMarketProvider {
   rateType?: string;
 }
 
+export interface GuestQueryOptions {
+  rooms?: number;
+  adults?: number;
+  children?: number;
+  childAges?: number[];
+}
+
 export interface ComparedHotel {
   id: string;
   name: string;
@@ -61,6 +68,12 @@ export interface ComparedHotel {
   checkInDate?: string;
   checkOutDate?: string;
   nightsCount?: number;
+  guestSummary?: string;
+  guestConfig?: {
+    rooms: number;
+    adults: number;
+    childrenAges: number[];
+  };
   marketProviders?: GoogleMarketProvider[];
   propertyToken?: string;
   starRating: number;
@@ -290,7 +303,8 @@ function buildOtaUrls(
   checkIn?: string,
   checkOut?: string,
   nights: number = 3,
-  currency: string = 'USD'
+  currency: string = 'USD',
+  guestOptions?: GuestQueryOptions
 ) {
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
 
@@ -321,28 +335,46 @@ function buildOtaUrls(
     ? cleanHotel
     : `${cleanHotel}, ${cleanCity}`;
 
+  const adultsCount = Math.max(1, guestOptions?.adults || 2);
+  const roomsCount = Math.max(1, guestOptions?.rooms || 1);
+  const childAges = guestOptions?.childAges || [];
+  const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
+
   // 1. Expedia Verified Property Search:
-  // Pre-fills hotel name + dates, pinning the specific hotel as result #1
-  const expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=2`;
+  let expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  if (childrenCount > 0 && childAges.length > 0) {
+    expediaUrl += `&children=${childAges.join('_')}`;
+  }
 
   // 2. Hotels.com Verified Property Search (modern Expedia Group endpoint):
-  // Replaces deprecated search.do which caused 300+ city fallback
-  const hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=2`;
+  let hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
+  if (childrenCount > 0 && childAges.length > 0) {
+    hotelsComUrl += `&children=${childAges.join('_')}`;
+  }
 
   // 3. Booking.com Verified Property Search:
-  // Replaces fragile /hotel/{slug}.html which caused "Siden finnes ikke" (404)
-  // Booking.com automatically matches the property name with dates pre-selected
-  const bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=2&no_rooms=1&selected_currency=${upperCurr}`;
+  let bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
+  if (childrenCount > 0) {
+    bookingUrl += `&group_children=${childrenCount}`;
+    for (const age of childAges) {
+      bookingUrl += `&age=${age}`;
+    }
+  }
 
   // 4. Agoda Verified Property Search:
-  // Query parameters pre-select the hotel and stay dates
-  const agodaUrl = `https://www.agoda.com/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&adults=2&currency=${upperCurr}`;
+  let agodaUrl = `https://www.agoda.com/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
+  if (childrenCount > 0) {
+    agodaUrl += `&children=${childrenCount}`;
+    if (childAges.length > 0) {
+      agodaUrl += `&childages=${childAges.join(',')}`;
+    }
+  }
 
   // 5. Kayak Deep-Link
-  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanCity + ', ' + country)}/${hotelSlug.toLowerCase()}/${ciParam}/${coParam}/2adults`;
+  const kayakAdults = adultsCount === 2 ? '2adults' : `${adultsCount}adults`;
+  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanCity + ', ' + country)}/${hotelSlug.toLowerCase()}/${ciParam}/${coParam}/${kayakAdults}`;
 
   // 6. Google Hotels Meta-Search Deep-Link:
-  // Master link showing the hotel property with live feeds for all OTAs side-by-side
   const googleHotelsUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity}`, ciParam, coParam, upperCurr);
 
   return {
@@ -459,7 +491,8 @@ function mapSerpApiPropertyToHotel(
   nights: number,
   idx: number = 0,
   currency: string = 'USD',
-  hbRates: HotelbedsRateMap = new Map()
+  hbRates: HotelbedsRateMap = new Map(),
+  guestOptions?: GuestQueryOptions
 ): ComparedHotel {
   const upperCurr = (currency || 'USD').toUpperCase();
   const name: string = p.name || `Hotel in ${defaultCity}`;
@@ -477,7 +510,7 @@ function mapSerpApiPropertyToHotel(
     }
   }
 
-  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights, currency);
+  const urls = buildOtaUrls(name, city, country, ciParam, coParam, nights, currency, guestOptions);
 
   // Parse live rates & verified clickout redirect links from Google Hotels
   let expediaRate: number | null = null;
@@ -848,6 +881,16 @@ function mapSerpApiPropertyToHotel(
   // Sort providers from lowest to highest public rate
   marketProviders.sort((a, b) => a.perNight - b.perNight);
 
+  const adultsCount = Math.max(1, guestOptions?.adults || 2);
+  const roomsCount = Math.max(1, guestOptions?.rooms || 1);
+  const childAges = guestOptions?.childAges || [];
+  const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
+
+  let guestSummary = `${adultsCount} ${adultsCount === 1 ? 'Adult' : 'Adults'} · ${roomsCount} ${roomsCount === 1 ? 'Room' : 'Rooms'}`;
+  if (childrenCount > 0) {
+    guestSummary = `${adultsCount} ${adultsCount === 1 ? 'Adult' : 'Adults'}, ${childrenCount} ${childrenCount === 1 ? 'Child' : 'Children'} · ${roomsCount} ${roomsCount === 1 ? 'Room' : 'Rooms'}`;
+  }
+
   return {
     id: `atlas-${slug}`,
     name,
@@ -858,6 +901,12 @@ function mapSerpApiPropertyToHotel(
     checkInDate: ciParam,
     checkOutDate: coParam,
     nightsCount: nights,
+    guestSummary,
+    guestConfig: {
+      rooms: roomsCount,
+      adults: adultsCount,
+      childrenAges: childAges,
+    },
     marketProviders,
     propertyToken: p.property_token,
     starRating,
@@ -955,9 +1004,15 @@ async function fetchHotelbedsRates(
   destination: string,
   checkIn: string,
   checkOut: string,
-  currency: string
+  currency: string,
+  guestOptions?: GuestQueryOptions
 ): Promise<HotelbedsRateMap> {
-  const cacheKey = `hb_${destination.toLowerCase().trim()}_${checkIn}_${checkOut}`;
+  const roomsCount = Math.max(1, guestOptions?.rooms || 1);
+  const adultsCount = Math.max(1, guestOptions?.adults || 2);
+  const childAges = guestOptions?.childAges || [];
+  const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
+
+  const cacheKey = `hb_${destination.toLowerCase().trim()}_${checkIn}_${checkOut}_${roomsCount}_${adultsCount}_${childrenCount}_${childAges.join('-')}`;
   const cached = hotelbedsCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < HOTELBEDS_CACHE_TTL) {
     return cached.data;
@@ -970,7 +1025,12 @@ async function fetchHotelbedsRates(
       destination,
       checkIn,
       checkOut,
-      { adults: 2, rooms: 1 }
+      {
+        adults: adultsCount,
+        rooms: roomsCount,
+        children: childrenCount,
+        childAges,
+      }
     );
 
     // Hotelbeds returns rates in EUR. Convert to the user's requested currency.
@@ -1048,7 +1108,8 @@ async function fetchSerpApiHotels(
   nights: number,
   checkIn?: string,
   checkOut?: string,
-  currency: string = 'USD'
+  currency: string = 'USD',
+  guestOptions?: GuestQueryOptions
 ): Promise<ComparedHotel[]> {
   const apiKey = process.env.SERPAPI_API_KEY || '8734475c2939fb473328bf53733518ec599dfb284e16abc7f0b204f78eca3094';
   if (!apiKey) return [];
@@ -1056,7 +1117,13 @@ async function fetchSerpApiHotels(
   const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
   const upperCurr = (currency || 'USD').toUpperCase();
   const locale = CURRENCY_TO_GOOGLE_LOCALE[upperCurr] || { gl: 'us', hl: 'en' };
-  const cacheKey = `${destQuery.toLowerCase().trim()}_${ciParam}_${coParam}_${nights}_${upperCurr}`;
+
+  const roomsCount = Math.max(1, guestOptions?.rooms || 1);
+  const adultsCount = Math.max(1, guestOptions?.adults || 2);
+  const childAges = guestOptions?.childAges || [];
+  const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
+
+  const cacheKey = `${destQuery.toLowerCase().trim()}_${ciParam}_${coParam}_${nights}_${roomsCount}_${adultsCount}_${childrenCount}_${childAges.join('-')}_${upperCurr}`;
 
   const cached = serpApiCache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < SERPAPI_CACHE_TTL) {
@@ -1081,13 +1148,18 @@ async function fetchSerpApiHotels(
   const q = isSpecificHotel ? normQuery : `${city}${country ? ' ' + country : ''} hotels`;
 
   try {
+    let serpApiUrl = `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=${adultsCount}&currency=${upperCurr}&gl=${locale.gl}&hl=${locale.hl}&api_key=${apiKey}`;
+    if (childrenCount > 0) {
+      serpApiUrl += `&children=${childrenCount}`;
+      if (childAges.length > 0) {
+        serpApiUrl += `&children_ages=${childAges.join(',')}`;
+      }
+    }
+
     // Fetch SerpApi (Google Hotels) AND Hotelbeds in parallel — no extra latency
     const [serpRes, hbRates] = await Promise.all([
-      fetch(
-        `https://serpapi.com/search.json?engine=google_hotels&q=${encodeURIComponent(q)}&check_in_date=${ciParam}&check_out_date=${coParam}&adults=2&currency=${upperCurr}&gl=${locale.gl}&hl=${locale.hl}&api_key=${apiKey}`,
-        { next: { revalidate: 3600 } }
-      ),
-      fetchHotelbedsRates(city || destQuery, ciParam, coParam, upperCurr),
+      fetch(serpApiUrl, { next: { revalidate: 3600 } }),
+      fetchHotelbedsRates(city || destQuery, ciParam, coParam, upperCurr, guestOptions),
     ]);
 
     if (!serpRes.ok) return [];
@@ -1096,7 +1168,7 @@ async function fetchSerpApiHotels(
 
     // Case 1: Specific single hotel entity returned at root
     if (data.name && typeof data.name === 'string') {
-      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0, upperCurr, hbRates);
+      const hotel = mapSerpApiPropertyToHotel(data, city, country, ciParam, coParam, nights, 0, upperCurr, hbRates, guestOptions);
       const result = [hotel];
       serpApiCache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
@@ -1118,7 +1190,7 @@ async function fetchSerpApiHotels(
         return starB - starA;
       });
       const hotels = properties.map((p: any, idx: number) =>
-        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr, hbRates)
+        mapSerpApiPropertyToHotel(p, city, country, ciParam, coParam, nights, idx, upperCurr, hbRates, guestOptions)
       );
 
       serpApiCache.set(cacheKey, { data: hotels, timestamp: Date.now() });
@@ -1141,6 +1213,17 @@ export async function GET(request: Request) {
   const currency = (searchParams.get('currency') || 'USD').trim().toUpperCase();
   let checkIn = searchParams.get('checkIn') || undefined;
   let checkOut = searchParams.get('checkOut') || undefined;
+
+  const rooms = Math.max(1, parseInt(searchParams.get('rooms') || '1', 10));
+  const adults = Math.max(1, parseInt(searchParams.get('adults') || '2', 10));
+  const childrenParam = searchParams.get('children');
+  const childAgesParam = searchParams.get('childAges') || searchParams.get('children_ages') || '';
+  const childAges: number[] = childAgesParam
+    ? childAgesParam.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n))
+    : [];
+  const children = childrenParam !== null ? Math.max(0, parseInt(childrenParam, 10)) : childAges.length;
+
+  const guestOptions: GuestQueryOptions = { rooms, adults, children, childAges };
 
   // Detect and audit pasted OTA URLs from Booking.com, Expedia, Hotels.com, Agoda, Kayak
   const inputToTest = hotelQuery || rawDestParam || hotelId;
@@ -1174,7 +1257,7 @@ export async function GET(request: Request) {
     }
 
     // Dynamic live lookup via Google Hotels
-    const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut, currency);
+    const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut, currency, guestOptions);
     if (liveLookup && liveLookup.length > 0) {
       const matched =
         liveLookup.find(
@@ -1191,11 +1274,15 @@ export async function GET(request: Request) {
     ? rawSearch
     : 'luxury hotels in Oslo';
 
-  const liveHotels = await fetchSerpApiHotels(searchQuery, nights, checkIn, checkOut, currency);
+  const liveHotels = await fetchSerpApiHotels(searchQuery, nights, checkIn, checkOut, currency, guestOptions);
 
   return NextResponse.json({
     destination: rawSearch || 'Curated Global Portfolio',
     nights,
+    rooms,
+    adults,
+    children,
+    childAges,
     totalResults: liveHotels.length,
     isOtaUrlAudited: parsedOta.isOtaUrl,
     hotels: liveHotels,
