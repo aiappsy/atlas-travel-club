@@ -311,10 +311,10 @@ function buildOtaUrls(
   // Directly targets /hotel/[countryCode]/[hotelSlug].html which opens the exact hotel property page
   const bookingUrl = `https://www.booking.com/hotel/${countryCode}/${hotelSlug.toLowerCase()}.html?checkin=${ciParam}&checkout=${coParam}&group_adults=2&no_rooms=1&selected_currency=${upperCurr}`;
 
-  // 4. Agoda — use search URL which respects date params even when user has an active session cookie.
-  //    Direct property URLs (/slug/hotel/city-cc.html) are overridden by Agoda's cookie session dates.
-  //    The search URL (?q=hotel+name) correctly applies checkIn/checkOut from the URL on every visit.
-  const agodaUrl = `https://www.agoda.com/search?q=${encodeURIComponent(cleanHotel + ' ' + cleanCity)}&checkIn=${ciParam}&checkOut=${coParam}&adults=2&rooms=1`;
+  // 4. Agoda Direct Hotel Property Deep-Link:
+  // Points straight to the hotel property endpoint: /[hotelSlug]/hotel/[citySlug]-[countryCode].html
+  // Avoids /search?q= which triggers Agoda's anti-bot redirect to the homepage.
+  const agodaUrl = `https://www.agoda.com/${hotelSlug.toLowerCase()}/hotel/${citySlug.toLowerCase()}-${countryCode}.html?checkIn=${ciParam}&checkOut=${coParam}&adults=2&currency=${upperCurr}`;
 
   // 5. Hotels.com — does NOT support the Expedia .Hotel-Information URL format (same company, different system).
   //    Use their search URL which always resolves correctly with name + dates pre-filled.

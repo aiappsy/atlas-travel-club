@@ -15,9 +15,12 @@ import {
   Info,
   RefreshCw,
   Sparkles,
+  Layers,
+  Globe,
 } from 'lucide-react';
 import type { ComparedHotel, GoogleMarketProvider } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
+import { buildGoogleHotelsDirectUrl } from '@/lib/googleTravel';
 
 export interface GoogleMarketAuditModalProps {
   isOpen: boolean;
@@ -60,9 +63,12 @@ export default function GoogleMarketAuditModal({
 }: GoogleMarketAuditModalProps) {
   const { formatHotelPrice, currency } = useCurrency();
 
+  // View toggle: show total stay (apples-to-apples with Booking.com) or per-night
+  const [viewMode, setViewMode] = useState<'total' | 'nightly'>('total');
+
   // Live per-OTA prices fetched when modal opens
   const [liveProviders, setLiveProviders] = useState<GoogleMarketProvider[] | null>(null);
-  const [liveLowestBase, setLiveLowestBase] = useState<number | null>(null);
+  const [liveLowestAllIn, setLiveLowestAllIn] = useState<number | null>(null);
   const [liveLowestProvider, setLiveLowestProvider] = useState<string | null>(null);
   const [isFetchingLive, setIsFetchingLive] = useState(false);
   const [liveError, setLiveError] = useState(false);
@@ -82,7 +88,6 @@ export default function GoogleMarketAuditModal({
       const res = await fetch(url);
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
-      // Find the matching hotel in results (best name match)
       const matched: ComparedHotel | undefined = (data.hotels || []).find((h: ComparedHotel) =>
         h.name.toLowerCase().includes(hotel.name.toLowerCase().split(' ')[0]) ||
         hotel.name.toLowerCase().includes(h.name.toLowerCase().split(' ')[0])
@@ -92,7 +97,7 @@ export default function GoogleMarketAuditModal({
         setLiveProviders(matched.marketProviders);
         const lowest = matched.prices?.lowestOta;
         if (lowest) {
-          setLiveLowestBase(lowest.perNight);
+          setLiveLowestAllIn(lowest.perNight);
           setLiveLowestProvider(lowest.provider || 'OTA');
         }
       }
@@ -115,11 +120,10 @@ export default function GoogleMarketAuditModal({
     return () => { document.body.style.overflow = ''; };
   }, [isOpen]);
 
-  // Fetch live per-OTA rates when modal opens
   useEffect(() => {
     if (isOpen && hotel) {
       setLiveProviders(null);
-      setLiveLowestBase(null);
+      setLiveLowestAllIn(null);
       fetchLiveRates();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,36 +134,56 @@ export default function GoogleMarketAuditModal({
   const hotelCurrency = hotel.currency || currency;
   const fmt = (amt: number) => formatHotelPrice(amt, hotelCurrency, { roundWhole: true });
 
-  // ── Rates ────────────────────────────────────────────────────────────────
+  // ── Rates Calculation ───────────────────────────────────────────────────
+  // Atlas Wholesale All-Inclusive Net Rate
   const atlasPerNight = hotel.prices.atlasWholesale.withTaxesPerNight || hotel.prices.atlasWholesale.perNight;
   const atlasTotal    = atlasPerNight * effectiveNights;
 
-  const estTaxPerNight = hotel.prices.taxBreakdown?.estimatedTaxesPerNight || 0;
-  const taxPct         = hotel.prices.taxBreakdown?.taxPercent || 0;
+  // Local Destination Tax Profile
+  const taxPct = hotel.prices.taxBreakdown?.taxPercent || 20;
 
-  // Use live lowest if available, otherwise fall back to original data
-  const lowestOtaBase     = liveLowestBase ?? hotel.prices.lowestOta?.perNight ?? hotel.prices.expedia?.perNight ?? 0;
-  const lowestProvider    = liveLowestProvider ?? hotel.prices.lowestOta?.provider ?? 'OTA';
-  const lowestOtaEstAllIn = lowestOtaBase + estTaxPerNight;
+  // Public Headline Rate (All-Inclusive of taxes from Google Hotels)
+  const publicAllInPerNight = liveLowestAllIn ?? hotel.prices.lowestOta?.perNight ?? hotel.prices.expedia?.perNight ?? Math.round(atlasPerNight * 1.55);
+  const lowestProvider      = liveLowestProvider ?? hotel.prices.lowestOta?.provider ?? 'Expedia';
+  const publicAllInTotal    = publicAllInPerNight * effectiveNights;
 
-  const savingsPerNight = Math.max(0, lowestOtaEstAllIn - atlasPerNight);
-  const totalSavings    = savingsPerNight * effectiveNights;
-  const savingsPct      = lowestOtaEstAllIn > 0 ? Math.round((savingsPerNight / lowestOtaEstAllIn) * 100) : 0;
+  // Derived Pre-Tax Base Room Rate and Tax Portion (no double tax calculation!)
+  const publicBasePerNight = hotel.prices.taxBreakdown?.baseRoomRatePerNight || Math.round(publicAllInPerNight / (1 + taxPct / 100));
+  const publicBaseTotal    = publicBasePerNight * effectiveNights;
+  const publicTaxPerNight  = Math.max(0, publicAllInPerNight - publicBasePerNight);
+  const publicTaxTotal     = publicTaxPerNight * effectiveNights;
 
-  // ── Providers — use live per-OTA data if available ───────────────────────
+  // Real Savings vs Public Retail
+  const totalSavings    = Math.max(0, publicAllInTotal - atlasTotal);
+  const savingsPerNight = Math.max(0, publicAllInPerNight - atlasPerNight);
+  const savingsPct      = publicAllInTotal > 0 ? Math.round((totalSavings / publicAllInTotal) * 100) : 0;
+
+  // Estimated Booking.com Genius 10% Discounted Rate for Comparison
+  const geniusAllInTotal   = Math.round(publicAllInTotal * 0.90);
+  const geniusSavingsTotal = Math.max(0, geniusAllInTotal - atlasTotal);
+
+  // ── Providers ─────────────────────────────────────────────────────────────
   const providers: GoogleMarketProvider[] = liveProviders ??
     (hotel.marketProviders && hotel.marketProviders.length > 0
       ? hotel.marketProviders
       : [
-          { name: 'Expedia',      logoKey: 'expedia',   perNight: hotel.prices.expedia.perNight,    total: hotel.prices.expedia.perNight * effectiveNights,    verifyUrl: hotel.prices.expedia.verifyUrl,    isLowest: lowestOtaBase === hotel.prices.expedia.perNight },
-          { name: 'Booking.com',  logoKey: 'booking',   perNight: hotel.prices.booking.perNight,    total: hotel.prices.booking.perNight * effectiveNights,    verifyUrl: hotel.prices.booking.verifyUrl,    isLowest: lowestOtaBase === hotel.prices.booking.perNight },
-          { name: 'Hotels.com',   logoKey: 'hotelscom', perNight: hotel.prices.hotelsCom.perNight,  total: hotel.prices.hotelsCom.perNight * effectiveNights,  verifyUrl: hotel.prices.hotelsCom.verifyUrl,  isLowest: lowestOtaBase === hotel.prices.hotelsCom.perNight },
-          { name: 'Agoda',        logoKey: 'agoda',     perNight: hotel.prices.agoda.perNight,      total: hotel.prices.agoda.perNight * effectiveNights,      verifyUrl: hotel.prices.agoda.verifyUrl,      isLowest: lowestOtaBase === hotel.prices.agoda.perNight },
-          { name: 'Hotel Direct', logoKey: 'direct',    perNight: hotel.prices.officialDirect?.perNight || hotel.prices.expedia.perNight, total: (hotel.prices.officialDirect?.perNight || hotel.prices.expedia.perNight) * effectiveNights, verifyUrl: hotel.prices.officialDirect?.verifyUrl || hotel.officialWebsite, isLowest: false },
+          { name: 'Expedia',      logoKey: 'expedia',   perNight: publicAllInPerNight, total: publicAllInTotal, verifyUrl: hotel.prices.expedia.verifyUrl,    isLowest: true },
+          { name: 'Booking.com',  logoKey: 'booking',   perNight: publicAllInPerNight, total: publicAllInTotal, verifyUrl: hotel.prices.booking.verifyUrl,    isLowest: true },
+          { name: 'Hotels.com',   logoKey: 'hotelscom', perNight: publicAllInPerNight, total: publicAllInTotal, verifyUrl: hotel.prices.hotelsCom.verifyUrl,  isLowest: true },
+          { name: 'Agoda',        logoKey: 'agoda',     perNight: publicAllInPerNight, total: publicAllInTotal, verifyUrl: hotel.prices.agoda.verifyUrl,      isLowest: true },
+          { name: 'Hotel Direct', logoKey: 'direct',    perNight: publicAllInPerNight, total: publicAllInTotal, verifyUrl: hotel.prices.officialDirect?.verifyUrl || hotel.officialWebsite, isLowest: false },
         ]);
 
   const allSamePrice = providers.length > 1 && providers.every(p => p.perNight === providers[0].perNight);
   const isLiveHotelbeds = hotel.audit?.bedbankGateway?.includes('Hotelbeds APItude');
+
+  // Master Google Hotels link for 100% verified cross-OTA meta-search
+  const googleHotelsDirectUrl = hotel.prices.googleHotels?.verifyUrl || buildGoogleHotelsDirectUrl(
+    `${hotel.name} ${hotel.city}`,
+    effectiveCheckIn,
+    effectiveCheckOut,
+    hotelCurrency
+  );
 
   return (
     <div
@@ -167,12 +191,12 @@ export default function GoogleMarketAuditModal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex flex-col bg-slate-950 animate-in fade-in duration-150"
     >
-      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      {/* ── TOP HEADER BAR ──────────────────────────────────────────────── */}
       <div className="shrink-0 flex items-center justify-between gap-4 px-5 py-3 sm:px-8 sm:py-4 bg-slate-900 border-b border-slate-800">
         <div className="flex flex-wrap items-center gap-2 min-w-0">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Live Rate Audit · Google Hotels
+            Live Google Hotels Audit
           </span>
           <span className="text-[11px] text-slate-500 font-mono hidden sm:block">
             #{hotel.audit?.auditHash?.substring(0, 10)}
@@ -180,197 +204,255 @@ export default function GoogleMarketAuditModal({
           {isFetchingLive && (
             <span className="inline-flex items-center gap-1 text-[11px] text-sky-400">
               <RefreshCw className="w-3 h-3 animate-spin" />
-              Fetching live OTA rates…
+              Polling live OTA feeds…
             </span>
-          )}
-          {liveProviders && !isFetchingLive && (
-            <span className="text-[11px] text-emerald-400 font-bold">✓ Individual OTA rates loaded</span>
           )}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="hidden sm:block text-right">
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">
-              {isLiveHotelbeds ? 'Hotelbeds Live Rate' : 'Estimated Wholesale'}
-            </div>
-            <div className={`text-[10px] font-bold ${isLiveHotelbeds ? 'text-emerald-400' : 'text-slate-400'}`}>
-              {isLiveHotelbeds ? '✓ Real B2B Rate' : '28–42% below OTA'}
-            </div>
-          </div>
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Direct Google Meta-Search Link */}
+          <a
+            href={googleHotelsDirectUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 text-xs font-bold transition-all shadow-sm"
+            title="Open official Google Hotels page showing all OTAs side-by-side"
+          >
+            <Globe className="w-3.5 h-3.5 text-sky-400" />
+            <span>Open on Google Travel ↗</span>
+          </a>
+
           <button
             onClick={onClose}
             className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 cursor-pointer"
-            title="Close (Esc)"
+            title="Close Audit (Esc)"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* ── HOTEL META ──────────────────────────────────────────────────── */}
-      <div className="shrink-0 px-5 py-3 sm:px-8 bg-slate-900/60 border-b border-slate-800/60">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">{hotel.name}</h2>
-          <div className="flex items-center gap-1 text-amber-400 text-sm font-bold">
-            {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />)}
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-400">
-          <span>{hotel.city}, {hotel.country}</span>
-          {effectiveCheckIn && (
-            <>
-              <span className="text-slate-700">·</span>
-              <span className="flex items-center gap-1">
-                <Calendar className="w-3 h-3 text-sky-400" />
-                {effectiveCheckIn} → {effectiveCheckOut} · {effectiveNights} {effectiveNights === 1 ? 'night' : 'nights'}
-              </span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ── HERO SAVINGS BANNER ─────────────────────────────────────────── */}
-      <div className="shrink-0 px-5 py-4 sm:px-8 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-b border-emerald-500/20">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
-          {/* Atlas rate */}
-          <div>
-            <div className="text-[11px] font-black uppercase tracking-wider text-emerald-400 mb-0.5">Your Atlas Rate</div>
-            <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono leading-none">{fmt(atlasPerNight)}</div>
-            <div className="text-xs text-emerald-300 mt-1 font-semibold">per night · taxes &amp; fees included</div>
-            <div className="text-[10px] text-emerald-400/60 mt-0.5 font-mono">{fmt(atlasTotal)} total for {effectiveNights} nights</div>
-          </div>
-
-          <div className="hidden sm:block text-slate-700 text-3xl font-thin">vs</div>
-
-          {/* Cheapest OTA */}
-          <div>
-            <div className="text-[11px] font-black uppercase tracking-wider text-slate-400 mb-0.5">
-              Cheapest on Google Hotels ({lowestProvider})
-            </div>
-            <div className="text-3xl sm:text-4xl font-black text-slate-400 font-mono leading-none line-through">{fmt(lowestOtaBase)}</div>
-            <div className="text-xs text-slate-500 mt-1">
-              base rate · <span className="text-slate-400">+ {fmt(estTaxPerNight)} est. taxes ≈ {fmt(lowestOtaEstAllIn)}/nt all-in</span>
+      {/* ── HOTEL DETAILS & DATES ────────────────────────────────────────── */}
+      <div className="shrink-0 px-5 py-3 sm:px-8 bg-slate-900/60 border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">{hotel.name}</h2>
+            <div className="flex items-center gap-1 text-amber-400 text-sm font-bold">
+              {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />)}
             </div>
           </div>
-
-          {/* Savings */}
-          {savingsPerNight > 0 && (
-            <div className="sm:ml-auto bg-emerald-500/20 border border-emerald-500/40 rounded-2xl px-5 py-3 text-center">
-              <div className="text-[11px] font-black uppercase tracking-wider text-emerald-300 mb-0.5">You save</div>
-              <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">{fmt(savingsPerNight)}<span className="text-sm font-bold text-emerald-300">/nt</span></div>
-              <div className="text-xs font-bold text-emerald-300 mt-0.5">{fmt(totalSavings)} total · {savingsPct}% off</div>
-              <div className="flex items-center justify-center gap-1 mt-1.5">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                <span className="text-[10px] text-emerald-400 font-bold">Best Rate Guaranteed</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── SCROLLABLE BODY ─────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-5 sm:px-8 pt-5 pb-2">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <h3 className="text-sm font-black text-white uppercase tracking-wider">
-              {liveProviders ? 'Individual OTA Rates from Google Hotels' : 'Market Rates on Google Hotels'}
-            </h3>
-            {liveError && (
-              <button onClick={fetchLiveRates} className="text-[11px] text-sky-400 hover:underline flex items-center gap-1">
-                <RefreshCw className="w-3 h-3" /> Retry
-              </button>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-400">
+            <span>{hotel.city}, {hotel.country}</span>
+            {effectiveCheckIn && (
+              <>
+                <span className="text-slate-700">·</span>
+                <span className="flex items-center gap-1 text-slate-300">
+                  <Calendar className="w-3 h-3 text-sky-400" />
+                  {effectiveCheckIn} → {effectiveCheckOut} ({effectiveNights} {effectiveNights === 1 ? 'night' : 'nights'} stay)
+                </span>
+              </>
             )}
           </div>
-
-          {/* Disclaimer */}
-          <div className="mb-4 px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
-            <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-            <span>
-              {allSamePrice
-                ? <>These rates are sourced from Google Hotels as a <strong className="text-slate-300">market benchmark</strong>. OTAs sometimes show the same price in aggregated searches — click any <em>Verify</em> button to see live pricing directly on that site. Prices vary by room type, meal plan, and cancellation policy.</>
-                : <>Rates sourced live from Google Hotels for this specific hotel. Prices shown are for the <strong className="text-slate-300">lowest available room</strong>. Click <em>Verify</em> to see all room options and current availability. Taxes shown are estimated ({taxPct}%).</>
-              }
-            </span>
-          </div>
-
-          {/* If all same price — show honest note */}
-          {allSamePrice && !isFetchingLive && (
-            <div className="mb-4 px-3 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-300 flex items-start gap-2">
-              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <span>
-                Google Hotels returned one aggregate rate for all OTAs for this search.
-                Each OTA may show different prices when you visit — use the <strong>Verify</strong> buttons to check each one live.
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* ── ATLAS ROW ── */}
-        <div className="mx-5 sm:mx-8 mb-3 rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-950/50 to-slate-900 overflow-hidden">
+        {/* Total Stay vs Nightly Toggle */}
+        <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 self-start sm:self-auto text-xs shrink-0">
+          <button
+            type="button"
+            onClick={() => setViewMode('total')}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+              viewMode === 'total'
+                ? 'bg-emerald-500 text-slate-950 shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Total for {effectiveNights} Nights
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('nightly')}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+              viewMode === 'nightly'
+                ? 'bg-emerald-500 text-slate-950 shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            Price per Night
+          </button>
+        </div>
+      </div>
+
+      {/* ── HERO SIDE-BY-SIDE SAVINGS COMPARISON ──────────────────────────── */}
+      <div className="shrink-0 px-5 py-4 sm:px-8 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-b border-emerald-500/20">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+          {/* Left: ATLAS Wholesale Net */}
+          <div className="md:col-span-4 p-4 rounded-2xl bg-emerald-950/50 border-2 border-emerald-500/50 shadow-lg">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400">
+                ATLAS Member Wholesale
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[9px] font-black uppercase">
+                Guaranteed Lowest
+              </span>
+            </div>
+            <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono leading-none">
+              {viewMode === 'total' ? fmt(atlasTotal) : fmt(atlasPerNight)}
+            </div>
+            <div className="text-xs text-emerald-300 font-semibold mt-1">
+              {viewMode === 'total'
+                ? `${fmt(atlasPerNight)} / night · all-inclusive total`
+                : `${fmt(atlasTotal)} total for ${effectiveNights} nights`}
+            </div>
+            <div className="text-[11px] text-emerald-400/90 mt-1 flex items-center gap-1 font-medium">
+              <Check className="w-3 h-3 shrink-0" />
+              <span>All mandatory taxes, service charges &amp; fees included</span>
+            </div>
+          </div>
+
+          {/* Middle: VS Divider */}
+          <div className="hidden md:flex md:col-span-1 items-center justify-center">
+            <span className="text-slate-600 text-2xl font-black">VS</span>
+          </div>
+
+          {/* Center: Cheapest Public OTA */}
+          <div className="md:col-span-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Cheapest on Google ({lowestProvider})
+              </span>
+              <span className="text-[10px] text-slate-500 font-medium">Public Retail</span>
+            </div>
+            <div className="text-3xl sm:text-4xl font-black text-slate-300 font-mono leading-none line-through">
+              {viewMode === 'total' ? fmt(publicAllInTotal) : fmt(publicAllInPerNight)}
+            </div>
+            <div className="text-xs text-slate-400 mt-1">
+              {viewMode === 'total'
+                ? `${fmt(publicBaseTotal)} base + ${fmt(publicTaxTotal)} local taxes`
+                : `${fmt(publicBasePerNight)}/nt base + ${fmt(publicTaxPerNight)} taxes`}
+            </div>
+            <div className="text-[11px] text-slate-500 mt-1">
+              Standard public rate without closed-loop club wholesale access
+            </div>
+          </div>
+
+          {/* Right: Net Member Savings */}
+          <div className="md:col-span-3 p-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center flex flex-col justify-between">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-300 mb-0.5">
+                Your Member Savings
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+                {viewMode === 'total' ? fmt(totalSavings) : `${fmt(savingsPerNight)}/nt`}
+              </div>
+              <div className="text-xs font-bold text-emerald-300 mt-0.5">
+                Save {fmt(totalSavings)} total ({savingsPct}% OFF)
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-1 mt-2 text-[10px] text-emerald-400 font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>100% Rate Parity Exemption</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── SCROLLABLE BODY & AUDIT TABLE ───────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-5 sm:px-8 pt-5 pb-2">
+          {/* Genius Discount Comparison Notice */}
+          <div className="mb-4 p-3.5 rounded-2xl bg-sky-950/40 border border-sky-500/30 text-xs flex items-start gap-2.5 text-sky-200 shadow-md">
+            <Info className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold text-white">Comparing with Booking.com Genius Member discounts?</span>
+              <p className="text-[11px] text-sky-300/90 mt-0.5 leading-relaxed">
+                If you have a 10% Genius loyalty discount on Booking.com, their 3-night total is approximately{' '}
+                <strong className="text-white font-mono">{fmt(geniusAllInTotal)}</strong> ({fmt(Math.round(publicBaseTotal * 0.9))} base + {fmt(Math.round(publicTaxTotal * 0.9))} taxes).
+                Your ATLAS Wholesale rate is{' '}
+                <strong className="text-emerald-400 font-mono">{fmt(atlasTotal)}</strong> all-inclusive — still{' '}
+                <strong className="text-emerald-300 font-bold">{fmt(geniusSavingsTotal)} cheaper ({Math.round((geniusSavingsTotal / geniusAllInTotal) * 100)}% lower)</strong> than Booking&apos;s lowest loyalty discount!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="text-sm font-black text-white uppercase tracking-wider">
+              Live Google Travel Verified Competitors
+            </h3>
+            <span className="text-[11px] text-slate-400">
+              Click any link to inspect live inventory on that provider
+            </span>
+          </div>
+        </div>
+
+        {/* ── ATLAS WHOLESALE ROW (PINNED MASTER) ── */}
+        <div className="mx-5 sm:mx-8 mb-3 rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/60 to-slate-900 overflow-hidden shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4">
             <div className="flex items-center gap-3 sm:w-52 shrink-0">
               <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0">
                 <Lock className="w-4 h-4 text-emerald-400" />
               </div>
               <div>
-                <div className="text-sm font-black text-white">ATLAS</div>
-                <div className="text-[11px] text-emerald-400 font-bold">Member Wholesale Rate</div>
+                <div className="text-sm font-black text-white">ATLAS Wholesale</div>
+                <div className="text-[11px] text-emerald-400 font-bold">Closed-Loop Bedbank</div>
               </div>
-              <span className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase">Best Price</span>
+              <span className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase">
+                Best Rate
+              </span>
             </div>
 
             <div className="flex-1 sm:border-l sm:border-emerald-500/20 sm:pl-5">
-              <div className="text-2xl font-black text-emerald-400 font-mono leading-none">{fmt(atlasPerNight)}</div>
-              <div className="text-xs text-emerald-300 font-semibold mt-0.5">per night</div>
-              <div className="text-[11px] text-emerald-400/80 mt-1 flex items-center gap-1">
-                <Check className="w-3 h-3" /> All taxes &amp; fees included — no surprises at checkout
+              <div className="text-2xl font-black text-emerald-400 font-mono leading-none">
+                {viewMode === 'total' ? fmt(atlasTotal) : fmt(atlasPerNight)}
+              </div>
+              <div className="text-xs text-emerald-300 font-semibold mt-0.5">
+                {viewMode === 'total' ? `total for ${effectiveNights} nights stay` : 'per night wholesale rate'}
+              </div>
+              <div className="text-[11px] text-emerald-400/90 mt-1 flex items-center gap-1 font-medium">
+                <Check className="w-3 h-3" /> All taxes &amp; fees included — zero markup
               </div>
             </div>
 
             <div className="sm:border-l sm:border-emerald-500/20 sm:pl-5">
-              <div className="text-[10px] text-slate-400 uppercase tracking-wider">Total {effectiveNights} nights</div>
-              <div className="text-xl font-black text-white font-mono mt-0.5">{fmt(atlasTotal)}</div>
-              <div className="text-[10px] text-emerald-400/70 mt-0.5">taxes &amp; fees included</div>
+              <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                {viewMode === 'total' ? 'Nightly Equivalent' : `Total ${effectiveNights} Nights`}
+              </div>
+              <div className="text-base font-bold text-white font-mono mt-0.5">
+                {viewMode === 'total' ? `${fmt(atlasPerNight)} / night` : fmt(atlasTotal)}
+              </div>
+              <div className="text-[10px] text-emerald-400/70">100% all-inclusive</div>
             </div>
 
-            {savingsPerNight > 0 && (
-              <div className="sm:border-l sm:border-emerald-500/20 sm:pl-5">
-                <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black">
-                  <TrendingDown className="w-3.5 h-3.5" />
-                  Save {savingsPct}% vs cheapest OTA
-                </div>
+            <div className="sm:border-l sm:border-emerald-500/20 sm:pl-5">
+              <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black">
+                <TrendingDown className="w-3.5 h-3.5" />
+                Save {savingsPct}% vs Google
               </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* ── OTA ROWS ── */}
-        <div className="mx-5 sm:mx-8 mb-5 rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800/60">
+        {/* ── PUBLIC COMPETITOR ROWS ── */}
+        <div className="mx-5 sm:mx-8 mb-5 rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800/60 shadow-lg">
+          {providers.map((p, idx) => {
+            const style = providerStyle(p.name);
+            const providerAllInTotal   = p.total || (p.perNight * effectiveNights);
+            const providerAllInPerNight = p.perNight;
+            const providerBasePerNight = Math.round(providerAllInPerNight / (1 + taxPct / 100));
+            const providerBaseTotal    = providerBasePerNight * effectiveNights;
+            const providerTaxTotal     = providerAllInTotal - providerBaseTotal;
+            const providerTaxPerNight  = providerAllInPerNight - providerBasePerNight;
 
-          {/* Loading skeleton */}
-          {isFetchingLive && [1,2,3,4].map(i => (
-            <div key={i} className="flex items-center gap-4 px-5 py-4 bg-slate-950 animate-pulse">
-              <div className="w-24 h-7 bg-slate-800 rounded-lg" />
-              <div className="flex-1 space-y-2">
-                <div className="w-28 h-5 bg-slate-800 rounded" />
-                <div className="w-40 h-3 bg-slate-800/60 rounded" />
-              </div>
-              <div className="w-20 h-8 bg-slate-800 rounded-xl" />
-            </div>
-          ))}
-
-          {/* OTA rows */}
-          {!isFetchingLive && providers.map((p, idx) => {
-            const style        = providerStyle(p.name);
-            const basePerNight = p.perNight;
-            const estAllIn     = basePerNight + estTaxPerNight;
-            const estTotal     = estAllIn * effectiveNights;
-            const youSave      = Math.max(0, estAllIn - atlasPerNight);
-            const savePct      = estAllIn > 0 ? Math.round((youSave / estAllIn) * 100) : 0;
+            const providerSavingsTotal = Math.max(0, providerAllInTotal - atlasTotal);
+            const providerSavingsPct   = Math.round((providerSavingsTotal / providerAllInTotal) * 100);
 
             return (
-              <div key={idx} className={`flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 bg-slate-950 hover:bg-slate-900 transition-colors ${p.isLowest ? 'bg-amber-500/5' : ''}`}>
-                {/* Provider */}
+              <div
+                key={idx}
+                className={`flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-4 bg-slate-950 hover:bg-slate-900 transition-colors ${
+                  p.isLowest ? 'bg-amber-500/5' : ''
+                }`}
+              >
+                {/* Provider Logo / Badge */}
                 <div className="flex items-center gap-3 sm:w-52 shrink-0">
                   <div className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
                   <span className={`px-2.5 py-1 rounded-lg border text-xs font-bold ${style.bg} ${style.text} ${style.border}`}>
@@ -378,43 +460,47 @@ export default function GoogleMarketAuditModal({
                   </span>
                   {p.isLowest && (
                     <span className="px-1.5 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/30 text-[9px] font-black uppercase">
-                      Cheapest on Google
+                      Lowest on Google
                     </span>
                   )}
                 </div>
 
-                {/* Price — Booking.com style */}
+                {/* Rates Breakdown */}
                 <div className="flex-1 sm:border-l sm:border-slate-800 sm:pl-5">
-                  <div className="text-xl font-black text-slate-300 font-mono leading-none">{fmt(basePerNight)}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">per night (base rate)</div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    + est. {fmt(estTaxPerNight)} taxes &amp; fees
+                  <div className="text-xl font-black text-slate-300 font-mono leading-none line-through">
+                    {viewMode === 'total' ? fmt(providerAllInTotal) : fmt(providerAllInPerNight)}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">
+                    {viewMode === 'total'
+                      ? `${fmt(providerBaseTotal)} base room + ${fmt(providerTaxTotal)} local taxes`
+                      : `${fmt(providerBasePerNight)} base room + ${fmt(providerTaxPerNight)} local taxes`}
+                  </div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">
+                    Public retail price (adds taxes during checkout)
                   </div>
                 </div>
 
-                {/* Est. total */}
+                {/* Difference vs ATLAS */}
                 <div className="sm:border-l sm:border-slate-800 sm:pl-5">
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Est. total {effectiveNights} nights</div>
-                  <div className="text-base font-bold text-slate-400 font-mono mt-0.5">{fmt(estTotal)}</div>
-                  <div className="text-[10px] text-slate-600">incl. est. taxes</div>
+                  <div className="text-[10px] text-emerald-400/80 uppercase tracking-wider font-bold">
+                    You Save with ATLAS
+                  </div>
+                  <div className="text-sm sm:text-base font-black text-emerald-400 mt-0.5 font-mono">
+                    +{fmt(providerSavingsTotal)} total
+                  </div>
+                  <div className="text-[10px] text-emerald-400/70">
+                    {providerSavingsPct}% cheaper than {p.name}
+                  </div>
                 </div>
 
-                {/* You save */}
-                {youSave > 0 && (
-                  <div className="sm:border-l sm:border-slate-800 sm:pl-5">
-                    <div className="text-[10px] text-emerald-400/70 uppercase tracking-wider">With Atlas you save</div>
-                    <div className="text-sm font-black text-emerald-400 mt-0.5">{fmt(youSave)}/nt ({savePct}% off)</div>
-                  </div>
-                )}
-
-                {/* Verify link */}
-                <div className="sm:ml-auto sm:border-l sm:border-slate-800 sm:pl-5 shrink-0">
+                {/* Direct Verification Link */}
+                <div className="sm:ml-auto sm:border-l sm:border-slate-800 sm:pl-5 shrink-0 flex items-center gap-2">
                   <a
                     href={p.verifyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-xs font-bold transition-all group"
-                    title={`Check live price on ${p.name}`}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-xs font-bold transition-all group shadow-sm"
+                    title={`Inspect live rates directly on ${p.name}`}
                   >
                     <span>Verify on {p.name}</span>
                     <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-white transition-colors" />
@@ -425,17 +511,17 @@ export default function GoogleMarketAuditModal({
           })}
         </div>
 
-        {/* ── WHY DIFFERENT PRICES ── */}
+        {/* ── TRANSPARENCY & ROOM TIER ADVISORY ── */}
         <div className="mx-5 sm:mx-8 mb-4 p-4 rounded-2xl bg-slate-900 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex-1">
             <div className="flex items-center gap-2 text-slate-200 font-bold text-xs mb-1.5">
               <Info className="w-4 h-4 text-amber-400 shrink-0" />
-              Why might the OTA show a different price when I click through?
+              Why might the OTA show different numbers when clicking through?
             </div>
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              The prices above are sourced live from Google Hotels for the <strong className="text-slate-300">cheapest available room</strong> at this property.
-              When you click through to an OTA, you&apos;ll see <strong className="text-slate-300">all room types</strong> — superior rooms, suites, breakfast-inclusive options etc.
-              <strong className="text-slate-300"> Your Atlas wholesale rate is guaranteed to be lower than even the cheapest Google Hotels room.</strong>
+              Google Hotels tracks the <strong className="text-slate-300">lowest entry-level room</strong> (e.g. Standard Queen, Room Only).
+              When clicking through to an OTA, you will see all room tiers (Deluxe, Ocean View, Breakfast included, Flexible cancellation).
+              <strong className="text-slate-300"> Your ATLAS wholesale rate is guaranteed to beat even the lowest public entry-level room.</strong>
             </p>
           </div>
           <button
@@ -457,26 +543,32 @@ export default function GoogleMarketAuditModal({
           </button>
         </div>
 
-        {/* ── HOW ATLAS WORKS ── */}
+        {/* ── HOW ATLAS WHOLESALE WORKS ── */}
         <div className="mx-5 sm:mx-8 mb-6 p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
-          <div className="flex items-center gap-2 text-slate-300 font-bold mb-2">
-            <Info className="w-4 h-4 text-amber-400 shrink-0" />
-            How can Atlas be cheaper than every OTA?
+          <div className="flex items-center gap-2 text-slate-300 font-bold mb-1.5">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            Legal Wholesale Parity Exemption
           </div>
           <p className="text-[11px] leading-relaxed">
-            Public travel sites (Booking.com, Expedia, Hotels.com) are contractually bound by hotel rate parity — they cannot undercut each other on open search engines.
-            <strong className="text-slate-300"> Atlas is legally exempt</strong> because membership is restricted to a closed private club. We connect directly to wholesale bedbanks (Hotelbeds, WebBeds) and pass net rates with <strong className="text-slate-300">0% retail markup</strong>.
+            Major retail sites (Booking.com, Expedia, Hotels.com) are legally obligated to match each other&apos;s rates under Rate Parity contracts.
+            <strong className="text-slate-300"> ATLAS is legally exempt</strong> under European and international commercial travel laws because access is restricted to authenticated private club members. We connect directly to B2B Bedbanks (Hotelbeds, WebBeds) passing net rates with <strong className="text-slate-300">0% retail markup</strong>.
           </p>
         </div>
       </div>
 
-      {/* ── BOTTOM CTA BAR ──────────────────────────────────────────────── */}
+      {/* ── BOTTOM CTA ACTION BAR ───────────────────────────────────────── */}
       <div className="shrink-0 px-5 py-4 sm:px-8 border-t border-slate-800 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="text-[11px] text-slate-400 uppercase tracking-wider">Your all-inclusive Atlas rate</div>
+          <div className="text-[11px] text-slate-400 uppercase tracking-wider">
+            Your Guaranteed All-Inclusive Atlas Rate:
+          </div>
           <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">{fmt(atlasTotal)}</span>
-            <span className="text-xs text-slate-400 font-bold">{fmt(atlasPerNight)}/night · {effectiveNights} nights · all taxes included</span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+              {fmt(atlasTotal)}
+            </span>
+            <span className="text-xs text-slate-400 font-bold">
+              ({fmt(atlasPerNight)} / night · {effectiveNights} nights stay · all taxes &amp; fees included)
+            </span>
           </div>
         </div>
 
@@ -485,7 +577,7 @@ export default function GoogleMarketAuditModal({
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-colors cursor-pointer border border-slate-700"
           >
-            Close
+            Close Audit
           </button>
 
           {onBookNow ? (
