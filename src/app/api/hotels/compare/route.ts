@@ -351,25 +351,10 @@ function buildOtaUrls(
   const childAges = guestOptions?.childAges || [];
   const childrenCount = guestOptions?.children !== undefined ? guestOptions.children : childAges.length;
 
-  // 1. Expedia Verified Property Search:
-  // Uses Expedia's official Hotel-Search endpoint with the specific hotel destination query
-  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "wrong turn"
-  let expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
-  if (childrenCount > 0 && childAges.length > 0) {
-    expediaUrl += `&children=${childAges.join('_')}`;
-  }
+  // 1. Google Travel Meta-Search Deep-Link (Always loads verified property and rates):
+  const googleHotelsUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity}`, ciParam, coParam, upperCurr);
 
-  // 2. Hotels.com Verified Property Search:
-  // Uses Hotels.com's official Hotel-Search endpoint with the specific hotel destination query
-  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "page not found"
-  let hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
-  if (childrenCount > 0 && childAges.length > 0) {
-    hotelsComUrl += `&children=${childAges.join('_')}`;
-  }
-
-  // 3. Booking.com Verified Property Search:
-  // Uses Booking.com's official searchresults.html endpoint with ss query
-  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "siden finnes ikke"
+  // 2. Booking.com Verified Property Search (Booking accepts direct query deep-linking reliably):
   let bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
   if (childrenCount > 0) {
     bookingUrl += `&group_children=${childrenCount}`;
@@ -378,23 +363,17 @@ function buildOtaUrls(
     }
   }
 
-  // 4. Agoda Verified Property Search:
-  // Uses Agoda's official partnersearch landing endpoint with hotelName and searchDestination
-  // Guaranteed to resolve the property with pre-selected dates — NEVER throws 404 "page not found"
-  let agodaUrl = `https://www.agoda.com/partners/partnersearch.aspx?hotelName=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&NumberofAdults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
-  if (childrenCount > 0) {
-    agodaUrl += `&NumberOfChildren=${childrenCount}`;
-    if (childAges.length > 0) {
-      agodaUrl += `&childages=${childAges.join(',')}`;
-    }
-  }
+  // 3. Expedia via Google Travel Verified Meta-Search:
+  const expediaUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity} Expedia`, ciParam, coParam, upperCurr);
 
-  // 5. Kayak Deep-Link
-  const kayakAdults = adultsCount === 2 ? '2adults' : `${adultsCount}adults`;
-  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(cleanCity + ', ' + country)}/${hotelSlug.toLowerCase()}/${ciParam}/${coParam}/${kayakAdults}`;
+  // 4. Hotels.com via Google Travel Verified Meta-Search:
+  const hotelsComUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity} Hotels.com`, ciParam, coParam, upperCurr);
 
-  // 6. Google Hotels Meta-Search Deep-Link:
-  const googleHotelsUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity}`, ciParam, coParam, upperCurr);
+  // 5. Agoda via Google Travel Verified Meta-Search:
+  const agodaUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity} Agoda`, ciParam, coParam, upperCurr);
+
+  // 6. Kayak via Google Travel Verified Meta-Search:
+  const kayakUrl = buildGoogleHotelsDirectUrl(`${cleanHotel} ${cleanCity} Kayak`, ciParam, coParam, upperCurr);
 
   return {
     expedia: expediaUrl,
