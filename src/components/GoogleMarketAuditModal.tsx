@@ -467,6 +467,27 @@ export default function GoogleMarketAuditModal({
                 new CustomEvent('open-concierge', {
                   detail: {
                     prompt: `Explain why OTA prices on Booking.com or Expedia might differ from the Google Hotels lowest rate for ${hotel.name} in ${hotel.city}.`,
+                    hotelContext: {
+                      id: hotel.id,
+                      name: hotel.name,
+                      city: hotel.city,
+                      country: hotel.country,
+                      dates: `${effectiveCheckIn} – ${effectiveCheckOut}`,
+                      checkIn: effectiveCheckIn,
+                      checkOut: effectiveCheckOut,
+                      nights: stayNights,
+                      wholesalePerNight: atlasPerNight,
+                      wholesaleTotal: atlasTotal,
+                      publicLowestPerNight: publicAllInPerNight,
+                      publicLowestTotal: publicAllInTotal,
+                      savingsPerNight: savingsPerNight,
+                      savingsTotal: totalSavings,
+                      savingsPercent: savingsPct,
+                      lowestOtaProvider: lowestProvider,
+                      guestSummary: guestSummary || `${hotel.guestConfig?.adults || 2} Adults`,
+                      taxPercent: hotel.prices?.taxBreakdown?.taxPercent || 20,
+                      taxLabel: hotel.prices?.taxBreakdown?.taxLabel || 'Destination Taxes & Mandatory Fees',
+                    },
                   },
                 })
               );
@@ -497,7 +518,45 @@ export default function GoogleMarketAuditModal({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent('open-concierge', {
+                  detail: {
+                    hotelContext: {
+                      id: hotel.id,
+                      name: hotel.name,
+                      city: hotel.city,
+                      country: hotel.country,
+                      dates: `${effectiveCheckIn} – ${effectiveCheckOut}`,
+                      checkIn: effectiveCheckIn,
+                      checkOut: effectiveCheckOut,
+                      nights: stayNights,
+                      wholesalePerNight: atlasPerNight,
+                      wholesaleTotal: atlasTotal,
+                      publicLowestPerNight: publicAllInPerNight,
+                      publicLowestTotal: publicAllInTotal,
+                      savingsPerNight: savingsPerNight,
+                      savingsTotal: totalSavings,
+                      savingsPercent: savingsPct,
+                      lowestOtaProvider: lowestProvider,
+                      guestSummary: guestSummary || `${hotel.guestConfig?.adults || 2} Adults`,
+                      taxPercent: hotel.prices?.taxBreakdown?.taxPercent || 20,
+                      taxLabel: hotel.prices?.taxBreakdown?.taxLabel || 'Destination Taxes & Mandatory Fees',
+                    },
+                  },
+                })
+              );
+            }}
+            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 text-xs font-bold transition-colors cursor-pointer border border-amber-400/30 flex items-center gap-1.5"
+            title="Ask Aura VIP Concierge about this hotel"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>AI Concierge</span>
+          </button>
+
           <button
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-colors cursor-pointer border border-slate-700"
