@@ -637,19 +637,17 @@ export default function LiveHotelSearch({
                       {/* 4 Multi-OTA Cards */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         {/* Booking.com */}
-                        <a
-                          href={hotel.prices.booking?.verifyUrl || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-sky-500/50 text-left sm:text-center cursor-pointer transition-all group block"
-                          title={`Verify ${hotel.name} directly on Booking.com`}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-sky-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Booking.com vs ATLAS Wholesale in live audit"
                         >
                           <div className="font-bold text-sky-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                               <span>Booking.com</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-sky-400 transition-colors" />
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(bookingPerNight)}
@@ -660,22 +658,20 @@ export default function LiveHotelSearch({
                           <div className="text-[9px] text-sky-300/80 font-medium mt-1">
                             {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
-                        </a>
+                        </div>
 
                         {/* Hotels.com */}
-                        <a
-                          href={hotel.prices.hotelsCom?.verifyUrl || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-rose-500/50 text-left sm:text-center cursor-pointer transition-all group block"
-                          title={`Verify ${hotel.name} directly on Hotels.com`}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-rose-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Hotels.com vs ATLAS Wholesale in live audit"
                         >
                           <div className="font-bold text-rose-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-rose-500"></span>
                               <span>Hotels.com</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-400 transition-colors" />
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(hotelsComPerNight)}
@@ -686,22 +682,20 @@ export default function LiveHotelSearch({
                           <div className="text-[9px] text-rose-300/80 font-medium mt-1">
                             Breakfast & Free Cancel ↗
                           </div>
-                        </a>
+                        </div>
 
                         {/* Agoda */}
-                        <a
-                          href={hotel.prices.agoda?.verifyUrl || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 text-left sm:text-center cursor-pointer transition-all group block"
-                          title={`Verify ${hotel.name} directly on Agoda`}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Agoda vs ATLAS Wholesale in live audit"
                         >
                           <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                               <span>Agoda</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition-colors" />
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(agodaPerNight)}
@@ -712,22 +706,20 @@ export default function LiveHotelSearch({
                           <div className="text-[9px] text-purple-300/80 font-medium mt-1">
                             {showAllInclusive ? 'Promo Net Rate' : 'Base Promo Rate'} ↗
                           </div>
-                        </a>
+                        </div>
 
                         {/* Expedia */}
-                        <a
-                          href={hotel.prices.expedia?.verifyUrl || '#'}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-left sm:text-center cursor-pointer transition-all group block"
-                          title={`Verify ${hotel.name} directly on Expedia`}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Expedia vs ATLAS Wholesale in live audit"
                         >
                           <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
                             <div className="flex items-center gap-1">
                               <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                               <span>Expedia</span>
                             </div>
-                            <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400 transition-colors" />
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
                           </div>
                           <div className="text-base font-bold text-slate-300 line-through mt-1.5">
                             {formatPrice(expediaPerNight)}
@@ -738,7 +730,7 @@ export default function LiveHotelSearch({
                           <div className="text-[9px] text-blue-300/80 font-medium mt-1">
                             {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
-                        </a>
+                        </div>
                       </div>
 
                       {/* Single Unified Live Rate Audit Modal CTA (Zero external redirects) */}
