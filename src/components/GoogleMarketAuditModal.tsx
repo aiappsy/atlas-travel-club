@@ -51,7 +51,10 @@ export default function GoogleMarketAuditModal({
 
   const effectiveCheckIn  = checkIn  || (hotel?.checkInDate)  || '';
   const effectiveCheckOut = checkOut || (hotel?.checkOutDate) || '';
-  const initialNights     = Math.max(1, nights || hotel?.nightsCount || 3);
+  const dateDiffNights = (effectiveCheckIn && effectiveCheckOut)
+    ? Math.max(1, Math.round((new Date(effectiveCheckOut).getTime() - new Date(effectiveCheckIn).getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
+  const initialNights     = dateDiffNights > 0 ? dateDiffNights : Math.max(1, nights || hotel?.nightsCount || 3);
 
   // Interactive stay duration stepper
   const [stayNights, setStayNights] = useState<number>(initialNights);
