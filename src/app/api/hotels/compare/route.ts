@@ -331,9 +331,10 @@ function buildOtaUrls(
   const citySlug = slugifyHotel(cleanCity);
 
   // Clean search destination query (avoid repeating city if hotel name already contains city)
+  // Use space separation (NO COMMA) so OTA search engines parse the hotel name and city correctly
   const searchDestination = cleanHotel.toLowerCase().includes(cleanCity.toLowerCase())
     ? cleanHotel
-    : `${cleanHotel}, ${cleanCity}`;
+    : `${cleanHotel} ${cleanCity}`;
 
   const adultsCount = Math.max(1, guestOptions?.adults || 2);
   const roomsCount = Math.max(1, guestOptions?.rooms || 1);
@@ -352,8 +353,8 @@ function buildOtaUrls(
     hotelsComUrl += `&children=${childAges.join('_')}`;
   }
 
-  // 3. Booking.com Verified Property Search:
-  let bookingUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
+  // 3. Booking.com Verified Property Search (using .en-us.html endpoint to prevent redirects):
+  let bookingUrl = `https://www.booking.com/searchresults.en-us.html?ss=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&group_adults=${adultsCount}&no_rooms=${roomsCount}&selected_currency=${upperCurr}`;
   if (childrenCount > 0) {
     bookingUrl += `&group_children=${childrenCount}`;
     for (const age of childAges) {
@@ -527,44 +528,63 @@ function mapSerpApiPropertyToHotel(
   let bookingUrl = urls.booking;
 
   // Helper to extract clean direct partner URL from Google lodging clickout URLs
-  const extractDirectOtaUrl = (raw?: string | null): string | null => {
-    if (!raw) return null;
-    const match = raw.match(/[?&]pcurl=([^&]+)/);
-    if (match) {
-      try {
-        return decodeURIComponent(match[1]);
-      } catch {
-        return raw;
+  const extractDirectOtaUrl = (pr?: any): string | null => {
+    if (!pr) return null;
+
+    // Prioritize direct pcurl (partner target URL) from SerpApi
+    let raw: string | undefined = pr.pcurl;
+
+    // If not directly on pr.pcurl, extract from pr.link query params
+    if (!raw && pr.link && typeof pr.link === 'string' && pr.link.includes('pcurl=')) {
+      const match = pr.link.match(/[?&]pcurl=([^&]+)/);
+      if (match && match[1]) {
+        raw = match[1];
       }
     }
-    return raw;
+
+    if (raw && typeof raw === 'string') {
+      try {
+        let decoded = decodeURIComponent(raw);
+        if (decoded.includes('%3D') || decoded.includes('%26')) {
+          decoded = decodeURIComponent(decoded);
+        }
+        // Normalize any localized Expedia domains to expedia.com
+        if (decoded.includes('expedia.')) {
+          decoded = decoded.replace(/expedia\.[a-z.]+\//i, 'expedia.com/');
+        }
+        if (decoded.startsWith('http://') || decoded.startsWith('https://')) {
+          return decoded;
+        }
+      } catch {
+        if (raw.startsWith('http://') || raw.startsWith('https://')) {
+          return raw;
+        }
+      }
+    }
+
+    // NEVER return Google lodging clickout URLs (clk?pc=...) as they 400 when clicked externally
+    return null;
   };
 
   if (Array.isArray(p.prices) && p.prices.length > 0) {
     for (const pr of p.prices) {
       const src = (pr.source || '').toLowerCase();
       const extracted = pr.rate_per_night?.extracted_lowest;
-      const clickUrl = extractDirectOtaUrl(pr.pcurl || pr.link);
+      const directOtaUrl = extractDirectOtaUrl(pr);
 
       if (extracted && typeof extracted === 'number') {
-        if (src.includes('expedia')) {
+        if (/\bexpedia(\.[a-z.]+)?\b/i.test(src)) {
           expediaRate = extracted;
-          if (clickUrl) expediaUrl = clickUrl;
-        } else if (src.includes('hotels.com') || src.includes('hoteis.com')) {
+          if (directOtaUrl) expediaUrl = directOtaUrl;
+        } else if (/\b(hotels\.com|hoteis\.com)\b/i.test(src)) {
           hotelsComRate = extracted;
-          if (clickUrl) hotelsComUrl = clickUrl;
-        } else if (src.includes('agoda')) {
-          agodaRate = extracted;
-          if (clickUrl) agodaUrl = clickUrl;
-        } else if (src.includes('kayak') || src.includes('hotelscombined')) {
-          kayakRate = extracted;
-          if (clickUrl) kayakUrl = clickUrl;
-        } else if (src.includes('booking.com')) {
+          if (directOtaUrl) hotelsComUrl = directOtaUrl;
+        } else if (/\bbooking\.com\b/i.test(src)) {
           bookingRate = extracted;
-          if (clickUrl) bookingUrl = clickUrl;
-        } else if (src.includes('official') || src.includes('direct') || (name && src.includes(name.toLowerCase().split(' ')[0]))) {
-          directRate = extracted;
-          if (clickUrl) directUrl = clickUrl;
+          if (directOtaUrl) bookingUrl = directOtaUrl;
+        } else if (/\b(kayak|hotelscombined)(\.[a-z.]+)?\b/i.test(src)) {
+          kayakRate = extracted;
+          if (directOtaUrl) kayakUrl = directOtaUrl;
         }
       }
     }
@@ -856,19 +876,26 @@ function mapSerpApiPropertyToHotel(
     for (const pr of p.prices) {
       const srcName = pr.source;
       const rate = pr.rate_per_night?.extracted_lowest;
-      const link = pr.link || pr.pcurl;
-      if (srcName && rate && typeof rate === 'number' && link && isTrustedMajorOta(srcName)) {
+      if (srcName && rate && typeof rate === 'number' && isTrustedMajorOta(srcName)) {
         const normSrc = srcName.toLowerCase().replace(/\.(com|de|co\.uk)$/i, '');
         const alreadyExists = marketProviders.some(
           (m) => m.name.toLowerCase().replace(/\.(com|de|co\.uk)$/i, '') === normSrc
         );
         if (!alreadyExists) {
+          // Resolve direct verified partner URL — NEVER use dead google.com/travel/lodging/clk URLs
+          const targetUrl = extractDirectOtaUrl(pr) || (
+            normSrc.includes('expedia') ? expediaUrl :
+            normSrc.includes('booking') ? bookingUrl :
+            normSrc.includes('hotels') ? hotelsComUrl :
+            urls.googleHotels
+          );
+
           marketProviders.push({
             name: srcName,
             logoKey: srcName.toLowerCase().replace(/[^a-z0-9]/g, ''),
             perNight: rate,
             total: rate * nights,
-            verifyUrl: link,
+            verifyUrl: targetUrl,
             isLowest: rate === lowestPublicRate,
             rateType: 'Public Retail OTA',
           });
