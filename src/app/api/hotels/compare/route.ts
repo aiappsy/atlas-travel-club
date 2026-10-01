@@ -369,17 +369,17 @@ function buildOtaUrls(
     }
   }
 
-  // 3. Expedia via Google Travel Verified Meta-Search:
-  const expediaUrl = googleHotelsUrl;
+  // 3. Expedia Direct Search:
+  const expediaUrl = `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
 
-  // 4. Hotels.com via Google Travel Verified Meta-Search:
-  const hotelsComUrl = googleHotelsUrl;
+  // 4. Hotels.com Direct Search:
+  const hotelsComUrl = `https://www.hotels.com/Hotel-Search?destination=${encodeURIComponent(searchDestination)}&startDate=${ciParam}&endDate=${coParam}&adults=${adultsCount}&rooms=${roomsCount}`;
 
-  // 5. Agoda via Google Travel Verified Meta-Search:
-  const agodaUrl = googleHotelsUrl;
+  // 5. Agoda Direct Search:
+  const agodaUrl = `https://www.agoda.com/en-us/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&rooms=${roomsCount}&adults=${adultsCount}&currency=${upperCurr}`;
 
-  // 6. Kayak via Google Travel Verified Meta-Search:
-  const kayakUrl = googleHotelsUrl;
+  // 6. Kayak Direct Search:
+  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(searchDestination)}/${ciParam}/${coParam}/${adultsCount}adults`;
 
   return {
     expedia: expediaUrl,
