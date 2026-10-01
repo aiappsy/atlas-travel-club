@@ -655,7 +655,7 @@ export default function HotelDetailPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             {/* Booking.com */}
             <button
               type="button"
@@ -669,36 +669,6 @@ export default function HotelDetailPage() {
               </div>
               <div className="text-base font-bold text-slate-300 line-through mt-1">{formatPrice(bookingPerNight)}</div>
               <div className="text-[10px] text-sky-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
-            </button>
-
-            {/* Hotels.com */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Hotels.com price vs ATLAS Wholesale"
-            >
-              <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
-                <span>Hotels.com</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
-              </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
-              <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
-            </button>
-
-            {/* Agoda */}
-            <button
-              type="button"
-              onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Agoda price vs ATLAS Wholesale"
-            >
-              <div className="font-bold text-purple-400 text-xs flex items-center justify-center gap-1">
-                <span>Agoda</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
-              </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(agodaPerNight)}</div>
-              <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Promo Direct ↗</div>
             </button>
 
             {/* Expedia */}
@@ -716,19 +686,19 @@ export default function HotelDetailPage() {
               <div className="text-[10px] text-blue-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
             </button>
 
-            {/* Hotel Direct */}
+            {/* Hotels.com */}
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition-all text-center group cursor-pointer"
-              title="Click to audit Hotel Direct price vs ATLAS Wholesale"
+              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer"
+              title="Click to audit Hotels.com price vs ATLAS Wholesale"
             >
-              <div className="font-bold text-emerald-400 text-xs flex items-center justify-center gap-1">
-                <span>Hotel Direct</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-emerald-400" />
+              <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
+                <span>Hotels.com</span>
+                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
               </div>
-              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(directPerNight)}</div>
-              <div className="text-[10px] text-emerald-400 font-semibold mt-0.5">Official Direct ↗</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
+              <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
             </button>
           </div>
         </div>

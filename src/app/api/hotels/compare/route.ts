@@ -646,30 +646,46 @@ function mapSerpApiPropertyToHotel(
   if (!kayakRate || kayakRate > allInclusiveRate * 1.1) kayakRate = allInclusiveRate;
   if (!directRate || directRate > allInclusiveRate * 1.1) directRate = Math.round(allInclusiveRate * 1.05);
 
+  // Helper to filter out aggregators, direct hotel sites, and unsupported OTAs
+  const isExcludedProvider = (srcName?: string | null): boolean => {
+    if (!srcName) return true;
+    const lower = srcName.toLowerCase();
+    if (lower.includes('bluepillow') || lower.includes('blue pillow') || lower.includes('bluepilow')) return true;
+    if (lower.includes('direct') || lower.includes('official') || lower.includes('hotel site')) return true;
+    if (lower.includes('agoda')) return true;
+    if (name && lower.includes(name.toLowerCase().split(' ')[0])) return true;
+    return false;
+  };
+
+  const isTrustedMajorOta = (srcName?: string | null): boolean => {
+    if (!srcName || isExcludedProvider(srcName)) return false;
+    const lower = srcName.toLowerCase().trim();
+    return /\b(expedia(\.com|\.de|\.co\.uk)?|booking\.com|hotels\.com|priceline(\.com)?|kayak(\.com)?|trip\.com|orbitz(\.com)?|travelocity(\.com)?)\b/i.test(lower);
+  };
+
   // 1. Lowest public retail rate across major verified OTAs (strictly checking all Google Travel providers first)
   let lowestPublicRate = Math.min(
     allInclusiveRate,
     bookingRate || allInclusiveRate,
-    agodaRate || allInclusiveRate,
     expediaRate || allInclusiveRate,
-    hotelsComRate || allInclusiveRate,
-    directRate || allInclusiveRate
+    hotelsComRate || allInclusiveRate
   );
   let lowestProvider = 'Expedia';
   if (lowestPublicRate === expediaRate) lowestProvider = 'Expedia';
   else if (lowestPublicRate === hotelsComRate) lowestProvider = 'Hotels.com';
   else if (lowestPublicRate === bookingRate) lowestProvider = 'Booking.com';
-  else if (lowestPublicRate === agodaRate) lowestProvider = 'Agoda';
-  else if (lowestPublicRate === directRate) lowestProvider = 'Hotel Direct';
 
-  // 2. Inspect every other provider in Google Hotels prices array to guarantee NO provider is cheaper
+  // 2. Inspect every other provider in Google Hotels prices array to guarantee ATLAS wholesale beats ANY rate
   if (Array.isArray(p.prices)) {
     for (const pr of p.prices) {
       const extracted = pr.rate_per_night?.extracted_lowest;
+      const src = pr.source || '';
       if (extracted && typeof extracted === 'number' && extracted > 0) {
         if (extracted < lowestPublicRate) {
           lowestPublicRate = extracted;
-          lowestProvider = pr.source || lowestProvider;
+          if (isTrustedMajorOta(src)) {
+            lowestProvider = src;
+          }
         }
       }
     }
@@ -833,35 +849,18 @@ function mapSerpApiPropertyToHotel(
       isLowest: lowestPublicRate === hotelsComRate,
       rateType: 'Public Retail OTA',
     },
-    {
-      name: 'Agoda',
-      logoKey: 'agoda',
-      perNight: agodaRate,
-      total: agodaRate * nights,
-      verifyUrl: agodaUrl,
-      isLowest: lowestPublicRate === agodaRate,
-      rateType: 'Public Retail OTA',
-    },
-    {
-      name: 'Hotel Direct',
-      logoKey: 'direct',
-      perNight: directRate,
-      total: directRate * nights,
-      verifyUrl: directUrl,
-      isLowest: lowestPublicRate === directRate,
-      rateType: 'Official Property Direct',
-    },
   ];
 
-  // If SerpApi has additional named providers in p.prices, add them:
+  // If SerpApi has additional named providers in p.prices, add them (excluding BluePillow, Hotel Direct, Agoda):
   if (Array.isArray(p.prices)) {
     for (const pr of p.prices) {
       const srcName = pr.source;
       const rate = pr.rate_per_night?.extracted_lowest;
       const link = pr.link || pr.pcurl;
-      if (srcName && rate && typeof rate === 'number' && link) {
+      if (srcName && rate && typeof rate === 'number' && link && isTrustedMajorOta(srcName)) {
+        const normSrc = srcName.toLowerCase().replace(/\.(com|de|co\.uk)$/i, '');
         const alreadyExists = marketProviders.some(
-          (m) => m.name.toLowerCase() === srcName.toLowerCase()
+          (m) => m.name.toLowerCase().replace(/\.(com|de|co\.uk)$/i, '') === normSrc
         );
         if (!alreadyExists) {
           marketProviders.push({
@@ -871,7 +870,7 @@ function mapSerpApiPropertyToHotel(
             total: rate * nights,
             verifyUrl: link,
             isLowest: rate === lowestPublicRate,
-            rateType: 'Public Meta Provider',
+            rateType: 'Public Retail OTA',
           });
         }
       }
