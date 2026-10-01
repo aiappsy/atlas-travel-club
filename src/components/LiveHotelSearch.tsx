@@ -200,10 +200,10 @@ export default function LiveHotelSearch({
   return (
     <div className="w-full space-y-8 font-sans">
       {/* Luxury Floating Search Bar */}
-      <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 space-y-4 text-white">
+      <div className="bg-slate-900/90 backdrop-blur-xl rounded-3xl p-4 sm:p-6 shadow-2xl border border-slate-800 space-y-4 text-white relative z-30">
         <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3">
           {/* 1. Destination / Hotel Name */}
-          <div className="md:col-span-4 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
+          <div className="md:col-span-3 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-300 flex items-center justify-center shrink-0">
               <MapPin className="w-5 h-5 text-amber-400" />
             </div>
@@ -260,7 +260,7 @@ export default function LiveHotelSearch({
           </div>
 
           {/* 4. Guests & Rooms */}
-          <div className="md:col-span-2 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3 relative">
+          <div className="md:col-span-3 bg-slate-950 hover:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-800 transition-colors flex items-center gap-3 relative">
             <div className="w-10 h-10 rounded-xl bg-indigo-400/10 border border-indigo-400/30 text-indigo-300 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-indigo-400" />
             </div>
@@ -272,6 +272,7 @@ export default function LiveHotelSearch({
                 value={guestConfig}
                 onChange={setGuestConfig}
                 theme="dark"
+                align="right"
               />
             </div>
           </div>

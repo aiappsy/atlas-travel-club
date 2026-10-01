@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Users, Bed, Plus, Minus, X, Info, Check } from 'lucide-react';
+import { Users, Bed, Plus, Minus, X, Info, Check, ChevronDown } from 'lucide-react';
 
 export interface GuestRoomConfig {
   rooms: number;
@@ -13,6 +13,7 @@ interface GuestRoomPickerProps {
   value: GuestRoomConfig;
   onChange: (config: GuestRoomConfig) => void;
   theme?: 'dark' | 'light';
+  align?: 'left' | 'right';
   className?: string;
 }
 
@@ -34,6 +35,7 @@ export default function GuestRoomPicker({
   value,
   onChange,
   theme = 'dark',
+  align = 'right',
   className = '',
 }: GuestRoomPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -94,7 +96,7 @@ export default function GuestRoomPicker({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full text-left flex items-center justify-between gap-2 transition-all ${
+        className={`w-full text-left flex items-center justify-between gap-1.5 transition-all cursor-pointer ${
           isDark
             ? 'text-white'
             : 'text-slate-900'
@@ -103,19 +105,22 @@ export default function GuestRoomPicker({
         <span className="font-bold text-xs truncate">
           {formatGuestSummary(value)}
         </span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-400' : ''}`} />
       </button>
 
       {/* Popover Dropdown */}
       {isOpen && (
         <div
-          className={`absolute top-full left-0 mt-3 w-80 sm:w-96 rounded-3xl p-5 shadow-2xl border z-50 animate-in fade-in zoom-in-95 duration-150 ${
+          className={`absolute top-full ${
+            align === 'right' ? 'right-0' : 'left-0'
+          } mt-2 w-80 sm:w-[380px] max-h-[min(520px,82vh)] flex flex-col rounded-3xl p-5 shadow-2xl border z-50 animate-in fade-in zoom-in-95 duration-150 ${
             isDark
-              ? 'bg-slate-950 border-slate-800 text-white shadow-black/80'
+              ? 'bg-slate-950 border-slate-800 text-white shadow-black/90'
               : 'bg-white border-slate-200 text-slate-900 shadow-slate-300/60'
           }`}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800/60 mb-4">
+          {/* Pinned Header */}
+          <div className="shrink-0 flex items-center justify-between pb-3.5 border-b border-slate-800/60 mb-3.5">
             <div>
               <h4 className="font-black text-sm tracking-tight flex items-center gap-2">
                 <Users className="w-4 h-4 text-amber-500" />
@@ -128,15 +133,16 @@ export default function GuestRoomPicker({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className={`p-1.5 rounded-full transition-colors ${
-                isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'
+              className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                isDark ? 'hover:bg-slate-800 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-600'
               }`}
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-4">
+          {/* Scrollable Body */}
+          <div className="flex-1 overflow-y-auto pr-1 py-1 space-y-4 custom-scrollbar">
             {/* 1. Rooms Stepper */}
             <div className="flex items-center justify-between">
               <div>
@@ -317,15 +323,15 @@ export default function GuestRoomPicker({
             )}
           </div>
 
-          {/* Footer Action */}
-          <div className="mt-5 pt-3 border-t border-slate-800/60 flex items-center justify-between gap-3">
+          {/* Pinned Footer */}
+          <div className="shrink-0 mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between gap-3">
             <span className={`text-[11px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               Total: {value.adults + value.childrenAges.length} {value.adults + value.childrenAges.length === 1 ? 'Guest' : 'Guests'}
             </span>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-amber-400/20"
+              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-amber-400/20 cursor-pointer active:scale-95"
             >
               <Check className="w-3.5 h-3.5 text-slate-950" />
               <span>Apply</span>
