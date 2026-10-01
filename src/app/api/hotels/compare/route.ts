@@ -1980,6 +1980,121 @@ async function generateSingleHotelFallback(
   return buildFallbackHotel(seed, nights, checkIn, checkOut, currency, guestOptions, hbRates);
 }
 
+// Secondary fallback tier: Live hotel search grounding via Gemini 2.5 with Google Search
+async function fetchGeminiLiveHotels(
+  destQuery: string,
+  nights: number,
+  checkIn?: string,
+  checkOut?: string,
+  currency: string = 'USD',
+  guestOptions?: GuestQueryOptions
+): Promise<ComparedHotel[]> {
+  const geminiApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '';
+  if (!geminiApiKey) return [];
+
+  const { checkIn: ciParam, checkOut: coParam } = getEffectiveDates(checkIn, checkOut, nights);
+  const upperCurr = (currency || 'USD').toUpperCase();
+  const cleanName = destQuery.charAt(0).toUpperCase() + destQuery.slice(1);
+  const city = cleanName.split(',')[0].trim();
+  const country = cleanName.includes(',') ? cleanName.split(',')[1].trim() : '';
+
+  try {
+    const prompt = `Search live OTA hotel room rates (Booking.com, Expedia, Agoda) for: "${destQuery}".
+Dates: Check-in ${ciParam}, Check-out ${coParam} (${nights} nights).
+Target Currency: ${upperCurr}.
+Find 3 to 6 real luxury/superior hotels with their current live approximate retail rate per night in ${upperCurr}.
+Return ONLY a valid JSON array of objects with the following schema:
+[
+  {
+    "name": "Exact Hotel Name",
+    "stars": 5,
+    "retailPricePerNight": 450,
+    "roomType": "Deluxe King Room",
+    "address": "Hotel Address"
+  }
+]
+Do not include any explanation, conversational text, or markdown code blocks other than the JSON array.`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ googleSearch: {} }],
+          generationConfig: {
+            temperature: 0.1,
+          },
+        }),
+      }
+    );
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      console.warn(`[Gemini Live Search] API returned status ${res.status}. Falling back to calibrated baseline.`);
+      return [];
+    }
+
+    const data = await res.json();
+    const candidate = data?.candidates?.[0];
+    const text = candidate?.content?.parts?.map((p: any) => p.text || '').join('\n') || '';
+
+    let parsed: any[] = [];
+    const jsonMatch = text.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        // parsing failed
+      }
+    }
+
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      return [];
+    }
+
+    let hbRates: HotelbedsRateMap | undefined;
+    try {
+      hbRates = await fetchHotelbedsRates(city || destQuery, ciParam, coParam, upperCurr, guestOptions);
+    } catch {
+      // ignore
+    }
+
+    const targetRate = CURRENCY_RATES_TO_USD[upperCurr] || 1.0;
+
+    const hotels: ComparedHotel[] = parsed
+      .filter((item: any) => item && item.name && typeof item.name === 'string')
+      .map((item: any) => {
+        const priceInCurr = typeof item.retailPricePerNight === 'number' && item.retailPricePerNight > 0
+          ? item.retailPricePerNight
+          : 350 * targetRate;
+        const basePriceInUsd = Math.round(priceInCurr / targetRate);
+
+        const seed: FallbackHotelSeed = {
+          name: item.name,
+          city,
+          country,
+          stars: Number(item.stars) || 5,
+          basePrice: basePriceInUsd,
+          roomType: item.roomType || 'Deluxe King Room',
+          address: item.address,
+        };
+
+        return buildFallbackHotel(seed, nights, checkIn, checkOut, currency, guestOptions, hbRates);
+      });
+
+    return hotels;
+  } catch (err) {
+    console.warn('[Gemini Live Search] Error during fetch, falling back:', err);
+    return [];
+  }
+}
+
 // Real-time live hotel search directly via Google Hotels & SerpApi (with automatic zero-cost fallback)
 async function fetchSerpApiHotels(
   destQuery: string,
@@ -1991,6 +2106,8 @@ async function fetchSerpApiHotels(
 ): Promise<ComparedHotel[]> {
   const apiKey = process.env.SERPAPI_API_KEY || '8734475c2939fb473328bf53733518ec599dfb284e16abc7f0b204f78eca3094';
   if (!apiKey) {
+    const geminiHotels = await fetchGeminiLiveHotels(destQuery, nights, checkIn, checkOut, currency, guestOptions);
+    if (geminiHotels && geminiHotels.length > 0) return geminiHotels;
     return await generateDestinationHotelsFallback(destQuery, nights, checkIn, checkOut, currency, guestOptions);
   }
 
@@ -2017,7 +2134,7 @@ async function fetchSerpApiHotels(
     .replace(/hoteller|hotell/gi, 'hotel')
     .trim();
 
-  const isSpecificHotel = /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski/i.test(normQuery);
+  const isSpecificHotel = /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski|atlantis|burj\s*al\s*arab|armani/i.test(normQuery);
 
   const cleanName = destQuery.charAt(0).toUpperCase() + destQuery.slice(1);
   const city = cleanName.split(',')[0].trim();
@@ -2043,7 +2160,12 @@ async function fetchSerpApiHotels(
     ]);
 
     if (!serpRes.ok) {
-      console.warn(`[SerpApi] Live feed returned HTTP ${serpRes.status}. Engaging zero-cost wholesale engine fallback.`);
+      console.warn(`[SerpApi] Live feed returned HTTP ${serpRes.status}. Engaging secondary Gemini live search.`);
+      const geminiHotels = await fetchGeminiLiveHotels(destQuery, nights, checkIn, checkOut, currency, guestOptions);
+      if (geminiHotels && geminiHotels.length > 0) {
+        serpApiCache.set(cacheKey, { data: geminiHotels, timestamp: Date.now() });
+        return geminiHotels;
+      }
       const fallback = await generateDestinationHotelsFallback(destQuery, nights, checkIn, checkOut, currency, guestOptions);
       serpApiCache.set(cacheKey, { data: fallback, timestamp: Date.now() });
       return fallback;
@@ -2051,7 +2173,12 @@ async function fetchSerpApiHotels(
 
     const data = await serpRes.json();
     if (data.error) {
-      console.warn(`[SerpApi] API error: ${data.error}. Engaging zero-cost wholesale engine fallback.`);
+      console.warn(`[SerpApi] API error: ${data.error}. Engaging secondary Gemini live search.`);
+      const geminiHotels = await fetchGeminiLiveHotels(destQuery, nights, checkIn, checkOut, currency, guestOptions);
+      if (geminiHotels && geminiHotels.length > 0) {
+        serpApiCache.set(cacheKey, { data: geminiHotels, timestamp: Date.now() });
+        return geminiHotels;
+      }
       const fallback = await generateDestinationHotelsFallback(destQuery, nights, checkIn, checkOut, currency, guestOptions);
       serpApiCache.set(cacheKey, { data: fallback, timestamp: Date.now() });
       return fallback;
@@ -2088,12 +2215,22 @@ async function fetchSerpApiHotels(
       return hotels;
     }
 
-    // If properties empty, use fallback
+    // If properties empty, try Gemini before static fallback
+    const geminiHotels = await fetchGeminiLiveHotels(destQuery, nights, checkIn, checkOut, currency, guestOptions);
+    if (geminiHotels && geminiHotels.length > 0) {
+      serpApiCache.set(cacheKey, { data: geminiHotels, timestamp: Date.now() });
+      return geminiHotels;
+    }
+
     const fallback = await generateDestinationHotelsFallback(destQuery, nights, checkIn, checkOut, currency, guestOptions);
     serpApiCache.set(cacheKey, { data: fallback, timestamp: Date.now() });
     return fallback;
   } catch (err) {
-    console.error('Error fetching SerpApi live hotels, engaging fallback:', err);
+    console.error('Error fetching SerpApi live hotels, engaging Gemini / fallback:', err);
+    const geminiHotels = await fetchGeminiLiveHotels(destQuery, nights, checkIn, checkOut, currency, guestOptions);
+    if (geminiHotels && geminiHotels.length > 0) {
+      return geminiHotels;
+    }
     return await generateDestinationHotelsFallback(destQuery, nights, checkIn, checkOut, currency, guestOptions);
   }
 }
