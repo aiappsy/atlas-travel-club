@@ -1,0 +1,37 @@
+# ATLAS Travel Club — Immutable Agent Engineering Rules
+
+## 1. User Flow & Modal-First Navigation
+* In the search feed (`LiveHotelSearch.tsx`), clicking ANY hotel card or OTA rate card (Booking.com, Expedia, Hotels.com, Agoda) MUST always open the Audit Modal (`setAuditingHotel(hotel)`).
+* Never redirect the user off-site from the search feed. All external comparisons occur ONLY inside the Audit Modal.
+* Clicking "Lock In Wholesale Rate" must remain 100% inside ATLAS.
+
+## 2. Direct OTA Verification Links
+Inside the Audit Modal (`GoogleMarketAuditModal.tsx`), OTA verification buttons must link directly to that brand's official site:
+* Expedia ➔ https://www.expedia.com/Hotel-Search?destination=...
+* Hotels.com ➔ https://www.hotels.com/Hotel-Search?destination=...
+* Agoda ➔ https://www.agoda.com/en-us/search?text=...
+* Booking.com ➔ https://www.booking.com/searchresults.html?ss=...
+* Kayak ➔ https://www.kayak.com/hotels/...
+* Google Hotels ➔ Only when user specifically clicks "Google Hotels".
+* NEVER route Expedia, Hotels.com, or Agoda to Google Travel or any third party.
+
+## 3. Query Sanitization
+* Never duplicate city names in search queries (e.g., "The Plaza Hotel New York New York" is forbidden).
+* Never append OTA brand names (e.g. "Expedia", "Hotels.com") to hotel search queries.
+
+## 4. Pricing Integrity & Math Invariants
+* Landmark hotels (The Plaza, St. Regis, Burj Al Arab, Ritz Paris) must have authentic baseline rates ($1,600–$2,100/nt) reflecting live Booking.com prices.
+* ATLAS Wholesale rate must ALWAYS remain 28% to 42% below public retail.
+* Member savings and taxes must ALWAYS be positive. Negative figures are strictly prohibited.
+
+## 5. Scope Containment
+* Modify only the exact files requested.
+* Never "refactor", "optimize", or change working components without explicit request.
+* If an external API is down or quota-exhausted, notify the user immediately. Never invent silent workarounds.
+
+## 6. Verification Before Done
+* Run `npx tsc --noEmit` with 0 errors.
+* Run end-to-end tests and show exact URLs and prices as proof.
+
+## 7. Dual Remote Git Synchronization
+* Always push commits to both `origin` (atlastravelnewfromaistudio) and `atlas-repo` (atlas-travel-club).
