@@ -467,7 +467,7 @@ export default function LiveHotelSearch({
                 : (hotel.prices.atlasWholesale.basePerNight || Math.round(hotel.prices.atlasWholesale.perNight / (1 + taxPercent / 100)));
 
               const wholesaleTotal = wholesalePerNight * nights;
-              const publicLowest = Math.min(bookingPerNight, expediaPerNight, hotelsComPerNight);
+              const publicLowest = Math.min(bookingPerNight, agodaPerNight, expediaPerNight, hotelsComPerNight);
               const savingsPerNight = Math.max(0, publicLowest - wholesalePerNight);
               const savingsTotal = savingsPerNight * nights;
               const savingsPercent = Math.round((savingsPerNight / (publicLowest || 1)) * 100);
@@ -634,8 +634,8 @@ export default function LiveHotelSearch({
                         </span>
                       </div>
 
-                      {/* 3 Multi-OTA Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center text-xs">
+                      {/* 4 Multi-OTA Cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center text-xs">
                         {/* Booking.com */}
                         <div
                           onClick={() => setAuditingHotel(hotel)}
@@ -656,30 +656,6 @@ export default function LiveHotelSearch({
                             {formatPrice(bookingPerNight * nights)} total ({nights} nts)
                           </div>
                           <div className="text-[9px] text-sky-300/80 font-medium mt-1">
-                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
-                          </div>
-                        </div>
-
-                        {/* Expedia */}
-                        <div
-                          onClick={() => setAuditingHotel(hotel)}
-                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-left sm:text-center cursor-pointer transition-all group"
-                          title="Click to compare Expedia vs ATLAS Wholesale in live audit"
-                        >
-                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                              <span>Expedia</span>
-                            </div>
-                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
-                          </div>
-                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
-                            {formatPrice(expediaPerNight)}
-                          </div>
-                          <div className="text-[10px] text-slate-500">
-                            {formatPrice(expediaPerNight * nights)} total ({nights} nts)
-                          </div>
-                          <div className="text-[9px] text-blue-300/80 font-medium mt-1">
                             {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
                         </div>
@@ -705,6 +681,54 @@ export default function LiveHotelSearch({
                           </div>
                           <div className="text-[9px] text-rose-300/80 font-medium mt-1">
                             Breakfast & Free Cancel ↗
+                          </div>
+                        </div>
+
+                        {/* Agoda */}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-purple-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Agoda vs ATLAS Wholesale in live audit"
+                        >
+                          <div className="font-bold text-purple-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                              <span>Agoda</span>
+                            </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
+                          </div>
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
+                            {formatPrice(agodaPerNight)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {formatPrice(agodaPerNight * nights)} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-purple-300/80 font-medium mt-1">
+                            {showAllInclusive ? 'Promo Net Rate' : 'Base Promo Rate'} ↗
+                          </div>
+                        </div>
+
+                        {/* Expedia */}
+                        <div
+                          onClick={() => setAuditingHotel(hotel)}
+                          className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-blue-500/50 text-left sm:text-center cursor-pointer transition-all group"
+                          title="Click to compare Expedia vs ATLAS Wholesale in live audit"
+                        >
+                          <div className="font-bold text-blue-400 text-xs flex items-center justify-between sm:justify-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                              <span>Expedia</span>
+                            </div>
+                            <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+                          </div>
+                          <div className="text-base font-bold text-slate-300 line-through mt-1.5">
+                            {formatPrice(expediaPerNight)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {formatPrice(expediaPerNight * nights)} total ({nights} nts)
+                          </div>
+                          <div className="text-[9px] text-blue-300/80 font-medium mt-1">
+                            {showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗
                           </div>
                         </div>
                       </div>

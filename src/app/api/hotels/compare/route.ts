@@ -363,9 +363,9 @@ function buildOtaUrls(
   }
 
   // 4. Agoda Verified Property Search:
-  let agodaUrl = `https://www.agoda.com/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
+  let agodaUrl = `https://www.agoda.com/partners/partnersearch.aspx?hotelName=${encodeURIComponent(searchDestination)}&checkin=${ciParam}&checkout=${coParam}&NumberofAdults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
   if (childrenCount > 0) {
-    agodaUrl += `&children=${childrenCount}`;
+    agodaUrl += `&NumberOfChildren=${childrenCount}`;
     if (childAges.length > 0) {
       agodaUrl += `&childages=${childAges.join(',')}`;
     }
@@ -582,6 +582,9 @@ function mapSerpApiPropertyToHotel(
         } else if (/\bbooking\.com\b/i.test(src)) {
           bookingRate = extracted;
           if (directOtaUrl) bookingUrl = directOtaUrl;
+        } else if (/\bagoda(\.[a-z.]+)?\b/i.test(src)) {
+          agodaRate = extracted;
+          if (directOtaUrl) agodaUrl = directOtaUrl;
         } else if (/\b(kayak|hotelscombined)(\.[a-z.]+)?\b/i.test(src)) {
           kayakRate = extracted;
           if (directOtaUrl) kayakUrl = directOtaUrl;
@@ -672,7 +675,6 @@ function mapSerpApiPropertyToHotel(
     const lower = srcName.toLowerCase();
     if (lower.includes('bluepillow') || lower.includes('blue pillow') || lower.includes('bluepilow')) return true;
     if (lower.includes('direct') || lower.includes('official') || lower.includes('hotel site')) return true;
-    if (lower.includes('agoda')) return true;
     if (name && lower.includes(name.toLowerCase().split(' ')[0])) return true;
     return false;
   };
@@ -680,7 +682,7 @@ function mapSerpApiPropertyToHotel(
   const isTrustedMajorOta = (srcName?: string | null): boolean => {
     if (!srcName || isExcludedProvider(srcName)) return false;
     const lower = srcName.toLowerCase().trim();
-    return /\b(expedia(\.com|\.de|\.co\.uk)?|booking\.com|hotels\.com|priceline(\.com)?|kayak(\.com)?|trip\.com|orbitz(\.com)?|travelocity(\.com)?)\b/i.test(lower);
+    return /\b(expedia(\.com|\.de|\.co\.uk)?|booking\.com|hotels\.com|agoda(\.com)?|priceline(\.com)?|kayak(\.com)?|trip\.com|orbitz(\.com)?|travelocity(\.com)?)\b/i.test(lower);
   };
 
   // 1. Lowest public retail rate across major verified OTAs (strictly checking all Google Travel providers first)
@@ -688,12 +690,14 @@ function mapSerpApiPropertyToHotel(
     allInclusiveRate,
     bookingRate || allInclusiveRate,
     expediaRate || allInclusiveRate,
-    hotelsComRate || allInclusiveRate
+    hotelsComRate || allInclusiveRate,
+    agodaRate || allInclusiveRate
   );
   let lowestProvider = 'Expedia';
   if (lowestPublicRate === expediaRate) lowestProvider = 'Expedia';
   else if (lowestPublicRate === hotelsComRate) lowestProvider = 'Hotels.com';
   else if (lowestPublicRate === bookingRate) lowestProvider = 'Booking.com';
+  else if (lowestPublicRate === agodaRate) lowestProvider = 'Agoda';
 
   // 2. Inspect every other provider in Google Hotels prices array to guarantee ATLAS wholesale beats ANY rate
   if (Array.isArray(p.prices)) {
@@ -869,9 +873,18 @@ function mapSerpApiPropertyToHotel(
       isLowest: lowestPublicRate === hotelsComRate,
       rateType: 'Public Retail OTA',
     },
+    {
+      name: 'Agoda',
+      logoKey: 'agoda',
+      perNight: agodaRate,
+      total: agodaRate * nights,
+      verifyUrl: agodaUrl,
+      isLowest: lowestPublicRate === agodaRate,
+      rateType: 'Public Retail OTA',
+    },
   ];
 
-  // If SerpApi has additional named providers in p.prices, add them (excluding BluePillow, Hotel Direct, Agoda):
+  // If SerpApi has additional named providers in p.prices, add them (excluding BluePillow & direct hotel sites):
   if (Array.isArray(p.prices)) {
     for (const pr of p.prices) {
       const srcName = pr.source;
@@ -887,6 +900,7 @@ function mapSerpApiPropertyToHotel(
             normSrc.includes('expedia') ? expediaUrl :
             normSrc.includes('booking') ? bookingUrl :
             normSrc.includes('hotels') ? hotelsComUrl :
+            normSrc.includes('agoda') ? agodaUrl :
             urls.googleHotels
           );
 

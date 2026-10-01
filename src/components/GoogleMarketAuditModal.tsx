@@ -158,7 +158,7 @@ export default function GoogleMarketAuditModal({
     hotelCurrency
   );
 
-  // Exclude BluePillow, Hotel Direct, and Agoda
+  // Exclude BluePillow and Hotel Direct
   const isExcludedOta = (name?: string) => {
     if (!name) return true;
     const lower = name.toLowerCase();
@@ -167,8 +167,7 @@ export default function GoogleMarketAuditModal({
       lower.includes('blue pillow') ||
       lower.includes('bluepilow') ||
       lower.includes('direct') ||
-      lower.includes('official') ||
-      lower.includes('agoda')
+      lower.includes('official')
     );
   };
 
@@ -179,6 +178,7 @@ export default function GoogleMarketAuditModal({
           { name: 'Expedia',      logoKey: 'expedia',   perNight: Math.round(publicAllInPerNight * 0.97), total: Math.round(publicAllInPerNight * 0.97) * stayNights, verifyUrl: hotel.prices.expedia.verifyUrl,    isLowest: false },
           { name: 'Booking.com',  logoKey: 'booking',   perNight: publicAllInPerNight,                    total: publicAllInTotal,                                     verifyUrl: hotel.prices.booking.verifyUrl,    isLowest: true },
           { name: 'Hotels.com',   logoKey: 'hotelscom', perNight: Math.round(publicAllInPerNight * 0.99), total: Math.round(publicAllInPerNight * 0.99) * stayNights, verifyUrl: hotel.prices.hotelsCom.verifyUrl,  isLowest: false },
+          { name: 'Agoda',        logoKey: 'agoda',     perNight: Math.round(publicAllInPerNight * 1.04), total: Math.round(publicAllInPerNight * 1.04) * stayNights, verifyUrl: hotel.prices.agoda.verifyUrl,      isLowest: false },
         ]);
 
   const providers: GoogleMarketProvider[] = rawProviders.filter(p => !isExcludedOta(p.name));
@@ -407,7 +407,7 @@ export default function GoogleMarketAuditModal({
           >
             <span>{showAllProviders ? 'Hide' : 'Inspect'} verified public OTA links ({providers.length})</span>
             <div className="flex items-center gap-1.5 text-slate-400">
-              <span className="text-[11px]">Booking.com, Expedia, Hotels.com</span>
+              <span className="text-[11px]">Booking.com, Expedia, Hotels.com, Agoda</span>
               {showAllProviders ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </button>
