@@ -1491,7 +1491,7 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
     {
       name: 'Atlantis The Palm Dubai',
       stars: 5,
-      basePrice: 650,
+      basePrice: 420,
       image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
       gallery: [
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
@@ -1840,7 +1840,7 @@ async function generateDestinationHotelsFallback(
   }
 
   // 1. Check if user searched for a specific hotel by name
-  const isSpecificHotel = /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski/i.test(destQuery);
+  const isSpecificHotel = /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski|atlantis|burj\s*al\s*arab|armani/i.test(destQuery);
 
   const hotelSeeds: FallbackHotelSeed[] = [];
 
@@ -1849,7 +1849,11 @@ async function generateDestinationHotelsFallback(
     let matchedCountry = country;
     let matchedSeed: (typeof CURATED_DESTINATION_HOTELS[string][number]) | null = null;
     for (const [cKey, cList] of Object.entries(CURATED_DESTINATION_HOTELS)) {
-      const found = cList.find(c => cleanName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(cleanName.toLowerCase()));
+      const found = cList.find(c => {
+        const cName = c.name.toLowerCase();
+        const qName = cleanName.toLowerCase();
+        return qName.includes(cName) || cName.includes(qName) || (qName.includes('atlantis') && cName.includes('atlantis')) || (qName.includes('burj') && cName.includes('burj'));
+      });
       if (found) {
         matchedCity = cKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         matchedCountry = (cKey === 'las vegas' || cKey === 'new york' || cKey === 'miami' ? 'United States' : cKey === 'london' ? 'United Kingdom' : cKey === 'paris' ? 'France' : cKey === 'rome' ? 'Italy' : cKey === 'dubai' ? 'United Arab Emirates' : 'Global');

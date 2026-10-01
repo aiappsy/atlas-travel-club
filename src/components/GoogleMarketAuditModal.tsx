@@ -316,7 +316,7 @@ export default function GoogleMarketAuditModal({
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-400">
-                  Public Retail ({lowestProvider})
+                  Public Retail ({bookingProvider.name})
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold border border-slate-700">
                   Open Web Price
@@ -327,10 +327,10 @@ export default function GoogleMarketAuditModal({
                 {fmt(publicAllInTotal)}
               </div>
               <div className="text-xs text-slate-400 mt-2 font-medium">
-                Total for {stayNights} {stayNights === 1 ? 'night' : 'nights'} stay
+                Total for {stayNights} {stayNights === 1 ? 'night' : 'nights'} stay (all-inclusive)
               </div>
               <div className="text-[11px] text-slate-500 mt-1">
-                {fmt(publicBaseTotal)} base room + {fmt(publicTaxTotal)} mandatory taxes added at checkout ({fmt(publicAllInPerNight)}/night)
+                {fmt(publicBaseTotal)} base room + {fmt(publicTaxTotal)} taxes added at checkout ({fmt(publicAllInPerNight)}/night)
               </div>
             </div>
 
@@ -372,8 +372,8 @@ export default function GoogleMarketAuditModal({
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
                 <span>All mandatory taxes, fees &amp; resort charges included</span>
               </div>
-              <div className="text-[11px] text-emerald-400/70 mt-1 font-mono">
-                {fmt(atlasPerNight)} / night · 0% retail ad tax markup
+              <div className="text-[11px] text-emerald-400/80 mt-1 font-mono">
+                {fmt(atlasPerNight)} / nt all-in · {fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} base room ({fmt(Math.round(atlasPerNight / (1 + taxPct / 100)))}/nt)
               </div>
             </div>
 
