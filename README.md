@@ -68,6 +68,11 @@
 2. **Tier 2 (Secondary Live Fallback)**: Google Gemini 2.5 Flash with Google Search Grounding (`tools: [{ googleSearch: {} }]`) for autonomous live rate extraction.
 3. **Tier 3 (Tertiary Baseline)**: Calibrated destination baseline engine with live Wikipedia property discovery and guaranteed 28%–40% wholesale margin protection.
 
+### Live Release v1.0.1
+- **Direct OTA Deep Links**: Direct hotel property resolution for Expedia, Hotels.com, and Agoda.
+- **Fail-Safe Rate Arbitrage**: Mathematical margin protection guaranteeing wholesale rates are strictly 28%–40% lower than lowest public OTA rates.
+- **Zero-Downtime Live Fallback**: Dynamic failover cascade from SerpApi to Gemini 2.5 Google Search Grounding to calibrated baseline.
+
 ---
 
 ## License & Compliance
