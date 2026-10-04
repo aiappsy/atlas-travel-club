@@ -59,7 +59,11 @@ import {
   Percent,
   Search,
   Filter,
-  Edit3
+  Edit3,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Activity
 } from 'lucide-react';
 
 export default function AdminPage() {
@@ -309,8 +313,131 @@ export default function AdminPage() {
   // Yachts & Supercars State
   const [boatsetterKey, setBoatsetterKey] = useState('boatsetter_b2b_live_881924');
 
-  // Auto-Rebooker State
-  const [pruvoApiKey, setPruvoApiKey] = useState('pruvo_b2b_live_key_994182');
+  // Auto-Rebooker State (Pruvo / Hotelmize / B2B Price Sentinel)
+  const [rebookerConfig, setRebookerConfig] = useState({
+    provider: 'pruvo' as 'pruvo' | 'hotelmize' | 'custom',
+    environment: 'sandbox' as 'sandbox' | 'production',
+    apiKey: '',
+    apiSecret: '',
+    partnerId: '',
+    webhookSecret: '',
+    minSavingsThresholdUsd: 50,
+    cancellationBufferHours: 48,
+    executionMode: 'autonomous' as 'autonomous' | 'approval_required',
+    refundAllocation: 'standard_split' as 'standard_split' | 'full_refund',
+    autoScanFrequencyHours: 4,
+    isEnabled: true,
+  });
+  const [showRebookerKey, setShowRebookerKey] = useState(false);
+  const [showRebookerSecret, setShowRebookerSecret] = useState(false);
+  const [rebookerCopiedWebhook, setRebookerCopiedWebhook] = useState(false);
+  const [rebookerTestResult, setRebookerTestResult] = useState<{
+    loading: boolean;
+    success?: boolean;
+    message?: string;
+    latencyMs?: number;
+    status?: string;
+  } | null>(null);
+  const [rebookerSaveStatus, setRebookerSaveStatus] = useState<string | null>(null);
+
+  // Backward-compatible alias for existing references
+  const pruvoApiKey = rebookerConfig.apiKey;
+  const setPruvoApiKey = (k: string) => setRebookerConfig((prev) => ({ ...prev, apiKey: k }));
+
+  // Load saved rebooker config on mount
+  useEffect(() => {
+    async function initRebookerConfig() {
+      try {
+        const res = await fetch('/api/admin/rebooker/settings');
+        const data = await res.json();
+        if (data?.settings) {
+          setRebookerConfig((prev) => ({
+            ...prev,
+            ...data.settings,
+            apiKey: data.settings.apiKey || prev.apiKey,
+          }));
+        }
+      } catch {
+        if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('atlas_rebooker_config');
+          if (saved) {
+            try {
+              setRebookerConfig(JSON.parse(saved));
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+    }
+    initRebookerConfig();
+  }, []);
+
+  const handleSaveRebookerConfig = async () => {
+    setRebookerSaveStatus('Saving settings...');
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('atlas_rebooker_config', JSON.stringify(rebookerConfig));
+      }
+      const res = await fetch('/api/admin/rebooker/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rebookerConfig),
+      });
+      const data = await res.json();
+      setRebookerSaveStatus(data.message || 'Auto-rebooker settings saved successfully!');
+      setTimeout(() => setRebookerSaveStatus(null), 4000);
+    } catch {
+      setRebookerSaveStatus('Settings saved to local storage.');
+      setTimeout(() => setRebookerSaveStatus(null), 4000);
+    }
+  };
+
+  const handleTestRebookerConnection = async () => {
+    setRebookerTestResult({ loading: true });
+    try {
+      const res = await fetch('/api/admin/rebooker/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: rebookerConfig.provider,
+          environment: rebookerConfig.environment,
+          apiKey: rebookerConfig.apiKey,
+          partnerId: rebookerConfig.partnerId,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRebookerTestResult({
+          loading: false,
+          success: true,
+          message: data.message,
+          latencyMs: data.latencyMs,
+          status: data.status,
+        });
+      } else {
+        setRebookerTestResult({
+          loading: false,
+          success: false,
+          message: data.error || data.message || 'Connection test failed. Please verify API credentials.',
+        });
+      }
+    } catch (err: any) {
+      setRebookerTestResult({
+        loading: false,
+        success: false,
+        message: err?.message || 'Network error reaching supplier endpoint.',
+      });
+    }
+  };
+
+  const copyWebhookUrl = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://atlastravelclub.com';
+    const url = `${origin}/api/webhooks/price-drop`;
+    navigator.clipboard?.writeText(url);
+    setRebookerCopiedWebhook(true);
+    setTimeout(() => setRebookerCopiedWebhook(false), 3000);
+  };
 
   // Private Jets State
   const [jetApiKey, setJetApiKey] = useState('luna_jets_live_partner_881920');
@@ -1742,29 +1869,485 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* TAB 8: AUTO REBOOKER */}
+        {/* TAB 8: AUTO REBOOKER (PRUVO / HOTELMIZE / B2B SENTINEL) */}
         {activeTab === 'auto_rebooker' && (
-          <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 max-w-2xl mx-auto space-y-6">
-            <h3 className="text-base font-black text-white flex items-center gap-2">
-              <TrendingDown className="w-5 h-5 text-emerald-400" />
-              Autonomous Price-Drop Re-Booker Engine (Pruvo API)
-            </h3>
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold uppercase text-slate-400 mb-1">Pruvo B2B Token</label>
-                <input
-                  type="password"
-                  value={pruvoApiKey}
-                  onChange={(e) => setPruvoApiKey(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white"
-                />
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Header & Status Card */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-black uppercase tracking-wider mb-2 border border-emerald-500/30">
+                    <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
+                    24/7 Post-Booking Wholesale Arbitrage
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black text-white">
+                    Autonomous Price-Drop Re-Booker Engine
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                    Continuously scans connected B2B bedbanks (Hotelbeds, WebBeds, Amadeus) after member reservations are confirmed. When room rates drop prior to free cancellation deadlines, the system automatically re-books at the lower rate and refunds the difference directly to the member's ATLAS Visa card.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:items-end gap-2 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${rebookerConfig.isEnabled ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40'}`}>
+                      Sentinel: {rebookerConfig.isEnabled ? 'Active' : 'Disabled'}
+                    </span>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                      {rebookerConfig.environment === 'production' ? '🟢 Production Live' : '🟡 Sandbox Staging'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setRebookerConfig((prev) => ({ ...prev, isEnabled: !prev.isEnabled }))}
+                    className="text-[11px] font-bold text-slate-400 hover:text-white underline cursor-pointer"
+                  >
+                    {rebookerConfig.isEnabled ? 'Pause Auto-Rebook Sentinel' : 'Enable Auto-Rebook Sentinel'}
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Provider & Environment Selector */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+              <h4 className="text-sm font-black uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                <Globe className="w-4 h-4 text-sky-400" />
+                1. Select Re-Booking Provider & Gateway
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setRebookerConfig((prev) => ({ ...prev, provider: 'pruvo' }))}
+                  className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    rebookerConfig.provider === 'pruvo'
+                      ? 'bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/30'
+                      : 'bg-slate-800/60 border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-white text-sm">Pruvo for Business</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
+                      Recommended
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Automated B2B post-booking repricing API. Covers 100+ global bedbanks and wholesale allotments.
+                  </p>
+                  <span className="inline-block mt-3 text-[10px] text-sky-400 font-mono">api.pruvo.com/v1</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRebookerConfig((prev) => ({ ...prev, provider: 'hotelmize' }))}
+                  className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    rebookerConfig.provider === 'hotelmize'
+                      ? 'bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/30'
+                      : 'bg-slate-800/60 border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-white text-sm">Hotelmize Arbitrage</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/20 text-sky-300">
+                      Bedbank Native
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    AI-driven hotel rate prediction and automatic room re-hedging for wholesale tour operators.
+                  </p>
+                  <span className="inline-block mt-3 text-[10px] text-sky-400 font-mono">api.hotelmize.com/v2</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRebookerConfig((prev) => ({ ...prev, provider: 'custom' }))}
+                  className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
+                    rebookerConfig.provider === 'custom'
+                      ? 'bg-emerald-950/40 border-emerald-500 ring-2 ring-emerald-500/30'
+                      : 'bg-slate-800/60 border-slate-700 hover:border-slate-600'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-black text-white text-sm">Custom B2B Webhook</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300">
+                      Enterprise
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    Direct integration with proprietary GDS pricing sentinels or private Bedbank rate-drop feeds.
+                  </p>
+                  <span className="inline-block mt-3 text-[10px] text-purple-400 font-mono">Custom Ingestion</span>
+                </button>
+              </div>
+
+              {/* Environment Toggle */}
+              <div className="pt-2 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <span className="font-bold text-slate-300">Gateway Environment:</span>
+                <div className="flex items-center gap-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setRebookerConfig((prev) => ({ ...prev, environment: 'sandbox' }))}
+                    className={`px-4 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      rebookerConfig.environment === 'sandbox'
+                        ? 'bg-amber-400 text-slate-950 shadow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Sandbox / Test Mode
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRebookerConfig((prev) => ({ ...prev, environment: 'production' }))}
+                    className={`px-4 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                      rebookerConfig.environment === 'production'
+                        ? 'bg-emerald-500 text-white shadow'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Live Production Mode
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* API Credentials Configuration */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+              <h4 className="text-sm font-black uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                <Key className="w-4 h-4 text-amber-400" />
+                2. API Credentials & Authentication Keys
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                {/* API Key / Token */}
+                <div className="space-y-1.5 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold uppercase text-slate-400">
+                      {rebookerConfig.provider === 'hotelmize' ? 'Hotelmize API Secret Key' : 'Pruvo Enterprise API Key / Bearer Token'}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowRebookerKey(!showRebookerKey)}
+                      className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                    >
+                      {showRebookerKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                      <span>{showRebookerKey ? 'Hide' : 'Show'}</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showRebookerKey ? 'text' : 'password'}
+                      value={rebookerConfig.apiKey}
+                      onChange={(e) => setRebookerConfig((prev) => ({ ...prev, apiKey: e.target.value }))}
+                      placeholder={rebookerConfig.provider === 'hotelmize' ? 'e.g. htmz_live_sec_994182...' : 'e.g. prv_live_b2b_token_488219...'}
+                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Generated in your {rebookerConfig.provider === 'hotelmize' ? 'Hotelmize' : 'Pruvo'} Partner Console under Settings &gt; API Access.
+                  </p>
+                </div>
+
+                {/* Partner / Client ID */}
+                <div className="space-y-1.5">
+                  <label className="font-bold uppercase text-slate-400">
+                    Partner / Account ID
+                  </label>
+                  <input
+                    type="text"
+                    value={rebookerConfig.partnerId}
+                    onChange={(e) => setRebookerConfig((prev) => ({ ...prev, partnerId: e.target.value }))}
+                    placeholder="e.g. atlas_travel_club_b2b"
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Your designated corporate partner identifier.
+                  </p>
+                </div>
+
+                {/* Webhook Signing Secret */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold uppercase text-slate-400">
+                      Webhook Signing Secret (HMAC)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowRebookerSecret(!showRebookerSecret)}
+                      className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                    >
+                      {showRebookerSecret ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                      <span>{showRebookerSecret ? 'Hide' : 'Show'}</span>
+                    </button>
+                  </div>
+                  <input
+                    type={showRebookerSecret ? 'text' : 'password'}
+                    value={rebookerConfig.webhookSecret}
+                    onChange={(e) => setRebookerConfig((prev) => ({ ...prev, webhookSecret: e.target.value }))}
+                    placeholder="e.g. whsec_pruvo_signature_8819..."
+                    className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl font-mono text-white text-xs focus:outline-none focus:border-amber-400"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Used to verify incoming rate drop webhook notifications.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Incoming Webhook Callback Card */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-4">
+              <h4 className="text-sm font-black uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                <Cloud className="w-4 h-4 text-emerald-400" />
+                3. Incoming Webhook Callback URL
+              </h4>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Provide this webhook URL to Pruvo or Hotelmize in your developer console. Their rate monitoring engines will ping this endpoint 24/7 the instant a lower rate is identified for any active reservation:
+              </p>
+
+              <div className="flex items-center gap-2 bg-slate-800 p-2 rounded-2xl border border-slate-700 font-mono text-xs text-white">
+                <span className="px-3 py-1.5 rounded-lg bg-slate-900 text-sky-400 font-bold shrink-0">POST</span>
+                <span className="truncate flex-1 text-slate-200">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/api/webhooks/price-drop` : 'https://atlastravelclub.com/api/webhooks/price-drop'}
+                </span>
+                <button
+                  type="button"
+                  onClick={copyWebhookUrl}
+                  className="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                >
+                  {rebookerCopiedWebhook ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{rebookerCopiedWebhook ? 'Copied!' : 'Copy URL'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Arbitrage Thresholds & Execution Policy */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-6">
+              <h4 className="text-sm font-black uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-purple-400" />
+                4. Arbitrage Rules & Auto-Execution Policy
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                {/* Minimum Savings Threshold */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold uppercase text-slate-400">
+                      Minimum Savings Threshold ($ USD)
+                    </label>
+                    <span className="font-mono font-black text-amber-400 text-sm">
+                      ${rebookerConfig.minSavingsThresholdUsd}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="15"
+                    max="200"
+                    step="5"
+                    value={rebookerConfig.minSavingsThresholdUsd}
+                    onChange={(e) => setRebookerConfig((prev) => ({ ...prev, minSavingsThresholdUsd: parseInt(e.target.value, 10) }))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Only trigger automatic re-booking if the net price drop is at least this amount.
+                  </p>
+                </div>
+
+                {/* Free Cancellation Safety Buffer */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold uppercase text-slate-400">
+                      Cancellation Buffer Cutoff
+                    </label>
+                    <span className="font-mono font-black text-sky-400 text-sm">
+                      {rebookerConfig.cancellationBufferHours} Hours Before
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="12"
+                    max="96"
+                    step="12"
+                    value={rebookerConfig.cancellationBufferHours}
+                    onChange={(e) => setRebookerConfig((prev) => ({ ...prev, cancellationBufferHours: parseInt(e.target.value, 10) }))}
+                    className="w-full accent-sky-400 cursor-pointer"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Halt auto-rebooking within this window before the hotel's free cancellation cutoff to avoid non-refundable penalties.
+                  </p>
+                </div>
+
+                {/* Execution Mode */}
+                <div className="space-y-2">
+                  <label className="font-bold uppercase text-slate-400">
+                    Execution Mode
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="flex items-center gap-3 p-3 bg-slate-800 rounded-xl border border-slate-700 cursor-pointer hover:border-slate-600">
+                      <input
+                        type="radio"
+                        name="executionMode"
+                        checked={rebookerConfig.executionMode === 'autonomous'}
+                        onChange={() => setRebookerConfig((prev) => ({ ...prev, executionMode: 'autonomous' }))}
+                        className="accent-emerald-500"
+                      />
+                      <div>
+                        <div className="font-bold text-white text-xs">100% Autonomous (Zero-Touch)</div>
+                        <div className="text-[10px] text-slate-400">Automatically re-books and refunds immediately upon verified drop.</div>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-3 p-3 bg-slate-800 rounded-xl border border-slate-700 cursor-pointer hover:border-slate-600">
+                      <input
+                        type="radio"
+                        name="executionMode"
+                        checked={rebookerConfig.executionMode === 'approval_required'}
+                        onChange={() => setRebookerConfig((prev) => ({ ...prev, executionMode: 'approval_required' }))}
+                        className="accent-emerald-500"
+                      />
+                      <div>
+                        <div className="font-bold text-white text-xs">Manual Operations Approval</div>
+                        <div className="text-[10px] text-slate-400">Queues rate drops in Admin for 1-click confirmation before executing.</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Savings Allocation Policy */}
+                <div className="space-y-2">
+                  <label className="font-bold uppercase text-slate-400">
+                    Member Refund Allocation Policy
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    <label className="flex items-center gap-3 p-3 bg-slate-800 rounded-xl border border-slate-700 cursor-pointer hover:border-slate-600">
+                      <input
+                        type="radio"
+                        name="refundAllocation"
+                        checked={rebookerConfig.refundAllocation === 'standard_split'}
+                        onChange={() => setRebookerConfig((prev) => ({ ...prev, refundAllocation: 'standard_split' }))}
+                        className="accent-amber-400"
+                      />
+                      <div>
+                        <div className="font-bold text-white text-xs">50% Member Visa / 50% Sovereign Vault</div>
+                        <div className="text-[10px] text-slate-400">Club standard: 50% refunded to member card, 50% pooled into Dec 31 annual dividend.</div>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-3 p-3 bg-slate-800 rounded-xl border border-slate-700 cursor-pointer hover:border-slate-600">
+                      <input
+                        type="radio"
+                        name="refundAllocation"
+                        checked={rebookerConfig.refundAllocation === 'full_refund'}
+                        onChange={() => setRebookerConfig((prev) => ({ ...prev, refundAllocation: 'full_refund' }))}
+                        className="accent-amber-400"
+                      />
+                      <div>
+                        <div className="font-bold text-white text-xs">100% Direct Member Cash Refund</div>
+                        <div className="text-[10px] text-slate-400">Full 100% of price drop delta refunded straight to the member's Visa card.</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Test Connection Result Banner */}
+            {rebookerTestResult && (
+              <div className={`p-4 rounded-2xl border text-xs flex items-start gap-3 transition-all ${
+                rebookerTestResult.loading
+                  ? 'bg-sky-950/40 border-sky-600 text-sky-200'
+                  : rebookerTestResult.success
+                  ? 'bg-emerald-950/40 border-emerald-500 text-emerald-200'
+                  : 'bg-rose-950/40 border-rose-500 text-rose-200'
+              }`}>
+                {rebookerTestResult.loading ? (
+                  <RefreshCw className="w-4 h-4 text-sky-400 animate-spin shrink-0 mt-0.5" />
+                ) : rebookerTestResult.success ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1">
+                  <div className="font-bold">
+                    {rebookerTestResult.loading ? 'Pinging Supplier Endpoint...' : rebookerTestResult.success ? 'Gateway Verified' : 'Gateway Verification Failed'}
+                  </div>
+                  <div className="text-[11px] mt-0.5 text-slate-300">
+                    {rebookerTestResult.message}
+                  </div>
+                  {rebookerTestResult.latencyMs && (
+                    <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                      Roundtrip Latency: {rebookerTestResult.latencyMs}ms
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Save Notification Banner */}
+            {rebookerSaveStatus && (
+              <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>{rebookerSaveStatus}</span>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               <button
-                onClick={() => alert('Auto-rebooker settings saved!')}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl"
+                type="button"
+                onClick={handleTestRebookerConnection}
+                disabled={rebookerTestResult?.loading}
+                className="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white font-bold rounded-2xl border border-slate-700 text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                Save Re-Booker Config
+                <Activity className="w-4 h-4 text-amber-400" />
+                <span>Test API Connection</span>
               </button>
+
+              <button
+                type="button"
+                onClick={handleSaveRebookerConfig}
+                className="w-full sm:flex-1 py-3.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black rounded-2xl shadow-xl text-xs flex items-center justify-center gap-2 transition-all transform hover:scale-[1.01] cursor-pointer"
+              >
+                <ShieldCheck className="w-4 h-4 text-white" />
+                <span>Save Re-Booker Configuration</span>
+              </button>
+            </div>
+
+            {/* Active Surveillance Preview */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h4 className="text-xs font-black uppercase text-slate-300 tracking-wider flex items-center gap-2">
+                  <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
+                  Live Monitored Reservations Under Surveillance
+                </h4>
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  {MOCK_PRICE_DROP_RECORDS.length} Active Records
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {MOCK_PRICE_DROP_RECORDS.map((rec) => (
+                  <div key={rec.id} className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs">
+                    <div className="flex items-center gap-3">
+                      <img src={rec.hotelImage} alt={rec.hotelName} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                      <div>
+                        <div className="font-extrabold text-white text-xs">{rec.hotelName}</div>
+                        <div className="text-[11px] text-slate-400">
+                          {rec.city} • Check-in: {rec.checkInDate} ({rec.nights} Nights)
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">
+                          Status: <span className="text-emerald-400 font-bold uppercase">{rec.status.replace(/_/g, ' ')}</span> • Last Scanned: {rec.lastCheckedAt}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div className="text-[10px] text-slate-500 line-through">Booked: ${rec.originalPriceTotal}</div>
+                      <div className="text-xs font-black text-white">Rebooked: <span className="text-sky-400">${rec.newRebookedPriceTotal}</span></div>
+                      {rec.cashRefunded > 0 && (
+                        <div className="text-[11px] font-black text-emerald-400 mt-0.5">
+                          Refunded to Visa: +${rec.cashRefunded}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

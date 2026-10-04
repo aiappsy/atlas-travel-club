@@ -72,6 +72,7 @@
 - **Direct OTA Deep Links**: Direct hotel property resolution for Expedia, Hotels.com, and Agoda.
 - **Fail-Safe Rate Arbitrage**: Mathematical margin protection guaranteeing wholesale rates are strictly 28%–40% lower than lowest public OTA rates.
 - **Zero-Downtime Live Fallback**: Dynamic failover cascade from SerpApi to Gemini 2.5 Google Search Grounding to calibrated baseline.
+- **Auto-Rebooker Sentinel Settings**: Production settings console in Admin Tab 8 supporting Pruvo for Business & Hotelmize with 24/7 price drop webhook gateway (`/api/webhooks/price-drop`).
 
 ---
 
