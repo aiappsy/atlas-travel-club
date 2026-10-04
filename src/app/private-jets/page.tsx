@@ -25,20 +25,66 @@ import Link from 'next/link';
 export default function PrivateJetsPage() {
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedRegion, setSelectedRegion] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'date' | 'seat_price_asc' | 'seat_price_desc' | 'savings'>('date');
   const [bookingModalJet, setBookingModalJet] = useState<PrivateJetEmptyLeg | null>(null);
   const [bookingType, setBookingType] = useState<'per_seat' | 'whole_jet'>('per_seat');
   const [passengerCount, setPassengerCount] = useState<number>(1);
   const [isBooked, setIsBooked] = useState<boolean>(false);
 
-  const filteredJets = MOCK_PRIVATE_JETS.filter(
-    (jet) =>
-      !searchTerm ||
-      jet.departureCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      jet.arrivalCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      jet.departureAirportCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      jet.arrivalAirportCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      jet.aircraftType.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const categories = [
+    'All',
+    'Light Jet',
+    'Midsize Jet',
+    'Super Midsize Jet',
+    'Heavy Long-Range Jet',
+    'Ultra Long-Range Jet'
+  ];
+
+  const regions = ['All', 'North America', 'Europe', 'Middle East & Asia'];
+
+  const isRouteInRegion = (jet: PrivateJetEmptyLeg, region: string) => {
+    if (region === 'All') return true;
+    const usaCities = ['miami', 'teterboro', 'las vegas', 'van nuys', 'aspen', 'dallas', 'chicago', 'palm beach', 'white plains', 'nantucket', 'new york', 'los angeles'];
+    const europeCities = ['london', 'nice', 'paris', 'olbia', 'farnborough', 'ibiza', 'geneva', 'milan', 'rome'];
+    const meAsiaCities = ['dubai', 'singapore', 'phuket', 'tokyo', 'bangkok', 'doha'];
+
+    const dep = jet.departureCity.toLowerCase();
+    const arr = jet.arrivalCity.toLowerCase();
+
+    if (region === 'North America') {
+      return usaCities.some((c) => dep.includes(c) || arr.includes(c));
+    }
+    if (region === 'Europe') {
+      return europeCities.some((c) => dep.includes(c) || arr.includes(c));
+    }
+    if (region === 'Middle East & Asia') {
+      return meAsiaCities.some((c) => dep.includes(c) || arr.includes(c));
+    }
+    return true;
+  };
+
+  const filteredJets = MOCK_PRIVATE_JETS
+    .filter((jet) => {
+      const matchSearch =
+        !searchTerm ||
+        jet.departureCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jet.arrivalCity.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jet.departureAirportCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jet.arrivalAirportCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jet.aircraftType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        jet.operator.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchCategory = selectedCategory === 'All' || jet.category.toLowerCase() === selectedCategory.toLowerCase();
+      const matchRegion = isRouteInRegion(jet, selectedRegion);
+      return matchSearch && matchCategory && matchRegion;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'seat_price_asc') return a.perSeatMemberPrice - b.perSeatMemberPrice;
+      if (sortBy === 'seat_price_desc') return b.perSeatMemberPrice - a.perSeatMemberPrice;
+      if (sortBy === 'savings') return b.savingsPercentage - a.savingsPercentage;
+      return 0; // default order
+    });
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
@@ -63,7 +109,7 @@ export default function PrivateJetsPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search route (e.g. Miami, New York, Las Vegas, London, Nice)..."
+              placeholder="Search route or airport (e.g. Miami, Teterboro, Las Vegas, Nice, London)..."
               className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white text-slate-900 placeholder-slate-400 font-semibold text-sm shadow-xl focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
@@ -71,8 +117,80 @@ export default function PrivateJetsPage() {
       </div>
 
       {/* Jet Listings */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Filter Toolbar */}
+        <div className="space-y-4 mb-8">
+          {/* Aircraft Categories */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Aircraft:</span>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                  selectedCategory === cat
+                    ? 'bg-slate-900 text-amber-400 shadow-md'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Region Filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Region:</span>
+            {regions.map((reg) => (
+              <button
+                key={reg}
+                onClick={() => setSelectedRegion(reg)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+                  selectedRegion === reg
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {reg}
+              </button>
+            ))}
+          </div>
+
+          {/* Controls Bar: Results Count & Sort */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200 text-xs">
+            <div className="text-slate-600 font-semibold">
+              Showing <span className="font-black text-slate-900">{filteredJets.length}</span> confirmed empty leg routes
+              {(selectedCategory !== 'All' || selectedRegion !== 'All' || searchTerm) && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory('All');
+                    setSelectedRegion('All');
+                    setSearchTerm('');
+                  }}
+                  className="ml-3 text-sky-600 hover:underline font-bold"
+                >
+                  Clear all filters
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 font-bold">Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              >
+                <option value="date">Featured Schedule</option>
+                <option value="seat_price_asc">Per-Seat Price: Low to High</option>
+                <option value="seat_price_desc">Per-Seat Price: High to Low</option>
+                <option value="savings">Biggest Savings %</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredJets.map((jet) => (
             <div
               key={jet.id}

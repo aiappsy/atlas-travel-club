@@ -26,6 +26,9 @@ export default function VillasPage() {
   const { user } = useAuth();
   const { features } = usePlatform();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('All');
+  const [selectedDest, setSelectedDest] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'featured' | 'price_asc' | 'price_desc' | 'savings'>('featured');
   const [selectedVilla, setSelectedVilla] = useState<LuxuryVillaEstate | null>(null);
   const [nights, setNights] = useState<number>(3);
   const [isBooked, setIsBooked] = useState(false);
@@ -53,13 +56,41 @@ export default function VillasPage() {
     );
   }
 
-  const filteredVillas = MOCK_VILLAS.filter(
-    (v) =>
-      !searchTerm ||
-      v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.country.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const propertyTypes = ['All', 'Beachfront Villa', 'Cliffside Retreat', 'Alpine Ski Chalet', 'Vineyard Estate'];
+  const destinations = [
+    'All',
+    'St. Barts',
+    'Lake Como',
+    'Amalfi Coast',
+    'Santorini',
+    'Ibiza',
+    'Tuscany',
+    'Turks & Caicos',
+    'Courchevel 1850',
+    'Aspen',
+    'Bali',
+    'Phuket',
+    'Mallorca'
+  ];
+
+  const filteredVillas = MOCK_VILLAS
+    .filter((v) => {
+      const matchSearch =
+        !searchTerm ||
+        v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.region.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchType = selectedType === 'All' || v.propertyType === selectedType;
+      const matchDest = selectedDest === 'All' || v.destination.toLowerCase() === selectedDest.toLowerCase();
+      return matchSearch && matchType && matchDest;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price_asc') return a.memberPricePerNight - b.memberPricePerNight;
+      if (sortBy === 'price_desc') return b.memberPricePerNight - a.memberPricePerNight;
+      if (sortBy === 'savings') return b.savingsPercentage - a.savingsPercentage;
+      return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+    });
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24">
@@ -74,7 +105,7 @@ export default function VillasPage() {
             Wholesale Private Estates with Chef & Butler
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            100% private wholesale estates in St. Barts, Courchevel 1850, Tuscany, and the Greek Islands with on-site private chefs, dedicated butlers, and infinity pools.
+            100% private wholesale estates in St. Barts, Lake Como, Courchevel 1850, Tuscany, and Santorini with on-site private chefs, dedicated butlers, and infinity pools.
           </p>
 
           {/* Search Filter */}
@@ -84,16 +115,88 @@ export default function VillasPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Destination or Country (e.g. St. Barts, Courchevel, Tuscany)..."
+              placeholder="Search by Destination, Country, or Villa name..."
               className="w-full pl-12 pr-4 py-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Category & Destination Filter Toolbar */}
+        <div className="space-y-4 mb-8">
+          {/* Property Types */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Type:</span>
+            {propertyTypes.map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                  selectedType === type
+                    ? 'bg-slate-900 text-amber-400 shadow-md'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
+          {/* Destination Quick Filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Destination:</span>
+            {destinations.map((dest) => (
+              <button
+                key={dest}
+                onClick={() => setSelectedDest(dest)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+                  selectedDest === dest
+                    ? 'bg-amber-400 text-slate-950 font-bold shadow'
+                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                }`}
+              >
+                {dest}
+              </button>
+            ))}
+          </div>
+
+          {/* Controls Bar: Results Count & Sort */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200 text-xs">
+            <div className="text-slate-600 font-semibold">
+              Showing <span className="font-black text-slate-900">{filteredVillas.length}</span> curated luxury estates
+              {(selectedType !== 'All' || selectedDest !== 'All' || searchTerm) && (
+                <button
+                  onClick={() => {
+                    setSelectedType('All');
+                    setSelectedDest('All');
+                    setSearchTerm('');
+                  }}
+                  className="ml-3 text-sky-600 hover:underline font-bold"
+                >
+                  Clear all filters
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 font-bold">Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              >
+                <option value="featured">Featured First</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="savings">Biggest Savings %</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {/* Villas Directory Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredVillas.map((villa) => (
             <div
               key={villa.id}

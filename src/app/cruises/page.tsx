@@ -20,19 +20,43 @@ import {
 function CruisesSearchContent() {
   const [selectedLine, setSelectedLine] = useState<string>('All');
   const [selectedDest, setSelectedDest] = useState<string>('All');
-  const [maxPrice, setMaxPrice] = useState<number>(2000);
+  const [maxPrice, setMaxPrice] = useState<number>(3000);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const cruiseLines = ['All', 'Royal Caribbean', 'Celebrity Cruises', 'Norwegian Cruise Line'];
-  const destinations = ['All', 'Eastern Caribbean', 'Mediterranean', 'Alaska'];
+  const cruiseLines = [
+    'All',
+    'Royal Caribbean',
+    'Celebrity Cruises',
+    'Norwegian Cruise Line',
+    'Princess Cruises',
+    'Virgin Voyages'
+  ];
+
+  const destinations = [
+    'All',
+    'Eastern Caribbean',
+    'Western Caribbean',
+    'Bahamas & Perfect Day',
+    'Mediterranean & Greek Isles',
+    'Alaska Inside Passage',
+    'Norwegian Fjords',
+    'Mexican Riviera'
+  ];
 
   const filteredCruises = useMemo(() => {
     return MOCK_CRUISES.filter((cruise) => {
       const matchLine = selectedLine === 'All' || cruise.cruiseLine === selectedLine;
       const matchDest = selectedDest === 'All' || cruise.destination === selectedDest;
       const matchPrice = cruise.memberPriceStarting <= maxPrice;
-      return matchLine && matchDest && matchPrice;
+      const matchSearch =
+        !searchTerm ||
+        cruise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cruise.shipName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cruise.departurePort.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cruise.portsOfCall.some((p) => p.toLowerCase().includes(searchTerm.toLowerCase()));
+      return matchLine && matchDest && matchPrice && matchSearch;
     });
-  }, [selectedLine, selectedDest, maxPrice]);
+  }, [selectedLine, selectedDest, maxPrice, searchTerm]);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
@@ -66,12 +90,27 @@ function CruisesSearchContent() {
                   onClick={() => {
                     setSelectedLine('All');
                     setSelectedDest('All');
-                    setMaxPrice(2000);
+                    setMaxPrice(3000);
+                    setSearchTerm('');
                   }}
                   className="text-[11px] font-bold text-sky-600 hover:underline"
                 >
                   Reset
                 </button>
+              </div>
+
+              {/* Search by name/port */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">
+                  Keyword / Ship / Port
+                </label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="e.g. Icon, Miami, Nassau..."
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
+                />
               </div>
 
               {/* Cruise Line Filter */}
@@ -104,7 +143,7 @@ function CruisesSearchContent() {
                 <label className="block text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">
                   Sailing Destination
                 </label>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
                   {destinations.map((dest) => (
                     <button
                       key={dest}
@@ -134,9 +173,9 @@ function CruisesSearchContent() {
                 </div>
                 <input
                   type="range"
-                  min="800"
-                  max="2500"
-                  step="100"
+                  min="600"
+                  max="3500"
+                  step="50"
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
                   className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
@@ -147,6 +186,25 @@ function CruisesSearchContent() {
 
           {/* Cruise Listings */}
           <div className="lg:col-span-9 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-200 text-xs">
+              <div className="text-slate-600 font-semibold">
+                Showing <span className="font-black text-slate-900">{filteredCruises.length}</span> wholesale cruise sailings
+                {(selectedLine !== 'All' || selectedDest !== 'All' || searchTerm || maxPrice < 3000) && (
+                  <button
+                    onClick={() => {
+                      setSelectedLine('All');
+                      setSelectedDest('All');
+                      setMaxPrice(3000);
+                      setSearchTerm('');
+                    }}
+                    className="ml-3 text-sky-600 hover:underline font-bold"
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            </div>
+
             {filteredCruises.map((cruise) => (
               <div
                 key={cruise.id}
