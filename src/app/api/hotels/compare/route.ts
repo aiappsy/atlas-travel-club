@@ -393,10 +393,10 @@ function buildOtaUrls(
     ? (directOverrides.agodaUrl.includes('?')
         ? `${directOverrides.agodaUrl}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`
         : `${directOverrides.agodaUrl}?checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`)
-    : `https://www.agoda.com/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&adults=${adultsCount}&rooms=${roomsCount}&currency=${upperCurr}`;
+    : `https://www.agoda.com/en-us/search?text=${encodeURIComponent(searchDestination)}&checkIn=${ciParam}&checkOut=${coParam}&rooms=${roomsCount}&adults=${adultsCount}&currency=${upperCurr}`;
 
-  // 6. Kayak: Use Google Hotels verified card
-  const kayakUrl = googleHotelsUrl;
+  // 6. Kayak: Direct kayak hotels search URL with pre-filled dates and guests (Rule 2)
+  const kayakUrl = `https://www.kayak.com/hotels/${encodeURIComponent(searchDestination)}/${ciParam}/${coParam}/${adultsCount}adults`;
 
   return {
     expedia: expediaUrl,
@@ -793,9 +793,8 @@ function mapSerpApiPropertyToHotel(
   let hbRoomType: string | undefined;
 
   if (hbMatch) {
-    // ✅ Real Hotelbeds live wholesale rate — qualifies (≥10% below lowest OTA)
+    // ✅ Real Hotelbeds live wholesale rate — qualifies within B2B margin corridor
     wholesaleWithTaxes = hbMatch.ratePerNight;
-    wholesaleBase = Math.round(wholesaleWithTaxes / (1 + taxInfo.taxPercent / 100));
     atlasRateSource = 'hotelbeds_live';
     hbRateKey = hbMatch.rateKey;
     hbRoomType = hbMatch.roomType;
@@ -805,10 +804,16 @@ function mapSerpApiPropertyToHotel(
     const targetWholesale = Math.round(lowestPublicRate * (1 - Math.max(0.28, wholesaleMargin)));
     const maxAllowedWholesale = Math.round(lowestPublicRate * 0.72);
     wholesaleWithTaxes = Math.min(targetWholesale, maxAllowedWholesale);
-    const taxFraction = allInclusiveRate > 0 ? estimatedTaxPerNight / allInclusiveRate : 0.2;
-    wholesaleBase = Math.round(wholesaleWithTaxes * (1 - taxFraction));
     atlasRateSource = 'estimated';
   }
+
+  // Hard Invariant: ATLAS Wholesale rate must ALWAYS remain strictly 28% to 42% below lowest public OTA (Rule 4)
+  const minAllowedWholesale = Math.round(lowestPublicRate * (1 - 0.42)); // 42% discount (maximum discount)
+  const maxAllowedWholesale = Math.round(lowestPublicRate * (1 - 0.28)); // 28% discount (minimum guaranteed discount)
+  wholesaleWithTaxes = Math.max(minAllowedWholesale, Math.min(maxAllowedWholesale, wholesaleWithTaxes));
+
+  const taxFraction = allInclusiveRate > 0 ? estimatedTaxPerNight / allInclusiveRate : (taxInfo.taxPercent / 100) / (1 + taxInfo.taxPercent / 100);
+  wholesaleBase = Math.round(wholesaleWithTaxes * (1 - taxFraction));
 
   // Transaction clearing fee at cost
   const transactionFeePercent = 3.5;
@@ -1035,29 +1040,62 @@ function mapSerpApiPropertyToHotel(
 
 // ─── Hotelbeds live rate integration ────────────────────────────────────────
 
-// Normalise hotel names for fuzzy matching between Google Hotels and Hotelbeds
-function normaliseHotelName(name: string): string {
+// Location and generic hospitality stop words to avoid matching hotels simply because they share a city or category
+const HOTEL_NAME_STOP_WORDS = new Set([
+  'hotel', 'hotels', 'resort', 'resorts', 'spa', 'palace', 'the', 'a', 'an', 'and',
+  'de', 'le', 'la', 'les', 'el', 'los', 'las', 'del', 'du', 'des', 'di', 'da',
+  'suites', 'suite', 'inn', 'lodge', 'boutique', 'luxury', 'club', 'international',
+  'casino', 'tower', 'towers', 'center', 'centre', 'plaza', 'park',
+  // Key world cities & regional markers to prevent cross-hotel matching within the same destination
+  'las', 'vegas', 'london', 'paris', 'oslo', 'york', 'dubai', 'rome', 'tokyo',
+  'miami', 'barcelona', 'amsterdam', 'vienna', 'sydney', 'singapore', 'city'
+]);
+
+// Extract distinctive hotel identity tokens
+function getHotelDistinctiveTokens(name: string): string[] {
   return name
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')   // strip accents
-    .replace(/[®™&,.'"\-]/g, ' ')      // remove punctuation
-    .replace(/\b(hotel|hotels|resort|resorts|the|a|an|and|de|le|la|les|el|los|las)\b/g, '') // strip generic words
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !HOTEL_NAME_STOP_WORDS.has(w));
+}
+
+// Normalise hotel names for fuzzy matching between Google Hotels and Hotelbeds
+function normaliseHotelName(name: string): string {
+  const tokens = getHotelDistinctiveTokens(name);
+  if (tokens.length > 0) return tokens.join(' ');
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 // Score how similar two hotel names are (0 = no match, 1 = exact match)
 function hotelNameSimilarity(a: string, b: string): number {
-  const na = normaliseHotelName(a);
-  const nb = normaliseHotelName(b);
-  if (na === nb) return 1;
-  const wordsA = new Set(na.split(' ').filter(w => w.length > 2));
-  const wordsB = new Set(nb.split(' ').filter(w => w.length > 2));
-  if (wordsA.size === 0 || wordsB.size === 0) return 0;
+  const tokensA = getHotelDistinctiveTokens(a);
+  const tokensB = getHotelDistinctiveTokens(b);
+
+  if (tokensA.length === 0 || tokensB.length === 0) {
+    const na = normaliseHotelName(a);
+    const nb = normaliseHotelName(b);
+    return na === nb && na.length > 0 ? 1 : 0;
+  }
+
+  const setA = new Set(tokensA);
+  const setB = new Set(tokensB);
   let shared = 0;
-  wordsA.forEach(w => { if (wordsB.has(w)) shared++; });
-  return shared / Math.max(wordsA.size, wordsB.size);
+  tokensA.forEach((w) => {
+    if (setB.has(w)) shared++;
+  });
+
+  // Two hotels must share at least one distinctive primary brand token
+  if (shared === 0) return 0;
+  return shared / Math.max(setA.size, setB.size);
 }
 
 // Hotelbeds in-memory cache (5 min TTL — rates change less often than availability)
@@ -1149,7 +1187,8 @@ function resolveHotelbedsRate(
 
   hbRates.forEach((_, normKey) => {
     const score = hotelNameSimilarity(hotelName, normKey);
-    if (score >= 0.5 && (!bestMatch || score > bestMatch.score)) {
+    // Strict threshold: Must have high brand identity match (>= 0.75)
+    if (score >= 0.75 && (!bestMatch || score > bestMatch.score)) {
       bestMatch = { score, key: normKey };
     }
   });
@@ -1158,10 +1197,12 @@ function resolveHotelbedsRate(
 
   const hbRate = hbRates.get((bestMatch as { score: number; key: string }).key)!;
 
-  // Guard: only use Hotelbeds rate if it's at least 10% cheaper than the lowest public OTA
-  const discountVsOta = (lowestPublicRate - hbRate.ratePerNight) / lowestPublicRate;
-  if (discountVsOta < HOTELBEDS_MIN_DISCOUNT_PCT) {
-    return null; // Hotelbeds rate doesn't beat the threshold — use estimated rate
+  // Guard: Rule 4 requires wholesale rate to be strictly 28% to 42% below lowest public OTA.
+  // If the Hotelbeds live rate is completely outside this realistic B2B corridor (e.g. <20% or >45%),
+  // reject it so that ATLAS uses the calibrated wholesale margin instead of an erratic mismatch.
+  const discountVsOta = (lowestPublicRate - hbRate.ratePerNight) / (lowestPublicRate || 1);
+  if (discountVsOta < 0.20 || discountVsOta > 0.45) {
+    return null;
   }
 
   return hbRate;
@@ -1629,13 +1670,17 @@ function buildFallbackHotel(
 
   if (hbMatch) {
     wholesaleWithTaxes = hbMatch.ratePerNight;
-    wholesaleBase = Math.round(wholesaleWithTaxes / (1 + taxInfo.taxPercent / 100));
   } else {
     const wholesaleMargin = getHotelWholesaleMargin(seed.name, starRating);
     const targetWholesale = Math.round(lowestPublicRate * (1 - Math.max(0.28, wholesaleMargin)));
     wholesaleWithTaxes = Math.min(targetWholesale, Math.round(lowestPublicRate * 0.72));
-    wholesaleBase = Math.round(wholesaleWithTaxes / (1 + taxInfo.taxPercent / 100));
   }
+
+  // Hard Invariant: ATLAS Wholesale rate must ALWAYS remain strictly 28% to 42% below lowest public OTA (Rule 4)
+  const minAllowedWholesale = Math.round(lowestPublicRate * (1 - 0.42)); // 42% discount (maximum discount)
+  const maxAllowedWholesale = Math.round(lowestPublicRate * (1 - 0.28)); // 28% discount (minimum guaranteed discount)
+  wholesaleWithTaxes = Math.max(minAllowedWholesale, Math.min(maxAllowedWholesale, wholesaleWithTaxes));
+  wholesaleBase = Math.round(wholesaleWithTaxes / (1 + taxInfo.taxPercent / 100));
 
   const baseRoomRate = Math.round(lowestPublicRate / (1 + taxInfo.taxPercent / 100));
   const estimatedTaxPerNight = lowestPublicRate - baseRoomRate;
