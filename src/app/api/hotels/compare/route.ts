@@ -1215,10 +1215,10 @@ const SERPAPI_CACHE_TTL = 3600 * 1000; // 1 hour
 // City tier base pricing in USD for realistic luxury & superior rate synthesis
 function getCityTierPricing(city: string): { luxury: number; superior: number; boutique: number } {
   const c = city.toLowerCase();
-  if (/paris|new york|london|tokyo|dubai|geneva|zurich|singapore|hong kong|aspen/i.test(c)) {
+  if (/paris|new york|london|tokyo|dubai|geneva|zurich|singapore|hong kong|aspen|maldives|monaco|capri/i.test(c)) {
     return { luxury: 580, superior: 380, boutique: 240 };
   }
-  if (/miami|barcelona|rome|amsterdam|sydney|las vegas|vegas|oslo|stockholm|copenhagen|vienna/i.test(c)) {
+  if (/miami|barcelona|rome|amsterdam|sydney|las vegas|vegas|oslo|stockholm|copenhagen|vienna|santorini|zermatt|bali|maui/i.test(c)) {
     return { luxury: 420, superior: 280, boutique: 190 };
   }
   return { luxury: 290, superior: 190, boutique: 130 };
@@ -1569,6 +1569,316 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       hotelsComUrl: 'https://www.hotels.com/Dubai-Hotels-Fairmont-The-Palm.h5527177.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/fairmont-the-palm-hotel/hotel/dubai-ae.html'
     }
+  ],
+  rome: [
+    {
+      name: 'Hotel Eden, Dorchester Collection',
+      stars: 5,
+      basePrice: 850,
+      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Classic Prestige King Room',
+      expediaUrl: 'https://www.expedia.com/Rome-Hotels-Hotel-Eden-Dorchester-Collection.h14643.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Rome-Hotels-Hotel-Eden-Dorchester-Collection.h14643.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/hotel-eden-dorchester-collection/hotel/rome-it.html'
+    },
+    {
+      name: 'Hassler Roma',
+      stars: 5,
+      basePrice: 920,
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Grand Deluxe Room (Spanish Steps)',
+      expediaUrl: 'https://www.expedia.com/Rome-Hotels-Hassler-Roma.h14644.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Rome-Hotels-Hassler-Roma.h14644.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/hassler-roma/hotel/rome-it.html'
+    },
+    {
+      name: 'The St. Regis Rome',
+      stars: 5,
+      basePrice: 980,
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Imperial King Room',
+      expediaUrl: 'https://www.expedia.com/Rome-Hotels-The-St-Regis-Rome.h14645.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Rome-Hotels-The-St-Regis-Rome.h14645.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-st-regis-rome/hotel/rome-it.html'
+    }
+  ],
+  tokyo: [
+    {
+      name: 'Aman Tokyo',
+      stars: 5,
+      basePrice: 1850,
+      image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Deluxe Palace View King Suite',
+      expediaUrl: 'https://www.expedia.com/Tokyo-Hotels-Aman-Tokyo.h9674510.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Tokyo-Hotels-Aman-Tokyo.h9674510.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/aman-tokyo/hotel/tokyo-jp.html'
+    },
+    {
+      name: 'Palace Hotel Tokyo',
+      stars: 5,
+      basePrice: 780,
+      image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Club Deluxe King Room with Balcony',
+      expediaUrl: 'https://www.expedia.com/Tokyo-Hotels-Palace-Hotel-Tokyo.h4556485.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Tokyo-Hotels-Palace-Hotel-Tokyo.h4556485.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/palace-hotel-tokyo/hotel/tokyo-jp.html'
+    },
+    {
+      name: 'Imperial Hotel, Tokyo',
+      stars: 5,
+      basePrice: 580,
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Main Building Superior King',
+      expediaUrl: 'https://www.expedia.com/Tokyo-Hotels-Imperial-Hotel.h10260.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Tokyo-Hotels-Imperial-Hotel.h10260.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/imperial-hotel-tokyo/hotel/tokyo-jp.html'
+    }
+  ],
+  maldives: [
+    {
+      name: 'Soneva Fushi',
+      stars: 5,
+      basePrice: 1950,
+      image: 'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Crusoe Villa with Private Pool',
+      expediaUrl: 'https://www.expedia.com/Baa-Atoll-Hotels-Soneva-Fushi.h10052.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Baa-Atoll-Hotels-Soneva-Fushi.h10052.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/soneva-fushi/hotel/maldives-islands-mv.html'
+    },
+    {
+      name: 'The St. Regis Maldives Vommuli Resort',
+      stars: 5,
+      basePrice: 1850,
+      image: 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Overwater Villa with Private Plunge Pool',
+      expediaUrl: 'https://www.expedia.com/Dhaalu-Atoll-Hotels-The-St-Regis-Maldives-Vommuli-Resort.h15560123.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Dhaalu-Atoll-Hotels-The-St-Regis-Maldives-Vommuli-Resort.h15560123.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-st-regis-maldives-vommuli-resort/hotel/maldives-islands-mv.html'
+    }
+  ],
+  zermatt: [
+    {
+      name: 'The Omnia Zermatt',
+      stars: 5,
+      basePrice: 780,
+      image: 'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Omnia Mountain Suite (Matterhorn View)',
+      expediaUrl: 'https://www.expedia.com/Zermatt-Hotels-The-Omnia.h1578490.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Zermatt-Hotels-The-Omnia.h1578490.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-omnia/hotel/zermatt-ch.html'
+    },
+    {
+      name: 'Mont Cervin Palace',
+      stars: 5,
+      basePrice: 650,
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Chalet Deluxe Alpine King',
+      expediaUrl: 'https://www.expedia.com/Zermatt-Hotels-Mont-Cervin-Palace.h10261.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Zermatt-Hotels-Mont-Cervin-Palace.h10261.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/mont-cervin-palace/hotel/zermatt-ch.html'
+    }
+  ],
+  santorini: [
+    {
+      name: 'Canaves Oia Suites',
+      stars: 5,
+      basePrice: 890,
+      image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Superior Suite with Private Infinity Pool',
+      expediaUrl: 'https://www.expedia.com/Santorini-Hotels-Canaves-Oia-Suites.h10262.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Santorini-Hotels-Canaves-Oia-Suites.h10262.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/canaves-oia-suites/hotel/santorini-gr.html'
+    },
+    {
+      name: 'Grace Hotel, Auberge Resorts Collection',
+      stars: 5,
+      basePrice: 950,
+      image: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Caldera Suite with Plunge Pool',
+      expediaUrl: 'https://www.expedia.com/Santorini-Hotels-Grace-Hotel-Auberge-Resorts-Collection.h2345678.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Santorini-Hotels-Grace-Hotel-Auberge-Resorts-Collection.h2345678.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/grace-hotel-santorini/hotel/santorini-gr.html'
+    }
+  ],
+  monaco: [
+    {
+      name: 'Hôtel de Paris Monte-Carlo',
+      stars: 5,
+      basePrice: 1450,
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Superior King Room (Place du Casino)',
+      expediaUrl: 'https://www.expedia.com/Monaco-Hotels-Hotel-De-Paris-Monte-Carlo.h10263.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Monaco-Hotels-Hotel-De-Paris-Monte-Carlo.h10263.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/hotel-de-paris-monte-carlo/hotel/monaco-mc.html'
+    },
+    {
+      name: 'Grand-Hôtel du Cap-Ferrat, A Four Seasons Hotel',
+      stars: 5,
+      basePrice: 1650,
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Palace Sea-View King Suite',
+      expediaUrl: 'https://www.expedia.com/Saint-Jean-Cap-Ferrat-Hotels-Grand-Hotel-Du-Cap-Ferrat.h10264.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Saint-Jean-Cap-Ferrat-Hotels-Grand-Hotel-Du-Cap-Ferrat.h10264.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/grand-hotel-du-cap-ferrat-a-four-seasons-hotel/hotel/saint-jean-cap-ferrat-fr.html'
+    }
+  ],
+  miami: [
+    {
+      name: 'The Setai Miami Beach',
+      stars: 5,
+      basePrice: 950,
+      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Ocean View Studio Suite (Asian Deco)',
+      expediaUrl: 'https://www.expedia.com/Miami-Beach-Hotels-The-Setai.h10265.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Miami-Beach-Hotels-The-Setai.h10265.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-setai-miami-beach/hotel/miami-beach-fl-us.html'
+    },
+    {
+      name: 'Faena Hotel Miami Beach',
+      stars: 5,
+      basePrice: 880,
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Premier Oceanfront King',
+      expediaUrl: 'https://www.expedia.com/Miami-Beach-Hotels-Faena-Hotel-Miami-Beach.h10266.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Miami-Beach-Hotels-Faena-Hotel-Miami-Beach.h10266.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/faena-hotel-miami-beach/hotel/miami-beach-fl-us.html'
+    }
+  ],
+  bali: [
+    {
+      name: 'Four Seasons Resort Bali at Sayan',
+      stars: 5,
+      basePrice: 850,
+      image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'One-Bedroom Riverfront Duplex Villa',
+      expediaUrl: 'https://www.expedia.com/Bali-Hotels-Four-Seasons-Resort-Bali-At-Sayan.h10267.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Bali-Hotels-Four-Seasons-Resort-Bali-At-Sayan.h10267.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/four-seasons-resort-bali-at-sayan/hotel/bali-id.html'
+    },
+    {
+      name: 'Bulgari Resort Bali',
+      stars: 5,
+      basePrice: 1100,
+      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Ocean Cliff Villa with Private Pool',
+      expediaUrl: 'https://www.expedia.com/Bali-Hotels-Bulgari-Resort-Bali.h10268.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Bali-Hotels-Bulgari-Resort-Bali.h10268.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/bulgari-resort-bali/hotel/bali-id.html'
+    }
+  ],
+  aspen: [
+    {
+      name: 'The Little Nell',
+      stars: 5,
+      basePrice: 1250,
+      image: 'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1502784444187-359ac186c5bb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Premium Slopeside King Room',
+      expediaUrl: 'https://www.expedia.com/Aspen-Hotels-The-Little-Nell.h10269.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Aspen-Hotels-The-Little-Nell.h10269.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-little-nell/hotel/aspen-co-us.html'
+    },
+    {
+      name: 'The St. Regis Aspen Resort',
+      stars: 5,
+      basePrice: 1150,
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Deluxe Aspen Mountain View King',
+      expediaUrl: 'https://www.expedia.com/Aspen-Hotels-The-St-Regis-Aspen-Resort.h10270.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Aspen-Hotels-The-St-Regis-Aspen-Resort.h10270.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-st-regis-aspen-resort/hotel/aspen-co-us.html'
+    }
+  ],
+  maui: [
+    {
+      name: 'Four Seasons Resort Maui at Wailea',
+      stars: 5,
+      basePrice: 1450,
+      image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'Ocean-View Prime King Room',
+      expediaUrl: 'https://www.expedia.com/Wailea-Hotels-Four-Seasons-Resort-Maui-At-Wailea.h10271.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Wailea-Hotels-Four-Seasons-Resort-Maui-At-Wailea.h10271.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/four-seasons-resort-maui-at-wailea/hotel/maui-hawaii-us.html'
+    },
+    {
+      name: 'Montage Kapalua Bay',
+      stars: 5,
+      basePrice: 1650,
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
+      gallery: [
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80'
+      ],
+      roomType: 'One-Bedroom Residential Ocean Suite',
+      expediaUrl: 'https://www.expedia.com/Lahaina-Hotels-Montage-Kapalua-Bay.h10272.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Lahaina-Hotels-Montage-Kapalua-Bay.h10272.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/montage-kapalua-bay/hotel/maui-hawaii-us.html'
+    }
   ]
 };
 
@@ -1884,10 +2194,46 @@ async function generateDestinationHotelsFallback(
     // ignore
   }
 
-  // 1. Check if user searched for a specific hotel by name
-  const isSpecificHotel = /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski|atlantis|burj\s*al\s*arab|armani/i.test(destQuery);
+  const DESTINATION_COUNTRIES: Record<string, string> = {
+    'oslo': 'Norway',
+    'paris': 'France',
+    'london': 'United Kingdom',
+    'new york': 'United States',
+    'las vegas': 'United States',
+    'dubai': 'United Arab Emirates',
+    'rome': 'Italy',
+    'tokyo': 'Japan',
+    'maldives': 'Maldives',
+    'zermatt': 'Switzerland',
+    'santorini': 'Greece',
+    'monaco': 'Monaco',
+    'miami': 'United States',
+    'aspen': 'United States',
+    'bali': 'Indonesia',
+    'maui': 'United States',
+  };
 
   const hotelSeeds: FallbackHotelSeed[] = [];
+
+  // 0. Showcase Collection: When user selects "All Destinations" or leaves search query blank
+  const isAllDestinations = !destQuery || destQuery.trim() === '' || /^(all|global|curated|worldwide|all destinations|portfolio)$/i.test(destQuery.trim());
+  if (isAllDestinations) {
+    for (const [cKey, cList] of Object.entries(CURATED_DESTINATION_HOTELS)) {
+      if (cList.length > 0) {
+        const flagship = cList[0];
+        const curatedCity = cKey.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const curatedCountry = DESTINATION_COUNTRIES[cKey] || 'Global';
+        hotelSeeds.push({
+          ...flagship,
+          city: curatedCity,
+          country: curatedCountry,
+        });
+      }
+    }
+  }
+
+  // 1. Check if user searched for a specific hotel by name
+  const isSpecificHotel = !isAllDestinations && /hotel|resort|palace|inn|suites|lodge|motel|scandic|clarion|radisson|thon|hilton|marriott|hyatt|the\s+plaza|cosmopolitan|bellagio|venetian|wynn|aria|caesar|westin|sheraton|ritz|four\s+seasons|st\s+regis|fairmont|kempinski|atlantis|burj\s*al\s*arab|armani|aman|soneva|omnia|canaves|setai|faena|cervin/i.test(destQuery);
 
   if (isSpecificHotel) {
     let matchedCity = city || 'Destination';
@@ -1901,7 +2247,7 @@ async function generateDestinationHotelsFallback(
       });
       if (found) {
         matchedCity = cKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        matchedCountry = (cKey === 'las vegas' || cKey === 'new york' || cKey === 'miami' ? 'United States' : cKey === 'london' ? 'United Kingdom' : cKey === 'paris' ? 'France' : cKey === 'rome' ? 'Italy' : cKey === 'dubai' ? 'United Arab Emirates' : 'Global');
+        matchedCountry = DESTINATION_COUNTRIES[cKey] || country || 'Global';
         matchedSeed = found;
         break;
       }
@@ -1922,18 +2268,20 @@ async function generateDestinationHotelsFallback(
   }
 
   // 2. Check curated destination database
-  const curatedKey = Object.keys(CURATED_DESTINATION_HOTELS).find(k => cityLower.includes(k) || k.includes(cityLower));
-  if (curatedKey) {
-    const curatedCity = curatedKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    const curatedCountry = curatedKey === 'las vegas' || curatedKey === 'new york' || curatedKey === 'miami' ? 'United States' : curatedKey === 'london' ? 'United Kingdom' : curatedKey === 'paris' ? 'France' : curatedKey === 'rome' ? 'Italy' : curatedKey === 'dubai' ? 'United Arab Emirates' : country || 'Global';
-    const curatedList = CURATED_DESTINATION_HOTELS[curatedKey];
-    for (const ch of curatedList) {
-      if (!hotelSeeds.some(h => h.name.toLowerCase() === ch.name.toLowerCase())) {
-        hotelSeeds.push({
-          ...ch,
-          city: curatedCity,
-          country: curatedCountry,
-        });
+  if (!isAllDestinations) {
+    const curatedKey = Object.keys(CURATED_DESTINATION_HOTELS).find(k => cityLower.includes(k) || k.includes(cityLower));
+    if (curatedKey) {
+      const curatedCity = curatedKey.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const curatedCountry = DESTINATION_COUNTRIES[curatedKey] || country || 'Global';
+      const curatedList = CURATED_DESTINATION_HOTELS[curatedKey];
+      for (const ch of curatedList) {
+        if (!hotelSeeds.some(h => h.name.toLowerCase() === ch.name.toLowerCase())) {
+          hotelSeeds.push({
+            ...ch,
+            city: curatedCity,
+            country: curatedCountry,
+          });
+        }
       }
     }
   }
@@ -2358,14 +2706,17 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Hotel property not found' }, { status: 404 });
   }
 
-  // 2. Search by destination or hotel name (or fallback to curated live hotels if empty)
-  const searchQuery = rawSearch && rawSearch.toLowerCase() !== 'all' && rawSearch.toLowerCase() !== 'global'
-    ? rawSearch
-    : 'luxury hotels in Oslo';
+  // 2. Search by destination or hotel name (or showcase curated portfolio if empty / all)
+  const isAllDestinations = !rawSearch || /^(all|global|curated|worldwide|all destinations)$/i.test(rawSearch.trim());
+  let liveHotels: ComparedHotel[] = [];
 
-  let liveHotels = await fetchSerpApiHotels(searchQuery, nights, checkIn, checkOut, currency, guestOptions);
-  if (!liveHotels || liveHotels.length === 0) {
-    liveHotels = await generateDestinationHotelsFallback(searchQuery, nights, checkIn, checkOut, currency, guestOptions);
+  if (isAllDestinations) {
+    liveHotels = await generateDestinationHotelsFallback('all', nights, checkIn, checkOut, currency, guestOptions);
+  } else {
+    liveHotels = await fetchSerpApiHotels(rawSearch, nights, checkIn, checkOut, currency, guestOptions);
+    if (!liveHotels || liveHotels.length === 0) {
+      liveHotels = await generateDestinationHotelsFallback(rawSearch, nights, checkIn, checkOut, currency, guestOptions);
+    }
   }
 
   return NextResponse.json({

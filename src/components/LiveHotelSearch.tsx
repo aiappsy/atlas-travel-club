@@ -95,18 +95,21 @@ export default function LiveHotelSearch({
 
   const popularCities = [
     { name: 'All Destinations', query: '' },
-    { name: 'Las Vegas', query: 'Las Vegas' },
     { name: 'Paris', query: 'Paris' },
+    { name: 'London', query: 'London' },
+    { name: 'New York', query: 'New York' },
+    { name: 'Dubai', query: 'Dubai' },
+    { name: 'Las Vegas', query: 'Las Vegas' },
+    { name: 'Rome', query: 'Rome' },
+    { name: 'Tokyo', query: 'Tokyo' },
+    { name: 'Maldives', query: 'Maldives' },
     { name: 'Zermatt (Alps)', query: 'Zermatt' },
+    { name: 'Monaco', query: 'Monaco' },
     { name: 'Santorini', query: 'Santorini' },
+    { name: 'Bali', query: 'Bali' },
     { name: 'Aspen', query: 'Aspen' },
     { name: 'Maui', query: 'Maui' },
-    { name: 'Dubai', query: 'Dubai' },
-    { name: 'New York', query: 'New York' },
     { name: 'Oslo', query: 'Oslo' },
-    { name: 'London', query: 'London' },
-    { name: 'Tokyo', query: 'Tokyo' },
-    { name: 'Bali', query: 'Bali' },
   ];
 
   const categories = [
@@ -238,7 +241,7 @@ export default function LiveHotelSearch({
                 type="text"
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                placeholder="e.g. Las Vegas, Paris, Oslo, Bellagio..."
+                placeholder="Search portfolio, hotel, or paste Booking/Expedia URL..."
                 className="w-full bg-transparent font-bold text-sm text-white focus:outline-none placeholder:text-slate-500"
               />
             </div>
