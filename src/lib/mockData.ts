@@ -2301,7 +2301,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
       'Digital Nomad Visa Application Concierge (Spain, Portugal, Dubai, Thailand)',
       'Schengen 90/180-Day Automated Compliance Sentinel',
       'Curated monthly coliving spaces with verified 300+ Mbps Fiber Wi-Fi',
-      'ATLAS Obsidian Reloadable Visa Card with 0% Foreign Transaction Fees',
+      'ATLAS Co-Branded Visa Card (Coming Soon)',
       '3x Travel Vault Dividend Multiplier'
     ]
   },
@@ -2330,15 +2330,15 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     wholesaleHotelDiscount: 'Up to 40% Off',
     perksIncluded: [
       'Maximum wholesale rates (1M+ properties)',
-      '4x Travel Vault Dividend Multiplier (Annual Cash Payout to Visa)',
+      '4x Travel Vault Dividend Multiplier (Annual Cash Payout)',
       'Curated Ultra-Luxury Villas & Private Chalets (45% Off)',
       'Wholesale cruise closed-loop pricing + $150 Onboard Credit',
       'Hilton Honors Diamond & Marriott Platinum Status Matches',
       'VIP Airport Fast-Track Immigration Escort Discounts ($85 flat rate)',
-      'Autonomous Post-Booking Price Drop Re-Booker (Cashback to Visa)',
+      'Autonomous Post-Booking Price Drop Re-Booker (Cashback)',
       'Supercar & Luxury Yacht Day Charters (Up to 45% Off)',
       'Private Jet Empty Leg Member Access (Up to 80% Off)',
-      'Co-Branded Rechargeable Visa Prepaid Card included',
+      'Co-Branded Visa Prepaid Card (Coming Soon)',
       'Proactive AI Concierge Itinerary Gap Alerts',
       'Physical holographic Photo ID card shipped free',
       'Family pass (Up to 4 sub-members)'
@@ -2363,7 +2363,7 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
       'Complimentary Supercar Track Day or Yacht Sunset Cruise',
       'Private Jet Empty Leg Whole Aircraft Charter Discounts',
       'Free 5GB Global Travel eSIM Data Pass every year',
-      'Heavy Titanium Physical Visa Prepaid Card included',
+      'Titanium Physical Visa Prepaid Card (Coming Soon)',
       'Dedicated Proactive AI Concierge + personal travel agent'
     ]
   }

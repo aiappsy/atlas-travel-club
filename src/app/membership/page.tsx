@@ -288,8 +288,8 @@ function MembershipContent() {
                   <label className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 cursor-pointer">
                     <input type="radio" name="payoutPref" className="text-emerald-600 focus:ring-emerald-500" />
                     <div>
-                      <div className="text-xs font-bold text-slate-900">ATLAS Obsidian Visa® Card</div>
-                      <div className="text-[10px] text-slate-500">Instant credit with 0% FX fees + 5% card swipe cashback</div>
+                      <div className="text-xs font-bold text-slate-900">ATLAS Obsidian Visa® Card <span className="text-[10px] text-amber-600 font-semibold">(Coming Soon)</span></div>
+                      <div className="text-[10px] text-slate-500">Auto-credit once physical card rollout commences (0% FX fees)</div>
                     </div>
                   </label>
                 </div>
@@ -561,7 +561,7 @@ function MembershipContent() {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              Annual Pass (Save 25% + Free Visa Card)
+              Annual Pass (Save 25% Best Value)
             </button>
             <button
               onClick={() => setBillingCycle('monthly')}

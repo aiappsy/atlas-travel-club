@@ -118,8 +118,8 @@ export default function Sidebar() {
                 name: 'ATLAS Visa® Card',
                 href: '/membership/visa-card',
                 icon: CreditCard,
-                badge: '0% FX',
-                badgeColor: 'bg-emerald-100 text-emerald-900',
+                badge: 'Coming Soon',
+                badgeColor: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
               },
             ]
           : []),

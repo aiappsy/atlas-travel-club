@@ -38,7 +38,7 @@ export default function Navbar() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
               </span>
               <span className="font-medium text-slate-300 text-[11px] sm:text-xs">
-                The Private Wholesale Travel & Banking Club: <strong className="text-amber-300">0% Retail Markup • Reloadable Visa® • Annual Profit Dividends</strong>
+                The Private Wholesale Travel Club: <strong className="text-amber-300">Raw Bedbank Rates • 0% Retail Markup • Co-Branded Visa® (Coming Soon)</strong>
               </span>
             </div>
 
@@ -83,7 +83,7 @@ export default function Navbar() {
                     </span>
                   </span>
                   <span className="text-[9px] text-slate-400 font-medium tracking-wide -mt-1 hidden sm:block">
-                    Private Wholesale Travel & Banking
+                    Private Wholesale Travel Club
                   </span>
                 </div>
               </Link>
@@ -178,6 +178,7 @@ export default function Navbar() {
                   >
                     <CreditCard className="w-3.5 h-3.5 text-amber-400" />
                     <span>Visa® Card</span>
+                    <span className="text-[9px] px-1 py-0.5 bg-amber-400/20 text-amber-300 rounded font-semibold">Soon</span>
                   </Link>
 
                   <Link

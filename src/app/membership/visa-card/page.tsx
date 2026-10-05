@@ -20,7 +20,8 @@ import {
   Coins,
   Scale,
   TrendingDown,
-  Gift
+  Gift,
+  Clock
 } from 'lucide-react';
 import Link from 'next/link';
 import AuthModal from '@/components/AuthModal';
@@ -104,11 +105,11 @@ export default function VisaCardPage() {
           </div>
           <div className="space-y-2">
             <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-400/30">
-              Sovereign Card Terminal
+              Coming Soon • Member Benefit
             </span>
             <h2 className="text-2xl font-black text-white">ATLAS Obsidian Visa® Wallet</h2>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Closed-loop reloadable Visa cards with automated price drop refunds and profit dividends are exclusively issued to active members.
+              The co-branded reloadable Visa card is coming soon for active members. Wholesale travel bookings and price-drop cash savings are fully live today.
             </p>
           </div>
           <button
@@ -186,6 +187,24 @@ export default function VisaCardPage() {
           <p className="text-slate-600 text-sm mt-1">
             Your card automatically receives <strong>post-booking price drop cash refunds</strong>, <strong>EU261 flight delay legal claims</strong>, and <strong>Annual Travel Vault Profit Dividends</strong>.
           </p>
+        </div>
+
+        {/* Coming Soon Notice */}
+        <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-400/50 text-slate-800 shadow-sm flex items-start sm:items-center gap-3.5">
+          <div className="p-2.5 bg-amber-400 text-slate-950 rounded-xl font-bold shrink-0 shadow-sm">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="font-extrabold text-sm text-amber-950 flex items-center gap-2">
+              <span>Co-Branded ATLAS Visa® Card — Coming Soon</span>
+              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
+                In Preparation
+              </span>
+            </div>
+            <div className="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
+              Card issuing and banking regulatory onboarding are currently in progress. Active VIP members will receive priority delivery once physical cards begin dispatching. All wholesale travel bookings, rate parity savings, and price-drop cash protections are 100% active today!
+            </div>
+          </div>
         </div>
 
         {/* Live Notification Banner */}

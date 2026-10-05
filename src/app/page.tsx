@@ -10,26 +10,18 @@ import LiveHotelSearch from '@/components/LiveHotelSearch';
 import SavingsCalculator from '@/components/SavingsCalculator';
 import AuthModal from '@/components/AuthModal';
 import {
-  Sparkles,
   ShieldCheck,
   Building2,
-  Castle,
-  Laptop,
-  Plane,
-  Ship,
-  Star,
   Check,
   ArrowRight,
-  TrendingDown,
-  Lock,
-  Globe,
-  Zap,
   CreditCard,
   MapPin,
   Compass,
   BookOpen,
   Download,
-  Award
+  ExternalLink,
+  Search,
+  Sparkles
 } from 'lucide-react';
 
 const MEMBER_POSTCARDS = [
@@ -39,14 +31,14 @@ const MEMBER_POSTCARDS = [
     hotel: 'The Ritz-Carlton, Kyoto',
     saved: '$1,840',
     quote: 'Booked 5 nights in Kyoto. Saved $1,840 compared to Booking.com. The concierge had Japanese green tea waiting in our suite.',
-    tier: 'Platinum Nomad'
+    tier: 'Platinum Elite'
   },
   {
     name: 'Elena & Marcus B.',
     location: 'London, UK',
     hotel: 'Faena Hotel Miami Beach',
     saved: '$1,420',
-    quote: 'We used the 0% FX Visa card across Miami and saved 3% on every meal, plus $350/night off our oceanfront suite.',
+    quote: 'Saved over $1,400 on our 4-night stay compared to Expedia. Verified the live retail price on my phone before confirming.',
     tier: 'Gold VIP'
   },
   {
@@ -54,7 +46,7 @@ const MEMBER_POSTCARDS = [
     location: 'Oslo, Norway',
     hotel: 'Villa D’Este, Lake Como',
     saved: '$2,350',
-    quote: 'Raw wholesale prices with no retail markups. 3 nights at Lake Como paid for our annual membership 10x over.',
+    quote: 'Raw wholesale prices with no retail markups. 3 nights at Lake Como paid for our annual membership ten times over.',
     tier: 'Gold VIP'
   }
 ];
@@ -63,13 +55,12 @@ export default function HomePage() {
   const { user, isMember } = useAuth();
   const { formatPrice } = useCurrency();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [editionType, setEditionType] = useState<'digital' | 'card'>('digital');
 
-  // Dynamic live hotel state for Hero Payback & Featured Hotels
+  // Dynamic live hotel state for Showcase Hotel Rates
   const [featuredHotels, setFeaturedHotels] = useState<ComparedHotel[]>([]);
 
   useEffect(() => {
-    fetch('/api/hotels/compare?destination=luxury%20hotels%20in%20Oslo')
+    fetch('/api/hotels/compare?destination=')
       .then((res) => res.json())
       .then((data) => {
         if (data.hotels && data.hotels.length > 0) {
@@ -82,132 +73,141 @@ export default function HomePage() {
   const sampleHotel = featuredHotels[0];
   const sampleHotelName = sampleHotel ? sampleHotel.name : 'Grand Hotel Oslo';
   const sampleStayNights = 3;
-  const samplePublicRate = sampleHotel ? sampleHotel.prices.lowestOta.perNight : 355;
-  const sampleMemberRate = sampleHotel ? sampleHotel.prices.atlasWholesale.perNight : 231;
+  const samplePublicRate = sampleHotel ? sampleHotel.prices.lowestOta.perNight : 369;
+  const sampleMemberRate = sampleHotel ? sampleHotel.prices.atlasWholesale.perNight : 236;
   const sampleSavingsPerNight = samplePublicRate - sampleMemberRate;
   const sampleStaySavings = sampleSavingsPerNight * sampleStayNights;
-  const sampleNetProfit = sampleStaySavings - GOLD_VIP_ANNUAL_FEE;
-  const sampleRoiPercent = Math.round((sampleStaySavings / GOLD_VIP_ANNUAL_FEE) * 100);
-
-  const avgSavingsPct = featuredHotels.length > 0
-    ? Math.round(
-        featuredHotels.reduce((acc, h) => acc + h.prices.atlasWholesale.savingsPercent, 0) /
-          featuredHotels.length
-      )
-    : 35;
-  const minSavings3Nts = featuredHotels.length > 0
-    ? Math.min(...featuredHotels.map((h) => h.prices.atlasWholesale.totalSavings))
-    : 372;
-  const maxSavings3Nts = featuredHotels.length > 0
-    ? Math.max(...featuredHotels.map((h) => h.prices.atlasWholesale.totalSavings))
-    : 1866;
+  const sampleDiscountPct = Math.round((sampleSavingsPerNight / (samplePublicRate || 1)) * 100);
 
   return (
     <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
-      {/* 1. High-Impact Luxury Hero Section */}
-      <section className="relative pt-12 pb-24 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800 shadow-2xl">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
+      {/* 1. Simplified, High-Impact Luxury Hero Section */}
+      <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800 shadow-2xl">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-7">
           {/* Top Pill Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30 shadow-sm">
-            <Compass className="w-4 h-4 text-amber-400 animate-spin-slow" />
-            <span>The Private Wholesale Travel & Sovereign Banking Club</span>
+            <Compass className="w-4 h-4 text-amber-400" />
+            <span>Private Wholesale Travel Club • Closed-Loop Member Rates</span>
           </div>
 
-          {/* Live Wholesale Savings Ticker Banner */}
-          <div className="max-w-4xl mx-auto bg-slate-950/80 backdrop-blur-md rounded-2xl p-2.5 sm:px-4 sm:py-2 border border-emerald-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+          {/* Clean, Bold Hero Headline */}
+          <div className="space-y-4 max-w-4xl mx-auto">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
+              Travel at Raw Wholesale. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
+                Real, Verified Savings.
+              </span>
+            </h1>
+
+            <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
+              Mainstream booking sites add a 20%–45% retail ad markup. <strong>ATLAS</strong> gives private members direct access to confidential B2B Bedbank wholesale allotments with <strong>0% retail markup</strong>. Compare any hotel and verify the price difference with 1-click.
+            </p>
+          </div>
+
+          {/* Streamlined Live Verification Ticker */}
+          <div className="max-w-3xl mx-auto bg-slate-950/80 backdrop-blur-md rounded-2xl p-2.5 sm:px-4 sm:py-2 border border-emerald-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2 shrink-0">
               <span className="flex h-2.5 w-2.5 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Member Booking:</span>
+              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Verification:</span>
             </div>
             <div className="text-slate-300 text-xs truncate text-center sm:text-left flex-1">
-              <span className="font-bold text-white">{sampleHotelName}</span> • Public: <span className="line-through text-rose-400">{formatPrice(samplePublicRate)}/nt</span> ➔ ATLAS: <span className="text-emerald-400 font-bold">{formatPrice(sampleMemberRate)}/nt</span> • <strong className="text-amber-300 font-black">Member Saved {formatPrice(sampleStaySavings)} on {sampleStayNights} nights ({Math.round((sampleSavingsPerNight / (samplePublicRate || 1)) * 100)}% OFF)</strong>
+              <span className="font-bold text-white">{sampleHotelName}</span> • Public Retail: <span className="line-through text-rose-400">{formatPrice(samplePublicRate)}/nt</span> ➔ Wholesale: <span className="text-emerald-400 font-bold">{formatPrice(sampleMemberRate)}/nt</span>
             </div>
-            <span className="hidden md:inline-flex px-2 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/40 text-[10px] font-bold text-emerald-300 shrink-0">
-              ⚡ Recouped {sampleRoiPercent}% of {GOLD_VIP_TIER.name}
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/40 text-[11px] font-black text-emerald-300 shrink-0">
+              Saves {formatPrice(sampleStaySavings)} on 3 Nts ({sampleDiscountPct}% Off)
             </span>
-          </div>
-
-          {/* Large Hero Title */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight max-w-5xl mx-auto">
-            Travel at Raw Wholesale. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
-              0% Retail Markup.
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
-            Public booking portals add a 20%–45% retail ad markup. <strong>ATLAS</strong> lets you compare real-time prices across <strong>Expedia, Hotels.com, Agoda & Kayak</strong> against confidential B2B Bedbank clearing rates.
-          </p>
-
-          {/* Instant 1-Stay Payback Math Guarantee Banner */}
-          <div className="max-w-5xl mx-auto p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-500/15 via-emerald-500/15 to-sky-500/15 border border-amber-400/40 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-left">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-black flex items-center justify-center shrink-0 shadow-lg text-xl">
-                💡
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black uppercase tracking-wider text-amber-300">The 1-Booking Payback Guarantee</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300 text-[10px] font-extrabold">Recoups 100%+ Day 1</span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-200 font-medium mt-0.5 leading-relaxed">
-                  A single {sampleStayNights}-night stay at {sampleHotelName} saves <strong className="text-emerald-400 font-bold">{formatPrice(sampleStaySavings)}</strong> — completely paying off your annual {GOLD_VIP_TIER.name} membership ({formatPrice(GOLD_VIP_ANNUAL_FEE)}) + putting <strong className="text-amber-300 font-bold">+{formatPrice(sampleNetProfit)} pure cash profit</strong> in your pocket on Day 1 ({sampleRoiPercent}% immediate ROI).
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 shrink-0 text-center md:text-right border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-5">
-              <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Member Savings</div>
-                <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">{avgSavingsPct}% OFF</div>
-              </div>
-              <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
-              <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Avg. Cash Saved</div>
-                <div className="text-xl sm:text-2xl font-black text-amber-300 font-mono">{formatPrice(minSavings3Nts)}–{formatPrice(maxSavings3Nts)}</div>
-              </div>
-            </div>
           </div>
 
           {/* Standard Live Travel Search & Real Multi-OTA Price Checker */}
           <div className="pt-2 text-left max-w-5xl mx-auto">
-            <LiveHotelSearch initialDestination="Las Vegas" />
+            <LiveHotelSearch initialDestination="Oslo" />
           </div>
 
-          {/* 3 Core Value Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-5xl mx-auto pt-6 text-left">
+          {/* 3 Core Value Pillars (Uncluttered, Trust-Oriented) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-5xl mx-auto pt-4 text-left">
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
               <div className="text-amber-400 font-black text-sm flex items-center gap-1.5">
-                <Building2 className="w-4 h-4" /> 1,000,000+ Hotels & Villas
+                <Building2 className="w-4 h-4" /> 1,000,000+ Wholesale Stays
               </div>
-              <p className="text-xs text-slate-300 mt-1">Direct XML/REST Bedbank pipelines at 20% to 45% off retail.</p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <div className="text-emerald-400 font-black text-sm flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4" /> 0% FX Fees Visa® Card
-              </div>
-              <p className="text-xs text-slate-300 mt-1">Auto-deposited price-drop refunds and $650 delay payouts.</p>
+              <p className="text-xs text-slate-300 mt-1">Direct B2B bedbank clearing rates saving 28% to 42% on luxury 5-star properties.</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
               <div className="text-sky-400 font-black text-sm flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" /> Live Savings Proof Engine
+                <ShieldCheck className="w-4 h-4" /> 1-Click Live OTA Proof
               </div>
-              <p className="text-xs text-slate-300 mt-1">Side-by-side Expedia rate audits certified with live timestamps.</p>
+              <p className="text-xs text-slate-300 mt-1">Direct links to Expedia, Booking.com &amp; Agoda to verify the retail rate yourself.</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+              <div className="text-emerald-400 font-black text-sm flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4" /> Co-Branded Visa® Card
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase font-black">Coming Soon</span>
+              </div>
+              <p className="text-xs text-slate-300 mt-1">Future member benefit with 0% FX fees and automated price-drop refunds.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Featured Wholesale Deals Grid */}
+      {/* 2. How the System Works in 3 Clear Steps (Builds Conviction & Trust) */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-10">
+          <div className="text-center max-w-xl mx-auto space-y-2">
+            <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
+              Transparent Travel Arbitrage
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+              How the System Works in 3 Steps
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              No hidden gimmicks. Built on closed-loop B2B distribution exemptions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-black text-base flex items-center justify-center">
+                1
+              </div>
+              <h3 className="font-black text-base text-slate-900">Search Any Property</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Search our 16 curated luxury destinations or any city worldwide, or paste any live Expedia or Booking.com URL directly into the search bar.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 font-black text-base flex items-center justify-center">
+                2
+              </div>
+              <h3 className="font-black text-base text-slate-900">Verify Against Live OTAs</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Click direct links to Booking.com, Expedia, and Hotels.com to verify public retail prices for the identical dates with your own eyes.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-black text-base flex items-center justify-center">
+                3
+              </div>
+              <h3 className="font-black text-base text-slate-900">Book at Raw Wholesale</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Members unlock confidential bedbank allotments with 0% retail markup, saving hundreds to thousands on every single trip.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Featured Wholesale Deals Grid (Clean, Luxury Showcase) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-2">
           <div>
             <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              Curated Escapes
+              Curated Portfolio
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
               Featured Wholesale Member Rates
@@ -217,7 +217,7 @@ export default function HomePage() {
             href="/hotels"
             className="inline-flex items-center gap-1 text-sm font-bold text-sky-600 hover:text-sky-700"
           >
-            <span>Explore All 1,000,000+ Properties</span>
+            <span>Explore All Properties</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -226,10 +226,8 @@ export default function HomePage() {
           {featuredHotels.slice(0, 4).map((hotel) => {
             const publicRate = hotel.prices.lowestOta.perNight;
             const memberRate = hotel.prices.atlasWholesale.perNight;
-            const savingsPerNight = hotel.prices.atlasWholesale.instantSavingsPerNight;
             const savingsPercent = hotel.prices.atlasWholesale.savingsPercent;
             const savings3Nights = hotel.prices.atlasWholesale.totalSavings;
-            const paybackPercent = Math.round((savings3Nights / GOLD_VIP_ANNUAL_FEE) * 100);
 
             return (
               <div
@@ -260,13 +258,9 @@ export default function HomePage() {
                       {hotel.name}
                     </h3>
 
-                    {/* Prominent Savings Callout Pill */}
                     <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2 text-center">
                       <div className="text-xs font-black text-emerald-800">
-                        You Pocket: +{formatPrice(savings3Nights)} on 3 Nts
-                      </div>
-                      <div className="text-[10px] font-bold text-emerald-600">
-                        ⚡ Covers {paybackPercent}% of Annual {GOLD_VIP_TIER.name}
+                        Saves {formatPrice(savings3Nights)} on 3 Nights
                       </div>
                     </div>
                   </div>
@@ -296,62 +290,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. How ATLAS Works (3 Clean Steps) */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              The Sovereign Process
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              How ATLAS Works in 3 Simple Steps
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-black text-base flex items-center justify-center">
-                1
-              </div>
-              <h3 className="font-black text-base text-slate-900">Search Confidential Wholesale</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Enter any destination to unlock confidential B2B Bedbank wholesale inventory with 0% retail markup (saving 20%–45% instantly).
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 font-black text-base flex items-center justify-center">
-                2
-              </div>
-              <h3 className="font-black text-base text-slate-900">Travel with 360° VIP Privileges</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Enjoy airport fast-track customs, VIP lounge access ($32), instant Hilton Diamond status matches, and auto-refilled 5G eSIM data.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-black text-base flex items-center justify-center">
-                3
-              </div>
-              <h3 className="font-black text-base text-slate-900">Earn Cash While You Sleep</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Our 24/7 Pruvo Sentinel auto-refunds price drops, AirHelp recovers $650 delay claims, and the club distributes annual profit dividends to your Visa card.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* 4. Interactive Savings Calculator */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        <div className="text-center max-w-xl mx-auto space-y-2">
+          <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
+            Savings Projection
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+            Calculate Your Annual Travel Savings
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500">
+            A single 3-night stay typically saves more than an entire year of membership.
+          </p>
+        </div>
         <SavingsCalculator />
       </section>
 
-      {/* 5. Real Member Testimonials */}
+      {/* 5. Real Member Testimonials (Proof of Real Experience) */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-xl mx-auto space-y-2">
           <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Real Proof
+            Verified Experiences
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
             What Members Saved This Month
@@ -389,50 +348,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. Membership Plans (Digital Pass vs Cardholder Edition) */}
+      {/* 6. Transparent Membership Plans */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Flexible Membership Options
+            Clear, Transparent Tiers
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
             Choose Your Travel Access Plan
           </h2>
           <p className="text-xs sm:text-sm text-slate-600">
-            Every plan unlocks 100% of our raw wholesale hotel, villa, and cruise inventory. Choose whether you want a pure digital pass or the optional physical Visa® card.
+            Every paid plan unlocks confidential wholesale hotel, villa, and cruise inventory with 0% retail markup.
           </p>
-
-          {/* Interactive Edition Switcher */}
-          <div className="inline-flex p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm mt-2">
-            <button
-              type="button"
-              onClick={() => setEditionType('digital')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                editionType === 'digital'
-                  ? 'bg-slate-900 text-white shadow-md font-black'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <span>📱 Digital Pass (Pay with Any Card / PayPal)</span>
-              <span className="text-[10px] font-bold text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded-full">
-                $0 Card Fee
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditionType('card')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                editionType === 'card'
-                  ? 'bg-slate-900 text-amber-300 shadow-md font-black'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <span>💳 Cardholder Edition (With ATLAS Visa®)</span>
-              <span className="text-[10px] font-bold text-amber-400 bg-slate-800 px-1.5 py-0.5 rounded-full">
-                0% FX Fees
-              </span>
-            </button>
-          </div>
         </div>
 
         {/* Dynamic Tier Cards */}
@@ -448,7 +375,7 @@ export default function HomePage() {
             >
               {tier.isPopular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow">
-                  Most Popular Pass
+                  Most Popular
                 </div>
               )}
 
@@ -462,22 +389,13 @@ export default function HomePage() {
                   Save {tier.wholesaleHotelDiscount}
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-slate-200/30 space-y-2 text-xs">
-                  {tier.perksIncluded.slice(0, 4).map((p, i) => (
+                <div className="mt-5 pt-4 border-t border-slate-200/30 space-y-2.5 text-xs">
+                  {tier.perksIncluded.slice(0, 5).map((p, i) => (
                     <div key={i} className="flex items-start gap-2">
                       <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                       <span className="opacity-90">{p}</span>
                     </div>
                   ))}
-
-                  <div className="flex items-start gap-2 pt-1 border-t border-slate-200/20 text-xs font-semibold text-emerald-400">
-                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                    <span>
-                      {editionType === 'digital'
-                        ? 'Refunds & claims sent to your existing credit card/PayPal'
-                        : 'Includes Physical Laser-Engraved Titanium Visa® Card'}
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -505,13 +423,13 @@ export default function HomePage() {
           <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30">
               <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-              Economic Research & Case Study
+              Economic Research &amp; Legal Framework
             </div>
             <h3 className="text-2xl sm:text-3xl font-black">
-              Unmasking Rate Parity: The Invisible Hand of Travel Pricing
+              Unmasking Rate Parity: How Closed-Loop Arbitrage Works
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Read our full 6-chapter deep dive into the $1.2 Trillion OTA cartel, the 2015 French Loi Macron parity ban, and the mathematical proof of closed-loop wholesale arbitrage.
+              Read our full research paper on the $1.2 Trillion OTA cartel, the French Loi Macron parity deregulation, and why closed-loop private member clubs are legally exempt from retail price matching.
             </p>
           </div>
 
