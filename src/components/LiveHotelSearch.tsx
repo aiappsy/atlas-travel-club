@@ -53,8 +53,14 @@ export default function LiveHotelSearch({
     formatHotelPrice(amt, hotelCurrency || currency, options);
   const { isMember } = useAuth();
   const [destination, setDestination] = useState(initialDestination);
-  const [checkIn, setCheckIn] = useState('2026-10-15');
-  const [checkOut, setCheckOut] = useState('2026-10-18');
+  const [checkIn, setCheckIn] = useState(() => {
+    const d1 = new Date(Date.now() + 14 * 86400000);
+    return d1.toISOString().split('T')[0];
+  });
+  const [checkOut, setCheckOut] = useState(() => {
+    const d2 = new Date(Date.now() + 17 * 86400000);
+    return d2.toISOString().split('T')[0];
+  });
   const checkInRef = useRef<HTMLInputElement>(null);
   const checkOutRef = useRef<HTMLInputElement>(null);
   const [guestConfig, setGuestConfig] = useState<GuestRoomConfig>({

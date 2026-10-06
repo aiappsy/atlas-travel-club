@@ -40,8 +40,14 @@ export default function HeroSearch() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('hotels');
   const [city, setCity] = useState('');
-  const [checkIn, setCheckIn] = useState('2026-09-15');
-  const [checkOut, setCheckOut] = useState('2026-09-18');
+  const [checkIn, setCheckIn] = useState(() => {
+    const d1 = new Date(Date.now() + 14 * 86400000);
+    return d1.toISOString().split('T')[0];
+  });
+  const [checkOut, setCheckOut] = useState(() => {
+    const d2 = new Date(Date.now() + 17 * 86400000);
+    return d2.toISOString().split('T')[0];
+  });
   const [guestConfig, setGuestConfig] = useState<GuestRoomConfig>({
     rooms: 1,
     adults: 2,
