@@ -98,7 +98,7 @@ export class HotelbedsProvider {
     }
   ): Promise<ProviderHotelRate[]> {
     if (!this.apiKey || !this.secret) {
-      return this.getMockFallbackRates(destination);
+      return [];
     }
 
     try {
@@ -172,7 +172,7 @@ export class HotelbedsProvider {
 
       if (!res.ok) {
         console.warn(`[Hotelbeds APItude] Search returned HTTP ${res.status}`);
-        return this.getMockFallbackRates(destination);
+        return [];
       }
 
       const data = await res.json();
@@ -210,13 +210,10 @@ export class HotelbedsProvider {
         }
       }
 
-      if (results.length > 0) {
-        return results;
-      }
-      return this.getMockFallbackRates(destination);
+      return results;
     } catch (err) {
       console.error('[Hotelbeds APItude] Search error:', err);
-      return this.getMockFallbackRates(destination);
+      return [];
     }
   }
 
@@ -326,24 +323,6 @@ export class HotelbedsProvider {
       status: 'confirmed',
       timestamp: new Date().toISOString(),
     };
-  }
-
-  private getMockFallbackRates(destination: string): ProviderHotelRate[] {
-    return [
-      {
-        provider: 'hotelbeds',
-        providerHotelId: 'HB-766',
-        hotelName: `${destination} Luxury Palace & Spa`,
-        roomType: 'Junior Suite - Sea View (Bed & Breakfast)',
-        currency: 'EUR',
-        rawWholesaleNetPrice: 173,
-        publicRetailPrice: 280,
-        affiliateCommissionRate: 0.15,
-        availableRooms: 8,
-        cancellationPolicy: '100% Refundable until 48h prior to arrival',
-        rateKey: '20261115|20261118|W|1|766|JSU.VM|CG-BAR BB PVP|BB||1~2~0||N@07~~HB-ALLOTMENT',
-      }
-    ];
   }
 }
 
