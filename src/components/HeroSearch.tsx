@@ -20,9 +20,10 @@ import GuestRoomPicker, { GuestRoomConfig } from '@/components/GuestRoomPicker';
 
 const TRAVEL_CATEGORIES = [
   { id: 'hotels', label: 'Hotels', icon: Building2, path: '/hotels', saveText: '20%–45% Off' },
+  { id: 'flights', label: 'Flights', icon: Plane, path: '/flights', saveText: '0% Markup' },
   { id: 'villas', label: 'Villas & Chalets', icon: Castle, path: '/villas', saveText: 'French Chef' },
   { id: 'nomads', label: 'Nomad Coliving', icon: Laptop, path: '/nomads', saveText: '1Gbps Wi-Fi' },
-  { id: 'jets', label: 'Private Jets', icon: Plane, path: '/private-jets', saveText: 'Empty Legs' },
+  { id: 'jets', label: 'Private Jets', icon: Sparkles, path: '/private-jets', saveText: 'Empty Legs' },
   { id: 'cruises', label: 'Cruises', icon: Ship, path: '/cruises', saveText: '+$250 Credit' },
 ];
 

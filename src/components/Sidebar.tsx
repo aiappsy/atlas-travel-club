@@ -52,6 +52,13 @@ export default function Sidebar() {
                 badge: '1M+ Properties',
                 badgeColor: 'bg-amber-100 text-amber-900',
               },
+              {
+                name: 'Commercial Flights',
+                href: '/flights',
+                icon: Plane,
+                badge: '0% Markup',
+                badgeColor: 'bg-emerald-100 text-emerald-900',
+              },
             ]
           : []),
         ...(features.enableLuxuryVillas
