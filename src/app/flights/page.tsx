@@ -168,30 +168,65 @@ const SAMPLE_FLIGHT_ROUTES: FlightOffer[] = [
 
 export default function FlightsPage() {
   const { formatPrice, currency } = useCurrency();
-  const [selectedCabin, setSelectedCabin] = useState<string>('All');
-  const [originSearch, setOriginSearch] = useState('');
-  const [destSearch, setDestSearch] = useState('');
+  const [selectedCabin, setSelectedCabin] = useState<string>('Business');
+  const [originSearch, setOriginSearch] = useState('LHR');
+  const [destSearch, setDestSearch] = useState('JFK');
+  const [departureDate, setDepartureDate] = useState(() => {
+    const d = new Date(Date.now() + 14 * 86400000);
+    return d.toISOString().split('T')[0];
+  });
+  const [liveOffers, setLiveOffers] = useState<FlightOffer[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [activeModalFlight, setActiveModalFlight] = useState<FlightOffer | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  const filteredFlights = SAMPLE_FLIGHT_ROUTES.filter((f) => {
-    if (selectedCabin !== 'All' && f.cabinClass !== selectedCabin) return false;
-    if (
-      originSearch &&
-      !f.departureCity.toLowerCase().includes(originSearch.toLowerCase()) &&
-      !f.departureAirport.toLowerCase().includes(originSearch.toLowerCase())
-    ) {
-      return false;
+  const performLiveSearch = async (orig = originSearch, dest = destSearch, cabin = selectedCabin, date = departureDate) => {
+    setIsSearching(true);
+    setHasSearched(true);
+    try {
+      const cabinParam = cabin === 'All' ? 'business' : cabin.toLowerCase().replace(' ', '_');
+      const res = await fetch(
+        `/api/flights/search?origin=${encodeURIComponent(orig || 'LHR')}&destination=${encodeURIComponent(dest || 'JFK')}&departureDate=${date}&cabinClass=${cabinParam}`
+      );
+      const data = await res.json();
+      if (data.success && data.flights && data.flights.length > 0) {
+        setLiveOffers(data.flights);
+      } else {
+        setLiveOffers([]);
+      }
+    } catch (err) {
+      console.error('Failed to search flights:', err);
+    } finally {
+      setIsSearching(false);
     }
-    if (
-      destSearch &&
-      !f.arrivalCity.toLowerCase().includes(destSearch.toLowerCase()) &&
-      !f.arrivalAirport.toLowerCase().includes(destSearch.toLowerCase())
-    ) {
-      return false;
-    }
-    return true;
-  });
+  };
+
+  // Perform initial search on mount
+  React.useEffect(() => {
+    performLiveSearch('LHR', 'JFK', 'Business');
+  }, []);
+
+  const displayedFlights = liveOffers.length > 0
+    ? liveOffers
+    : SAMPLE_FLIGHT_ROUTES.filter((f) => {
+        if (selectedCabin !== 'All' && f.cabinClass !== selectedCabin) return false;
+        if (
+          originSearch &&
+          !f.departureCity.toLowerCase().includes(originSearch.toLowerCase()) &&
+          !f.departureAirport.toLowerCase().includes(originSearch.toLowerCase())
+        ) {
+          return false;
+        }
+        if (
+          destSearch &&
+          !f.arrivalCity.toLowerCase().includes(destSearch.toLowerCase()) &&
+          !f.arrivalAirport.toLowerCase().includes(destSearch.toLowerCase())
+        ) {
+          return false;
+        }
+        return true;
+      });
 
   return (
     <div className="bg-slate-950 min-h-screen text-slate-100 font-sans pb-24">
@@ -244,13 +279,13 @@ export default function FlightsPage() {
         <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             {/* Origin */}
-            <div className="md:col-span-4 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
+            <div className="md:col-span-3 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
               <MapPin className="w-5 h-5 text-amber-400 shrink-0" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">From (City or Code)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">From (IATA / City)</label>
                 <input
                   type="text"
-                  placeholder="Singapore, London, New York..."
+                  placeholder="LHR, JFK, SIN, OSL..."
                   value={originSearch}
                   onChange={(e) => setOriginSearch(e.target.value)}
                   className="bg-transparent text-sm text-white font-bold w-full outline-none placeholder:text-slate-600"
@@ -259,13 +294,13 @@ export default function FlightsPage() {
             </div>
 
             {/* Destination */}
-            <div className="md:col-span-4 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
+            <div className="md:col-span-3 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
               <Plane className="w-5 h-5 text-sky-400 shrink-0 rotate-90" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">To (City or Code)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">To (IATA / City)</label>
                 <input
                   type="text"
-                  placeholder="Tokyo, London, Sydney..."
+                  placeholder="JFK, HND, DXB, SYD..."
                   value={destSearch}
                   onChange={(e) => setDestSearch(e.target.value)}
                   className="bg-transparent text-sm text-white font-bold w-full outline-none placeholder:text-slate-600"
@@ -273,36 +308,77 @@ export default function FlightsPage() {
               </div>
             </div>
 
-            {/* Cabin Filter */}
-            <div className="md:col-span-4 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
-              <SlidersHorizontal className="w-5 h-5 text-emerald-400 shrink-0" />
+            {/* Departure Date */}
+            <div className="md:col-span-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cabin Class</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Depart</label>
+                <input
+                  type="date"
+                  value={departureDate}
+                  onChange={(e) => setDepartureDate(e.target.value)}
+                  className="bg-transparent text-xs text-white font-bold w-full outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Cabin Filter */}
+            <div className="md:col-span-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cabin</label>
                 <select
                   value={selectedCabin}
                   onChange={(e) => setSelectedCabin(e.target.value)}
-                  className="bg-slate-950 text-sm text-white font-bold w-full outline-none cursor-pointer"
+                  className="bg-slate-950 text-xs text-white font-bold w-full outline-none cursor-pointer"
                 >
-                  <option value="All">All Cabins</option>
                   <option value="Economy">Economy</option>
-                  <option value="Premium Economy">Premium Economy</option>
-                  <option value="Business">👑 Business Class</option>
-                  <option value="First">💎 First Class</option>
+                  <option value="Premium Economy">Prem. Econ</option>
+                  <option value="Business">👑 Business</option>
+                  <option value="First">💎 First</option>
                 </select>
               </div>
+            </div>
+
+            {/* Search Button */}
+            <div className="md:col-span-2 flex items-center">
+              <button
+                type="button"
+                onClick={() => performLiveSearch(originSearch, destSearch, selectedCabin, departureDate)}
+                disabled={isSearching}
+                className="w-full h-full py-3.5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+              >
+                {isSearching ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>Searching...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Search Live</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
 
         {/* Flight Cards Feed */}
         <div className="mt-8 space-y-4">
-          <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-            <span>Showing {filteredFlights.length} Direct & Global GDS/NDC Routes</span>
-            <span className="font-mono text-emerald-400">0% Retail Markup Enforced</span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 px-1 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-bold text-slate-200">
+                {liveOffers.length > 0 ? 'Live Duffel NDC/GDS Flight Inventory' : 'Curated Verified Global Routes'}
+              </span>
+              <span>• {displayedFlights.length} Offers Available</span>
+            </div>
+            <span className="font-mono text-emerald-400">0% Retail Markup • Net Clearing Rate</span>
           </div>
 
           <div className="space-y-4">
-            {filteredFlights.map((flight) => {
+            {displayedFlights.map((flight) => {
               const clearing = calculateFlightClearingSummary(flight.baseNetFare, flight.airportTaxes, 'card_pass_through');
               return (
                 <div
