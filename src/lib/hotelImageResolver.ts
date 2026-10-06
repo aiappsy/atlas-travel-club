@@ -8,9 +8,10 @@ export const EXACT_HOTEL_PHOTOS: Record<string, string> = {
   // OSLO
   'grand-hotel-oslo': '/images/hotels/grand-hotel-oslo.jpg',
   'clarion-hotel-the-hub-oslo': '/images/hotels/clarion-hotel-the-hub-oslo.jpg',
-  'the-thief-oslo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/The_Thief_hotel_Tjuvholmen_Oslo.jpg/1200px-The_Thief_hotel_Tjuvholmen_Oslo.jpg',
-  'radisson-blu-plaza-oslo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Radisson_SAS_Plaza_Hotel_Oslo_01.jpg/1200px-Radisson_SAS_Plaza_Hotel_Oslo_01.jpg',
-  'hotel-continental-oslo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Hotel_Continental_Oslo.jpg/1200px-Hotel_Continental_Oslo.jpg',
+  'the-thief-oslo': '/images/hotels/the-thief-oslo.jpg',
+  'radisson-blu-plaza-oslo': '/images/hotels/radisson-blu-plaza-oslo.jpg',
+  'radisson-blu-plaza-hotel-oslo': '/images/hotels/radisson-blu-plaza-oslo.jpg',
+  'hotel-continental-oslo': '/images/hotels/hotel-continental-oslo.jpg',
 
   // LAS VEGAS
   'bellagio-las-vegas': '/images/hotels/bellagio-las-vegas.jpg',

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { CURRENCY_TO_GOOGLE_LOCALE, buildGoogleHotelsDirectUrl } from '@/lib/googleTravel';
 import { hotelbedsProvider } from '@/lib/providers/hotelbeds';
+import { EXACT_HOTEL_PHOTOS } from '@/lib/hotelImageResolver';
 
 // Map of normalised hotel name → live Hotelbeds wholesale rate per night (in search currency)
 type HotelbedsRateMap = Map<string, { ratePerNight: number; currency: string; rateKey: string; roomType: string }>;
@@ -273,11 +274,12 @@ function getCountryCode(country: string = '', city: string = ''): string {
 
 function slugifyHotel(name: string): string {
   return name
+    .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[®™]/g, '')
     .replace(/\s*\([^)]*\)/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
 
@@ -753,6 +755,15 @@ function mapSerpApiPropertyToHotel(
       if (realImages.length >= 8) break;
     }
   }
+  // Prioritize verified authentic property photo if in curated catalog
+  const normSlug = slugifyHotel(name).toLowerCase();
+  for (const [k, url] of Object.entries(EXACT_HOTEL_PHOTOS)) {
+    if (k === normSlug || normSlug.includes(k) || k.includes(normSlug)) {
+      if (!realImages.includes(url)) realImages.unshift(url);
+      break;
+    }
+  }
+
   if (realImages.length === 0) {
     realImages.push('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80');
     realImages.push('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');
@@ -1253,6 +1264,51 @@ const CURATED_DESTINATION_HOTELS: Record<string, Array<{
       expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Grand-Hotel.h10372.Hotel-Information',
       hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Grand-Hotel.h10372.Hotel-Information',
       agodaUrl: 'https://www.agoda.com/grand-hotel-oslo/hotel/oslo-no.html'
+    },
+    {
+      name: 'Radisson Blu Plaza Hotel, Oslo',
+      stars: 4,
+      basePrice: 210,
+      image: '/images/hotels/radisson-blu-plaza-oslo.jpg',
+      gallery: [
+        '/images/hotels/radisson-blu-plaza-oslo.jpg',
+        '/images/hotels/clarion-hotel-the-hub-oslo.jpg'
+      ],
+      roomType: 'Panoramic Tower King Room',
+      address: 'Sonja Henies plass 3, 0185 Oslo, Norway',
+      expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Radisson-Blu-Plaza-Hotel-Oslo.h12536.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Radisson-Blu-Plaza-Hotel-Oslo.h12536.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/radisson-blu-plaza-hotel-oslo/hotel/oslo-no.html'
+    },
+    {
+      name: 'The Thief',
+      stars: 5,
+      basePrice: 420,
+      image: '/images/hotels/the-thief-oslo.jpg',
+      gallery: [
+        '/images/hotels/the-thief-oslo.jpg',
+        '/images/hotels/grand-hotel-oslo-suite.jpg'
+      ],
+      roomType: 'Deluxe Fjord View King Room',
+      address: 'Landgangen 1, 0252 Oslo, Norway',
+      expediaUrl: 'https://www.expedia.com/Oslo-Hotels-The-Thief.h5330368.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-The-Thief.h5330368.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/the-thief/hotel/oslo-no.html'
+    },
+    {
+      name: 'Hotel Continental, Oslo',
+      stars: 5,
+      basePrice: 360,
+      image: '/images/hotels/hotel-continental-oslo.jpg',
+      gallery: [
+        '/images/hotels/hotel-continental-oslo.jpg',
+        '/images/hotels/grand-hotel-oslo-exterior-2.jpg'
+      ],
+      roomType: 'Continental Deluxe King Room',
+      address: 'Stortingsgata 24-26, 0117 Oslo, Norway',
+      expediaUrl: 'https://www.expedia.com/Oslo-Hotels-Hotel-Continental.h11854.Hotel-Information',
+      hotelsComUrl: 'https://www.hotels.com/Oslo-Hotels-Hotel-Continental.h11854.Hotel-Information',
+      agodaUrl: 'https://www.agoda.com/hotel-continental/hotel/oslo-no.html'
     },
     {
       name: 'Clarion Hotel The Hub',
@@ -1855,8 +1911,12 @@ function buildFallbackHotel(
   if (seed.name.toLowerCase().includes('fairmont the palm')) {
     baseUsd = 316; // Verified Booking.com live rate ($950 for 3 nights = $316.66/night all-inclusive)
   }
-  if (seed.name.toLowerCase().includes('the plaza') || seed.name.toLowerCase().includes('plaza hotel')) {
-    baseUsd = 1950; // Authentic luxury landmark rate (~$2,040 Booking.com live benchmark)
+  const lowerSeedName = seed.name.toLowerCase();
+  const lowerSeedCity = (seed.city || '').toLowerCase();
+  const isThePlazaNyc = (lowerSeedName.includes('the plaza') || lowerSeedName === 'plaza hotel') &&
+    (lowerSeedCity.includes('new york') || lowerSeedCity.includes('nyc') || lowerSeedCity.includes('manhattan') || lowerSeedName.includes('new york'));
+  if (isThePlazaNyc) {
+    baseUsd = 1950; // Authentic luxury landmark rate (~$2,040 Booking.com live benchmark for The Plaza NYC)
   }
   const targetRate = CURRENCY_RATES_TO_USD[upperCurr] || 1.0;
   const baseRetailRate = Math.round(baseUsd * targetRate);
@@ -1919,11 +1979,23 @@ function buildFallbackHotel(
     transactionFeeDisclaimer,
   };
 
-  const mainImage = seed.image || '/images/hotels/grand-hotel-oslo.jpg';
+  let resolvedMainImage = seed.image;
+  if (!resolvedMainImage) {
+    const slugCandidate = slugifyHotel(seed.name).toLowerCase();
+    const citySlug = (seed.city || '').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const keyCombined = `${slugCandidate}-${citySlug}`;
+    for (const [k, url] of Object.entries(EXACT_HOTEL_PHOTOS)) {
+      if (k === keyCombined || k === slugCandidate || keyCombined.includes(k) || k.includes(slugCandidate)) {
+        resolvedMainImage = url;
+        break;
+      }
+    }
+  }
+  const mainImage = resolvedMainImage || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
   const gallery = seed.gallery && seed.gallery.length >= 2 ? seed.gallery : [
     mainImage,
-    '/images/hotels/the-plaza-new-york.jpg',
-    '/images/hotels/bellagio-las-vegas.jpg',
+    'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
   ];
 
   const category = starRating >= 5 ? 'ultra-luxury' : 'upscale-boutique';
@@ -2597,6 +2669,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ hotel: cachedMatch });
     }
 
+    // Check curated portfolio first for exact verified metadata and photos
+    const curatedHotel = await generateSingleHotelFallback(hotelId, nights, checkIn, checkOut, currency, guestOptions);
+    if (curatedHotel) {
+      return NextResponse.json({ hotel: curatedHotel });
+    }
+
     // Dynamic live lookup via Google Hotels / zero-cost fallback
     const liveLookup = await fetchSerpApiHotels(cleanId, nights, checkIn, checkOut, currency, guestOptions);
     if (liveLookup && liveLookup.length > 0) {
@@ -2605,11 +2683,6 @@ export async function GET(request: Request) {
           (h) => h.id === hotelId || h.name.toLowerCase().includes(cleanId.toLowerCase())
         ) || liveLookup[0];
       return NextResponse.json({ hotel: matched });
-    }
-
-    const fallbackHotel = await generateSingleHotelFallback(hotelId, nights, checkIn, checkOut, currency, guestOptions);
-    if (fallbackHotel) {
-      return NextResponse.json({ hotel: fallbackHotel });
     }
 
     return NextResponse.json({ error: 'Hotel property not found' }, { status: 404 });
