@@ -9,6 +9,8 @@ import Link from 'next/link';
 function HotelsSearchContent() {
   const searchParams = useSearchParams();
   const initialCity = searchParams.get('city') || 'Las Vegas';
+  const initialCheckIn = searchParams.get('checkIn') || undefined;
+  const initialCheckOut = searchParams.get('checkOut') || undefined;
   const initialRooms = parseInt(searchParams.get('rooms') || '1', 10);
   const initialAdults = parseInt(searchParams.get('adults') || '2', 10);
   const childAgesParam = searchParams.get('childAges');
@@ -38,6 +40,8 @@ function HotelsSearchContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
         <LiveHotelSearch
           initialDestination={initialCity}
+          initialCheckIn={initialCheckIn}
+          initialCheckOut={initialCheckOut}
           initialRooms={initialRooms}
           initialAdults={initialAdults}
           initialChildrenAges={initialChildrenAges}

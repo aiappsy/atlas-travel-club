@@ -34,6 +34,8 @@ import { useAuth } from '@/context/AuthContext';
 
 interface LiveHotelSearchProps {
   initialDestination?: string;
+  initialCheckIn?: string;
+  initialCheckOut?: string;
   initialRooms?: number;
   initialAdults?: number;
   initialChildrenAges?: number[];
@@ -42,6 +44,8 @@ interface LiveHotelSearchProps {
 
 export default function LiveHotelSearch({
   initialDestination = '',
+  initialCheckIn,
+  initialCheckOut,
   initialRooms = 1,
   initialAdults = 2,
   initialChildrenAges = [],
@@ -54,10 +58,12 @@ export default function LiveHotelSearch({
   const { isMember } = useAuth();
   const [destination, setDestination] = useState(initialDestination);
   const [checkIn, setCheckIn] = useState(() => {
+    if (initialCheckIn) return initialCheckIn;
     const d1 = new Date(Date.now() + 14 * 86400000);
     return d1.toISOString().split('T')[0];
   });
   const [checkOut, setCheckOut] = useState(() => {
+    if (initialCheckOut) return initialCheckOut;
     const d2 = new Date(Date.now() + 17 * 86400000);
     return d2.toISOString().split('T')[0];
   });
