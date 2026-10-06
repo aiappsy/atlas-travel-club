@@ -1,4 +1,4 @@
-export type ProviderName = 'amadeus' | 'hotelbeds' | 'priceline' | 'expedia' | 'direct';
+export type ProviderName = 'amadeus' | 'hotelbeds' | 'webbeds' | 'ratehawk' | 'priceline' | 'expedia' | 'direct';
 
 export interface ProviderHotelRate {
   provider: ProviderName;

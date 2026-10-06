@@ -1,6 +1,8 @@
 import { ProviderHotelRate, GuestManifest, BookingResponse, ProviderName } from './types';
 import { amadeusProvider } from './amadeus';
 import { hotelbedsProvider } from './hotelbeds';
+import { webbedsProvider } from './webbeds';
+import { ratehawkProvider } from './ratehawk';
 
 export class UnifiedTravelRouter {
   /**
@@ -8,12 +10,14 @@ export class UnifiedTravelRouter {
    */
   async getBestWholesaleRate(city: string, checkIn: string, checkOut: string): Promise<ProviderHotelRate[]> {
     try {
-      const [amadeusRates, hotelbedsRates] = await Promise.all([
+      const [amadeusRates, hotelbedsRates, webbedsRates, ratehawkRates] = await Promise.all([
         amadeusProvider.searchHotelRates(city, checkIn, checkOut).catch(() => []),
         hotelbedsProvider.searchWholesaleRates(city, checkIn, checkOut).catch(() => []),
+        webbedsProvider.searchWholesaleRates(city, checkIn, checkOut).catch(() => []),
+        ratehawkProvider.searchWholesaleRates(city, checkIn, checkOut).catch(() => []),
       ]);
 
-      const allRates = [...amadeusRates, ...hotelbedsRates];
+      const allRates = [...amadeusRates, ...hotelbedsRates, ...webbedsRates, ...ratehawkRates];
 
       // Sort by lowest wholesale net cost
       return allRates.sort((a, b) => a.rawWholesaleNetPrice - b.rawWholesaleNetPrice);
@@ -38,6 +42,22 @@ export class UnifiedTravelRouter {
   ): Promise<BookingResponse> {
     if (provider === 'hotelbeds') {
       return hotelbedsProvider.confirmWholesaleBooking(rateKey, manifest, nights, {
+        hotelName,
+        roomName,
+        wholesalePricePerNight,
+        publicRetailPricePerNight,
+      });
+    }
+    if (provider === 'webbeds') {
+      return webbedsProvider.confirmWholesaleBooking(rateKey, manifest, nights, {
+        hotelName,
+        roomName,
+        wholesalePricePerNight,
+        publicRetailPricePerNight,
+      });
+    }
+    if (provider === 'ratehawk') {
+      return ratehawkProvider.confirmWholesaleBooking(rateKey, manifest, nights, {
         hotelName,
         roomName,
         wholesalePricePerNight,
