@@ -35,6 +35,15 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/launch',
+        destination: 'https://atlaslaunch.ai.studio',
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
