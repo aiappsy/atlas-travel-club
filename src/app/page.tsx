@@ -1,460 +1,256 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
-import { useCurrency } from '@/context/CurrencyContext';
-import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE } from '@/lib/mockData';
-import { ComparedHotel } from '@/app/api/hotels/compare/route';
-import LiveHotelSearch from '@/components/LiveHotelSearch';
-import SavingsCalculator from '@/components/SavingsCalculator';
-import AuthModal from '@/components/AuthModal';
 import {
   ShieldCheck,
-  Building2,
-  Check,
-  ArrowRight,
-  CreditCard,
-  MapPin,
   Compass,
-  BookOpen,
-  Download,
-  ExternalLink,
-  Search,
   Sparkles,
-  Plane
+  Building2,
+  Plane,
+  Percent,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+  TrendingDown,
+  Globe,
+  Users,
+  Award,
+  CreditCard,
+  Briefcase,
+  Share2
 } from 'lucide-react';
+import LiveHotelSearch from '@/components/LiveHotelSearch';
 
-const MEMBER_POSTCARDS = [
-  {
-    name: 'Christian V.',
-    location: 'Zurich, Switzerland',
-    hotel: 'The Ritz-Carlton, Kyoto',
-    saved: '$1,840',
-    quote: 'Booked 5 nights in Kyoto. Saved $1,840 compared to Booking.com. The concierge had Japanese green tea waiting in our suite.',
-    tier: 'Platinum Elite'
-  },
-  {
-    name: 'Elena & Marcus B.',
-    location: 'London, UK',
-    hotel: 'Faena Hotel Miami Beach',
-    saved: '$1,420',
-    quote: 'Saved over $1,400 on our 4-night stay compared to Expedia. Verified the live retail price on my phone before confirming.',
-    tier: 'Gold VIP'
-  },
-  {
-    name: 'Henrik & Silje T.',
-    location: 'Oslo, Norway',
-    hotel: 'Villa D’Este, Lake Como',
-    saved: '$2,350',
-    quote: 'Raw wholesale prices with no retail markups. 3 nights at Lake Como paid for our annual membership ten times over.',
-    tier: 'Gold VIP'
-  }
-];
-
-export default function HomePage() {
-  const { user, isMember } = useAuth();
-  const { formatPrice } = useCurrency();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-
-  // Dynamic live hotel state for Showcase Hotel Rates
-  const [featuredHotels, setFeaturedHotels] = useState<ComparedHotel[]>([]);
-
-  useEffect(() => {
-    fetch('/api/hotels/compare?destination=')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.hotels && data.hotels.length > 0) {
-          setFeaturedHotels(data.hotels.slice(0, 4));
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const sampleHotel = featuredHotels[0];
-  const sampleHotelName = sampleHotel ? sampleHotel.name : 'Grand Hotel Oslo';
-  const sampleStayNights = 3;
-  const samplePublicRate = sampleHotel ? sampleHotel.prices.lowestOta.perNight : 369;
-  const sampleMemberRate = sampleHotel ? sampleHotel.prices.atlasWholesale.perNight : 236;
-  const sampleSavingsPerNight = samplePublicRate - sampleMemberRate;
-  const sampleStaySavings = sampleSavingsPerNight * sampleStayNights;
-  const sampleDiscountPct = Math.round((sampleSavingsPerNight / (samplePublicRate || 1)) * 100);
-
+export default function PreLaunchHomePage() {
   return (
-    <div className="space-y-20 pb-24 font-sans text-slate-900 bg-slate-50">
-      {/* 1. Simplified, High-Impact Luxury Hero Section */}
-      <section className="relative pt-12 pb-20 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white border-b border-slate-800 shadow-2xl">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-7">
-          {/* Top Pill Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30 shadow-sm">
+    <div className="bg-slate-950 text-slate-100 min-h-screen font-sans pb-24 selection:bg-amber-400 selection:text-slate-950">
+      {/* Top Pre-Launch Banner */}
+      <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 py-2.5 px-4 text-center text-xs font-black tracking-wide shadow-md">
+        🚀 Atlas Travel Club Pre-Launch Platform • Official Partner, Enterprise &amp; Bedbank Overview
+      </div>
+
+      {/* Hero Section */}
+      <section className="relative pt-14 pb-16 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30">
             <Compass className="w-4 h-4 text-amber-400" />
-            <span>Private Wholesale Travel Club • Closed-Loop Member Rates</span>
+            <span>Closed-Loop Wholesale Travel Infrastructure</span>
           </div>
 
-          {/* Clean, Bold Hero Headline */}
-          <div className="space-y-4 max-w-4xl mx-auto">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-tight">
-              Travel at Raw Wholesale. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
-                Real, Verified Savings.
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto font-normal leading-relaxed">
-              Mainstream booking sites add a 20%–45% retail ad markup. <strong>ATLAS</strong> gives private members direct access to confidential B2B Bedbank wholesale allotments with <strong>0% retail markup</strong>. Compare any hotel and verify the price difference with 1-click.
-            </p>
-          </div>
-
-          {/* Streamlined Live Verification Ticker */}
-          <div className="max-w-3xl mx-auto bg-slate-950/80 backdrop-blur-md rounded-2xl p-2.5 sm:px-4 sm:py-2 border border-emerald-500/30 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="flex h-2.5 w-2.5 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">Live Verification:</span>
-            </div>
-            <div className="text-slate-300 text-xs truncate text-center sm:text-left flex-1">
-              <span className="font-bold text-white">{sampleHotelName}</span> • Public Retail: <span className="line-through text-rose-400">{formatPrice(samplePublicRate)}/nt</span> ➔ Wholesale: <span className="text-emerald-400 font-bold">{formatPrice(sampleMemberRate)}/nt</span>
-            </div>
-            <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-500/40 text-[11px] font-black text-emerald-300 shrink-0">
-              Saves {formatPrice(sampleStaySavings)} on 3 Nts ({sampleDiscountPct}% Off)
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+            The Private Wholesale Travel Club. <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
+              0% Retail Markup. At-Cost Clearing.
             </span>
-          </div>
+          </h1>
 
-          {/* Standard Live Travel Search & Real Multi-OTA Price Checker */}
-          <div className="pt-2 text-left max-w-5xl mx-auto">
-            <LiveHotelSearch initialDestination="Oslo" />
-          </div>
+          <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            Atlas Travel Club operates on a transparent membership subscription model. Instead of marking up hotel rooms and flight tickets by 20%–45% like public OTAs, our members access direct B2B wholesale net rates at pure cost.
+          </p>
 
-          {/* 3 Core Value Pillars (Uncluttered, Trust-Oriented) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-5xl mx-auto pt-4 text-left">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <div className="text-amber-400 font-black text-sm flex items-center gap-1.5">
-                <Building2 className="w-4 h-4" /> 1,000,000+ Wholesale Stays
-              </div>
-              <p className="text-xs text-slate-300 mt-1">Direct B2B bedbank clearing rates saving 28% to 42% on luxury 5-star properties.</p>
+          {/* Quick Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 text-left">
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+              <div className="text-2xl font-black text-amber-400 font-mono">0%</div>
+              <div className="text-xs font-bold text-white mt-1">Retail Markup</div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Zero middleman markup on bedbank room rates.</p>
             </div>
-
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
-              <div className="text-sky-400 font-black text-sm flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4" /> 1-Click Live OTA Proof
-              </div>
-              <p className="text-xs text-slate-300 mt-1">Direct links to Expedia, Booking.com &amp; Agoda to verify the retail rate yourself.</p>
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+              <div className="text-2xl font-black text-emerald-400 font-mono">28%–42%</div>
+              <div className="text-xs font-bold text-white mt-1">Wholesale Savings</div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Average savings below Booking.com &amp; Expedia.</p>
             </div>
-
-            <Link href="/flights" className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:border-emerald-500/40 transition-colors block group">
-              <div className="text-emerald-400 font-black text-sm flex items-center gap-1.5">
-                <Plane className="w-4 h-4 text-sky-400" /> Direct Flights &amp; EU261 Sentinel
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-black">Live</span>
-              </div>
-              <p className="text-xs text-slate-300 mt-1">Direct NDC net fares with 0% markup + 24/7 automated €600 delay cash recovery.</p>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. How the System Works in 3 Clear Steps (Builds Conviction & Trust) */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-10">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              Transparent Travel Arbitrage
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+              <div className="text-2xl font-black text-sky-400 font-mono">1M+</div>
+              <div className="text-xs font-bold text-white mt-1">Global Properties</div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Curated 5-star flagships &amp; boutique inventory.</p>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              How the System Works in 3 Steps
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
-              No hidden gimmicks. Built on closed-loop B2B distribution exemptions.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-black text-base flex items-center justify-center">
-                1
-              </div>
-              <h3 className="font-black text-base text-slate-900">Search Any Property</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Search our 16 curated luxury destinations or any city worldwide, or paste any live Expedia or Booking.com URL directly into the search bar.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 font-black text-base flex items-center justify-center">
-                2
-              </div>
-              <h3 className="font-black text-base text-slate-900">Verify Against Live OTAs</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Click direct links to Booking.com, Expedia, and Hotels.com to verify public retail prices for the identical dates with your own eyes.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-black text-base flex items-center justify-center">
-                3
-              </div>
-              <h3 className="font-black text-base text-slate-900">Book at Raw Wholesale</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Members unlock confidential bedbank allotments with 0% retail markup, saving hundreds to thousands on every single trip.
-              </p>
+            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+              <div className="text-2xl font-black text-purple-400 font-mono">100%</div>
+              <div className="text-xs font-bold text-white mt-1">Parity Compliant</div>
+              <p className="text-[10px] text-slate-400 mt-0.5">Protected behind closed-user-group (CUG) login.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Featured Wholesale Deals Grid (Clean, Luxury Showcase) */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-2">
-          <div>
-            <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-              Curated Portfolio
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-              Featured Wholesale Member Rates
-            </h2>
+      {/* Platform Exploration Grid (Pillars) */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center space-y-2 mb-8">
+          <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
+            Plattformens Moduler &amp; Forretningsområder
           </div>
+          <h2 className="text-xl sm:text-3xl font-black text-white">
+            Utforsk Atlas Travel Club Økosystemet
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* B2B Fleet */}
           <Link
-            href="/hotels"
-            className="inline-flex items-center gap-1 text-sm font-bold text-sky-600 hover:text-sky-700"
+            href="/b2b"
+            className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 transition-all hover:-translate-y-1 block"
           >
-            <span>Explore All Properties</span>
-            <ArrowRight className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Briefcase className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-sm group-hover:text-amber-400 transition-colors flex items-center justify-between">
+              B2B Bedriftsflåte
+              <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Gruppemedlemskap for bedrifter og foreninger (DNB, Tekna, Agenturer.no) med co-brandede portaler.
+            </p>
+          </Link>
+
+          {/* Partners & Affiliates */}
+          <Link
+            href="/partners"
+            className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-400/60 transition-all hover:-translate-y-1 block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Share2 className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-sm group-hover:text-emerald-400 transition-colors flex items-center justify-between">
+              Partnere &amp; Affiliates
+              <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              270 kr direkte provisjon + 90 kr squad-override + 20% B2B ARR utbetalt ukentlig via Wise.
+            </p>
+          </Link>
+
+          {/* Flights Hub */}
+          <Link
+            href="/flights"
+            className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-sky-400/60 transition-all hover:-translate-y-1 block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-400/10 text-sky-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Plane className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-sm group-hover:text-sky-400 transition-colors flex items-center justify-between">
+              Kommersielle Fly
+              <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Duffel NDC-flymotor med 0% påslag, fast 95 kr klubbgebyr og innebygget EU261 forsinkelsesvern.
+            </p>
+          </Link>
+
+          {/* Membership Portal */}
+          <Link
+            href="/membership"
+            className="group p-5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-400/60 transition-all hover:-translate-y-1 block"
+          >
+            <div className="w-10 h-10 rounded-xl bg-purple-400/10 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <Lock className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-sm group-hover:text-purple-400 transition-colors flex items-center justify-between">
+              Lukket Medlemsklubb
+              <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              Sikret CUG Rate Parity-unntak, Stripe-integrert innlogging og eksklusiv medlemsadgang.
+            </p>
           </Link>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredHotels.slice(0, 4).map((hotel) => {
-            const publicRate = hotel.prices.lowestOta.perNight;
-            const memberRate = hotel.prices.atlasWholesale.perNight;
-            const savingsPercent = hotel.prices.atlasWholesale.savingsPercent;
-            const savings3Nights = hotel.prices.atlasWholesale.totalSavings;
+      {/* Live Hotel Wholesale Search Engine */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-400 px-2">
+            <span className="font-bold text-white flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Live B2B Rate Comparison Engine
+            </span>
+            <span className="text-amber-400 font-mono">Audited Against Live Public OTAs</span>
+          </div>
 
-            return (
-              <div
-                key={hotel.id}
-                className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl transition-all overflow-hidden flex flex-col justify-between group hover:border-emerald-500/50"
-              >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={hotel.image}
-                    alt={hotel.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-full border border-white/10">
-                    {hotel.categoryLabel || `${hotel.starRating}★ Hotel`}
-                  </div>
-                  <div className="absolute bottom-3 right-3 bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
-                    <span>SAVE {savingsPercent}%</span>
-                  </div>
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-1.5">
-                    <div className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-amber-500" />
-                      <span>{hotel.city}{hotel.country ? `, ${hotel.country}` : ''}</span>
-                    </div>
-                    <h3 className="font-extrabold text-sm text-slate-900 group-hover:text-sky-600 transition-colors line-clamp-1">
-                      {hotel.name}
-                    </h3>
-
-                    <div className="bg-emerald-50 border border-emerald-200/80 rounded-xl p-2 text-center">
-                      <div className="text-xs font-black text-emerald-800">
-                        Saves {formatPrice(savings3Nights)} on 3 Nights
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-end justify-between">
-                    <div>
-                      <div className="text-[11px] text-slate-400 line-through">
-                        Public: {formatPrice(publicRate)}/nt
-                      </div>
-                      <div className="text-lg font-black text-slate-900 font-mono">
-                        {formatPrice(memberRate)}
-                        <span className="text-xs font-normal text-slate-500"> /nt</span>
-                      </div>
-                    </div>
-
-                    <Link
-                      href={`/hotels/${hotel.id}`}
-                      className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 font-bold text-xs transition-colors shadow-sm"
-                    >
-                      View Rate
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          <LiveHotelSearch initialDestination="Paris" />
         </div>
       </section>
 
-      {/* 4. Interactive Savings Calculator */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Savings Projection
+      {/* Partner Architecture Briefing */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 space-y-12">
+        <div className="text-center space-y-3">
+          <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
+            Wholesale Distribution Architecture
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            Calculate Your Annual Travel Savings
+          <h2 className="text-2xl sm:text-4xl font-black text-white">
+            How Atlas Connects to B2B Wholesalers &amp; Airlines
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500">
-            A single 3-night stay typically saves more than an entire year of membership.
+          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
+            Our Next.js 14 cloud routing engine aggregates live B2B feeds into a unified member checkout.
           </p>
-        </div>
-        <SavingsCalculator />
-      </section>
-
-      {/* 5. Real Member Testimonials (Proof of Real Experience) */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-xl mx-auto space-y-2">
-          <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Verified Experiences
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            What Members Saved This Month
-          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {MEMBER_POSTCARDS.map((post, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-extrabold text-sm text-slate-900">{post.name}</h4>
-                    <div className="text-[11px] text-slate-500">{post.location}</div>
-                  </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black">
-                    Saved {post.saved}
-                  </span>
-                </div>
-                <div className="text-xs font-bold text-amber-600">{post.hotel}</div>
-                <p className="text-xs text-slate-600 italic leading-relaxed">
-                  "{post.quote}"
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                <span>Verified Member</span>
-                <span className="font-semibold text-slate-700">{post.tier}</span>
-              </div>
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-black">
+              <Building2 className="w-5 h-5" />
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 6. Transparent Membership Plans */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="text-xs font-black uppercase text-amber-600 tracking-wider">
-            Clear, Transparent Tiers
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-            Choose Your Travel Access Plan
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600">
-            Every paid plan unlocks confidential wholesale hotel, villa, and cruise inventory with 0% retail markup.
-          </p>
-        </div>
-
-        {/* Dynamic Tier Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MEMBERSHIP_TIERS.map((tier) => (
-            <div
-              key={tier.id}
-              className={`rounded-3xl p-6 flex flex-col justify-between border transition-all ${
-                tier.isPopular
-                  ? 'bg-slate-950 text-white border-amber-400 shadow-2xl scale-105 relative'
-                  : 'bg-white text-slate-900 border-slate-200 shadow-sm'
-              }`}
-            >
-              {tier.isPopular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow">
-                  Most Popular
-                </div>
-              )}
-
-              <div>
-                <h3 className="font-black text-lg">{tier.name}</h3>
-                <div className="text-2xl font-black mt-2">
-                  ${tier.priceAnnual}
-                  <span className="text-xs font-normal opacity-70"> /year</span>
-                </div>
-                <div className="text-xs text-emerald-500 font-bold mt-1">
-                  Save {tier.wholesaleHotelDiscount}
-                </div>
-
-                <div className="mt-5 pt-4 border-t border-slate-200/30 space-y-2.5 text-xs">
-                  {tier.perksIncluded.slice(0, 5).map((p, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
-                      <span className="opacity-90">{p}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <Link
-                  href="/membership"
-                  className={`w-full py-2.5 rounded-xl font-black text-xs flex items-center justify-center gap-1 transition-all ${
-                    tier.isPopular
-                      ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-950 hover:from-amber-500 hover:to-amber-700 shadow-md'
-                      : 'bg-slate-900 text-white hover:bg-slate-800'
-                  }`}
-                >
-                  <span>Select {tier.name}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 7. Rate Parity Academic Case Study Spotlight */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-8 sm:p-12 border border-amber-500/30 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30">
-              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-              Economic Research &amp; Legal Framework
-            </div>
-            <h3 className="text-2xl sm:text-3xl font-black">
-              Unmasking Rate Parity: How Closed-Loop Arbitrage Works
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Read our full research paper on the $1.2 Trillion OTA cartel, the French Loi Macron parity deregulation, and why closed-loop private member clubs are legally exempt from retail price matching.
+            <h3 className="font-bold text-white text-base">Direct Bedbank Connectivity</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Integrated with major B2B bedbank feeds (WebBeds, RateHawk, Hotelbeds APItude) for true net contracted room rates with zero retail advertising markup.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-            <Link
-              href="/case-study"
-              className="py-3 px-6 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs shadow-lg transition-all"
-            >
-              Read Full Case Study
-            </Link>
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-sky-400/10 text-sky-400 flex items-center justify-center font-black">
+              <Plane className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-base">IATA/NDC Airline Clearing</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Live NDC flight integration via Duffel, providing direct airline net fares with 0% markup and built-in EU261 €600 flight delay compensation monitoring.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-black">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h3 className="font-bold text-white text-base">Strict Rate Parity Compliance</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              All wholesale rates are strictly sealed behind authenticated member logins, fully respecting hotel brand standards and closed-user-group (CUG) legal exemptions.
+            </p>
+          </div>
+        </div>
+
+        {/* Founder & Partner Contact Box */}
+        <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 border border-amber-400/40 text-center space-y-4 shadow-2xl">
+          <h3 className="text-xl sm:text-2xl font-black text-white">
+            Partner &amp; Supplier Inquiries
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
+            We are currently finalizing B2B bedbank supplier agreements and API connectivity during our pre-launch phase. For commercial agreements or technical onboarding:
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <a
-              href="/ATLAS_Case_Study_Rate_Parity.pdf"
-              download="ATLAS_Case_Study_Rate_Parity.pdf"
-              className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs transition-all flex items-center gap-1.5"
+              href="https://wa.me/4740059493"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all flex items-center gap-2 shadow-lg"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download PDF</span>
+              <span>Connect on WhatsApp (+47 40059493)</span>
+              <ArrowRight className="w-4 h-4" />
             </a>
+            <Link
+              href="/b2b"
+              className="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all"
+            >
+              Bedriftsflåte &amp; B2B ➔
+            </Link>
+            <Link
+              href="/partners"
+              className="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all"
+            >
+              Partner &amp; Affiliate Program ➔
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* Auth Modal */}
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }
