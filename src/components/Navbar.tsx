@@ -28,80 +28,59 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800 shadow-2xl text-white">
-        {/* Top Minimalist Ticker Bar */}
-        <div className="bg-slate-900/90 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800/80">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-              </span>
-              <span className="font-medium text-slate-300 text-[11px] sm:text-xs">
-                The Private Wholesale Travel Club: <strong className="text-amber-300">Raw Bedbank Rates • 0% Retail Markup • Co-Branded Visa® (Coming Soon)</strong>
-              </span>
-            </div>
-
-            <div className="hidden md:flex items-center gap-4 text-xs">
-              <Link href="/proof" className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 transition-colors">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Live Savings Proof</span>
-              </Link>
-              {isMember && user && (
-                <span className="text-amber-200 font-semibold">
-                  Saved: <strong className="text-emerald-400">${user.lifetimeSavings}</strong>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Clean, Spacious Navigation Bar */}
+      <header className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 shadow-xl text-white">
+        {/* Clean, Spacious Luxury Navigation Bar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Left: Menu Trigger Button + Brand */}
-            <div className="flex items-center gap-3 sm:gap-4">
-              <button
-                onClick={toggleSidebar}
-                className="py-2 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 text-xs font-bold transition-all flex items-center gap-2 shadow-sm group cursor-pointer"
-                title="Open Navigation Menu"
-              >
-                <Menu className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-                <span>Explore</span>
-              </button>
-
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Left: Brand + Menu Drawer */}
+            <div className="flex items-center gap-3 sm:gap-6">
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-amber-500/40 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-                  <Compass className="w-5 h-5 text-amber-400 animate-pulse" />
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-amber-500/40 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+                  <Compass className="w-5 h-5 text-amber-400" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-black tracking-tight text-white flex items-center gap-1.5 font-mono">
+                  <span className="text-xl font-black tracking-tight text-white flex items-center gap-2 font-mono">
                     ATLAS
-                    <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-sans shadow-sm">
+                    <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-sans shadow-sm">
                       VIP
                     </span>
                   </span>
-                  <span className="text-[9px] text-slate-400 font-medium tracking-wide -mt-1 hidden sm:block">
+                  <span className="text-[10px] text-slate-400 font-medium tracking-wide -mt-1 hidden sm:block">
                     Private Wholesale Travel Club
                   </span>
                 </div>
               </Link>
             </div>
 
-            {/* Center: Quick Search Link */}
-            <div className="hidden lg:flex items-center gap-2">
+            {/* Center: Clean Luxury Navigation Links */}
+            <nav className="hidden md:flex items-center gap-1 sm:gap-2">
               <Link
                 href="/hotels"
-                className="px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2.5 transition-all border border-slate-800"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-900 transition-all"
               >
-                <Search className="w-3.5 h-3.5 text-amber-400" />
-                <span>Search 1,000,000+ Wholesale Stays & Villas...</span>
-                <span className="px-2 py-0.5 bg-amber-400 text-slate-950 rounded-full text-[10px] font-black">
-                  0% Markup
-                </span>
+                Hotels &amp; Resorts
               </Link>
-            </div>
+              <Link
+                href="/flights"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-900 transition-all flex items-center gap-1.5"
+              >
+                <span>Flights</span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30">NDC</span>
+              </Link>
+              <Link
+                href="/b2b"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-900 transition-all"
+              >
+                B2B Corporate
+              </Link>
+              <Link
+                href="/partners"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-900 transition-all"
+              >
+                Partners
+              </Link>
+            </nav>
 
             {/* Right: Actions, Proof & User Account */}
             <div className="flex items-center gap-2 sm:gap-3">

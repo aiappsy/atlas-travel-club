@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import {
   ShieldCheck,
@@ -18,71 +18,111 @@ import {
   Award,
   CreditCard,
   Briefcase,
-  Share2
+  Share2,
+  Hotel
 } from 'lucide-react';
 import LiveHotelSearch from '@/components/LiveHotelSearch';
+import SavingsCalculator from '@/components/SavingsCalculator';
 
-export default function PreLaunchHomePage() {
+export default function LuxuryHomePage() {
+  const [activeTab, setActiveTab] = useState<'hotels' | 'flights' | 'b2b'>('hotels');
+
   return (
     <div className="bg-slate-950 text-slate-100 min-h-screen font-sans pb-24 selection:bg-amber-400 selection:text-slate-950">
-      {/* Top Pre-Launch Banner */}
-      <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 py-2.5 px-4 text-center text-xs font-black tracking-wide shadow-md">
-        🚀 Atlas Travel Club Pre-Launch Platform • Official Partner, Enterprise &amp; Bedbank Overview
-      </div>
-
       {/* Hero Section */}
-      <section className="relative pt-14 pb-16 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800">
+      <section className="relative pt-12 sm:pt-20 pb-16 overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-400/30">
-            <Compass className="w-4 h-4 text-amber-400" />
-            <span>Closed-Loop Wholesale Travel Infrastructure</span>
+          {/* Subtle VIP Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 text-amber-300 text-xs font-bold tracking-wider border border-amber-400/30">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Private Wholesale Travel Club • Closed-Loop Member Rates</span>
           </div>
 
+          {/* Luxury Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
-            The Private Wholesale Travel Club. <br />
+            Travel Wholesale. <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
-              0% Retail Markup. At-Cost Clearing.
+              Never Pay Retail Again.
             </span>
           </h1>
 
-          <p className="text-sm sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Atlas Travel Club operates on a transparent membership subscription model. Instead of marking up hotel rooms and flight tickets by 20%–45% like public OTAs, our members access direct B2B wholesale net rates at pure cost.
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+            Direct access to raw B2B bedbank rates across 1,000,000+ hotels and commercial flights at pure cost — bypassing public OTA retail markups.
           </p>
 
-          {/* Quick Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-4xl mx-auto pt-4 text-left">
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-2xl font-black text-amber-400 font-mono">0%</div>
-              <div className="text-xs font-bold text-white mt-1">Retail Markup</div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Zero middleman markup on bedbank room rates.</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-2xl font-black text-emerald-400 font-mono">28%–42%</div>
-              <div className="text-xs font-bold text-white mt-1">Wholesale Savings</div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Average savings below Booking.com &amp; Expedia.</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-2xl font-black text-sky-400 font-mono">1M+</div>
-              <div className="text-xs font-bold text-white mt-1">Global Properties</div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Curated 5-star flagships &amp; boutique inventory.</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-2xl font-black text-purple-400 font-mono">100%</div>
-              <div className="text-xs font-bold text-white mt-1">Parity Compliant</div>
-              <p className="text-[10px] text-slate-400 mt-0.5">Protected behind closed-user-group (CUG) login.</p>
-            </div>
+          {/* Quick Pillar Switcher Tabs */}
+          <div className="inline-flex p-1.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-2xl gap-1">
+            <button
+              onClick={() => setActiveTab('hotels')}
+              className={`px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'hotels'
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Hotel className="w-4 h-4" />
+              <span>Hotels &amp; Resorts</span>
+            </button>
+            <Link
+              href="/flights"
+              className="px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 text-slate-400 hover:text-white transition-all"
+            >
+              <Plane className="w-4 h-4 text-sky-400" />
+              <span>Flights (NDC)</span>
+            </Link>
+            <Link
+              href="/b2b"
+              className="px-4 sm:px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 text-slate-400 hover:text-white transition-all"
+            >
+              <Briefcase className="w-4 h-4 text-emerald-400" />
+              <span>B2B Corporate</span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Platform Exploration Grid (Pillars) */}
+      {/* Live Hotel Wholesale Search Engine */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 py-8">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs text-slate-400 px-2">
+            <span className="font-bold text-white flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              Live Wholesale Search • Audited Against Public OTAs
+            </span>
+            <span className="text-amber-400 font-mono text-[11px] hidden sm:inline">
+              RateHawk • WebBeds • Hotelbeds
+            </span>
+          </div>
+
+          <LiveHotelSearch initialDestination="Paris" />
+        </div>
+      </section>
+
+      {/* Interactive Savings Calculator */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center space-y-2 mb-8">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
-            Plattformens Moduler &amp; Forretningsområder
+            Dynamisk Sparekalkulator
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
+            Hvor mye sparer du i året med Atlas?
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+            Test reisemønsteret ditt og se nøyaktig hva du sparer på 4- og 5-stjerners hoteller sammenlignet med Expedia og Booking.com.
+          </p>
+        </div>
+
+        <SavingsCalculator />
+      </section>
+
+      {/* Platform Ecosystem Grid */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center space-y-2 mb-8">
+          <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
+            Forretningsområder &amp; Tjenester
           </div>
           <h2 className="text-xl sm:text-3xl font-black text-white">
-            Utforsk Atlas Travel Club Økosystemet
+            Utforsk Hele Atlas-Økosystemet
           </h2>
         </div>
 
@@ -100,7 +140,7 @@ export default function PreLaunchHomePage() {
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Gruppemedlemskap for bedrifter og foreninger (DNB, Tekna, Agenturer.no) med co-brandede portaler.
+              Gruppelisenser for bedrifter og organisasjoner (DNB, Tekna, Agenturer.no) med egne co-brandede portaler.
             </p>
           </Link>
 
@@ -157,97 +197,46 @@ export default function PreLaunchHomePage() {
         </div>
       </section>
 
-      {/* Live Hotel Wholesale Search Engine */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-slate-400 px-2">
-            <span className="font-bold text-white flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Live B2B Rate Comparison Engine
-            </span>
-            <span className="text-amber-400 font-mono">Audited Against Live Public OTAs</span>
-          </div>
-
-          <LiveHotelSearch initialDestination="Paris" />
-        </div>
-      </section>
-
-      {/* Partner Architecture Briefing */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 space-y-12">
-        <div className="text-center space-y-3">
+      {/* Transparency & Legal Parity Shield */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+        <div className="text-center space-y-2">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
-            Wholesale Distribution Architecture
+            Transparens &amp; Juridisk Beskyttelse
           </div>
-          <h2 className="text-2xl sm:text-4xl font-black text-white">
-            How Atlas Connects to B2B Wholesalers &amp; Airlines
+          <h2 className="text-xl sm:text-3xl font-black text-white">
+            Slik Leverer Atlas Ekte Engrospriser Lovlig
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto">
-            Our Next.js 14 cloud routing engine aggregates live B2B feeds into a unified member checkout.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-black">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-bold">
               <Building2 className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-base">Direct Bedbank Connectivity</h3>
+            <h3 className="font-bold text-white text-sm">Direkte Bedbank-Kobling</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Integrated with major B2B bedbank feeds (WebBeds, RateHawk, Hotelbeds APItude) for true net contracted room rates with zero retail advertising markup.
+              Koblet direkte til store B2B bedbanker (WebBeds, RateHawk, Hotelbeds APItude) for ekte innkjøpspriser uten OTA-reklametillegg.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-            <div className="w-10 h-10 rounded-2xl bg-sky-400/10 text-sky-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+            <div className="w-9 h-9 rounded-xl bg-sky-400/10 text-sky-400 flex items-center justify-center font-bold">
               <Plane className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-base">IATA/NDC Airline Clearing</h3>
+            <h3 className="font-bold text-white text-sm">IATA/NDC Flyklarering</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Live NDC flight integration via Duffel, providing direct airline net fares with 0% markup and built-in EU261 €600 flight delay compensation monitoring.
+              Ekte NDC-flyintegrasjon via Duffel med 0% billettpåslag og automatisk EU261 €600 forsinkelseskrav-overvåking.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-bold">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white text-base">Strict Rate Parity Compliance</h3>
+            <h3 className="font-bold text-white text-sm">Rate Parity Overholdelse</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              All wholesale rates are strictly sealed behind authenticated member logins, fully respecting hotel brand standards and closed-user-group (CUG) legal exemptions.
+              Prisene er låst bak lukket medlemsinnlogging (Closed User Group), som oppfyller alle krav fra hotellkjedene og antitrust-lovgivning.
             </p>
-          </div>
-        </div>
-
-        {/* Founder & Partner Contact Box */}
-        <div className="p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 border border-amber-400/40 text-center space-y-4 shadow-2xl">
-          <h3 className="text-xl sm:text-2xl font-black text-white">
-            Partner &amp; Supplier Inquiries
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
-            We are currently finalizing B2B bedbank supplier agreements and API connectivity during our pre-launch phase. For commercial agreements or technical onboarding:
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <a
-              href="https://wa.me/4740059493"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs transition-all flex items-center gap-2 shadow-lg"
-            >
-              <span>Connect on WhatsApp (+47 40059493)</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
-            <Link
-              href="/b2b"
-              className="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all"
-            >
-              Bedriftsflåte &amp; B2B ➔
-            </Link>
-            <Link
-              href="/partners"
-              className="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all"
-            >
-              Partner &amp; Affiliate Program ➔
-            </Link>
           </div>
         </div>
       </section>

@@ -545,12 +545,12 @@ export default function LiveHotelSearch({
               return (
               <div
                 key={hotel.id}
-                className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden grid grid-cols-1 lg:grid-cols-12"
+                className="bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all overflow-hidden flex flex-col lg:flex-row"
               >
-                {/* Image & Quick Specs */}
+                {/* Image & Quick Specs - Natural Landscape Aspect Ratio */}
                 <Link
                   href={getHotelUrl(hotel.id)}
-                  className="lg:col-span-4 relative min-h-[260px] lg:min-h-full block group overflow-hidden cursor-pointer"
+                  className="w-full lg:w-[340px] xl:w-[380px] shrink-0 relative aspect-[16/10] lg:aspect-auto min-h-[220px] lg:min-h-full block group overflow-hidden cursor-pointer"
                 >
                   <img
                     src={hotel.image}
@@ -579,7 +579,7 @@ export default function LiveHotelSearch({
                 </Link>
 
                 {/* Details & Live Comparison Matrix */}
-                <div className="lg:col-span-8 p-6 sm:p-7 flex flex-col justify-between space-y-6">
+                <div className="flex-1 p-5 sm:p-6 lg:p-7 flex flex-col justify-between space-y-5">
                   <div className="space-y-4">
                     {/* Hotel Title & Audit Ref */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
