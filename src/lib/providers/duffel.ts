@@ -205,6 +205,201 @@ export class DuffelProvider {
       return [];
     }
   }
+
+  /**
+   * Get single flight offer details with passenger slots and available services
+   */
+  async getOffer(offerId: string): Promise<any | null> {
+    if (!this.token) return null;
+    try {
+      const res = await fetch(`${this.baseUrl}/air/offers/${offerId}?return_available_services=true`, {
+        headers: this.getHeaders(),
+        cache: 'no-store',
+      });
+      if (!res.ok) {
+        console.error(`[DuffelProvider] Get offer failed HTTP ${res.status}:`, await res.text());
+        return null;
+      }
+      const json = await res.json();
+      return json.data;
+    } catch (err) {
+      console.error('[DuffelProvider] Get offer error:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Fetch aircraft seat maps for an offer
+   */
+  async getSeatMaps(offerId: string): Promise<any[]> {
+    if (!this.token) return [];
+    try {
+      const res = await fetch(`${this.baseUrl}/air/seat_maps?offer_id=${offerId}`, {
+        headers: this.getHeaders(),
+        cache: 'no-store',
+      });
+      if (!res.ok) return [];
+      const json = await res.json();
+      return json.data || [];
+    } catch (err) {
+      console.error('[DuffelProvider] Seat maps error:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Create an official airline order (Ticketing & PNR Generation)
+   */
+  async createOrder(params: {
+    offerId: string;
+    passengers: Array<{
+      id?: string;
+      title: 'mr' | 'ms' | 'mrs' | 'miss';
+      gender: 'm' | 'f';
+      given_name: string;
+      family_name: string;
+      born_on: string;
+      email: string;
+      phone_number: string;
+    }>;
+    payment?: {
+      type: 'balance' | 'card';
+      amount?: string;
+      currency?: string;
+    };
+  }): Promise<{
+    success: boolean;
+    orderId?: string;
+    bookingReference?: string;
+    order?: any;
+    error?: string;
+  }> {
+    if (!this.token) {
+      return { success: false, error: 'Duffel API token is missing' };
+    }
+
+    try {
+      // 1. Fetch offer to obtain passenger IDs and exact total amount if not specified
+      const offer = await this.getOffer(params.offerId);
+      if (!offer) {
+        return { success: false, error: 'Flight offer expired or not found. Please refresh search.' };
+      }
+
+      const offerPassengers = offer.passengers || [];
+      const mappedPassengers = params.passengers.map((p, idx) => {
+        const matchingId = p.id || offerPassengers[idx]?.id;
+        return {
+          id: matchingId,
+          title: p.title || 'mr',
+          gender: p.gender || 'm',
+          given_name: p.given_name,
+          family_name: p.family_name,
+          born_on: p.born_on,
+          email: p.email,
+          phone_number: p.phone_number,
+        };
+      });
+
+      // 2. Format payment
+      const paymentType = params.payment?.type || 'balance';
+      const amount = params.payment?.amount || offer.total_amount;
+      const currency = params.payment?.currency || offer.total_currency;
+
+      const body = {
+        data: {
+          selected_offers: [params.offerId],
+          passengers: mappedPassengers,
+          payments: [
+            {
+              type: paymentType,
+              amount,
+              currency,
+            },
+          ],
+        },
+      };
+
+      const res = await fetch(`${this.baseUrl}/air/orders`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify(body),
+        cache: 'no-store',
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        const errorMsg = json.errors?.[0]?.message || `Booking failed with HTTP ${res.status}`;
+        console.error('[DuffelProvider] Create order error:', json);
+        return { success: false, error: errorMsg };
+      }
+
+      const order = json.data;
+      return {
+        success: true,
+        orderId: order.id,
+        bookingReference: order.booking_reference,
+        order,
+      };
+    } catch (err: any) {
+      console.error('[DuffelProvider] Create order exception:', err);
+      return { success: false, error: err?.message || 'Unexpected ticketing failure' };
+    }
+  }
+
+  /**
+   * Retrieve existing Duffel order by ID
+   */
+  async getOrder(orderId: string): Promise<any | null> {
+    if (!this.token) return null;
+    try {
+      const res = await fetch(`${this.baseUrl}/air/orders/${orderId}`, {
+        headers: this.getHeaders(),
+        cache: 'no-store',
+      });
+      if (!res.ok) return null;
+      const json = await res.json();
+      return json.data;
+    } catch (err) {
+      console.error('[DuffelProvider] Get order error:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Cancel an order (Quote + Confirm)
+   */
+  async cancelOrder(orderId: string): Promise<{ success: boolean; refundAmount?: string; error?: string }> {
+    if (!this.token) return { success: false, error: 'Token missing' };
+    try {
+      // 1. Create pending cancellation quote
+      const quoteRes = await fetch(`${this.baseUrl}/air/order_cancellations`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ data: { order_id: orderId } }),
+      });
+      const quoteJson = await quoteRes.json();
+      if (!quoteRes.ok) {
+        return { success: false, error: quoteJson.errors?.[0]?.message || 'Cancellation quote failed' };
+      }
+
+      const cancellationId = quoteJson.data.id;
+      const refundAmount = quoteJson.data.refund_amount;
+
+      // 2. Confirm cancellation
+      const confirmRes = await fetch(`${this.baseUrl}/air/order_cancellations/${cancellationId}/actions/confirm`, {
+        method: 'POST',
+        headers: this.getHeaders(),
+      });
+      if (!confirmRes.ok) {
+        const confirmJson = await confirmRes.json();
+        return { success: false, error: confirmJson.errors?.[0]?.message || 'Confirm cancellation failed' };
+      }
+
+      return { success: true, refundAmount };
+    } catch (err: any) {
+      return { success: false, error: err?.message };
+    }
+  }
 }
 
 export const duffelProvider = new DuffelProvider();

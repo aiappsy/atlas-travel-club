@@ -31,7 +31,8 @@ import {
   Percent,
   Compass,
   Ticket,
-  Loader2
+  Loader2,
+  Plane
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -506,16 +507,16 @@ function MembershipContent() {
         </div>
       </div>
 
-      {/* 3 Pillars Explaining the Closed-Loop Bedbank Secret */}
+      {/* 4 Pillars Explaining Wholesale Travel & Protection */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-black">
               <ShieldAlert className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white">1. The Public &quot;Rate Parity&quot; Trap</h3>
+            <h3 className="text-base font-bold text-white">1. The Public Rate Parity Trap</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              When hotels partner with Expedia and Booking.com, contracts legally bind them never to publicly advertise lower prices anywhere on the open internet. This inflates public hotel rates by 20% to 45% to cover billions in Google search advertising.
+              When hotels partner with Expedia and Booking.com, contracts legally bind them never to publicly advertise lower prices. This inflates public hotel rates by 20% to 45% to fund billions in search ads.
             </p>
           </div>
 
@@ -523,19 +524,29 @@ function MembershipContent() {
             <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-black">
               <Building2 className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white">2. B2B Bedbanks &amp; Closed Beds</h3>
+            <h3 className="text-base font-bold text-white">2. B2B Bedbanks &amp; Closed Beds</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              To sell surplus rooms without breaching public parity, luxury hotels quietly dump inventory into B2B clearinghouses (Hotelbeds, WebBeds). By statute, these net rates can only be booked behind a gated, private membership credential.
+              To sell surplus rooms without breaching parity, luxury hotels dump inventory into B2B clearinghouses (WebBeds). By statute, these net rates can only be booked behind gated private memberships.
             </p>
           </div>
 
           <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-sky-400/10 text-sky-400 flex items-center justify-center font-black">
-              <Percent className="w-6 h-6" />
+              <Plane className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white">3. Zero Markup Pass-Through</h3>
+            <h3 className="text-base font-bold text-white">3. Direct Airline NDC Clearing</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Unlike retail OTAs, ATLAS earns revenue through predictable annual club subscriptions. We do not markup room prices. 100% of raw wholesale savings ($50 to $400/night) pass directly to our registered club members.
+              Direct connection to 300+ airlines removes old GDS distribution surcharges (€15–€25/leg) and eliminates OTA payment junk fees. Pure carrier net rates with 0% retail markup.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center font-black">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-base font-bold text-white">4. EU261 €600 Delay Protection</h3>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Automated 24/7 flight delay sentinel. If your flight is delayed 3+ hours, we help you recover up to €600 (~7 000 NOK) in statutory cash with 0% legal deduction (unlike AirHelp’s 35–50% cut).
             </p>
           </div>
         </div>

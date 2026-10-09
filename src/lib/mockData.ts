@@ -2317,7 +2317,8 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
       '2x Travel Vault Dividend Multiplier',
       'Car rental discounts up to 25%',
       'Global eSIM travel data discounts',
-      'Flight delay legal claim assistance ($650 compensation)',
+      'EU261 Sentinel: 24/7 automated delay monitoring (€600 cash recovery, 0% legal cut)',
+      'Direct NDC net flight clearing (0% OTA retail markup)',
       'Digital member card & app pass'
     ]
   },
@@ -2338,7 +2339,8 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
       'Autonomous Post-Booking Price Drop Re-Booker (Cashback)',
       'Supercar & Luxury Yacht Day Charters (Up to 45% Off)',
       'Private Jet Empty Leg Member Access (Up to 80% Off)',
-      'Co-Branded Visa Prepaid Card (Coming Soon)',
+      'Direct NDC airline flight clearing at exact net cost',
+      'EU261 Sentinel VIP: Automated €600/passenger delay cash recovery with 0% commission',
       'Proactive AI Concierge Itinerary Gap Alerts',
       'Physical holographic Photo ID card shipped free',
       'Family pass (Up to 4 sub-members)'

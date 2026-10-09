@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 function HotelsSearchContent() {
   const searchParams = useSearchParams();
-  const initialCity = searchParams.get('city') || 'Las Vegas';
+  const initialCity = searchParams.get('city') || searchParams.get('destination') || 'Las Vegas';
   const initialCheckIn = searchParams.get('checkIn') || undefined;
   const initialCheckOut = searchParams.get('checkOut') || undefined;
   const initialRooms = parseInt(searchParams.get('rooms') || '1', 10);

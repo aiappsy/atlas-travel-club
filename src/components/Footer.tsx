@@ -170,6 +170,18 @@ export default function Footer() {
                 </a>
               </li>
               <li>
+                <Link href="/b2b" className="text-amber-400 font-bold hover:underline flex items-center gap-1">
+                  <span>B2B Enterprise &amp; Org</span>
+                  <span className="text-[9px] bg-amber-400/20 text-amber-300 px-1 py-0.5 rounded font-black">NY</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/partners" className="text-amber-400 font-bold hover:underline flex items-center gap-1">
+                  <span>Partner &amp; Affiliate Network</span>
+                  <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded font-black">ARR</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/how-it-works" className="hover:text-white transition-colors">
                   How ATLAS Works
                 </Link>

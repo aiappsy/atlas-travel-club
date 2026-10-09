@@ -21,7 +21,8 @@ import {
   Download,
   ExternalLink,
   Search,
-  Sparkles
+  Sparkles,
+  Plane
 } from 'lucide-react';
 
 const MEMBER_POSTCARDS = [
@@ -142,13 +143,13 @@ export default function HomePage() {
               <p className="text-xs text-slate-300 mt-1">Direct links to Expedia, Booking.com &amp; Agoda to verify the retail rate yourself.</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+            <Link href="/flights" className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md hover:border-emerald-500/40 transition-colors block group">
               <div className="text-emerald-400 font-black text-sm flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4" /> Co-Branded Visa® Card
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase font-black">Coming Soon</span>
+                <Plane className="w-4 h-4 text-sky-400" /> Direct Flights &amp; EU261 Sentinel
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-black">Live</span>
               </div>
-              <p className="text-xs text-slate-300 mt-1">Future member benefit with 0% FX fees and automated price-drop refunds.</p>
-            </div>
+              <p className="text-xs text-slate-300 mt-1">Direct NDC net fares with 0% markup + 24/7 automated €600 delay cash recovery.</p>
+            </Link>
           </div>
         </div>
       </section>

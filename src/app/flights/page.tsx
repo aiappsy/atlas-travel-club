@@ -24,6 +24,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 
 interface FlightOffer {
   id: string;
+  offerId?: string;
   airlineName: string;
   airlineCode: string;
   flightNumber: string;
@@ -180,6 +181,48 @@ export default function FlightsPage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [activeModalFlight, setActiveModalFlight] = useState<FlightOffer | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+  const [bookingResult, setBookingResult] = useState<any | null>(null);
+  const [passengerData, setPassengerData] = useState({
+    title: 'mr',
+    givenName: 'Pål Alexander',
+    familyName: 'Juritzen',
+    bornOn: '1985-05-15',
+    email: 'contact@atlastravelclub.com',
+    phoneNumber: '+4790000000',
+  });
+
+  const handleConfirmBooking = async () => {
+    if (!activeModalFlight) return;
+    setIsBooking(true);
+    setBookingError(null);
+
+    try {
+      const offerId = (activeModalFlight as any).offerId || activeModalFlight.id;
+      const res = await fetch('/api/flights/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          offerId,
+          passenger: passengerData,
+          paymentMethod: 'balance',
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        setBookingError(data.error || 'Failed to issue ticket with airline');
+      } else {
+        setBookingResult(data);
+        setBookingSuccess(true);
+      }
+    } catch (err: any) {
+      setBookingError(err?.message || 'Network communication error');
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   const performLiveSearch = async (orig = originSearch, dest = destSearch, cabin = selectedCabin, date = departureDate) => {
     setIsSearching(true);
@@ -262,14 +305,15 @@ export default function FlightsPage() {
                 Card charged directly via carrier settlement. 0% credit card processing markup.
               </p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-emerald-400 font-black text-xs flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> EU261 €600 Delay Protection
+            <Link href="/flight-claims" className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 transition-colors block group cursor-pointer">
+              <div className="text-emerald-400 font-black text-xs flex items-center justify-between">
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> EU261 €600 Delay Sentinel</span>
+                <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
-                Automated 24/7 flight delay sentinel recovers up to €600 in cash compensation for delayed flights.
+                24/7 automated disruption sentinel recovers up to €600 cash per passenger with 0% legal deduction.
               </p>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
@@ -449,6 +493,8 @@ export default function FlightsPage() {
                         onClick={() => {
                           setActiveModalFlight(flight);
                           setBookingSuccess(false);
+                          setBookingResult(null);
+                          setBookingError(null);
                         }}
                         className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
                       >
@@ -507,20 +553,31 @@ export default function FlightsPage() {
                     <span className="font-mono text-white">{formatPrice(c.airportTaxesAndSecurity)}</span>
                   </div>
                   <div className="flex justify-between text-slate-300">
-                    <span>Digital PNR / Ticket Issuance (Duffel):</span>
+                    <span>Digital IATA Ticketing (Duffel):</span>
                     <span className="font-mono text-white">{formatPrice(c.ticketingAndPnrFee)}</span>
                   </div>
+                  <div className="flex justify-between text-indigo-300 font-bold">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                      EU261 Sentinel 24/7 Delay Protection:
+                    </span>
+                    <span className="font-mono text-indigo-300">{formatPrice(c.sentinelProtectionFee)}</span>
+                  </div>
                   <div className="flex justify-between text-emerald-400 font-bold">
-                    <span>Atlas Club Retail Markup:</span>
+                    <span>Atlas Retail Markup:</span>
                     <span className="font-mono">$0.00 (0%)</span>
                   </div>
                   <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-black text-white">
-                    <span>Total Settled With Carrier:</span>
+                    <span>Total Member Ticket Settlement:</span>
                     <span className="text-emerald-400 text-base">{formatPrice(c.totalAmountCharged)}</span>
                   </div>
                   <div className="flex justify-between text-[11px] text-slate-400">
-                    <span>Public Retail (Expedia / Google):</span>
+                    <span>Public Retail (Expedia / Gotogate):</span>
                     <span className="line-through">{formatPrice(c.retailOtaComparison)}</span>
+                  </div>
+                  <div className="flex justify-between text-[11px] text-emerald-400 font-bold">
+                    <span>Your Instant Member Savings:</span>
+                    <span>{formatPrice(c.memberInstantSavings)}</span>
                   </div>
                 </div>
               );
@@ -534,20 +591,128 @@ export default function FlightsPage() {
               <p>• {FLIGHT_LEGAL_DISCLOSURES.eu261Protection}</p>
             </div>
 
-            {bookingSuccess ? (
-              <div className="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-500/40 text-center space-y-1 text-xs">
-                <CheckCircle2 className="w-6 h-6 text-emerald-400 mx-auto" />
-                <div className="font-black text-white text-sm">Direct Carrier Booking Confirmed!</div>
-                <p className="text-slate-300">Carrier PNR generated. E-ticket issued to passenger manifest.</p>
+            {bookingSuccess && bookingResult ? (
+              <div className="p-5 rounded-2xl bg-emerald-950/90 border border-emerald-500/50 space-y-4 text-xs">
+                <div className="text-center space-y-1">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/40">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+                  </div>
+                  <h4 className="text-lg font-black text-white pt-1">Electronic Ticket Issued</h4>
+                  <p className="text-emerald-300/80 text-[11px]">Direct IATA/NDC Settlement Confirmed via Duffel</p>
+                </div>
+
+                <div className="bg-slate-950/80 rounded-xl p-4 border border-emerald-500/30 space-y-2">
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Airline PNR / Record Locator:</span>
+                    <span className="text-amber-400 font-mono font-black text-base tracking-widest bg-amber-400/10 px-2.5 py-0.5 rounded border border-amber-400/30">
+                      {bookingResult.bookingReference || 'CONFIRMED'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                    <span>Operating Carrier:</span>
+                    <span className="text-white font-bold">{bookingResult.carrier || activeModalFlight.airlineName}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                    <span>Flight Route:</span>
+                    <span className="text-white font-mono">{bookingResult.route || `${activeModalFlight.departureAirport} ➔ ${activeModalFlight.arrivalAirport}`}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                    <span>Passenger:</span>
+                    <span className="text-white font-medium">{passengerData.givenName} {passengerData.familyName}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                    <span>Total Settled (0% Markup):</span>
+                    <span className="text-emerald-400 font-mono font-bold">{bookingResult.totalAmount} {bookingResult.totalCurrency}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-indigo-950/50 border border-indigo-500/30 text-indigo-300 text-[11px]">
+                  <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span>EU261 Sentinel: Flight enrolled in automated 24/7 delay monitoring (€600 claim protection).</span>
+                </div>
+
+                <button
+                  onClick={() => setActiveModalFlight(null)}
+                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"
+                >
+                  Close & View in Trips
+                </button>
               </div>
             ) : (
-              <button
-                onClick={() => setBookingSuccess(true)}
-                className="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Lock className="w-4 h-4" />
-                Authorize Direct Carrier Settlement
-              </button>
+              <div className="space-y-4">
+                {/* Passenger Manifest Inputs */}
+                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5 text-xs">
+                  <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-amber-400" /> Passenger Details (IATA Manifest)
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">First / Given Name</label>
+                      <input
+                        type="text"
+                        value={passengerData.givenName}
+                        onChange={(e) => setPassengerData({ ...passengerData, givenName: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        placeholder="First name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Last / Family Name</label>
+                      <input
+                        type="text"
+                        value={passengerData.familyName}
+                        onChange={(e) => setPassengerData({ ...passengerData, familyName: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        placeholder="Last name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Date of Birth (YYYY-MM-DD)</label>
+                      <input
+                        type="date"
+                        value={passengerData.bornOn}
+                        onChange={(e) => setPassengerData({ ...passengerData, bornOn: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block mb-0.5">Mobile Phone (with country code)</label>
+                      <input
+                        type="text"
+                        value={passengerData.phoneNumber}
+                        onChange={(e) => setPassengerData({ ...passengerData, phoneNumber: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        placeholder="+4790000000"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {bookingError && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                    <Info className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>{bookingError}</span>
+                  </div>
+                )}
+
+                <button
+                  disabled={isBooking}
+                  onClick={handleConfirmBooking}
+                  className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isBooking ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Issuing E-Ticket with Airline (Duffel NDC)...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      Confirm & Issue Direct Airline Ticket
+                    </>
+                  )}
+                </button>
+              </div>
             )}
           </div>
         </div>
