@@ -66,8 +66,8 @@ const FAQ_ITEMS: FaqItem[] = [
 ];
 
 export default function FaqPage() {
-  const { currentLanguage } = useLanguage();
-  const isNo = currentLanguage === 'no';
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [openIndex, setOpenIndex] = useState<number | null>(0);

@@ -17,8 +17,8 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function CalculatorPage() {
   const { convertPrice, formatPrice } = useCurrency();
-  const { currentLanguage } = useLanguage();
-  const isNo = currentLanguage === 'no';
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
 
   // Calculator inputs
   const [tripsPerYear, setTripsPerYear] = useState<number>(3);

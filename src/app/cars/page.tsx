@@ -24,17 +24,23 @@ interface CarRentalOffer {
   id: string;
   name: string;
   category: 'Luxury Sedan' | 'Executive SUV' | 'Sports & Performance' | 'Premium Electric';
+  categoryNo: string;
+  categoryEn: string;
   image: string;
   seats: number;
   luggage: number;
-  transmission: 'Automatic' | 'Manual';
-  fuelType: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
+  transmissionNo: string;
+  transmissionEn: string;
+  fuelTypeNo: string;
+  fuelTypeEn: string;
   supplier: string;
   retailOtaPricePerDay: number;
   memberPricePerDay: number;
-  features: string[];
+  featuresNo: string[];
+  featuresEn: string[];
   deposit: number;
-  includedPerks: string[];
+  includedPerksNo: string[];
+  includedPerksEn: string[];
 }
 
 const SAMPLE_CARS: CarRentalOffer[] = [
@@ -42,104 +48,140 @@ const SAMPLE_CARS: CarRentalOffer[] = [
     id: 'car-porsche-taycan',
     name: 'Porsche Taycan 4S Cross Turismo',
     category: 'Premium Electric',
+    categoryNo: 'Premium Elbil',
+    categoryEn: 'Premium Electric',
     image: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80',
     seats: 4,
     luggage: 3,
-    transmission: 'Automatic',
-    fuelType: 'Electric',
+    transmissionNo: 'Automat',
+    transmissionEn: 'Automatic',
+    fuelTypeNo: 'Elektrisk',
+    fuelTypeEn: 'Electric',
     supplier: 'Sixt Prestige Partner',
     retailOtaPricePerDay: 420,
     memberPricePerDay: 265,
-    features: ['530 HP Dual-Motor', 'All-Wheel Drive', 'Panoramic Glass Roof', 'Burmester Sound'],
+    featuresNo: ['530 HK Dobbeltmotor', 'Firehjulstrekk', 'Panoramatak i glass', 'Burmester High-End lyd'],
+    featuresEn: ['530 HP Dual-Motor', 'All-Wheel Drive', 'Panoramic Glass Roof', 'Burmester High-End Sound'],
     deposit: 500,
-    includedPerks: ['Free Supercharging', 'VIP Runway Curbside Delivery', 'Zero Deductible Insurance', 'Additional Driver Included'],
+    includedPerksNo: ['Gratis hurtiglading', 'VIP-levering på rullebanen', '0,- i egenandel', 'Ekstra sjåfør inkludert'],
+    includedPerksEn: ['Complimentary Supercharging', 'VIP Curbside Delivery', 'Zero Excess Deductible', 'Additional Driver Included'],
   },
   {
     id: 'car-range-rover',
     name: 'Range Rover Autobiography V8',
     category: 'Executive SUV',
+    categoryNo: 'Luksus SUV',
+    categoryEn: 'Executive SUV',
     image: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?auto=format&fit=crop&w=1200&q=80',
     seats: 5,
     luggage: 5,
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
+    transmissionNo: 'Automat',
+    transmissionEn: 'Automatic',
+    fuelTypeNo: 'Bensin',
+    fuelTypeEn: 'Petrol',
     supplier: 'Hertz Dream Collection',
     retailOtaPricePerDay: 580,
     memberPricePerDay: 375,
-    features: ['523 HP Twin-Turbo V8', 'Executive Class Seating', 'Air Suspension', 'Head-Up Display'],
+    featuresNo: ['523 HK Twin-Turbo V8', 'Executive bakseter', 'Luftfjæring', 'Head-Up Display'],
+    featuresEn: ['523 HP Twin-Turbo V8', 'Executive Seating', 'Adaptive Air Suspension', 'Head-Up Display'],
     deposit: 600,
-    includedPerks: ['Unlimited Kilometers', 'Full Comprehensive Coverage', 'Direct Airport Escort', 'Ski/Luggage Rack Free'],
+    includedPerksNo: ['Ubegrenset kjørelengde', 'Full kaskoforsikring (0,- egenandel)', 'Direkte flyplassesforte', 'Skiboks/bagasjebrett gratis'],
+    includedPerksEn: ['Unlimited Mileage', 'Full Comprehensive Coverage', 'Direct Airport Escort', 'Complimentary Ski Rack'],
   },
   {
     id: 'car-mercedes-s-class',
     name: 'Mercedes-Benz S 580 4MATIC',
     category: 'Luxury Sedan',
+    categoryNo: 'Luksussedan',
+    categoryEn: 'Luxury Sedan',
     image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1200&q=80',
     seats: 5,
     luggage: 4,
-    transmission: 'Automatic',
-    fuelType: 'Hybrid',
+    transmissionNo: 'Automat',
+    transmissionEn: 'Automatic',
+    fuelTypeNo: 'Hybrid',
+    fuelTypeEn: 'Hybrid',
     supplier: 'Avis Signature Series',
     retailOtaPricePerDay: 490,
     memberPricePerDay: 310,
-    features: ['Mild Hybrid V8', 'MBUX Augmented Reality', 'Active Noise Cancellation', 'Ventilated Massage Seats'],
+    featuresNo: ['Mild Hybrid V8', 'MBUX Augmented Reality', 'Aktiv støydemping', 'Massasjeseter med ventilasjon'],
+    featuresEn: ['Mild Hybrid V8', 'MBUX Augmented Reality', 'Active Road Noise Cancelling', 'Ventilated Massage Seats'],
     deposit: 450,
-    includedPerks: ['Chauffeur Upgrade Option', 'Zero Excess Collision Protection', 'Express Key Dropoff'],
+    includedPerksNo: ['Sjåføroppgradering mulig', '0,- egenandel ved kollisjon', 'Ekspress nøkkeloverlevering'],
+    includedPerksEn: ['Chauffeur Upgrade Available', 'Zero Excess Collision Protection', 'Express VIP Key Dropoff'],
   },
   {
     id: 'car-porsche-911',
     name: 'Porsche 911 Carrera 4 GTS Cabriolet',
     category: 'Sports & Performance',
+    categoryNo: 'Sportsbil',
+    categoryEn: 'Sports & Performance',
     image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80',
     seats: 2,
     luggage: 2,
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
+    transmissionNo: 'PDK Automat',
+    transmissionEn: 'PDK Automatic',
+    fuelTypeNo: 'Bensin',
+    fuelTypeEn: 'Petrol',
     supplier: 'Europcar Prestige',
     retailOtaPricePerDay: 720,
     memberPricePerDay: 460,
-    features: ['473 HP Boxer-6', 'Sport Chrono Package', 'Acoustic Soft-top', 'Sport Exhaust'],
+    featuresNo: ['473 HK Bokser-6', 'Sport Chrono-pakke', 'Akustisk kalesje', 'Sportseksos med spjeld'],
+    featuresEn: ['473 HP Boxer-6', 'Sport Chrono Package', 'Acoustic Soft-top', 'Sport Exhaust'],
     deposit: 800,
-    includedPerks: ['Guaranteed Specific Model', 'Full Track & Mountain Coverage', 'Free Valet Delivery'],
+    includedPerksNo: ['Garantert nøyaktig modell', 'Full banekjørings- og fjellveiforsikring', 'Gratis levering på hotell'],
+    includedPerksEn: ['Guaranteed Exact Model', 'Mountain Route Coverage', 'Complimentary Hotel Delivery'],
   },
   {
     id: 'car-bmw-x7',
-    name: 'BMW X7 M60i xDrive (7-Seats)',
+    name: 'BMW X7 M60i xDrive (7-Seter)',
     category: 'Executive SUV',
+    categoryNo: 'Luksus SUV',
+    categoryEn: 'Executive SUV',
     image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80',
     seats: 7,
     luggage: 6,
-    transmission: 'Automatic',
-    fuelType: 'Petrol',
+    transmissionNo: 'Automat',
+    transmissionEn: 'Automatic',
+    fuelTypeNo: 'Bensin',
+    fuelTypeEn: 'Petrol',
     supplier: 'Enterprise Exotic',
     retailOtaPricePerDay: 460,
     memberPricePerDay: 295,
-    features: ['M TwinPower V8', 'Sky Lounge Panoramic Glass', 'Harman Kardon Sound', 'Integral Active Steering'],
+    featuresNo: ['M TwinPower V8', 'Sky Lounge panoramatak', 'Harman Kardon lyd', 'Aktiv bakhjulsstyring'],
+    featuresEn: ['M TwinPower V8', 'Sky Lounge Panoramic Glass', 'Harman Kardon Sound', 'Integral Active Steering'],
     deposit: 400,
-    includedPerks: ['Child Seats Included (x2)', 'GPS Navigation Pro', 'Zero Security Excess'],
+    includedPerksNo: ['2 barneseter inkludert', 'GPS Pro navigasjon', 'Ingen depositumstrekk ved skade'],
+    includedPerksEn: ['Child Seats Included (x2)', 'GPS Navigation Pro', 'Zero Damage Hold Liability'],
   },
   {
     id: 'car-audi-etron-gt',
     name: 'Audi RS e-tron GT Carbon Black',
     category: 'Premium Electric',
+    categoryNo: 'Premium Elbil',
+    categoryEn: 'Premium Electric',
     image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80',
     seats: 4,
     luggage: 3,
-    transmission: 'Automatic',
-    fuelType: 'Electric',
+    transmissionNo: 'Automat',
+    transmissionEn: 'Automatic',
+    fuelTypeNo: 'Elektrisk',
+    fuelTypeEn: 'Electric',
     supplier: 'Sixt Prestige Partner',
     retailOtaPricePerDay: 510,
     memberPricePerDay: 325,
-    features: ['637 HP Boost Mode', 'Quattro with Torque Vectoring', 'Matrix LED Headlights', 'Bang & Olufsen 3D'],
+    featuresNo: ['637 HK Boost-modus', 'Quattro med momentvektorering', 'Matrix LED laserlys', 'Bang & Olufsen 3D'],
+    featuresEn: ['637 HP Boost Mode', 'Quattro with Torque Vectoring', 'Matrix LED Headlights', 'Bang & Olufsen 3D'],
     deposit: 500,
-    includedPerks: ['Priority Supercharger Access', '24/7 Roadside VIP Concierge', 'Zero Hidden Fees'],
+    includedPerksNo: ['Prioritert ladetilgang', '24/7 VIP Veihjelp & Concierge', '0,- i skjulte gebyrer'],
+    includedPerksEn: ['Priority Charging Network', '24/7 Roadside VIP Concierge', 'Zero Hidden Fees'],
   },
 ];
 
 export default function CarsPage() {
   const { convertPrice, formatPrice } = useCurrency();
-  const { currentLanguage } = useLanguage();
-  const isNo = currentLanguage === 'no';
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
 
   // Search filter states
   const [pickupCity, setPickupCity] = useState('Nice / Cannes, France');
@@ -163,7 +205,13 @@ export default function CarsPage() {
     return SAMPLE_CARS.filter(c => c.category === selectedCategory);
   }, [selectedCategory]);
 
-  const categories = ['All', 'Luxury Sedan', 'Executive SUV', 'Sports & Performance', 'Premium Electric'];
+  const categories = [
+    { key: 'All', label: isNo ? 'Alle Kategorier' : 'All Categories' },
+    { key: 'Luxury Sedan', label: isNo ? 'Luksussedan' : 'Luxury Sedan' },
+    { key: 'Executive SUV', label: isNo ? 'Luksus SUV' : 'Executive SUV' },
+    { key: 'Sports & Performance', label: isNo ? 'Sportsbil' : 'Sports & Performance' },
+    { key: 'Premium Electric', label: isNo ? 'Premium Elbil' : 'Premium Electric' },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
@@ -279,15 +327,15 @@ export default function CarsPage() {
           <div className="flex flex-wrap gap-2 mt-6 pt-5 border-t border-slate-100">
             {categories.map((cat) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
+                key={cat.key}
+                onClick={() => setSelectedCategory(cat.key)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  selectedCategory === cat
+                  selectedCategory === cat.key
                     ? 'bg-amber-500 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
-                {cat === 'All' ? (isNo ? 'Alle Kategorier' : 'All Categories') : cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -299,6 +347,12 @@ export default function CarsPage() {
             const memberTotal = car.memberPricePerDay * rentalDays;
             const retailTotal = car.retailOtaPricePerDay * rentalDays;
             const savingsTotal = retailTotal - memberTotal;
+
+            const categoryLabel = isNo ? car.categoryNo : car.categoryEn;
+            const features = isNo ? car.featuresNo : car.featuresEn;
+            const perks = isNo ? car.includedPerksNo : car.includedPerksEn;
+            const transmission = isNo ? car.transmissionNo : car.transmissionEn;
+            const fuel = isNo ? car.fuelTypeNo : car.fuelTypeEn;
 
             return (
               <div
@@ -315,7 +369,7 @@ export default function CarsPage() {
 
                   <div className="absolute top-4 left-4 flex gap-2">
                     <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-md text-slate-900 border border-slate-200 shadow-2xs">
-                      {car.category}
+                      {categoryLabel}
                     </span>
                     <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 backdrop-blur-md">
                       {isNo ? `Spar ${formatPrice(convertPrice(savingsTotal))}` : `Save ${formatPrice(convertPrice(savingsTotal))}`}
@@ -347,11 +401,11 @@ export default function CarsPage() {
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       <Fuel className="w-4 h-4 text-amber-600" />
-                      <span>{car.fuelType}</span>
+                      <span>{fuel}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
                       <Gauge className="w-4 h-4 text-amber-600" />
-                      <span>{car.transmission}</span>
+                      <span>{transmission}</span>
                     </div>
                   </div>
 
@@ -361,7 +415,7 @@ export default function CarsPage() {
                       {isNo ? 'Utstyr & Høydepunkter' : 'Features & Highlights'}
                     </h4>
                     <div className="grid grid-cols-2 gap-1.5">
-                      {car.features.map((feat, i) => (
+                      {features.map((feat, i) => (
                         <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
                           <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span className="truncate font-medium">{feat}</span>
@@ -377,7 +431,7 @@ export default function CarsPage() {
                       {isNo ? 'ATLAS Medlemsfordeler Inkludert' : 'ATLAS Club Inclusions'}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-[11px] text-amber-800">
-                      {car.includedPerks.map((perk, pIdx) => (
+                      {perks.map((perk, pIdx) => (
                         <div key={pIdx} className="flex items-center gap-1.5">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                           <span>{perk}</span>
@@ -455,7 +509,7 @@ export default function CarsPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">{isNo ? 'Egenandel:' : 'Deductible Excess:'}</span>
-                    <span className="font-bold text-emerald-600">0,- (Full VIP Dekning)</span>
+                    <span className="font-bold text-emerald-600">0,- ({isNo ? 'Full VIP Dekning' : 'Zero Excess Protection'})</span>
                   </div>
                   <div className="flex justify-between text-base pt-2 border-t border-slate-100">
                     <span className="font-bold text-slate-900">{isNo ? 'Medlemspris totalt:' : 'Total Member Fare:'}</span>
