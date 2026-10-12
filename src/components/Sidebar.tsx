@@ -5,420 +5,220 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSidebar } from '@/context/SidebarContext';
 import { useAuth } from '@/context/AuthContext';
-import { usePlatform } from '@/context/PlatformContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
-  Building2,
-  Castle,
-  Laptop,
+  Hotel,
   Plane,
+  Coffee,
   Ship,
-  Anchor,
-  CreditCard,
-  TrendingDown,
-  Coins,
-  Zap,
-  Star,
-  Globe,
-  Scale,
-  HeartPulse,
-  ShieldCheck,
-  HelpCircle,
-  FileText,
-  BookOpen,
-  Shield,
-  Compass,
   Sparkles,
-  Download,
-  Search,
+  ShieldCheck,
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+  BookmarkCheck,
   X
 } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { isOpen, closeSidebar } = useSidebar();
+  const { isCollapsed, toggleCollapse, isMobileOpen, closeMobile } = useSidebar();
   const { user, isMember } = useAuth();
-  const { features } = usePlatform();
+  const { t, locale } = useLanguage();
 
-  const NAV_SECTIONS = [
+  const NAV_TABS = [
     {
-      title: 'Wholesale Stays & Travel',
-      items: [
-        ...(features.enableHotels
-          ? [
-              {
-                name: 'Wholesale Hotels',
-                href: '/hotels',
-                icon: Building2,
-                badge: '1M+ Properties',
-                badgeColor: 'bg-amber-100 text-amber-900',
-              },
-              {
-                name: 'Commercial Flights',
-                href: '/flights',
-                icon: Plane,
-                badge: '0% Markup',
-                badgeColor: 'bg-emerald-100 text-emerald-900',
-              },
-            ]
-          : []),
-        ...(features.enableLuxuryVillas
-          ? [
-              {
-                name: 'Luxury Villas & Chalets',
-                href: '/villas',
-                icon: Castle,
-                badge: 'French Chef',
-                badgeColor: 'bg-indigo-100 text-indigo-900',
-              },
-            ]
-          : []),
-        ...(features.enableNomadHub
-          ? [
-              {
-                name: 'Nomad Visas & Coliving',
-                href: '/nomads',
-                icon: Laptop,
-                badge: '1Gbps Fiber',
-                badgeColor: 'bg-teal-100 text-teal-900',
-              },
-            ]
-          : []),
-        ...(features.enablePrivateJets
-          ? [
-              {
-                name: 'Private Jet Empty Legs',
-                href: '/private-jets',
-                icon: Plane,
-                badge: 'Up to 80% Off',
-                badgeColor: 'bg-sky-100 text-sky-900',
-              },
-            ]
-          : []),
-        ...(features.enableCruises
-          ? [
-              {
-                name: 'Wholesale Cruises',
-                href: '/cruises',
-                icon: Ship,
-                badge: '+$250 Credit',
-                badgeColor: 'bg-emerald-100 text-emerald-900',
-              },
-            ]
-          : []),
-        ...(features.enableYachtsAndSupercars
-          ? [
-              {
-                name: 'Yachts & Supercars',
-                href: '/yachts-and-supercars',
-                icon: Anchor,
-              },
-            ]
-          : []),
-      ],
+      name: t.nav.hotels,
+      href: '/hotels',
+      icon: Hotel,
+      badge: locale === 'no' ? '1M+ Engros' : '1M+ Wholesale',
+      badgeColor: 'bg-amber-100 text-amber-800',
     },
     {
-      title: 'FinTech & Sovereign Banking',
-      items: [
-        ...(features.enableVisaPrepaidCards
-          ? [
-              {
-                name: 'ATLAS Visa® Card',
-                href: '/membership/visa-card',
-                icon: CreditCard,
-                badge: 'Coming Soon',
-                badgeColor: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold',
-              },
-            ]
-          : []),
-        ...(features.enableAutoRebooker
-          ? [
-              {
-                name: 'Price-Drop Sentinel',
-                href: '/membership/price-drops',
-                icon: TrendingDown,
-                badge: '24/7 Auto',
-                badgeColor: 'bg-sky-100 text-sky-900',
-              },
-            ]
-          : []),
-        ...(features.enableTravelVault
-          ? [
-              {
-                name: 'Travel Vault Dividends',
-                href: '/vault',
-                icon: Coins,
-                badge: 'Annual Payout',
-                badgeColor: 'bg-amber-100 text-amber-900',
-              },
-            ]
-          : []),
-      ],
+      name: t.nav.flights,
+      href: '/flights',
+      icon: Plane,
+      badge: locale === 'no' ? 'NDC Netto' : 'NDC Net',
+      badgeColor: 'bg-sky-100 text-sky-800',
     },
     {
-      title: 'VIP Privileges & Mobility',
-      items: [
-        ...(features.enableFastTrackImmigration
-          ? [
-              {
-                name: 'Airport Fast-Track Customs',
-                href: '/fast-track',
-                icon: Zap,
-                badge: '3-Min Escort',
-                badgeColor: 'bg-amber-100 text-amber-900',
-              },
-            ]
-          : []),
-        ...(features.enableStatusMatch
-          ? [
-              {
-                name: 'Elite Status Matches',
-                href: '/status-match',
-                icon: Star,
-                badge: 'Hilton 💎',
-                badgeColor: 'bg-purple-100 text-purple-900',
-              },
-            ]
-          : []),
-        ...(features.enableLounges
-          ? [
-              {
-                name: 'VIP Airport Lounges',
-                href: '/lounges',
-                icon: Plane,
-                badge: '$32 Pass',
-                badgeColor: 'bg-sky-100 text-sky-900',
-              },
-            ]
-          : []),
-        ...(features.enableEsim
-          ? [
-              {
-                name: 'Global 5G eSIM',
-                href: '/esim',
-                icon: Globe,
-                badge: '140+ Countries',
-                badgeColor: 'bg-indigo-100 text-indigo-900',
-              },
-            ]
-          : []),
-        ...(features.enableFlightClaims
-          ? [
-              {
-                name: 'Flight Delay Claims ($650)',
-                href: '/flight-claims',
-                icon: Scale,
-                badge: 'AirHelp',
-                badgeColor: 'bg-rose-100 text-rose-900',
-              },
-            ]
-          : []),
-        ...(features.enableTravelInsurance
-          ? [
-              {
-                name: 'Travel Medical Insurance',
-                href: '/insurance',
-                icon: HeartPulse,
-              },
-            ]
-          : []),
-      ],
+      name: t.nav.lounges,
+      href: '/lounges',
+      icon: Coffee,
+      badge: '$32 Pass',
+      badgeColor: 'bg-amber-100 text-amber-800',
     },
     {
-      title: 'Verification & Transparency',
-      items: [
-        {
-          name: 'Multi-OTA Price Checker',
-          href: '/rate-checker',
-          icon: Search,
-          badge: 'Live',
-          badgeColor: 'bg-sky-400 text-slate-950 font-bold',
-        },
-        {
-          name: 'Live Savings Proof Engine',
-          href: '/proof',
-          icon: ShieldCheck,
-          badge: 'Audited',
-          badgeColor: 'bg-emerald-500 text-slate-950 font-black',
-        },
-        {
-          name: 'Case Study: Rate Parity',
-          href: '/case-study',
-          icon: BookOpen,
-          badge: 'Economics',
-          badgeColor: 'bg-amber-400 text-slate-950 font-bold',
-        },
-        {
-          name: 'How ATLAS Works',
-          href: '/how-it-works',
-          icon: HelpCircle,
-        },
-        {
-          name: 'Case Study (PDF)',
-          href: '/ATLAS_Case_Study_Rate_Parity.pdf',
-          icon: Download,
-          isExternalDownload: true,
-        },
-        {
-          name: 'Official Sales Letter (PDF)',
-          href: '/ATLAS_Sales_Letter.pdf',
-          icon: FileText,
-          isExternalDownload: true,
-        },
-        {
-          name: 'Technical Whitepaper (PDF)',
-          href: '/ATLAS_Whitepaper.pdf',
-          icon: BookOpen,
-          isExternalDownload: true,
-        },
-        {
-          name: 'Terms of Service',
-          href: '/terms',
-          icon: Scale,
-        },
-        {
-          name: 'Privacy Policy',
-          href: '/privacy',
-          icon: ShieldCheck,
-        },
-        {
-          name: 'Admin Command Console',
-          href: '/admin',
-          icon: Shield,
-        },
-      ],
+      name: t.nav.cruises,
+      href: '/cruises',
+      icon: Ship,
+      badge: locale === 'no' ? 'Engros' : 'Wholesale',
+      badgeColor: 'bg-indigo-100 text-indigo-800',
+    },
+    {
+      name: t.nav.savingsProof,
+      href: '/proof',
+      icon: ShieldCheck,
+      badge: 'ROI',
+      badgeColor: 'bg-emerald-100 text-emerald-800',
+    },
+    {
+      name: t.nav.membership,
+      href: '/membership',
+      icon: Sparkles,
+      badge: locale === 'no' ? 'Prøve' : 'Trial',
+      badgeColor: 'bg-amber-100 text-amber-800',
+    },
+    {
+      name: t.nav.myBookings,
+      href: '/trips',
+      icon: BookmarkCheck,
     },
   ];
 
-  if (!isOpen) return null;
-
   return (
     <>
-      {/* Backdrop */}
-      <div
-        onClick={closeSidebar}
-        className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 transition-opacity animate-in fade-in duration-200"
-      />
+      {/* Mobile Backdrop */}
+      {isMobileOpen && (
+        <div
+          onClick={closeMobile}
+          className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs md:hidden"
+        />
+      )}
 
-      {/* Slide-out Drawer Panel */}
-      <aside className="fixed top-0 bottom-0 left-0 z-50 w-80 max-w-[85vw] bg-slate-950 text-slate-200 shadow-2xl border-r border-slate-800 flex flex-col transition-transform duration-300 ease-in-out animate-in slide-in-from-left">
-        {/* Drawer Header */}
-        <div className="h-16 border-b border-slate-800/80 flex items-center justify-between px-5 bg-slate-950 shrink-0">
-          <Link
-            href="/"
-            onClick={closeSidebar}
-            className="flex items-center gap-3 group"
-          >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              <Compass className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-black text-white tracking-tight flex items-center gap-1.5 font-mono">
-                ATLAS
-                <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-sans">
-                  VIP CLUB
-                </span>
-              </span>
-              <span className="text-[9px] text-slate-400 -mt-0.5">
-                Wholesale Travel & Sovereign Banking
-              </span>
-            </div>
-          </Link>
+      {/* 
+        Sidebar Container:
+        Fixed at the VERY TOP of the screen (top-0 bottom-0 left-0).
+        Stands fixed in place at all times, independent of page scroll!
+      */}
+      <aside
+        className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shadow-xs ${
+          // Desktop sizing
+          isCollapsed ? 'md:w-16' : 'md:w-60'
+        } ${
+          // Mobile drawer
+          isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          
+          {/* Top Logo Section Inside Sidebar (Pinned at the very top, height matches navbar h-20) */}
+          <div className="h-20 border-b border-slate-200 flex items-center justify-between px-3 bg-white shrink-0">
+            <Link
+              href="/"
+              onClick={() => closeMobile()}
+              className={`flex items-center transition-all ${
+                isCollapsed ? 'justify-center w-full' : 'px-1'
+              }`}
+            >
+              {isCollapsed ? (
+                /* Collapsed: Only the iconic gold 'A' mark is shown */
+                <img
+                  src="/atlas-mark-light.svg"
+                  alt="Atlas"
+                  className="h-9 w-9 object-contain transition-transform hover:scale-110 drop-shadow-xs"
+                  title="Atlas Travel Club"
+                />
+              ) : (
+                /* Expanded: Full Atlas Travel Club logo */
+                <img
+                  src="/atlas-logo-light.svg"
+                  alt="Atlas Travel Club"
+                  className="h-10 w-auto max-w-[190px] object-contain transition-transform hover:scale-102"
+                />
+              )}
+            </Link>
 
-          {/* Close Button */}
-          <button
-            onClick={closeSidebar}
-            title="Close Menu"
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-900 rounded-xl transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+            {/* Mobile close button */}
+            <button
+              onClick={closeMobile}
+              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-        {/* Scrollable Navigation List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-          {NAV_SECTIONS.map((section, sIdx) => (
-            <div key={sIdx} className="space-y-1.5">
-              <div className="px-3 text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
-                {section.title}
-              </div>
+          {/* Navigation Items */}
+          <nav className="p-2 space-y-1 mt-1">
+            {NAV_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = pathname === tab.href || (tab.href !== '/' && pathname.startsWith(tab.href));
 
-              {section.items.map((item, iIdx) => {
-                const Icon = item.icon;
-                const active = pathname === item.href;
+              return (
+                <Link
+                  key={tab.name}
+                  href={tab.href}
+                  onClick={() => closeMobile()}
+                  title={isCollapsed ? tab.name : undefined}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all group ${
+                    isActive
+                      ? 'bg-amber-50 text-amber-900 border border-amber-200 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-950 hover:bg-slate-100 border border-transparent'
+                  }`}
+                >
+                  <Icon
+                    className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
+                      isActive ? 'text-amber-600' : 'text-slate-500'
+                    }`}
+                  />
 
-                if (item.isExternalDownload) {
-                  return (
-                    <a
-                      key={iIdx}
-                      href={item.href}
-                      download
-                      onClick={closeSidebar}
-                      className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-amber-300 hover:bg-slate-900 transition-all group"
-                    >
-                      <div className="flex items-center gap-3 truncate">
-                        <Icon className="w-4 h-4 shrink-0 text-slate-400 group-hover:text-amber-300" />
-                        <span className="truncate">{item.name}</span>
-                      </div>
-                      <span className="text-[9px] font-mono font-bold text-slate-400">
-                        PDF ⬇
-                      </span>
-                    </a>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={iIdx}
-                    href={item.href}
-                    onClick={closeSidebar}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                      active
-                        ? 'bg-gradient-to-r from-amber-500/20 to-indigo-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                  {/* Text label hidden when collapsed on desktop */}
+                  <span
+                    className={`whitespace-nowrap transition-opacity duration-200 ${
+                      isCollapsed ? 'md:hidden' : 'inline'
                     }`}
                   >
-                    <div className="flex items-center gap-3 truncate">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 ${
-                          active ? 'text-amber-400' : 'text-slate-400'
-                        }`}
-                      />
-                      <span className="truncate">{item.name}</span>
-                    </div>
+                    {tab.name}
+                  </span>
 
-                    {item.badge && (
-                      <span
-                        className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${
-                          item.badgeColor || 'bg-slate-800 text-slate-300'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+                  {/* Badge */}
+                  {tab.badge && !isCollapsed && (
+                    <span
+                      className={`ml-auto text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full tracking-wider shrink-0 ${
+                        tab.badgeColor || 'bg-slate-100 text-slate-600'
+                      }`}
+                    >
+                      {tab.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Drawer Footer */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-950 shrink-0 space-y-2">
-          <Link
-            href="/membership"
-            onClick={closeSidebar}
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2"
+        {/* Bottom Bar: Light mode styling, collapse toggle + Concierge shortcut */}
+        <div className="p-3 border-t border-slate-200 bg-slate-50/80 space-y-2 shrink-0">
+          {/* AI Concierge Trigger */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent('open-concierge'));
+              closeMobile();
+            }}
+            title={isCollapsed ? 'Atlas Concierge' : undefined}
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 transition-colors cursor-pointer shadow-xs ${
+              isCollapsed ? 'justify-center' : ''
+            }`}
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Get ATLAS VIP Pass</span>
-          </Link>
+            <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+            <span className={isCollapsed ? 'md:hidden' : 'inline'}>Atlas Concierge</span>
+          </button>
 
-          {isMember && user && (
-            <div className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Total Savings:</span>
-              <span className="font-black text-emerald-400">${user.lifetimeSavings}</span>
-            </div>
-          )}
+          {/* Desktop Collapse / Expand Button */}
+          <button
+            onClick={toggleCollapse}
+            className="hidden md:flex w-full items-center justify-center p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors text-xs font-semibold cursor-pointer"
+            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <ChevronLeft className="w-4 h-4" />
+                <span className="text-[11px]">{t.nav.collapse}</span>
+              </div>
+            )}
+          </button>
         </div>
       </aside>
     </>

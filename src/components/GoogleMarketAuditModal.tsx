@@ -217,17 +217,17 @@ export default function GoogleMarketAuditModal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex flex-col bg-slate-950 animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex flex-col bg-slate-50 text-slate-900 animate-in fade-in duration-150 selection:bg-amber-100 selection:text-amber-900"
     >
       {/* ── TOP HEADER ──────────────────────────────────────────────────── */}
-      <div className="shrink-0 flex items-center justify-between gap-4 px-5 py-3 sm:px-8 sm:py-4 bg-slate-900 border-b border-slate-800">
+      <div className="shrink-0 flex items-center justify-between gap-4 px-5 py-3 sm:px-8 sm:py-4 bg-white border-b border-slate-200">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live Wholesale Audit
           </span>
           {isFetchingLive && (
-            <span className="text-[11px] text-sky-400 flex items-center gap-1">
+            <span className="text-[11px] text-sky-700 flex items-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin" />
               Checking live rates…
             </span>
@@ -239,17 +239,17 @@ export default function GoogleMarketAuditModal({
             href={googleHotelsDirectUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 hover:text-sky-300 border border-slate-700 text-xs font-bold transition-all shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-sky-700 border border-slate-200 text-xs font-semibold transition-all shadow-xs"
             title="Inspect verified rates across all OTAs on Google Travel"
           >
-            <Globe className="w-3.5 h-3.5 text-sky-400" />
+            <Globe className="w-3.5 h-3.5 text-sky-600" />
             <span className="hidden sm:inline">Open on Google Travel ↗</span>
             <span className="sm:hidden">Google Travel ↗</span>
           </a>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors border border-slate-700 cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors border border-slate-200 cursor-pointer"
             title="Close (Esc)"
           >
             <X className="w-5 h-5" />
@@ -258,46 +258,46 @@ export default function GoogleMarketAuditModal({
       </div>
 
       {/* ── HOTEL TITLE & DURATION STEPPER ──────────────────────────────── */}
-      <div className="shrink-0 px-5 py-3 sm:px-8 bg-slate-900/60 border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="shrink-0 px-5 py-3 sm:px-8 bg-white border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">{hotel.name}</h2>
-            <div className="flex items-center gap-1 text-amber-400 text-sm font-bold">
-              {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />)}
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">{hotel.name}</h2>
+            <div className="flex items-center gap-1 text-amber-500 text-sm font-bold">
+              {Array.from({ length: hotel.starRating }).map((_, i) => <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />)}
             </div>
           </div>
-          <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <div className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
             <span>{hotel.city}, {hotel.country}</span>
             {effectiveCheckIn && (
-              <span className="text-slate-500 font-mono">
+              <span className="text-slate-400 font-mono">
                 · {effectiveCheckIn} → {effectiveCheckOut}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-slate-300 bg-slate-800/80 px-2 py-0.5 rounded-md text-[11px] font-medium border border-slate-700/60">
-              <Users className="w-3 h-3 text-amber-400" />
+            <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[11px] font-medium border border-slate-200">
+              <Users className="w-3 h-3 text-slate-500" />
               <span>{guestSummary || hotel.guestSummary || '2 Adults · 1 Room'}</span>
             </span>
           </div>
         </div>
 
         {/* Intuitive Stay Duration Stepper */}
-        <div className="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-2xl border border-slate-800 self-start sm:self-auto shadow-inner">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Stay Duration:</span>
+        <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 self-start sm:self-auto shadow-xs">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Stay Duration:</span>
           <button
             type="button"
             onClick={() => setStayNights(prev => Math.max(1, prev - 1))}
-            className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-bold transition-colors cursor-pointer border border-slate-700 active:scale-95"
+            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center font-bold transition-colors cursor-pointer border border-slate-200 active:scale-95 shadow-xs"
             title="Decrease stay"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
-          <span className="text-sm font-black text-white font-mono min-w-[70px] text-center">
+          <span className="text-sm font-bold text-slate-900 font-mono min-w-[70px] text-center">
             {stayNights} {stayNights === 1 ? 'Night' : 'Nights'}
           </span>
           <button
             type="button"
             onClick={() => setStayNights(prev => Math.min(30, prev + 1))}
-            className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center font-bold transition-colors cursor-pointer border border-slate-700 active:scale-95"
+            className="w-7 h-7 rounded-lg bg-white hover:bg-slate-100 text-slate-700 flex items-center justify-center font-bold transition-colors cursor-pointer border border-slate-200 active:scale-95 shadow-xs"
             title="Increase stay"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -312,56 +312,54 @@ export default function GoogleMarketAuditModal({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
           
           {/* LEFT: Public Retail (Booking.com / Expedia) */}
-          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between shadow-xl">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                   Public Retail ({bookingProvider.name})
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold border border-slate-700">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200">
                   Open Web Price
                 </span>
               </div>
 
-              <div className="text-4xl sm:text-5xl font-black text-slate-300 font-mono leading-none tracking-tight">
+              <div className="text-4xl sm:text-5xl font-bold text-slate-900 font-mono leading-none tracking-tight">
                 {fmt(publicAllInTotal)}
               </div>
-              <div className="text-xs text-slate-400 mt-2 font-medium">
+              <div className="text-xs text-slate-500 mt-2 font-medium">
                 Total for {stayNights} {stayNights === 1 ? 'night' : 'nights'} stay (all-inclusive)
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">
-                {fmt(publicBaseTotal)} base room + {fmt(publicTaxTotal)} taxes added at checkout ({fmt(publicAllInPerNight)}/night)
+              <div className="text-[11px] text-slate-400 mt-1">
+                {fmt(publicBaseTotal)} base room + {fmt(publicTaxTotal)} taxes ({fmt(publicAllInPerNight)}/night)
               </div>
             </div>
 
-            <div className="pt-6 mt-6 border-t border-slate-800">
+            <div className="pt-6 mt-6 border-t border-slate-100">
               <a
                 href={bookingProvider.verifyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-slate-500 text-xs font-bold transition-all flex items-center justify-center gap-2 group shadow-sm"
+                className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-2 group shadow-xs"
               >
                 <span>Verify Live on {bookingProvider.name}</span>
-                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-800 transition-colors" />
               </a>
-              <div className="text-[10px] text-slate-500 text-center mt-2">
+              <div className="text-[10px] text-slate-400 text-center mt-2">
                 Pre-selected for {stayNights} {stayNights === 1 ? 'night' : 'nights'} · opens directly on {bookingProvider.name}
               </div>
             </div>
           </div>
 
           {/* RIGHT: ATLAS Member Wholesale (Highlight) */}
-          <div className="p-6 rounded-3xl bg-gradient-to-b from-emerald-950/70 via-slate-900 to-slate-900 border-2 border-emerald-500/60 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-
+          <div className="p-6 rounded-3xl bg-slate-900 text-white border border-slate-800 flex flex-col justify-between shadow-xl relative overflow-hidden">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" />
-                  ATLAS Private Wholesale
+                  ATLAS Member Rate
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black uppercase shadow-sm">
-                  Guaranteed Lowest
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase">
+                  0% Markup
                 </span>
               </div>
 
@@ -372,16 +370,16 @@ export default function GoogleMarketAuditModal({
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
                 <span>All mandatory taxes, fees &amp; resort charges included</span>
               </div>
-              <div className="text-[11px] text-emerald-400/80 mt-1 font-mono">
-                {fmt(atlasPerNight)} / nt all-in · {fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} base room ({fmt(Math.round(atlasPerNight / (1 + taxPct / 100)))}/nt)
+              <div className="text-[11px] text-slate-400 mt-1 font-mono">
+                {fmt(atlasPerNight)} / nt all-in · {fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} base room
               </div>
             </div>
 
-            <div className="pt-6 mt-6 border-t border-emerald-500/30">
+            <div className="pt-6 mt-6 border-t border-slate-800">
               {onBookNow ? (
                 <button
                   onClick={() => { onClose(); onBookNow(); }}
-                  className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>Lock In Wholesale Rate</span>
@@ -391,15 +389,15 @@ export default function GoogleMarketAuditModal({
                 <Link
                   href={`/hotels/${hotel.id}?checkIn=${effectiveCheckIn}&checkOut=${effectiveCheckOut}&nights=${stayNights}`}
                   onClick={onClose}
-                  className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-xl"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md"
                 >
                   <Lock className="w-4 h-4" />
                   <span>Lock In Wholesale Rate</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
-              <div className="text-[10px] text-emerald-400/80 text-center mt-2 font-medium">
-                Immediate confirmation · Instant B2B Bedbank voucher
+              <div className="text-[10px] text-slate-400 text-center mt-2 font-medium">
+                Immediate confirmation · Instant hotel voucher
               </div>
             </div>
           </div>
@@ -407,19 +405,19 @@ export default function GoogleMarketAuditModal({
         </div>
 
         {/* ── THE CASH SAVINGS BANNER ── */}
-        <div className="max-w-4xl mx-auto p-5 rounded-3xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/60 border border-emerald-500/30 text-center shadow-lg">
-          <div className="text-xs font-black uppercase tracking-wider text-emerald-300">
+        <div className="max-w-4xl mx-auto p-5 rounded-3xl bg-emerald-50 border border-emerald-200 text-center shadow-xs">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-800">
             Instant Member Profit
           </div>
-          <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono mt-1">
-            YOU POCKET {fmt(totalSavings)} CASH SAVINGS
+          <div className="text-3xl sm:text-4xl font-black text-emerald-700 font-mono mt-1">
+            YOU SAVE {fmt(totalSavings)} CASH
           </div>
-          <div className="text-xs font-bold text-slate-300 mt-1">
-            {savingsPct}% cheaper than public retail for this {stayNights}-night stay
+          <div className="text-xs font-semibold text-slate-700 mt-1">
+            {savingsPct}% less than public retail for this {stayNights}-night stay
           </div>
-          <div className="flex items-center justify-center gap-2 mt-2 text-[11px] text-emerald-400/90 font-medium">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>100% Closed-Loop Parity Exemption Certified · Guaranteed lower than public retail</span>
+          <div className="flex items-center justify-center gap-2 mt-2 text-[11px] text-emerald-800 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>100% Rate Parity Exemption Certified · Guaranteed lower than public retail</span>
           </div>
         </div>
 
@@ -428,39 +426,39 @@ export default function GoogleMarketAuditModal({
           <button
             type="button"
             onClick={() => setShowAllProviders(!showAllProviders)}
-            className="w-full py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-850 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-between transition-colors cursor-pointer"
+            className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center justify-between transition-colors cursor-pointer shadow-xs"
           >
-            <span>{showAllProviders ? 'Hide' : 'Inspect'} verified public OTA links ({providers.length})</span>
-            <div className="flex items-center gap-1.5 text-slate-400">
+            <span>{showAllProviders ? 'Hide' : 'Inspect'} verified public OTA rates ({providers.length})</span>
+            <div className="flex items-center gap-1.5 text-slate-500">
               <span className="text-[11px]">Booking.com, Expedia, Hotels.com, Agoda</span>
               {showAllProviders ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </button>
 
           {showAllProviders && (
-            <div className="mt-3 rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800/60 animate-in fade-in duration-200">
+            <div className="mt-3 rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100 bg-white animate-in fade-in duration-200 shadow-sm">
               {providers.map((p, idx) => {
                 const pTotal = p.perNight * stayNights;
                 const pSavings = Math.max(0, pTotal - atlasTotal);
 
                 return (
-                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 bg-slate-950 hover:bg-slate-900 transition-colors">
+                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-xs text-white">{p.name}</span>
+                      <span className="font-bold text-xs text-slate-900">{p.name}</span>
                       <span className="text-[11px] text-slate-500 font-mono">
                         {fmt(p.perNight)}/nt · {fmt(pTotal)} total ({stayNights} nts)
                       </span>
                     </div>
 
                     <div className="flex items-center gap-4">
-                      <span className="text-xs font-black text-emerald-400 font-mono">
+                      <span className="text-xs font-bold text-emerald-700 font-mono">
                         Save {fmt(pSavings)} with Atlas
                       </span>
                       <a
                         href={p.verifyUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-[11px] font-bold transition-all flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 text-[11px] font-semibold transition-all flex items-center gap-1"
                       >
                         <span>Check {p.name}</span>
                         <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -474,15 +472,15 @@ export default function GoogleMarketAuditModal({
         </div>
 
         {/* ── PROACTIVE TRANSPARENCY ADVISORY ── */}
-        <div className="max-w-4xl mx-auto p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="max-w-4xl mx-auto p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-slate-600 shadow-xs">
           <div className="flex-1">
-            <div className="flex items-center gap-2 text-slate-200 font-bold mb-1">
-              <Info className="w-4 h-4 text-amber-400 shrink-0" />
-              Why might prices vary slightly between public travel sites?
+            <div className="flex items-center gap-2 text-slate-900 font-bold mb-1">
+              <Info className="w-4 h-4 text-amber-600 shrink-0" />
+              Why do prices vary between public travel sites?
             </div>
             <p className="text-[11px] leading-relaxed">
-              Public travel sites fluctuate between base room rates and post-checkout taxes.
-              ATLAS Wholesale operates through institutional B2B Bedbanks (Hotelbeds, WebBeds) passing net rates with <strong className="text-slate-300">0% retail markup</strong>. All taxes are prepaid so there are never surprise resort fees at check-in.
+              Public travel sites add 20–45% markups to cover search advertising and credit card points.
+              ATLAS Wholesale operates through closed-loop Bedbanks passing net rates with <strong className="text-slate-900">0% retail markup</strong>.
             </p>
           </div>
           <button
@@ -517,28 +515,28 @@ export default function GoogleMarketAuditModal({
                 })
               );
             }}
-            className="shrink-0 px-3.5 py-2.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+            className="shrink-0 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
             title="Ask AI Concierge for an instant explanation of this rate"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Ask Aura to explain</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>Ask AI Concierge</span>
           </button>
         </div>
 
       </div>
 
       {/* ── BOTTOM CTA BAR ──────────────────────────────────────────────── */}
-      <div className="shrink-0 px-5 py-4 sm:px-8 border-t border-slate-800 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="shrink-0 px-5 py-4 sm:px-8 border-t border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="text-[11px] text-slate-400 uppercase tracking-wider">
-            Your All-Inclusive Wholesale Rate ({stayNights} {stayNights === 1 ? 'Night' : 'Nights'}):
+          <div className="text-[11px] text-slate-500 uppercase tracking-wider">
+            All-Inclusive Wholesale Rate ({stayNights} {stayNights === 1 ? 'Night' : 'Nights'}):
           </div>
           <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+            <span className="text-2xl sm:text-3xl font-bold text-slate-900 font-mono">
               {fmt(atlasTotal)}
             </span>
-            <span className="text-xs text-slate-400 font-bold">
-              ({fmt(atlasPerNight)} / night · all taxes &amp; fees included)
+            <span className="text-xs text-slate-500 font-semibold">
+              ({fmt(atlasPerNight)} / night · all taxes included)
             </span>
           </div>
         </div>
@@ -575,16 +573,16 @@ export default function GoogleMarketAuditModal({
                 })
               );
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 text-xs font-bold transition-colors cursor-pointer border border-amber-400/30 flex items-center gap-1.5"
+            className="px-3.5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-colors cursor-pointer border border-slate-200 flex items-center gap-1.5"
             title="Ask Aura VIP Concierge about this hotel"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>AI Concierge</span>
           </button>
 
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition-colors cursor-pointer border border-slate-700"
+            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200"
           >
             Close Audit
           </button>
@@ -592,9 +590,9 @@ export default function GoogleMarketAuditModal({
           {onBookNow ? (
             <button
               onClick={() => { onClose(); onBookNow(); }}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm flex items-center gap-2 transition-all shadow-xl cursor-pointer"
+              className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-md cursor-pointer"
             >
-              <Lock className="w-4 h-4" />
+              <Lock className="w-4 h-4 text-amber-400" />
               <span>Lock In Wholesale Rate</span>
               <ArrowRight className="w-4 h-4" />
             </button>
@@ -616,9 +614,9 @@ export default function GoogleMarketAuditModal({
                 return `/hotels/${hotel.id}?${params.toString()}`;
               })()}
               onClick={onClose}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm flex items-center gap-2 transition-all shadow-xl"
+              className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-md"
             >
-              <Lock className="w-4 h-4" />
+              <Lock className="w-4 h-4 text-amber-400" />
               <span>Lock In Wholesale Rate</span>
               <ArrowRight className="w-4 h-4" />
             </Link>

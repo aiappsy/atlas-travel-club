@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { MOCK_PRICE_DROP_RECORDS } from '@/lib/mockData';
 import { PriceDropRebookRecord } from '@/lib/types';
 import {
@@ -22,18 +23,20 @@ import Link from 'next/link';
 
 export default function PriceDropsPage() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const [records, setRecords] = useState<PriceDropRebookRecord[]>(MOCK_PRICE_DROP_RECORDS);
 
   const totalRefunded = records.reduce((acc, r) => acc + r.cashRefunded, 0);
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-24">
+    <div className="bg-slate-50 min-h-screen pb-24 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Link
           href="/membership"
           className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Member Portal
+          <ArrowLeft className="w-4 h-4" />
+          <span>{locale === 'no' ? 'Tilbake til Medlemsportalen' : 'Back to Member Portal'}</span>
         </Link>
 
         {/* Hero Header */}
@@ -41,13 +44,15 @@ export default function PriceDropsPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-black uppercase tracking-wider mb-2 border border-emerald-300">
               <TrendingDown className="w-3.5 h-3.5 text-emerald-600" />
-              Autonomous Post-Booking Price Drop Sentinel
+              {locale === 'no' ? 'Automatisk Prisdropp-Overvåking Etter Bestilling' : 'Autonomous Post-Booking Price Drop Sentinel'}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
-              Never Overpay: 24/7 Auto-Rebook & Cash Refunds
+              {locale === 'no' ? 'Betal aldri for mye: 24/7 Automatisk Ombooking & Refusjon' : 'Never Overpay: 24/7 Auto-Rebook & Cash Refunds'}
             </h1>
-            <p className="text-slate-600 text-sm mt-1">
-              Even after you book, our background algorithms monitor 100+ B2B bedbanks. When rates drop before check-in, we automatically rebook and refund the difference straight to your Visa card.
+            <p className="text-slate-600 text-sm mt-1 max-w-2xl">
+              {locale === 'no'
+                ? 'Selv etter bestilling overvåker våre bakgrunnsalgoritmer over 100 B2B Bedbanks. Når prisen faller før innsjekking, ombooker vi automatisk og overfører differansen rett til ditt Visa-kort.'
+                : 'Even after you book, our background algorithms monitor 100+ B2B bedbanks. When rates drop before check-in, we automatically rebook and refund the difference straight to your Visa card.'}
             </p>
           </div>
 
@@ -57,7 +62,7 @@ export default function PriceDropsPage() {
             </div>
             <div>
               <div className="text-[10px] uppercase font-bold text-emerald-300 tracking-wider">
-                Total Cash Refunded to Visa Card
+                {locale === 'no' ? 'Totalt refundert til kort' : 'Total Cash Refunded to Visa Card'}
               </div>
               <div className="text-2xl font-black text-emerald-400 font-mono">
                 +${totalRefunded.toFixed(2)}
@@ -73,15 +78,17 @@ export default function PriceDropsPage() {
               <div>
                 <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 text-sky-600 animate-spin" />
-                  Actively Monitored Reservations
+                  {locale === 'no' ? 'Aktivt Overvåkede Bestillinger' : 'Actively Monitored Reservations'}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Rate queries performed automatically every 4 hours until check-in date.
+                  {locale === 'no'
+                    ? 'Prissjekk utføres automatisk hver 4. time frem til innsjekkingsdato.'
+                    : 'Rate queries performed automatically every 4 hours until check-in date.'}
                 </p>
               </div>
 
               <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-                Active Sentinel Protected
+                {locale === 'no' ? 'Aktivt Sentinel-beskyttet' : 'Active Sentinel Protected'}
               </span>
             </div>
 
@@ -98,61 +105,49 @@ export default function PriceDropsPage() {
                       className="w-20 h-20 rounded-2xl object-cover border border-slate-200 shadow-sm shrink-0"
                     />
 
-                    <div>
+                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-extrabold text-base text-slate-900">{rec.hotelName}</h4>
-                        {rec.status === 'auto_rebooked_success' ? (
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            Auto-Rebooked & Refunded
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-black uppercase flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-sky-600" />
-                            Actively Monitoring
-                          </span>
-                        )}
+                        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                          {rec.status === 'auto_rebooked_success'
+                            ? (locale === 'no' ? 'Ombooket & Refundert' : 'Rebooked & Refunded')
+                            : (locale === 'no' ? 'Overvåker Pris' : 'Monitoring Rate')}
+                        </span>
+                        <span className="text-xs font-mono text-slate-400">#{rec.id.substring(0, 10)}</span>
                       </div>
-
-                      <div className="text-xs text-slate-500 mt-1">
-                        📍 {rec.city} • {rec.checkInDate} to {rec.checkOutDate} ({rec.nights} Nights)
-                      </div>
-
-                      <div className="text-[11px] text-slate-400 mt-1">
-                        Last Sentinel Scan: <strong className="text-slate-700">{rec.lastCheckedAt}</strong>
+                      <h4 className="font-extrabold text-slate-900 text-base">{rec.hotelName}</h4>
+                      <div className="text-xs text-slate-500">
+                        {rec.checkInDate} ➔ {rec.checkOutDate} • {rec.city}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6 shrink-0 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-200">
+                  <div className="flex items-center gap-6">
                     <div className="text-right">
-                      <div className="text-[10px] text-slate-400 line-through">
-                        Original Booked Price: ${rec.originalPriceTotal.toFixed(2)}
+                      <div className="text-[10px] uppercase font-bold text-slate-400">
+                        {locale === 'no' ? 'Opprinnelig Pris' : 'Original Rate'}
                       </div>
-                      <div className="text-lg font-black text-slate-900">
-                        New Rebooked Total: <span className="text-sky-600">${rec.newRebookedPriceTotal.toFixed(2)}</span>
+                      <div className="text-sm font-bold text-slate-600 line-through">
+                        ${rec.originalPriceTotal}
                       </div>
                     </div>
 
-                    {rec.cashRefunded > 0 ? (
-                      <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-right">
-                        <div className="text-[10px] text-emerald-700 font-bold uppercase">
-                          Cash Refunded to Visa
-                        </div>
-                        <div className="text-lg font-black text-emerald-600 font-mono">
-                          +${rec.cashRefunded.toFixed(2)}
-                        </div>
+                    <div className="text-right">
+                      <div className="text-[10px] uppercase font-bold text-emerald-600">
+                        {locale === 'no' ? 'Ny Engrospris' : 'New Dropped Rate'}
                       </div>
-                    ) : (
-                      <div className="p-3 bg-slate-100 rounded-2xl text-right">
-                        <div className="text-[10px] text-slate-500 font-bold uppercase">
-                          Status
-                        </div>
-                        <div className="text-xs font-bold text-slate-700">
-                          Best Price Guaranteed
-                        </div>
+                      <div className="text-lg font-black text-emerald-600 font-mono">
+                        ${rec.newRebookedPriceTotal}
                       </div>
-                    )}
+                    </div>
+
+                    <div className="p-3 bg-emerald-100 rounded-2xl text-emerald-900 text-right">
+                      <div className="text-[10px] uppercase font-bold text-emerald-800">
+                        {locale === 'no' ? 'Penger Refundert' : 'Cash Refunded'}
+                      </div>
+                      <div className="text-lg font-black text-emerald-700 font-mono">
+                        +${rec.cashRefunded}
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

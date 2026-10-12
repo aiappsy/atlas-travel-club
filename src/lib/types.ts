@@ -25,6 +25,8 @@ export interface PlatformFeatureFlags {
   lastPublishedAt: string;
   geminiModelId?: string;
   autoUpgradeGeminiModel?: boolean;
+  freeTrialDays?: number;
+  enableFreeTrial?: boolean;
   // OTA Affiliate link configuration (set in Admin → Suppliers)
   expediaAffiliateId?: string;
   hotelsComAffiliateId?: string;
@@ -404,6 +406,9 @@ export interface AirportLounge {
   id: string;
   airportCode: string;
   airportName: string;
+  city: string;
+  country: string;
+  region: 'Americas' | 'Europe' | 'Middle East' | 'Asia Pacific';
   terminal: string;
   loungeName: string;
   image: string;
@@ -412,6 +417,7 @@ export interface AirportLounge {
   memberPassPrice: number;
   operatingHours: string;
   locationDetails: string;
+  tierAccess?: string;
 }
 
 export interface PhysicalCardOrder {

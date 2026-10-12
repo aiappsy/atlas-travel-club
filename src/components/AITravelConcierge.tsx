@@ -24,8 +24,11 @@ import {
   Building2,
   BedDouble,
   Calendar,
+  Coffee,
 } from 'lucide-react';
 import Link from 'next/link';
+
+import { MasterTripItinerary } from '@/lib/orchestrator/atlasBrain';
 
 interface BookingCardAction {
   hotelId: string;
@@ -42,6 +45,7 @@ interface Message {
   text: string;
   time: string;
   bookingAction?: BookingCardAction;
+  tripItinerary?: MasterTripItinerary;
   showHowItWorksLink?: boolean;
   showNomadLink?: boolean;
   showProofLink?: boolean;
@@ -87,14 +91,14 @@ export default function AITravelConcierge() {
     if (hc && hc.name) {
       return {
         sender: 'ai',
-        text: `👋 Hello ${name}! I am **Aura**, your proactive VIP AI Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nI see you are inspecting **${hc.name}** in ${hc.city || 'your destination'} for **${hc.dates || `${hc.checkIn} to ${hc.checkOut}`}** (${hc.nights || 3} nights).\n\n💡 **Live Rate Intelligence**:\n• **Public Retail Benchmark**: $${hc.publicLowestPerNight || 0}/nt ($${hc.publicLowestTotal || 0} total) on ${hc.lowestOtaProvider || 'Booking.com'}\n• **ATLAS Wholesale Rate**: **$${hc.wholesalePerNight || 0}/nt** ($${hc.wholesaleTotal || 0} total)\n• **Instant Member Profit**: **Save $${hc.savingsTotal || 0} (${hc.savingsPercent || 0}% Off)**\n\nAll destination taxes and resort fees are 100% prepaid with **0% retail markup**. How can I assist you with this property or your travel plans?`,
+        text: `👋 Welcome ${name}! I am **Aura**, your dedicated Atlas Travel Club Concierge.\n\nI see you are viewing **${hc.name}** in ${hc.city || 'your destination'} for **${hc.dates || `${hc.checkIn} to ${hc.checkOut}`}** (${hc.nights || 3} nights).\n\n✨ **Live Rate Intelligence**:\n• **Public Benchmark**: $${hc.publicLowestPerNight || 0}/nt on ${hc.lowestOtaProvider || 'Booking.com'}\n• **Atlas Wholesale Member Net**: **$${hc.wholesalePerNight || 0}/nt**\n• **Your Instant Savings**: **Save $${hc.savingsTotal || 0} (${hc.savingsPercent || 0}% Off)**\n\nAll rates include 100% transparent wholesale clearing with 0% retail markup. How may I assist you with reservations or custom itineraries today?`,
         time: 'Just now',
       };
     }
 
     return {
       sender: 'ai',
-      text: `👋 Hello ${name}! I am **Aura**, your proactive VIP Travel Concierge (${formatGeminiEngineBadge(activeModel)}).\n\nI continuously monitor **50+ B2B Bedbanks & wholesale GDS networks** to eliminate the 20%–45% OTA retail ad tax across 1,000,000+ luxury hotels, audit rate parity, and assist with digital nomad relocation.\n\nWhere would you like to travel next?`,
+      text: `👋 Welcome to Atlas Travel Club, ${name}! I am **Aura**, your private 24/7 Travel Concierge.\n\nI monitor confidential wholesale bedbanks, direct airline NDC networks, and VIP airport lounges worldwide to ensure you never pay retail markup.\n\nHow may I assist with your reservations, confidential wholesale bookings, or travel itineraries today?`,
       time: 'Just now',
     };
   };
@@ -231,6 +235,7 @@ export default function AITravelConcierge() {
         text: data.reply || 'I am ready to assist with your wholesale travel reservations.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         bookingAction,
+        tripItinerary: data.tripItinerary || undefined,
         showHowItWorksLink,
         showNomadLink,
         showProofLink,
@@ -340,7 +345,7 @@ export default function AITravelConcierge() {
                 </h4>
                 <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>{activeModel.name} &amp; B2B Bedbank Clearing</span>
+                  <span>24/7 Live Sovereign Clearing</span>
                 </div>
               </div>
             </div>
@@ -557,7 +562,110 @@ export default function AITravelConcierge() {
                   </div>
                 )}
 
-                <span className="text-[9px] text-slate-400 mt-1 px-1">{m.time}</span>
+                {/* Atlas Central Brain: Multi-Modal Synchronized Trip Card */}
+                {m.tripItinerary && (
+                  <div className="mt-2.5 p-4 rounded-3xl bg-slate-900 border border-amber-500/50 shadow-xl max-w-[95%] text-left space-y-3 text-white">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-amber-400">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Synchronized Multi-Agent Trip Package</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                        0% Markup Protected
+                      </span>
+                    </div>
+
+                    <div className="text-sm font-black text-white flex items-center justify-between">
+                      <span>{m.tripItinerary.destination} VIP Package</span>
+                      <span className="text-xs text-slate-400 font-normal">
+                        {m.tripItinerary.dates.totalDays} Days ({m.tripItinerary.dates.start} ➔ {m.tripItinerary.dates.end})
+                      </span>
+                    </div>
+
+                    {/* 4 Pillars Inclusions Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                      {m.tripItinerary.components.hotel && (
+                        <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
+                          <div className="text-[9px] uppercase font-bold text-amber-400 flex items-center gap-1">
+                            <Building2 className="w-3 h-3" />
+                            <span>Hotel Bedbank</span>
+                          </div>
+                          <div className="font-bold truncate text-slate-200">
+                            {m.tripItinerary.components.hotel.hotelName}
+                          </div>
+                          <div className="text-emerald-400 font-mono font-bold">
+                            ${m.tripItinerary.components.hotel.rawWholesaleNetPrice}/nt
+                          </div>
+                        </div>
+                      )}
+
+                      {m.tripItinerary.components.flight && (
+                        <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
+                          <div className="text-[9px] uppercase font-bold text-sky-400 flex items-center gap-1">
+                            <Plane className="w-3 h-3" />
+                            <span>NDC Flights</span>
+                          </div>
+                          <div className="font-bold truncate text-slate-200">
+                            {m.tripItinerary.components.flight.airlineName} ({m.tripItinerary.components.flight.flightNumber})
+                          </div>
+                          <div className="text-sky-300 font-mono font-bold">
+                            ${m.tripItinerary.components.flight.baseNetFare} Direct
+                          </div>
+                        </div>
+                      )}
+
+                      {m.tripItinerary.components.lounge && (
+                        <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-0.5">
+                          <div className="text-[9px] uppercase font-bold text-indigo-400 flex items-center gap-1">
+                            <Coffee className="w-3 h-3" />
+                            <span>VIP Lounge</span>
+                          </div>
+                          <div className="font-bold truncate text-slate-200">
+                            {m.tripItinerary.components.lounge.name}
+                          </div>
+                          <div className="text-indigo-300 font-mono font-bold">
+                            £{m.tripItinerary.components.lounge.wholesaleNetCostGbp} Pass
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Consolidated Pricing & 4.9% Clearing Settlement */}
+                    <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-xs">
+                      <div className="flex justify-between text-slate-400">
+                        <span>Combined Bedbank Net Wholesale:</span>
+                        <span className="font-mono text-white">${m.tripItinerary.pricing.wholesaleNetTotal}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-400">
+                        <span>Merchant Settlement &amp; Clearing Fee (4.9%):</span>
+                        <span className="font-mono text-amber-300">+${m.tripItinerary.pricing.serviceFee}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-400 line-through text-[11px]">
+                        <span>Public Retail Price (OTAs):</span>
+                        <span className="font-mono text-rose-300">${m.tripItinerary.pricing.retailOtaMarketEstimate}</span>
+                      </div>
+                      <div className="flex justify-between pt-1 border-t border-slate-800 font-bold">
+                        <span className="text-emerald-400">Total Instant Member Savings:</span>
+                        <span className="font-mono text-emerald-400 font-black">Save ${m.tripItinerary.pricing.memberTotalSavings}</span>
+                      </div>
+                      <div className="flex justify-between pt-1 font-black text-sm">
+                        <span className="text-white">Total Package Price:</span>
+                        <span className="font-mono text-emerald-400 text-base">${m.tripItinerary.pricing.finalMemberPrice}</span>
+                      </div>
+                    </div>
+
+                    {/* Direct Booking CTA */}
+                    <Link
+                      href={`/hotels?destination=${encodeURIComponent(m.tripItinerary.destination)}`}
+                      onClick={() => setIsOpen(false)}
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-slate-950 font-black text-xs shadow-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="w-4 h-4 text-slate-950" />
+                      <span>Review &amp; Lock In Synchronized Package (${m.tripItinerary.pricing.finalMemberPrice})</span>
+                      <ArrowRight className="w-4 h-4 text-slate-950" />
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
 

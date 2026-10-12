@@ -23,8 +23,10 @@ import {
   Globe,
   Coins
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CaseStudyPage() {
+  const { t, locale } = useLanguage();
   const [stayNights, setStayNights] = useState<number>(3);
   const wholesalePerNight = 198;
   const markupPerNight = 191;
@@ -42,7 +44,7 @@ export default function CaseStudyPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-black uppercase tracking-wider border border-amber-500/30">
               <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-              ATLAS Institute of Travel Economics • Academic Case Study
+              {locale === 'no' ? 'ATLAS Institutt for Reiseøkonomi • Akademisk Casestudie' : 'ATLAS Institute of Travel Economics • Academic Case Study'}
             </div>
 
             <a
@@ -51,27 +53,40 @@ export default function CaseStudyPage() {
               className="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/30 text-xs font-bold transition-all flex items-center gap-2 shadow"
             >
               <Download className="w-4 h-4 text-amber-400" />
-              <span>Download Publication PDF (6 Pages)</span>
+              <span>{locale === 'no' ? 'Last ned publikasjon (PDF)' : 'Download Publication PDF (6 Pages)'}</span>
             </a>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight">
-            Unmasking Rate Parity: <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
-              The Invisible Hand of Global Travel Pricing
-            </span>
+            {locale === 'no' ? (
+              <>
+                Sannheten om Prisparitet: <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
+                  Den usynlige hånden i globale reisekostnader
+                </span>
+              </>
+            ) : (
+              <>
+                Unmasking Rate Parity: <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
+                  The Invisible Hand of Global Travel Pricing
+                </span>
+              </>
+            )}
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-3xl leading-relaxed">
-            A comprehensive economic analysis of the $1.2 Trillion OTA cartel, the artificial "Rate Parity" pricing floor, and how private closed-loop B2B networks enable institutional travel arbitrage.
+            {locale === 'no'
+              ? 'En omfattende økonomisk analyse av det globale OTA-kartellet, det kunstige prisgulvet gjennom «prisparitet», og hvordan lukkede B2B-nettverk muliggjør institusjonell reiseavregning.'
+              : 'A comprehensive economic analysis of the $1.2 Trillion OTA cartel, the artificial "Rate Parity" pricing floor, and how private closed-loop B2B networks enable institutional travel arbitrage.'}
           </p>
 
           <div className="pt-4 flex flex-wrap gap-4 text-xs text-slate-400 border-t border-slate-800/80">
-            <div><strong>Author:</strong> ATLAS Economic Research Group</div>
+            <div><strong>{locale === 'no' ? 'Forfatter:' : 'Author:'}</strong> ATLAS Economic Research Group</div>
             <div>•</div>
-            <div><strong>Classification:</strong> Travel Sovereignty & Financial Arbitrage</div>
+            <div><strong>{locale === 'no' ? 'Klassifisering:' : 'Classification:'}</strong> Travel Sovereignty & Financial Arbitrage</div>
             <div>•</div>
-            <div><strong>Updated:</strong> August / September 2026</div>
+            <div><strong>{locale === 'no' ? 'Oppdatert:' : 'Updated:'}</strong> 2026</div>
           </div>
         </div>
       </section>

@@ -3,6 +3,7 @@ import { PlatformFeatureFlags } from '@/lib/types';
 import { DEFAULT_PLATFORM_CONFIG } from '@/lib/mockData';
 import { resolveActiveGeminiModel, formatGeminiEngineBadge } from '@/lib/geminiModels';
 import { runLiveMarketScan } from '@/lib/marketScanner';
+import { atlasCentralBrain, MasterTripItinerary } from '@/lib/orchestrator/atlasBrain';
 
 export interface HotelConciergeContext {
   id?: string;
@@ -404,10 +405,64 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let tripItinerary: MasterTripItinerary | null = null;
+
+    // Detect Multi-Modal Trip Planning Intent (e.g., "plan trip to London", "weekend in Paris with flights")
+    const qLower = query.toLowerCase();
+    const isTripIntent =
+      qLower.includes('plan') ||
+      qLower.includes('itinerary') ||
+      qLower.includes('package') ||
+      qLower.includes('tur til') ||
+      qLower.includes('reise til') ||
+      qLower.includes('trip to') ||
+      (qLower.includes('flight') && qLower.includes('hotel')) ||
+      (qLower.includes('fly') && qLower.includes('hotell'));
+
+    if (isTripIntent) {
+      try {
+        let dest = 'London';
+        if (qLower.includes('paris')) dest = 'Paris';
+        else if (qLower.includes('new york') || qLower.includes('nyc')) dest = 'New York';
+        else if (qLower.includes('dubai')) dest = 'Dubai';
+        else if (qLower.includes('rome') || qLower.includes('roma')) dest = 'Rome';
+        else if (qLower.includes('tokyo')) dest = 'Tokyo';
+        else if (qLower.includes('oslo')) dest = 'Oslo';
+        else if (hotelContext?.city) dest = hotelContext.city;
+
+        const depDate = hotelContext?.checkIn || new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
+        const retDate = hotelContext?.checkOut || new Date(Date.now() + 17 * 86400000).toISOString().split('T')[0];
+
+        tripItinerary = await atlasCentralBrain.buildSynchronizedTrip({
+          destination: dest,
+          originAirport: 'LHR',
+          departureDate: depDate,
+          returnDate: retDate,
+          adults: 2,
+          rooms: 1,
+          includeFlight: true,
+          includeHotel: true,
+          includeLounge: true,
+          includeCruise: false,
+        });
+
+        if (tripItinerary) {
+          const hotelComp = tripItinerary.components.hotel;
+          const flightComp = tripItinerary.components.flight;
+          const loungeComp = tripItinerary.components.lounge;
+
+          reply = `🎯 **Atlas Central Brain: Full Wholesale Package Assembled for ${dest}!**\n\nI have mobilized our 5 domain subagents (Hotels, Flights, Lounges, Cruises, and Finance Guardian) to create your synchronized 0% retail markup itinerary:\n\n• 🏨 **Wholesale Hotel**: ${hotelComp?.hotelName || 'Luxury 5★ Palace'} ($${hotelComp?.rawWholesaleNetPrice || 310}/nt)\n• ✈️ **NDC Flight Direct**: ${flightComp?.airlineName || 'British Airways / SAS'} (${flightComp?.cabinClass || 'Business'})\n• ☕ **VIP Airport Lounge**: ${loungeComp?.name || 'Club Aspire VIP Lounge'} (£${loungeComp?.wholesaleNetCostGbp || 22.50} vs £${loungeComp?.publicWalkUpPriceGbp || 48} walk-in)\n\n💰 **Consolidated Savings**: Save **$${tripItinerary.pricing.memberTotalSavings}** vs. public retail travel aggregators!\n\nReview the synchronized trip card below to lock in the wholesale bundle:`;
+        }
+      } catch (err) {
+        console.warn('Atlas Brain auto-trip assemble fallback:', err);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       reply,
       bookingAction,
+      tripItinerary,
       showHowItWorksLink,
       showNomadLink,
       showProofLink,

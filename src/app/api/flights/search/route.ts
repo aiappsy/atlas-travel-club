@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { duffelProvider } from '@/lib/providers/duffel';
+import { resolveAirportIata } from '@/lib/flights/airportResolver';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const origin = (searchParams.get('origin') || 'LHR').trim().toUpperCase();
-    const destination = (searchParams.get('destination') || 'JFK').trim().toUpperCase();
+    const rawOrigin = (searchParams.get('origin') || 'LHR').trim();
+    const rawDest = (searchParams.get('destination') || 'JFK').trim();
+    
+    // Automatically resolve city names like 'oslo', 'bangkok', 'paris' to IATA codes
+    const origin = resolveAirportIata(rawOrigin, 'LHR');
+    const destination = resolveAirportIata(rawDest, 'JFK');
+
     const departureDate =
       searchParams.get('departureDate') ||
       new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];

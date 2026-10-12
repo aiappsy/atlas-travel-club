@@ -19,9 +19,11 @@ import {
   FileCheck
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function FlightClaimsPage() {
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const [flightNumber, setFlightNumber] = useState('LH442');
   const [airline, setAirline] = useState('Lufthansa');
   const [flightDate, setFlightDate] = useState('2026-08-15');
@@ -93,13 +95,17 @@ export default function FlightClaimsPage() {
         <div className="max-w-7xl mx-auto text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3 border border-emerald-500/30">
             <Scale className="w-3.5 h-3.5" />
-            EU261 & US DOT Legal Compensation Engine
+            {locale === 'no' ? 'EU261 & Internasjonal Erstatningsmotor' : 'EU261 & US DOT Legal Compensation Engine'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black">
-            Flight Delayed or Cancelled? Claim Up to $650 Cash
+            {locale === 'no'
+              ? 'Fly forsinket eller innstilt? Krev inntil €600 per passasjer'
+              : 'Flight Delayed or Cancelled? Claim Up to $650 Cash'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            Under international passenger rights laws, airlines must pay you cash compensation for disruptions. Our legal team sues and enforces claims on your behalf on a no-win, no-fee basis.
+            {locale === 'no'
+              ? 'I henhold til EU261 har du lovfestet krav på inntil €600 i kontanter ved forsinkelser over 3 timer. Som ATLAS-medlem krever vi inn hele beløpet med 0% advokatgebyr.'
+              : 'Under international passenger rights laws, airlines must pay you cash compensation for disruptions. Our legal team sues and enforces claims on your behalf with 0% commission deductions.'}
           </p>
         </div>
       </div>

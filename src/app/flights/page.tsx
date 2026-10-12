@@ -16,11 +16,19 @@ import {
   ExternalLink,
   SlidersHorizontal,
   Info,
-  DollarSign
+  DollarSign,
+  Luggage,
+  Armchair,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { calculateFlightClearingSummary, FLIGHT_LEGAL_DISCLOSURES } from '@/lib/flights/flightPolicy';
+import { calculateDripPricingAudit, TravelerAddonPreferences, DripAuditComparison } from '@/lib/flights/dripPricingAudit';
+import { resolveAirportIata } from '@/lib/flights/airportResolver';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface FlightOffer {
   id: string;
@@ -38,10 +46,12 @@ interface FlightOffer {
   stops: string;
   aircraft: string;
   cabinClass: 'Economy' | 'Premium Economy' | 'Business' | 'First';
+  currency?: string;
   baseNetFare: number;
   airportTaxes: number;
   retailOtaFare: number;
   baggageAllowance: string;
+  rawOffer?: any;
 }
 
 const SAMPLE_FLIGHT_ROUTES: FlightOffer[] = [
@@ -169,6 +179,7 @@ const SAMPLE_FLIGHT_ROUTES: FlightOffer[] = [
 
 export default function FlightsPage() {
   const { formatPrice, currency } = useCurrency();
+  const { t, locale } = useLanguage();
   const [selectedCabin, setSelectedCabin] = useState<string>('Business');
   const [originSearch, setOriginSearch] = useState('LHR');
   const [destSearch, setDestSearch] = useState('JFK');
@@ -184,6 +195,14 @@ export default function FlightsPage() {
   const [isBooking, setIsBooking] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingResult, setBookingResult] = useState<any | null>(null);
+  const [expandedAuditFlightId, setExpandedAuditFlightId] = useState<string | null>(null);
+  const [addonPrefs, setAddonPrefs] = useState<TravelerAddonPreferences>({
+    checkedBagsPerPax: 1,
+    carryOnBagsPerPax: 1,
+    seatType: 'standard_preferred',
+    includeDelayInsurance: true,
+    passengerCount: 1,
+  });
   const [passengerData, setPassengerData] = useState({
     title: 'mr',
     givenName: 'Pål Alexander',
@@ -228,9 +247,11 @@ export default function FlightsPage() {
     setIsSearching(true);
     setHasSearched(true);
     try {
+      const resolvedOrig = resolveAirportIata(orig, 'OSL');
+      const resolvedDest = resolveAirportIata(dest, 'BKK');
       const cabinParam = cabin === 'All' ? 'business' : cabin.toLowerCase().replace(' ', '_');
       const res = await fetch(
-        `/api/flights/search?origin=${encodeURIComponent(orig || 'LHR')}&destination=${encodeURIComponent(dest || 'JFK')}&departureDate=${date}&cabinClass=${cabinParam}`
+        `/api/flights/search?origin=${encodeURIComponent(resolvedOrig)}&destination=${encodeURIComponent(resolvedDest)}&departureDate=${date}&cabinClass=${cabinParam}`
       );
       const data = await res.json();
       if (data.success && data.flights && data.flights.length > 0) {
@@ -253,18 +274,23 @@ export default function FlightsPage() {
   const displayedFlights = liveOffers.length > 0
     ? liveOffers
     : SAMPLE_FLIGHT_ROUTES.filter((f) => {
+        const resolvedOrig = resolveAirportIata(originSearch, '').toLowerCase();
+        const resolvedDest = resolveAirportIata(destSearch, '').toLowerCase();
+
         if (selectedCabin !== 'All' && f.cabinClass !== selectedCabin) return false;
         if (
           originSearch &&
           !f.departureCity.toLowerCase().includes(originSearch.toLowerCase()) &&
-          !f.departureAirport.toLowerCase().includes(originSearch.toLowerCase())
+          !f.departureAirport.toLowerCase().includes(originSearch.toLowerCase()) &&
+          (!resolvedOrig || f.departureAirport.toLowerCase() !== resolvedOrig)
         ) {
           return false;
         }
         if (
           destSearch &&
           !f.arrivalCity.toLowerCase().includes(destSearch.toLowerCase()) &&
-          !f.arrivalAirport.toLowerCase().includes(destSearch.toLowerCase())
+          !f.arrivalAirport.toLowerCase().includes(destSearch.toLowerCase()) &&
+          (!resolvedDest || f.arrivalAirport.toLowerCase() !== resolvedDest)
         ) {
           return false;
         }
@@ -272,46 +298,57 @@ export default function FlightsPage() {
       });
 
   return (
-    <div className="bg-slate-950 min-h-screen text-slate-100 font-sans pb-24">
+    <div className="bg-slate-50 min-h-screen text-slate-900 font-sans pb-24">
       {/* Top Value Banner */}
-      <div className="border-b border-slate-800 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="border-b border-slate-200 bg-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            0% Retail Markup • At-Cost Airline GDS/NDC Clearing
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            {t.flights.heroBadge}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
-            Commercial Flight Clearing Hub
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
+            {t.flights.heroTitle}
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Direct airline net fares without OTA service charges, baggage markup, or hidden surcharges. Includes complimentary EU261 €600 delay monitoring on all member bookings.
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+            {t.flights.heroSubtitle}
           </p>
 
           {/* 3 Core Guarantees */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 max-w-4xl mx-auto text-left">
-            <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-amber-400 font-black text-xs flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5" /> 0% Middleman Booking Fee
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="text-amber-600 font-black text-xs flex items-center gap-1.5">
+                <DollarSign className="w-3.5 h-3.5" />
+                {locale === 'no' ? '0% Bestillingsgebyr' : '0% Middleman Booking Fee'}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Net airline clearing rate + exact airport taxes. Zero junk fees added by Atlas.
+              <p className="text-[11px] text-slate-500 mt-1">
+                {locale === 'no'
+                  ? 'Netto flyselskapspris + flyplassavgifter. Ingen skjulte Atlas-gebyrer.'
+                  : 'Net airline clearing rate + exact airport taxes. Zero junk fees added by Atlas.'}
               </p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-              <div className="text-sky-400 font-black text-xs flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" /> Direct Carrier Pass-Through
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="text-sky-600 font-black text-xs flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5" />
+                {locale === 'no' ? 'Direkte Avregning mot Flyselskap' : 'Direct Carrier Pass-Through'}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Card charged directly via carrier settlement. 0% credit card processing markup.
+              <p className="text-[11px] text-slate-500 mt-1">
+                {locale === 'no'
+                  ? 'Kortet belastes direkte via flyselskapets oppgjør. 0% kortpåslag.'
+                  : 'Card charged directly via carrier settlement. 0% credit card processing markup.'}
               </p>
             </div>
-            <Link href="/flight-claims" className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 transition-colors block group cursor-pointer">
-              <div className="text-emerald-400 font-black text-xs flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5" /> EU261 €600 Delay Sentinel</span>
-                <ArrowRight className="w-3 h-3 text-emerald-400 group-hover:translate-x-0.5 transition-transform" />
+            <Link href="/flight-claims" className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-emerald-500/50 transition-colors block group cursor-pointer">
+              <div className="text-emerald-700 font-black text-xs flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  {locale === 'no' ? 'EU261 €600 Forsinkelsesovervåking' : 'EU261 €600 Delay Sentinel'}
+                </span>
+                <ArrowRight className="w-3 h-3 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                24/7 automated disruption sentinel recovers up to €600 cash per passenger with 0% legal deduction.
+              <p className="text-[11px] text-slate-500 mt-1">
+                {locale === 'no'
+                  ? 'Døgnkontinuerlig overvåking krever inn inntil €600 per passasjer uten provisjonstrekk.'
+                  : '24/7 automated disruption sentinel recovers up to €600 cash per passenger with 0% legal deduction.'}
               </p>
             </Link>
           </div>
@@ -320,64 +357,64 @@ export default function FlightsPage() {
 
       {/* Main Search & Filter Console */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="p-4 sm:p-6 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl space-y-4">
+        <div className="p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
             {/* Origin */}
-            <div className="md:col-span-3 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-amber-400 shrink-0" />
+            <div className="md:col-span-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-amber-500 shrink-0" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">From (IATA / City)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t.flights.fromLabel}</label>
                 <input
                   type="text"
                   placeholder="LHR, JFK, SIN, OSL..."
                   value={originSearch}
                   onChange={(e) => setOriginSearch(e.target.value)}
-                  className="bg-transparent text-sm text-white font-bold w-full outline-none placeholder:text-slate-600"
+                  className="bg-transparent text-sm text-slate-900 font-bold w-full outline-none placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             {/* Destination */}
-            <div className="md:col-span-3 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-3">
-              <Plane className="w-5 h-5 text-sky-400 shrink-0 rotate-90" />
+            <div className="md:col-span-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-3">
+              <Plane className="w-5 h-5 text-sky-600 shrink-0 rotate-90" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">To (IATA / City)</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t.flights.toLabel}</label>
                 <input
                   type="text"
                   placeholder="JFK, HND, DXB, SYD..."
                   value={destSearch}
                   onChange={(e) => setDestSearch(e.target.value)}
-                  className="bg-transparent text-sm text-white font-bold w-full outline-none placeholder:text-slate-600"
+                  className="bg-transparent text-sm text-slate-900 font-bold w-full outline-none placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             {/* Departure Date */}
-            <div className="md:col-span-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
+            <div className="md:col-span-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-amber-500 shrink-0" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Depart</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t.flights.departLabel}</label>
                 <input
                   type="date"
                   value={departureDate}
                   onChange={(e) => setDepartureDate(e.target.value)}
-                  className="bg-transparent text-xs text-white font-bold w-full outline-none"
+                  className="bg-transparent text-xs text-slate-900 font-bold w-full outline-none [color-scheme:light]"
                 />
               </div>
             </div>
 
             {/* Cabin Filter */}
-            <div className="md:col-span-2 bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="md:col-span-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-emerald-600 shrink-0" />
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Cabin</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">{t.flights.cabinLabel}</label>
                 <select
                   value={selectedCabin}
                   onChange={(e) => setSelectedCabin(e.target.value)}
-                  className="bg-slate-950 text-xs text-white font-bold w-full outline-none cursor-pointer"
+                  className="bg-slate-50 text-xs text-slate-900 font-bold w-full outline-none cursor-pointer"
                 >
                   <option value="Economy">Economy</option>
-                  <option value="Premium Economy">Prem. Econ</option>
+                  <option value="Premium Economy">{locale === 'no' ? 'Prem. Økonomi' : 'Prem. Econ'}</option>
                   <option value="Business">👑 Business</option>
                   <option value="First">💎 First</option>
                 </select>
@@ -390,19 +427,79 @@ export default function FlightsPage() {
                 type="button"
                 onClick={() => performLiveSearch(originSearch, destSearch, selectedCabin, departureDate)}
                 disabled={isSearching}
-                className="w-full h-full py-3.5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer"
+                className="w-full h-full py-3.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-black text-xs transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
               >
                 {isSearching ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>Searching...</span>
+                    <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                    <span>{t.flights.searching}</span>
                   </>
                 ) : (
                   <>
-                    <span>Search Live</span>
+                    <span>{t.flights.searchBtn}</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+
+          {/* Upfront All-In Needs Selector (Avoid OTA Drip Surcharges) */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs bg-slate-50/70 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 p-4 sm:p-5 rounded-b-3xl">
+            <div className="flex items-center gap-2">
+              <span className="p-1.5 rounded-lg bg-amber-100 text-amber-800">
+                <Luggage className="w-4 h-4" />
+              </span>
+              <div>
+                <span className="font-bold text-slate-900 block">{t.flights.configTitle}</span>
+                <span className="text-[11px] text-slate-500">{t.flights.configSubtitle}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Checked Bags Toggle */}
+              <div className="flex items-center gap-1 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+                <span className="text-[11px] text-slate-500 font-bold">{t.flights.checkedBags}</span>
+                {[0, 1, 2].map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => setAddonPrefs({ ...addonPrefs, checkedBagsPerPax: num })}
+                    className={`px-2 py-0.5 rounded text-[11px] font-black cursor-pointer transition-all ${
+                      addonPrefs.checkedBagsPerPax === num
+                        ? 'bg-slate-900 text-white shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+
+              {/* Seat Preference */}
+              <div className="flex items-center gap-1 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs">
+                <span className="text-[11px] text-slate-500 font-bold">{t.flights.seatPreference}</span>
+                <select
+                  value={addonPrefs.seatType}
+                  onChange={(e) => setAddonPrefs({ ...addonPrefs, seatType: e.target.value as any })}
+                  className="bg-transparent text-[11px] font-black text-slate-900 outline-none cursor-pointer"
+                >
+                  <option value="any">{t.flights.seatAny}</option>
+                  <option value="standard_preferred">{t.flights.seatPreferred}</option>
+                  <option value="extra_legroom">{t.flights.seatExtraLegroom}</option>
+                </select>
+              </div>
+
+              {/* Delay Insurance / Sentinel Toggle */}
+              <button
+                onClick={() => setAddonPrefs({ ...addonPrefs, includeDelayInsurance: !addonPrefs.includeDelayInsurance })}
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs ${
+                  addonPrefs.includeDelayInsurance
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    : 'bg-white text-slate-500 border-slate-200'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{addonPrefs.includeDelayInsurance ? t.flights.sentinelActive : t.flights.sentinelOff}</span>
               </button>
             </div>
           </div>
@@ -410,85 +507,171 @@ export default function FlightsPage() {
 
         {/* Flight Cards Feed */}
         <div className="mt-8 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 px-1 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 px-1 gap-2">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-slate-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold text-slate-800">
                 {liveOffers.length > 0 ? 'Live Duffel NDC/GDS Flight Inventory' : 'Curated Verified Global Routes'}
               </span>
               <span>• {displayedFlights.length} Offers Available</span>
             </div>
-            <span className="font-mono text-emerald-400">0% Retail Markup • Net Clearing Rate</span>
+            <span className="font-mono text-emerald-600 font-bold">0% Retail Markup • Net Clearing Rate</span>
           </div>
 
           <div className="space-y-4">
             {displayedFlights.map((flight) => {
               const clearing = calculateFlightClearingSummary(flight.baseNetFare, flight.airportTaxes, 'card_pass_through');
+              const audit = calculateDripPricingAudit(
+                flight.baseNetFare,
+                flight.airportTaxes,
+                flight.currency || 'USD',
+                flight.departureAirport,
+                flight.arrivalAirport,
+                flight.cabinClass,
+                addonPrefs
+              );
+              const isAuditExpanded = expandedAuditFlightId === flight.id;
+
               return (
                 <div
                   key={flight.id}
-                  className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800/80 hover:border-amber-400/40 transition-all shadow-xl space-y-4"
+                  className="rounded-3xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all shadow-sm overflow-hidden"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center font-black text-amber-400 text-lg">
-                        {flight.airlineCode}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-black text-lg text-white">{flight.airlineName}</h3>
-                          <span className="text-xs text-slate-400 font-mono">{flight.flightNumber}</span>
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-indigo-950/80 border border-indigo-500/30 text-indigo-300">
-                            {flight.cabinClass}
-                          </span>
+                  <div className="p-5 sm:p-6 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center font-black text-amber-700 text-lg">
+                          {flight.airlineCode}
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          {flight.aircraft} • {flight.stops} • Baggage: {flight.baggageAllowance}
-                        </p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-black text-lg text-slate-900">{flight.airlineName}</h3>
+                            <span className="text-xs text-slate-500 font-mono">{flight.flightNumber}</span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-slate-100 border border-slate-200 text-slate-700">
+                              {flight.cabinClass}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {flight.aircraft} • {flight.stops}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Flight Schedule */}
+                      <div className="flex items-center gap-4 text-center sm:text-right">
+                        <div>
+                          <div className="text-xl font-black text-slate-900">{flight.departureTime}</div>
+                          <div className="text-xs font-bold text-slate-500">{flight.departureAirport} ({flight.departureCity})</div>
+                        </div>
+                        <div className="flex flex-col items-center px-2">
+                          <span className="text-[10px] font-mono text-slate-400">{flight.duration}</span>
+                          <div className="w-16 h-0.5 bg-slate-200 relative my-1">
+                            <Plane className="w-3 h-3 text-amber-500 absolute left-1/2 -top-1.5 -translate-x-1/2 rotate-90" />
+                          </div>
+                          <span className="text-[9px] text-emerald-600 font-bold">{flight.stops}</span>
+                        </div>
+                        <div>
+                          <div className="text-xl font-black text-slate-900">{flight.arrivalTime}</div>
+                          <div className="text-xs font-bold text-slate-500">{flight.arrivalAirport} ({flight.arrivalCity})</div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Flight Schedule */}
-                    <div className="flex items-center gap-4 text-center sm:text-right">
-                      <div>
-                        <div className="text-xl font-black text-white">{flight.departureTime}</div>
-                        <div className="text-xs font-bold text-slate-400">{flight.departureAirport} ({flight.departureCity})</div>
-                      </div>
-                      <div className="flex flex-col items-center px-2">
-                        <span className="text-[10px] font-mono text-slate-400">{flight.duration}</span>
-                        <div className="w-16 h-0.5 bg-slate-700 relative my-1">
-                          <Plane className="w-3 h-3 text-amber-400 absolute left-1/2 -top-1.5 -translate-x-1/2 rotate-90" />
-                        </div>
-                        <span className="text-[9px] text-emerald-400 font-bold">{flight.stops}</span>
-                      </div>
-                      <div>
-                        <div className="text-xl font-black text-white">{flight.arrivalTime}</div>
-                        <div className="text-xs font-bold text-slate-400">{flight.arrivalAirport} ({flight.arrivalCity})</div>
-                      </div>
+                    {/* Included Add-ons & Amenities Bar */}
+                    <div className="flex flex-wrap items-center gap-2 pt-0.5 text-xs">
+                      <span className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-800 font-bold flex items-center gap-1.5">
+                        <span>🧳</span>
+                        <span>{flight.baggageAllowance}</span>
+                      </span>
+                      <span className="px-2.5 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>EU261 €600 Delay Protection Included</span>
+                      </span>
+                      <span className="px-2.5 py-1 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 font-bold flex items-center gap-1.5">
+                        <span>⚡</span>
+                        <span>Direct IATA Carrier Settlement</span>
+                      </span>
+                      {flight.currency && flight.currency !== currency && (
+                        <span className="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-mono">
+                          Carrier Tariff: {flight.currency} {clearing.totalAmountCharged}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   {/* Pricing Ledger & Action */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                    <div className="space-y-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-black text-emerald-400">
-                          {formatPrice(clearing.totalAmountCharged)}
-                        </span>
-                        <span className="text-xs text-slate-500">all-in at-cost</span>
-                        <span className="text-xs line-through text-slate-500 font-mono">
-                          Retail OTA: {formatPrice(clearing.retailOtaComparison)}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/30 text-[10px] font-black text-emerald-400">
-                          Saves {formatPrice(clearing.memberInstantSavings)}
-                        </span>
+                  <div className="bg-slate-50/90 p-5 sm:p-6 border-t border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    {/* Left: 2-column clear rate comparison (Duffel NDC Net vs Public OTA All-In) */}
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                      {/* Duffel Live NDC Net Rate Column */}
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-800">
+                            {t.flights.duffelLiveRate}
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-3xl font-black text-emerald-600 font-mono tracking-tight">
+                            {formatPrice(audit.atlasAtCostTotal, { sourceCurrency: flight.currency || 'USD' })}
+                          </span>
+                          <span className="text-xs font-bold text-slate-500">{t.flights.allInAtCost}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 font-mono">
+                          {locale === 'no' ? '0% Klubbprovisjon • Direkte Oppgjør' : '0% Retail Commission • Exact Carrier Ancillaries'}
+                        </p>
                       </div>
-                      <p className="text-[11px] text-slate-400">
-                        Net Fare {formatPrice(flight.baseNetFare)} + Taxes {formatPrice(flight.airportTaxes)} + $3 PNR. 0% Atlas Markup.
-                      </p>
+
+                      {/* Divider */}
+                      <div className="hidden sm:block h-10 w-px bg-slate-200" />
+
+                      {/* Public Retail OTA Rate Column */}
+                      <div className="space-y-0.5">
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                          {t.flights.publicOtaWithAddons}
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xl font-bold line-through text-slate-400 font-mono">
+                            {formatPrice(audit.publicOtaTotal, { sourceCurrency: flight.currency || 'USD' })}
+                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-300">
+                            {t.flights.youSave} {formatPrice(audit.totalSavings, { sourceCurrency: flight.currency || 'USD' })} ({audit.savingsPercentage}%)
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-emerald-700 font-bold">
+                          {locale === 'no' ? '✓ Alle valgte bager og seter inkludert' : '✓ All requested bags & seats included'}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* Right: Actions */}
+                    <div className="flex flex-wrap items-center gap-2 shrink-0">
+                      {/* Toggle Expandable Drip Audit Ledger */}
+                      <button
+                        onClick={() => setExpandedAuditFlightId(isAuditExpanded ? null : flight.id)}
+                        className={`px-3.5 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isAuditExpanded
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        <span>{t.flights.unpackFeesBtn}</span>
+                        {isAuditExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                      </button>
+
+                      {/* 1-Click Live Verification Link */}
+                      <a
+                        href={`https://www.google.com/travel/flights?q=Flights%20to%20${encodeURIComponent(flight.arrivalAirport)}%20from%20${encodeURIComponent(flight.departureAirport)}%20on%20${encodeURIComponent(departureDate)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer group"
+                        title={locale === 'no' ? 'Sjekk livepris på Google Flights' : 'Verify live rate on Google Flights'}
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                        <span>{t.flights.verifyPublicRateBtn}</span>
+                      </a>
+
+                      {/* Primary Inspect & Clear Button */}
                       <button
                         onClick={() => {
                           setActiveModalFlight(flight);
@@ -496,13 +679,82 @@ export default function FlightsPage() {
                           setBookingResult(null);
                           setBookingError(null);
                         }}
-                        className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs transition-all shadow-md flex items-center gap-1.5 cursor-pointer transform hover:scale-[1.02]"
                       >
-                        Inspect & Clear Ticket
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span>{t.flights.clearTicketBtn}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
+
+                  {/* Expandable Drip-Pricing Audit Ledger Drawer */}
+                  {isAuditExpanded && (
+                    <div className="bg-slate-900 text-white p-5 sm:p-6 border-t border-slate-800 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <div>
+                          <div className="text-amber-400 text-[10px] font-black uppercase tracking-wider">
+                            {locale === 'no' ? 'Trinnvis Gebyr-Avsløring' : 'Transparent Step-by-Step Fee Audit'}
+                          </div>
+                          <h4 className="text-sm font-black text-white">
+                            {t.flights.feeAuditTitle}
+                          </h4>
+                        </div>
+                        <span className="text-[11px] text-slate-400">
+                          {audit.otaTrapExplanation}
+                        </span>
+                      </div>
+
+                      {/* Itemized Comparison Table */}
+                      <div className="space-y-2 text-xs">
+                        <div className="grid grid-cols-12 text-[10px] font-bold text-slate-400 uppercase tracking-wider pb-1 border-b border-slate-800">
+                          <span className="col-span-6">{t.flights.categoryHeader}</span>
+                          <span className="col-span-3 text-right">{t.flights.publicOtaHeader}</span>
+                          <span className="col-span-3 text-right text-emerald-400">{t.flights.atlasHeader}</span>
+                        </div>
+
+                        {audit.items.map((item) => (
+                          <div key={item.id} className="grid grid-cols-12 py-1.5 border-b border-slate-800/60 items-center">
+                            <div className="col-span-6 pr-2">
+                              <span className="font-bold text-white block">{item.label}</span>
+                              <span className="text-[10px] text-slate-400 block">{item.description}</span>
+                            </div>
+                            <div className="col-span-3 text-right font-mono text-slate-300">
+                              {formatPrice(item.publicOtaRate, { sourceCurrency: flight.currency || 'USD' })}
+                            </div>
+                            <div className="col-span-3 text-right font-mono font-bold text-emerald-400">
+                              {formatPrice(item.atlasAtCostRate, { sourceCurrency: flight.currency || 'USD' })}
+                              {item.savings > 0 && (
+                                <span className="text-[10px] text-emerald-500 block font-sans font-bold">
+                                  {t.common.save} {formatPrice(item.savings, { sourceCurrency: flight.currency || 'USD' })}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Audit Total Footer */}
+                        <div className="grid grid-cols-12 pt-3 items-center border-t border-slate-700 font-bold text-sm">
+                          <div className="col-span-6">
+                            <span className="text-white block">
+                              {locale === 'no' ? 'Totalpris ferdig oppgjort (Alt inkludert):' : 'Final All-In Cost (Everything Included):'}
+                            </span>
+                            <span className="text-[10px] text-emerald-400 font-normal">
+                              {locale === 'no'
+                                ? 'Garantert medlemspris uten overraskelser i kassen.'
+                                : 'Atlas member price guaranteed with 0% hidden checkout fees.'}
+                            </span>
+                          </div>
+                          <div className="col-span-3 text-right font-mono line-through text-slate-400">
+                            {formatPrice(audit.publicOtaTotal, { sourceCurrency: flight.currency || 'USD' })}
+                          </div>
+                          <div className="col-span-3 text-right font-mono text-base font-black text-emerald-400">
+                            {formatPrice(audit.atlasAtCostTotal, { sourceCurrency: flight.currency || 'USD' })}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -512,128 +764,143 @@ export default function FlightsPage() {
 
       {/* 0% Risk Ticket Clearing & Inspection Modal */}
       {activeModalFlight && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-xl w-full p-6 space-y-5 shadow-2xl relative text-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-base font-black text-white">0% Risk Carrier Clearing Ledger</h3>
+                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-black text-slate-900">{t.flights.modalTitle}</h3>
               </div>
               <button
                 onClick={() => setActiveModalFlight(null)}
-                className="text-slate-400 hover:text-white text-sm font-bold p-1 cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 text-sm font-bold p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
             {/* Flight Summary */}
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1 text-xs">
-              <div className="font-black text-white text-sm flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1 text-xs">
+              <div className="font-black text-slate-900 text-sm flex items-center justify-between">
                 <span>{activeModalFlight.airlineName} ({activeModalFlight.flightNumber})</span>
-                <span className="text-amber-400">{activeModalFlight.cabinClass}</span>
+                <span className="text-amber-600 font-bold">{activeModalFlight.cabinClass}</span>
               </div>
-              <p className="text-slate-400">
+              <p className="text-slate-600">
                 {activeModalFlight.departureCity} ({activeModalFlight.departureAirport}) ➔ {activeModalFlight.arrivalCity} ({activeModalFlight.arrivalAirport})
               </p>
-              <p className="text-slate-500 text-[11px]">Baggage: {activeModalFlight.baggageAllowance}</p>
+              <p className="text-slate-400 text-[11px]">Baggage: {activeModalFlight.baggageAllowance}</p>
             </div>
 
             {/* Transparent Cost Breakdown */}
             {(() => {
+              const srcCurr = activeModalFlight.currency || 'USD';
               const c = calculateFlightClearingSummary(activeModalFlight.baseNetFare, activeModalFlight.airportTaxes, 'card_pass_through');
               return (
                 <div className="space-y-2 text-xs">
-                  <div className="flex justify-between text-slate-300">
-                    <span>Base Carrier Net Fare:</span>
-                    <span className="font-mono text-white">{formatPrice(c.baseNetFare)}</span>
+                  {/* Currency Notice if carrier quotes in foreign currency */}
+                  {srcCurr !== currency && (
+                    <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-center justify-between">
+                      <span>Carrier Origin Currency: <strong className="font-mono">{srcCurr}</strong></span>
+                      <span>Converted to <strong className="font-mono">{currency}</strong> at real-time interbank rate</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-slate-600">
+                    <span>Base Carrier Net Fare (Duffel NDC):</span>
+                    <span className="font-mono text-slate-900 font-bold">{formatPrice(c.baseNetFare, { sourceCurrency: srcCurr })}</span>
                   </div>
-                  <div className="flex justify-between text-slate-300">
+                  <div className="flex justify-between text-slate-600">
                     <span>Government Airport & Security Taxes:</span>
-                    <span className="font-mono text-white">{formatPrice(c.airportTaxesAndSecurity)}</span>
+                    <span className="font-mono text-slate-900 font-bold">{formatPrice(c.airportTaxesAndSecurity, { sourceCurrency: srcCurr })}</span>
                   </div>
-                  <div className="flex justify-between text-slate-300">
-                    <span>Digital IATA Ticketing (Duffel):</span>
-                    <span className="font-mono text-white">{formatPrice(c.ticketingAndPnrFee)}</span>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Digital IATA Ticketing Fee (Duffel):</span>
+                    <span className="font-mono text-slate-900 font-bold">{formatPrice(c.ticketingAndPnrFee, { sourceCurrency: 'USD' })}</span>
                   </div>
-                  <div className="flex justify-between text-indigo-300 font-bold">
+                  <div className="flex justify-between text-indigo-700 font-bold">
                     <span className="flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
                       EU261 Sentinel 24/7 Delay Protection:
                     </span>
-                    <span className="font-mono text-indigo-300">{formatPrice(c.sentinelProtectionFee)}</span>
+                    <span className="font-mono text-indigo-700">{formatPrice(c.sentinelProtectionFee, { sourceCurrency: 'USD' })}</span>
                   </div>
-                  <div className="flex justify-between text-emerald-400 font-bold">
+                  <div className="flex justify-between text-emerald-700 font-bold">
                     <span>Atlas Retail Markup:</span>
-                    <span className="font-mono">$0.00 (0%)</span>
+                    <span className="font-mono text-emerald-700 font-black">$0.00 (0% Markup)</span>
                   </div>
-                  <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-black text-white">
-                    <span>Total Member Ticket Settlement:</span>
-                    <span className="text-emerald-400 text-base">{formatPrice(c.totalAmountCharged)}</span>
+                  <div className="border-t border-slate-200 pt-2 flex justify-between text-sm font-black text-slate-900">
+                    <span>Duffel All-In Ticket Clearing Rate:</span>
+                    <span className="text-emerald-600 text-lg font-mono">{formatPrice(c.totalAmountCharged, { sourceCurrency: srcCurr })}</span>
                   </div>
-                  <div className="flex justify-between text-[11px] text-slate-400">
-                    <span>Public Retail (Expedia / Gotogate):</span>
-                    <span className="line-through">{formatPrice(c.retailOtaComparison)}</span>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-emerald-400 font-bold">
-                    <span>Your Instant Member Savings:</span>
-                    <span>{formatPrice(c.memberInstantSavings)}</span>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <div>
+                      <div className="text-[11px] text-slate-500 font-bold">Public Retail Comparison (Expedia / OTA):</div>
+                      <div className="text-sm font-bold line-through text-slate-400 font-mono">
+                        {formatPrice(c.retailOtaComparison, { sourceCurrency: srcCurr })}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] uppercase font-black tracking-wider text-emerald-700">Member Instant Savings</div>
+                      <div className="text-base font-black text-emerald-600 font-mono">
+                        {formatPrice(c.memberInstantSavings, { sourceCurrency: srcCurr })}
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
             })()}
 
             {/* Legal Disclosures & Tariff Rules */}
-            <div className="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 text-[10px] text-amber-200/90 space-y-1.5 leading-relaxed">
-              <p className="font-bold text-amber-300 uppercase tracking-wide">Carrier Tariff & Protection Notice:</p>
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-[10px] text-amber-900 space-y-1.5 leading-relaxed">
+              <p className="font-bold text-amber-800 uppercase tracking-wide">Carrier Tariff & Protection Notice:</p>
               <p>• {FLIGHT_LEGAL_DISCLOSURES.tariffDisclaimer}</p>
               <p>• {FLIGHT_LEGAL_DISCLOSURES.cancellationPolicy}</p>
               <p>• {FLIGHT_LEGAL_DISCLOSURES.eu261Protection}</p>
             </div>
 
             {bookingSuccess && bookingResult ? (
-              <div className="p-5 rounded-2xl bg-emerald-950/90 border border-emerald-500/50 space-y-4 text-xs">
+              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-4 text-xs">
                 <div className="text-center space-y-1">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/40">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center border border-emerald-200">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h4 className="text-lg font-black text-white pt-1">Electronic Ticket Issued</h4>
-                  <p className="text-emerald-300/80 text-[11px]">Direct IATA/NDC Settlement Confirmed via Duffel</p>
+                  <h4 className="text-lg font-black text-slate-900 pt-1">Electronic Ticket Issued</h4>
+                  <p className="text-emerald-700 text-[11px]">Direct IATA/NDC Settlement Confirmed via Duffel</p>
                 </div>
 
-                <div className="bg-slate-950/80 rounded-xl p-4 border border-emerald-500/30 space-y-2">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                <div className="bg-white rounded-xl p-4 border border-emerald-200 space-y-2">
+                  <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Airline PNR / Record Locator:</span>
-                    <span className="text-amber-400 font-mono font-black text-base tracking-widest bg-amber-400/10 px-2.5 py-0.5 rounded border border-amber-400/30">
+                    <span className="text-amber-800 font-mono font-black text-base tracking-widest bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">
                       {bookingResult.bookingReference || 'CONFIRMED'}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                  <div className="flex justify-between items-center text-slate-600 text-[11px]">
                     <span>Operating Carrier:</span>
-                    <span className="text-white font-bold">{bookingResult.carrier || activeModalFlight.airlineName}</span>
+                    <span className="text-slate-900 font-bold">{bookingResult.carrier || activeModalFlight.airlineName}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                  <div className="flex justify-between items-center text-slate-600 text-[11px]">
                     <span>Flight Route:</span>
-                    <span className="text-white font-mono">{bookingResult.route || `${activeModalFlight.departureAirport} ➔ ${activeModalFlight.arrivalAirport}`}</span>
+                    <span className="text-slate-900 font-mono">{bookingResult.route || `${activeModalFlight.departureAirport} ➔ ${activeModalFlight.arrivalAirport}`}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                  <div className="flex justify-between items-center text-slate-600 text-[11px]">
                     <span>Passenger:</span>
-                    <span className="text-white font-medium">{passengerData.givenName} {passengerData.familyName}</span>
+                    <span className="text-slate-900 font-medium">{passengerData.givenName} {passengerData.familyName}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-300 text-[11px]">
+                  <div className="flex justify-between items-center text-slate-600 text-[11px]">
                     <span>Total Settled (0% Markup):</span>
-                    <span className="text-emerald-400 font-mono font-bold">{bookingResult.totalAmount} {bookingResult.totalCurrency}</span>
+                    <span className="text-emerald-600 font-mono font-bold">{bookingResult.totalAmount} {bookingResult.totalCurrency}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-indigo-950/50 border border-indigo-500/30 text-indigo-300 text-[11px]">
-                  <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
+                <div className="flex items-center gap-2 p-2.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px]">
+                  <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span>EU261 Sentinel: Flight enrolled in automated 24/7 delay monitoring (€600 claim protection).</span>
                 </div>
 
                 <button
                   onClick={() => setActiveModalFlight(null)}
-                  className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-colors cursor-pointer"
                 >
                   Close & View in Trips
                 </button>
@@ -641,9 +908,9 @@ export default function FlightsPage() {
             ) : (
               <div className="space-y-4">
                 {/* Passenger Manifest Inputs */}
-                <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5 text-xs">
-                  <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-amber-400" /> Passenger Details (IATA Manifest)
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5 text-xs">
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-amber-500" /> Passenger Details (IATA Manifest)
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div>
@@ -652,7 +919,7 @@ export default function FlightsPage() {
                         type="text"
                         value={passengerData.givenName}
                         onChange={(e) => setPassengerData({ ...passengerData, givenName: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none focus:border-amber-500"
                         placeholder="First name"
                       />
                     </div>
@@ -662,7 +929,7 @@ export default function FlightsPage() {
                         type="text"
                         value={passengerData.familyName}
                         onChange={(e) => setPassengerData({ ...passengerData, familyName: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none focus:border-amber-500"
                         placeholder="Last name"
                       />
                     </div>
@@ -672,7 +939,7 @@ export default function FlightsPage() {
                         type="date"
                         value={passengerData.bornOn}
                         onChange={(e) => setPassengerData({ ...passengerData, bornOn: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none focus:border-amber-500 [color-scheme:light]"
                       />
                     </div>
                     <div>
@@ -681,7 +948,7 @@ export default function FlightsPage() {
                         type="text"
                         value={passengerData.phoneNumber}
                         onChange={(e) => setPassengerData({ ...passengerData, phoneNumber: e.target.value })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-amber-400"
+                        className="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 outline-none focus:border-amber-500"
                         placeholder="+4790000000"
                       />
                     </div>
@@ -689,8 +956,8 @@ export default function FlightsPage() {
                 </div>
 
                 {bookingError && (
-                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-                    <Info className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs flex items-center gap-2">
+                    <Info className="w-4 h-4 text-rose-500 shrink-0" />
                     <span>{bookingError}</span>
                   </div>
                 )}
@@ -698,7 +965,7 @@ export default function FlightsPage() {
                 <button
                   disabled={isBooking}
                   onClick={handleConfirmBooking}
-                  className="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isBooking ? (
                     <>

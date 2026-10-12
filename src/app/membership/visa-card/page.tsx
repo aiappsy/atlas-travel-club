@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import AuthModal from '@/components/AuthModal';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface Transaction {
   id: string;
@@ -39,6 +40,7 @@ interface Transaction {
 export default function VisaCardPage() {
   const { user, isMember } = useAuth();
   const { formatPrice } = useCurrency();
+  const { locale } = useLanguage();
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [balance, setBalance] = useState<number>(() => {
     if (typeof window !== 'undefined') {
@@ -167,25 +169,28 @@ export default function VisaCardPage() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Link
           href="/membership"
           className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Member Portal
+          <ArrowLeft className="w-4 h-4" />
+          <span>{locale === 'no' ? 'Tilbake til Medlemsportalen' : 'Back to Member Portal'}</span>
         </Link>
 
         <div className="max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-800 text-xs font-black uppercase tracking-wider mb-2 border border-emerald-300">
             <Zap className="w-3.5 h-3.5 text-emerald-600" />
-            Co-Branded Rechargeable Visa Prepaid Card & FinTech Treasury
+            {locale === 'no' ? 'Gjenoppladbart Visa-Kort & FinTech Treasury' : 'Co-Branded Rechargeable Visa Prepaid Card & FinTech Treasury'}
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
-            Closed-Loop Travel Card & Profit Treasury
+            {locale === 'no' ? 'Lukket Reisekort & Hvelv-Utbetalinger' : 'Closed-Loop Travel Card & Profit Treasury'}
           </h1>
           <p className="text-slate-600 text-sm mt-1">
-            Your card automatically receives <strong>post-booking price drop cash refunds</strong>, <strong>EU261 flight delay legal claims</strong>, and <strong>Annual Travel Vault Profit Dividends</strong>.
+            {locale === 'no'
+              ? 'Ditt kort mottar automatisk kontantrefusjoner fra prisdropp, EU261-flykompensasjoner og årlig overskuddsutbytte.'
+              : 'Your card automatically receives post-booking price drop cash refunds, EU261 flight delay legal claims, and Annual Travel Vault Profit Dividends.'}
           </p>
         </div>
 
@@ -196,13 +201,15 @@ export default function VisaCardPage() {
           </div>
           <div>
             <div className="font-extrabold text-sm text-amber-950 flex items-center gap-2">
-              <span>Co-Branded ATLAS Visa® Card — Coming Soon</span>
+              <span>{locale === 'no' ? 'ATLAS Visa®-Kort — Kommer Snart' : 'Co-Branded ATLAS Visa® Card — Coming Soon'}</span>
               <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider">
-                In Preparation
+                {locale === 'no' ? 'Under Klargjøring' : 'In Preparation'}
               </span>
             </div>
             <div className="text-xs text-amber-900/90 mt-0.5 leading-relaxed">
-              Card issuing and banking regulatory onboarding are currently in progress. Active VIP members will receive priority delivery once physical cards begin dispatching. All wholesale travel bookings, rate parity savings, and price-drop cash protections are 100% active today!
+              {locale === 'no'
+                ? 'Banklisens- og kortutstedelsesprosess pågår. Aktive VIP-medlemmer mottar prioritert utsendelse. Alle engrosbestillinger, prisgarantier og prisdropp-beskyttelser er 100% aktive i dag!'
+                : 'Card issuing and banking regulatory onboarding are currently in progress. Active VIP members will receive priority delivery once physical cards begin dispatching. All wholesale travel bookings, rate parity savings, and price-drop cash protections are 100% active today!'}
             </div>
           </div>
         </div>

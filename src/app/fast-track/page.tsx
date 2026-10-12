@@ -17,9 +17,11 @@ import {
   X,
   CreditCard
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function FastTrackPage() {
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedService, setSelectedService] = useState<FastTrackAirportService | null>(null);
   const [flightNumber, setFlightNumber] = useState('');
@@ -41,13 +43,15 @@ export default function FastTrackPage() {
         <div className="max-w-7xl mx-auto text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-3 border border-amber-400/30">
             <Zap className="w-3.5 h-3.5 text-amber-400" />
-            Diplomatic Airport Fast-Track & Tarmac Escort
+            {locale === 'no' ? 'VIP Fast-Track & Flyplasseskerte' : 'Diplomatic Airport Fast-Track & Tarmac Escort'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black">
-            Skip 2-Hour Passport Lines in 3 Minutes
+            {locale === 'no' ? 'Slipp 2-timers passkøer på 3 minutter' : 'Skip 2-Hour Passport Lines in 3 Minutes'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            A dedicated VIP airport officer meets you directly at the aircraft jet bridge with a personalized name board, whisks you through crew/diplomatic lanes, handles your luggage, and escorts you to your chauffeur.
+            {locale === 'no'
+              ? 'En personlig VIP-vert møter deg direkte ved flydøren med navneskilt, fører deg gjennom diplomatiske sluser, henter bagasjen din og eskorterer deg til sjåføren.'
+              : 'A dedicated VIP airport officer meets you directly at the aircraft jet bridge with a personalized name board, whisks you through crew/diplomatic lanes, handles your luggage, and escorts you to your chauffeur.'}
           </p>
 
           {/* Airport Search Bar */}
@@ -57,7 +61,7 @@ export default function FastTrackPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Airport Code or City (e.g. LHR, DXB, CDG, JFK)..."
+              placeholder={locale === 'no' ? 'Søk etter flyplasskode eller by (f.eks. OSL, LHR, DXB, JFK)...' : 'Search by Airport Code or City (e.g. LHR, DXB, CDG, JFK)...'}
               className="w-full pl-12 pr-4 py-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>

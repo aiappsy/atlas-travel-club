@@ -1,522 +1,419 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MOCK_PROOF_AUDITS, MOCK_LIVE_RECEIPTS } from '@/lib/mockData';
-import { SavingsProofAudit } from '@/lib/types';
 import {
   ShieldCheck,
-  Zap,
   TrendingDown,
-  Lock,
   ArrowRight,
   Sparkles,
-  Search,
+  Hotel,
+  Plane,
+  Coffee,
+  Ship,
   CheckCircle2,
-  AlertTriangle,
+  Lock,
   Building2,
-  Globe,
-  Coins,
   CreditCard,
-  Scale,
-  RefreshCw,
-  ExternalLink,
-  HelpCircle,
-  BookOpen,
-  Download
+  Percent,
+  Sliders,
+  DollarSign
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
-import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function SavingsProofPage() {
-  const { formatPrice, currency } = useCurrency();
-  const [selectedAuditId, setSelectedAuditId] = useState<string>('proof-bellagio-vegas');
-  const [urlInput, setUrlInput] = useState('');
-  const [isAuditingUrl, setIsAuditingUrl] = useState(false);
-  const [urlAuditResult, setUrlAuditResult] = useState<SavingsProofAudit | null>(null);
+  const { formatPrice } = useCurrency();
+  const { t, locale } = useLanguage();
 
-  // Annual ROI Slider (Trips per year)
-  const [tripsPerYear, setTripsPerYear] = useState<number>(3);
-  const [avgNightsPerTrip, setAvgNightsPerTrip] = useState<number>(4);
+  // Multi-Vertical ROI State
+  // 1. Hotels
+  const [hotelNights, setHotelNights] = useState<number>(12); // annual nights
+  const hotelSavingsPerNight = 165; // average wholesale margin saved vs Booking/Expedia
 
-  const activeAudit = MOCK_PROOF_AUDITS.find((a) => a.id === selectedAuditId) || MOCK_PROOF_AUDITS[0];
+  // 2. Flights
+  const [annualFlights, setAnnualFlights] = useState<number>(4); // roundtrips per year
+  const flightSavingsPerTicket = 180; // NDC direct net fare savings vs OTA markups
 
-  const handleAuditUrl = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!urlInput.trim()) return;
+  // 3. Lounges
+  const [loungeVisits, setLoungeVisits] = useState<number>(6); // annual lounge visits
+  const loungeSavingsPerVisit = 33; // $32 member pass vs $65 walk-in door rate
 
-    setIsAuditingUrl(true);
-    try {
-      const res = await fetch(`/api/hotels/compare?hotel=${encodeURIComponent(urlInput.trim())}&nights=3&currency=${currency}`);
-      if (res.ok) {
-        const data = await res.json();
-        const hotel = data.hotels?.[0] || data.hotel;
-        if (hotel) {
-          const publicRate = hotel.prices.lowestOta.perNight;
-          const wholesaleRate = hotel.prices.atlasWholesale.perNight;
-          const savingsPerNight = hotel.prices.atlasWholesale.instantSavingsPerNight;
-          const totalSavings = hotel.prices.atlasWholesale.totalSavings;
-          const gVerify = hotel.prices?.googleHotels?.verifyUrl
-            ? formatGoogleTravelUrlWithCurrency(hotel.prices.googleHotels.verifyUrl, currency)
-            : undefined;
+  // 4. Cruises
+  const [cruiseSailings, setCruiseSailings] = useState<number>(1); // cruise trips/yr
+  const cruiseSavingsPerSailing = 650; // wholesale cabin rebate + $200 onboard credit
 
-          setUrlAuditResult({
-            id: 'live-audit-' + hotel.id,
-            hotelName: hotel.name,
-            city: hotel.city,
-            country: hotel.country,
-            starRating: hotel.starRating,
-            dates: 'Upcoming 3 Nights',
-            nights: 3,
-            image: hotel.image,
-            roomType: hotel.roomType,
-            publicProvider: hotel.prices.lowestOta.provider || 'Expedia',
-            publicRetailPricePerNight: publicRate,
-            publicTotalRetailPrice: publicRate * 3,
-            retailMarketingMarkup: Math.round(publicRate * 3 * 0.35),
-            hotelsClubWholesalePerNight: wholesaleRate,
-            hotelsClubTotalPaid: wholesaleRate * 3,
-            instantCashSaved: totalSavings,
-            savingsPercentage: hotel.prices.atlasWholesale.savingsPercent,
-            additionalCardBonuses: {
-              priceDropProtection: Math.round(savingsPerNight * 0.4),
-              travelVaultDividends: Math.round(savingsPerNight * 0.2),
-              visaCashback: Math.round(wholesaleRate * 3 * 0.02)
-            },
-            totalNetValueDelivered: totalSavings + Math.round(savingsPerNight * 0.6) + Math.round(wholesaleRate * 3 * 0.02),
-            lastAuditedTimestamp: 'Just now (Audited Live from Bedbank Feed)',
-            auditHash: hotel.audit?.auditHash || ('0x' + Math.random().toString(16).substring(2, 10) + '...verified'),
-            googleHotelsVerifyUrl: gVerify,
-          });
-          setIsAuditingUrl(false);
-          return;
-        }
-      }
-    } catch {
-      // fallback
-    }
-    setIsAuditingUrl(false);
-  };
+  // Annual Totals
+  const totalHotelSavings = hotelNights * hotelSavingsPerNight;
+  const totalFlightSavings = annualFlights * flightSavingsPerTicket;
+  const totalLoungeSavings = loungeVisits * loungeSavingsPerVisit;
+  const totalCruiseSavings = cruiseSailings * cruiseSavingsPerSailing;
 
-  // ROI Calculations
-  const estimatedSavingsPerNight = 165;
-  const totalAnnualNights = tripsPerYear * avgNightsPerTrip;
-  const totalAnnualSavings = totalAnnualNights * estimatedSavingsPerNight;
-  const goldMembershipCost = 179; // $179/yr
-  const netProfitForMember = totalAnnualSavings - goldMembershipCost;
-  const returnOnInvestment = Math.round((totalAnnualSavings / goldMembershipCost) * 100);
+  const grossAnnualSavings = totalHotelSavings + totalFlightSavings + totalLoungeSavings + totalCruiseSavings;
+  const membershipFee = 179; // Atlas Club Annual Membership
+  const netProfit = grossAnnualSavings - membershipFee;
+  const roiMultiplier = Math.round((grossAnnualSavings / membershipFee) * 10);
+  const roiPercent = Math.round((grossAnnualSavings / membershipFee) * 100);
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 text-slate-900 font-sans">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white py-16 px-4 sm:px-6 lg:px-8 border-b border-indigo-950">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/30">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            Live Wholesale Savings Proof Engine
+      {/* Header Banner - Clean Light / Subtle Slate Accent */}
+      <div className="bg-white border-b border-slate-200/80 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            {locale === 'no' ? 'Omfattende ROI- og Prisbevis-kalkulator' : 'Comprehensive Multi-Vertical Savings Engine'}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Cryptographically Audited Rates: Expedia vs. ATLAS
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            {locale === 'no' ? 'Hvor mye sparer du med ATLAS?' : 'How Much Will You Save with ATLAS?'}
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base">
-            Never wonder if you're getting the true wholesale price. Every rate is audited live against public OTA feeds and certified with real-time B2B Bedbank timestamps.
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+            {locale === 'no'
+              ? 'Beregn din personlige avkastning (ROI) på luksushoteller, direkte NDC-flyvninger, VIP-lounger og cruiseskip til 0% påslag.'
+              : 'Simulate your personal cash ROI across luxury hotels, direct NDC commercial flights, VIP airport lounges, and ocean cruises with 0% retail markups.'}
           </p>
         </div>
       </div>
 
-      {/* Live Member Receipts Ticker */}
-      <div className="bg-slate-900 text-slate-200 py-3 border-b border-slate-800 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 flex items-center gap-3 text-xs overflow-x-auto scrollbar-none whitespace-nowrap">
-          <span className="flex items-center gap-1.5 font-bold uppercase text-emerald-400 text-[10px] tracking-wider shrink-0 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-800/40">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            Live Member Savings Stream:
-          </span>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 space-y-10">
+        {/* Interactive Multi-Vertical Calculator Card */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden p-6 sm:p-10 space-y-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Left Column: Sliders for each vertical */}
+            <div className="lg:col-span-7 space-y-7">
+              <div className="border-b border-slate-100 pb-4">
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-amber-600" />
+                  {locale === 'no' ? 'Din Reiseprofil' : 'Your Travel Profile'}
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  {locale === 'no'
+                    ? 'Juster glidebryterne etter hvor ofte du reiser i løpet av året:'
+                    : 'Adjust the sliders to reflect how often you travel throughout the year:'}
+                </p>
+              </div>
 
-          <div className="flex items-center gap-6 text-[11px] text-slate-300">
-            {MOCK_LIVE_RECEIPTS.map((rec) => (
-              <span key={rec.id} className="flex items-center gap-1.5 shrink-0">
-                <span className="font-bold text-white">{rec.memberNameMasked}</span>
-                <span className="text-slate-400">saved</span>
-                <strong className="text-emerald-400 font-mono">${rec.amountSaved}</strong>
-                <span className="text-slate-400">on {rec.itemBooked}</span>
-                <span className="text-[10px] text-slate-500">({rec.timestampAgo})</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 space-y-12">
-        {/* Educational Case Study Banner */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border border-amber-500/30 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-black uppercase tracking-wider border border-amber-400/30">
-              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
-              Academic Research & Economic Case Study
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black">
-              Unmasking Rate Parity: The Invisible Hand of Travel Pricing
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Understand why public hotel rooms carry a 20%–45% marketing subsidy, how the OTA cartel enforces "Digital Invisibility," and how closed-loop networks unlock true wholesale arbitrage.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-            <Link
-              href="/case-study"
-              className="py-3 px-5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5"
-            >
-              <span>Read Economic Case Study</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <a
-              href="/ATLAS_Case_Study_Rate_Parity.pdf"
-              download="ATLAS_Case_Study_Rate_Parity.pdf"
-              className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs transition-all flex items-center gap-1.5"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>PDF</span>
-            </a>
-          </div>
-        </div>
-
-        {/* SECTION 1: LIVE AUDIT COMPARISON CARDS */}
-        <div className="space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              Live Audited Hotel Rates
-            </h2>
-            <p className="text-xs text-slate-500">
-              Select any destination below to inspect the raw B2B Bedbank feed vs. public retail pricing:
-            </p>
-          </div>
-
-          {/* Audit Selector Tabs */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {MOCK_PROOF_AUDITS.map((audit) => (
-              <button
-                key={audit.id}
-                onClick={() => setSelectedAuditId(audit.id)}
-                className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
-                  selectedAuditId === audit.id
-                    ? 'bg-slate-900 text-white shadow-lg'
-                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                📍 {audit.hotelName} ({audit.city})
-              </button>
-            ))}
-          </div>
-
-          {/* Detailed Side-by-Side Breakdown Card */}
-          <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-12">
-              {/* Hotel Photo & Basic Info */}
-              <div className="md:col-span-5 relative h-64 md:h-auto overflow-hidden">
-                <img
-                  src={activeAudit.image}
-                  alt={activeAudit.hotelName}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
-                  <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">
-                    {'⭐'.repeat(activeAudit.starRating)} {activeAudit.city}, {activeAudit.country}
-                  </span>
-                  <h3 className="font-extrabold text-xl leading-tight">{activeAudit.hotelName}</h3>
-                  <div className="text-[11px] text-slate-300">{activeAudit.roomType}</div>
-                  <div className="text-[10px] text-slate-400 font-mono pt-1">
-                    Dates: {activeAudit.dates}
+              {/* Slider 1: Hotels */}
+              <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                      <Hotel className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        {locale === 'no' ? 'Hotellnetter / år' : 'Hotel Nights / Year'}
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        {locale === 'no' ? 'Snitt engrosbesparelse: ~$165/natt' : 'Average wholesale saving: ~$165/night'}
+                      </div>
+                    </div>
                   </div>
+                  <div className="text-right">
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {hotelNights} {locale === 'no' ? 'netter' : 'nights'}
+                    </span>
+                    <div className="text-[11px] font-mono text-emerald-600 font-bold">
+                      +{formatPrice(totalHotelSavings)}
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  step="1"
+                  value={hotelNights}
+                  onChange={(e) => setHotelNights(Number(e.target.value))}
+                  className="w-full accent-amber-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <span>0 {locale === 'no' ? 'netter' : 'nights'}</span>
+                  <span>15 {locale === 'no' ? 'netter' : 'nights'}</span>
+                  <span>30 {locale === 'no' ? 'netter' : 'nights'}</span>
+                  <span>40+ {locale === 'no' ? 'netter' : 'nights'}</span>
                 </div>
               </div>
 
-              {/* Price & Markup Breakdown Table */}
-              <div className="md:col-span-7 p-6 sm:p-8 space-y-6 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <span className="text-xs font-bold uppercase text-slate-400">Live Pricing Audit</span>
-                    <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                      Hash: {activeAudit.auditHash}
+              {/* Slider 2: Flights */}
+              <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center font-bold">
+                      <Plane className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        {locale === 'no' ? 'Flyreiser tur/retur / år' : 'Roundtrip Flights / Year'}
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        {locale === 'no' ? 'Direkte NDC-nettobesparelse + EU261: ~$180/billett' : 'Direct NDC net fare savings + EU261 alerts: ~$180/ticket'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {annualFlights} {locale === 'no' ? 'reiser' : 'trips'}
+                    </span>
+                    <div className="text-[11px] font-mono text-emerald-600 font-bold">
+                      +{formatPrice(totalFlightSavings)}
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="15"
+                  step="1"
+                  value={annualFlights}
+                  onChange={(e) => setAnnualFlights(Number(e.target.value))}
+                  className="w-full accent-sky-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <span>0 {locale === 'no' ? 'reiser' : 'flights'}</span>
+                  <span>5 {locale === 'no' ? 'reiser' : 'flights'}</span>
+                  <span>10 {locale === 'no' ? 'reiser' : 'flights'}</span>
+                  <span>15+ {locale === 'no' ? 'reiser' : 'flights'}</span>
+                </div>
+              </div>
+
+              {/* Slider 3: Airport Lounges */}
+              <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                      <Coffee className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        {locale === 'no' ? 'VIP Lounge-besøk / år' : 'Airport Lounge Visits / Year'}
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        {locale === 'no' ? '$32 medlemspris vs $65 dørpris (Spar $33/besøk)' : '$32 Member digital pass vs $65 walk-in rate (Save $33/visit)'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {loungeVisits} {locale === 'no' ? 'besøk' : 'visits'}
+                    </span>
+                    <div className="text-[11px] font-mono text-emerald-600 font-bold">
+                      +{formatPrice(totalLoungeSavings)}
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  value={loungeVisits}
+                  onChange={(e) => setLoungeVisits(Number(e.target.value))}
+                  className="w-full accent-amber-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <span>0 {locale === 'no' ? 'besøk' : 'visits'}</span>
+                  <span>8 {locale === 'no' ? 'besøk' : 'visits'}</span>
+                  <span>16 {locale === 'no' ? 'besøk' : 'visits'}</span>
+                  <span>24+ {locale === 'no' ? 'besøk' : 'visits'}</span>
+                </div>
+              </div>
+
+              {/* Slider 4: Cruises */}
+              <div className="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold">
+                      <Ship className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        {locale === 'no' ? 'Cruisereiser / år' : 'Cruise Sailings / Year'}
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        {locale === 'no' ? 'Engrosrabatt på lugar + fri kreditt om bord: ~$650/seiling' : 'Net wholesale stateroom + free onboard credit: ~$650/sailing'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono text-base font-black text-slate-900">
+                      {cruiseSailings} {locale === 'no' ? 'seilinger' : 'sailings'}
+                    </span>
+                    <div className="text-[11px] font-mono text-emerald-600 font-bold">
+                      +{formatPrice(totalCruiseSavings)}
+                    </div>
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="4"
+                  step="1"
+                  value={cruiseSailings}
+                  onChange={(e) => setCruiseSailings(Number(e.target.value))}
+                  className="w-full accent-indigo-600"
+                />
+                <div className="flex justify-between text-[10px] text-slate-400 font-medium">
+                  <span>0 {locale === 'no' ? 'seilinger' : 'sailings'}</span>
+                  <span>1 {locale === 'no' ? 'seiling' : 'sailing'}</span>
+                  <span>2 {locale === 'no' ? 'seilinger' : 'sailings'}</span>
+                  <span>4 {locale === 'no' ? 'seilinger' : 'sailings'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Big Interactive ROI Summary Card */}
+            <div className="lg:col-span-5 flex flex-col justify-between h-full space-y-6">
+              <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white shadow-xl space-y-6 border border-slate-800">
+                <div>
+                  <span className="text-[11px] font-black uppercase text-amber-400 tracking-wider">
+                    {locale === 'no' ? 'Estimert Årlig Totalbesparelse' : 'Total Estimated Annual Savings'}
+                  </span>
+                  <div className="text-4xl sm:text-5xl font-black font-mono text-emerald-400 mt-1">
+                    {formatPrice(grossAnnualSavings)}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">
+                    {locale === 'no' ? 'Samlet verdi levert på tvers av alle 4 reisekategorier' : 'Combined value delivered across all 4 verticals'}
+                  </div>
+                </div>
+
+                {/* Vertical-by-vertical Breakdown */}
+                <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs">
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Hotel className="w-3.5 h-3.5 text-amber-400" />
+                      {locale === 'no' ? `Engroshoteller (${hotelNights} netter)` : `Wholesale Hotels (${hotelNights} nts)`}
+                    </span>
+                    <span className="font-mono font-bold text-white">+{formatPrice(totalHotelSavings)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Plane className="w-3.5 h-3.5 text-sky-400" />
+                      {locale === 'no' ? `Direkte flybilletter (${annualFlights} reiser)` : `Direct Flights (${annualFlights} flights)`}
+                    </span>
+                    <span className="font-mono font-bold text-white">+{formatPrice(totalFlightSavings)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Coffee className="w-3.5 h-3.5 text-amber-400" />
+                      {locale === 'no' ? `VIP Lounger (${loungeVisits} pass)` : `Airport Lounges (${loungeVisits} passes)`}
+                    </span>
+                    <span className="font-mono font-bold text-white">+{formatPrice(totalLoungeSavings)}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <Ship className="w-3.5 h-3.5 text-indigo-400" />
+                      {locale === 'no' ? `Luksuscruise (${cruiseSailings} seilinger)` : `Ocean Cruises (${cruiseSailings} sailings)`}
+                    </span>
+                    <span className="font-mono font-bold text-white">+{formatPrice(totalCruiseSavings)}</span>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-slate-400">
+                    <span>{locale === 'no' ? 'Atlas Klubb Medlemskontingent:' : 'Atlas Club Membership Cost:'}</span>
+                    <span className="font-mono text-rose-400">-{formatPrice(membershipFee)}/{locale === 'no' ? 'år' : 'yr'}</span>
+                  </div>
+                </div>
+
+                {/* Net Profit & ROI Box */}
+                <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/60 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-emerald-300">
+                      {locale === 'no' ? 'Din netto årlige gevinst:' : 'Your Net Annual Profit:'}
+                    </span>
+                    <span className="text-lg font-black font-mono text-emerald-400">
+                      +{formatPrice(netProfit)}
                     </span>
                   </div>
-
-                  <div className="space-y-2.5 text-xs">
-                    {/* Public Price Row */}
-                    <div className="p-3 bg-rose-50/60 rounded-xl border border-rose-200/60 flex items-center justify-between">
-                      <div>
-                        <div className="font-bold text-rose-950 flex items-center gap-1">
-                          <span>Public Retail Price ({activeAudit.publicProvider})</span>
-                          <span className="text-[10px] bg-rose-200 text-rose-800 px-1.5 py-0.2 rounded font-mono">
-                            Includes TV/Ad Markup
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-rose-700 mt-0.5">
-                          ${activeAudit.publicRetailPricePerNight} / night × {activeAudit.nights} nights
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-mono text-base font-bold text-rose-950">
-                          ${activeAudit.publicTotalRetailPrice.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* ATLAS Wholesale Row */}
-                    <div className="p-3.5 bg-emerald-50 rounded-2xl border-2 border-emerald-500 flex items-center justify-between">
-                      <div>
-                        <div className="font-black text-emerald-950 flex items-center gap-1">
-                          <span>ATLAS Raw Net Wholesale Rate</span>
-                          <span className="text-[10px] bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded-full">
-                            SAVE {activeAudit.savingsPercentage}%
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-emerald-800 mt-0.5">
-                          ${activeAudit.hotelsClubWholesalePerNight} / night × {activeAudit.nights} nights (0% Markup)
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-mono text-xl font-black text-emerald-700">
-                          ${activeAudit.hotelsClubTotalPaid.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Instant Cash Saved Highlight */}
-                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-slate-800">
-                      <span className="font-bold">Instant Cash Saved at Booking:</span>
-                      <span className="font-mono font-black text-base text-emerald-600">
-                        -${activeAudit.instantCashSaved.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {/* FinTech & Card Bonuses Added on Top */}
-                    <div className="pt-2 border-t border-slate-100 space-y-1.5">
-                      <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block">
-                        Extra FinTech Cash Inflows Deposited Onto Member Visa Card:
-                      </span>
-                      <div className="flex items-center justify-between text-[11px] text-slate-600">
-                        <span>🛡️ Post-Booking Price-Drop Guarantee:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.priceDropProtection}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] text-slate-600">
-                        <span>🏦 Travel Vault Annual Profit Dividend:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.travelVaultDividends}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-[11px] text-slate-600">
-                        <span>💳 Reloadable Visa Card FX Savings & Cashback:</span>
-                        <span className="font-mono text-slate-800 font-bold">+${activeAudit.additionalCardBonuses.visaCashback}</span>
-                      </div>
-                    </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400">
+                      {locale === 'no' ? 'Estimert avkastning på medlemskap:' : 'Estimated Return on Investment:'}
+                    </span>
+                    <span className="font-mono font-bold text-amber-300">{roiPercent}% ({Math.round(roiMultiplier / 10)}x ROI)</span>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <div>
-                    <div className="text-[10px] uppercase font-bold text-slate-400">Total Net Value Delivered:</div>
-                    <div className="text-xl font-black text-slate-900 font-mono">
-                      ${activeAudit.totalNetValueDelivered.toLocaleString()}
-                    </div>
-                  </div>
+                <Link
+                  href="/membership"
+                  className="w-full py-4 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.01]"
+                >
+                  <span>{t.common.startTrialNow}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
 
-                  <Link
-                    href={`/hotels`}
-                    className="py-3 px-5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
-                  >
-                    <span>Book at Wholesale</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
-                  </Link>
+                <div className="text-[11px] text-center text-slate-400">
+                  {locale === 'no'
+                    ? '🔒 0 kr å betale i dag • Beskyttet av 30 dagers prisgaranti'
+                    : '🔒 $0 due today • Protected by 30-day rate parity guarantee'}
                 </div>
               </div>
+
+              {/* Guarantees Box */}
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs text-slate-600 space-y-2 shadow-xs">
+                <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>{locale === 'no' ? 'Slik leverer ATLAS disse besparelsene' : 'How ATLAS Delivers These Savings'}</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-slate-500">
+                  {locale === 'no'
+                    ? 'Offentlige nettsider legger til 20% til 45% påslag for å betale for milliarder i søkeannonser. Fordi ATLAS opererer som en lukket privat klubb, videresender vi rene engrospriser direkte til deg med 0% kommisjon.'
+                    : 'Public sites add 20% to 45% markups to pay for search advertising. Because ATLAS operates as a gated private club, we pass raw wholesale rates directly to you with 0% retail markup.'}
+                </p>
+              </div>
             </div>
+
           </div>
         </div>
 
-        {/* SECTION 2: PASTE ANY URL INSTANT RATE AUDITOR */}
-        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-10 max-w-4xl mx-auto shadow-2xl border border-indigo-800 space-y-6">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <div className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider border border-amber-500/30">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              Live Rate Audit Tool
+        {/* Member Value Checklist */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
-            <h3 className="text-2xl font-black text-white">
-              Paste Any Expedia or Booking.com Link
-            </h3>
-            <p className="text-xs text-slate-300">
-              Test our wholesale engine right now. Paste any hotel URL or hotel name to see the un-marked up Bedbank price:
-            </p>
-          </div>
-
-          <form onSubmit={handleAuditUrl} className="flex flex-col sm:flex-row items-center gap-2 max-w-2xl mx-auto">
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
-              <input
-                type="text"
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                placeholder="Paste hotel URL or name (e.g. Ritz-Carlton Central Park, Plaza Paris)..."
-                className="w-full pl-11 pr-4 py-3 bg-slate-800/80 border border-slate-700 rounded-2xl text-xs font-medium text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isAuditingUrl}
-              className="w-full sm:w-auto py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 shrink-0"
-            >
-              {isAuditingUrl ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Auditing B2B Feeds...</span>
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Audit Wholesale Rate</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Audit Result Box */}
-          {urlAuditResult && (
-            <div className="p-6 bg-slate-800/90 rounded-2xl border border-amber-400/40 text-left space-y-4 animate-in zoom-in-95">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-700 pb-3">
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-emerald-400">Live Audit Verified</span>
-                  <h4 className="font-extrabold text-base text-white">{urlAuditResult.hotelName}</h4>
-                  <div className="text-xs text-slate-300">{urlAuditResult.city} • {urlAuditResult.roomType}</div>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">You Save:</span>
-                  <div className="font-mono text-2xl font-black text-emerald-400">
-                    {formatPrice(urlAuditResult.instantCashSaved)}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-700">
-                  <span className="text-[10px] uppercase font-bold text-rose-400 block">Public Retail Total:</span>
-                  <span className="font-mono text-base font-bold text-white line-through">
-                    {formatPrice(urlAuditResult.publicTotalRetailPrice)}
-                  </span>
-                </div>
-                <div className="p-3 bg-emerald-950/60 rounded-xl border border-emerald-700">
-                  <span className="text-[10px] uppercase font-bold text-emerald-300 block">Wholesale Member Total:</span>
-                  <span className="font-mono text-base font-black text-emerald-400">
-                    {formatPrice(urlAuditResult.hotelsClubTotalPaid)}
-                  </span>
-                </div>
-                <div className="p-3 bg-indigo-950/60 rounded-xl border border-indigo-700">
-                  <span className="text-[10px] uppercase font-bold text-indigo-300 block">Total Net Value:</span>
-                  <span className="font-mono text-base font-black text-amber-400">
-                    {formatPrice(urlAuditResult.totalNetValueDelivered)}
-                  </span>
-                </div>
-              </div>
-
-              {urlAuditResult.googleHotelsVerifyUrl && (
-                <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between gap-3 flex-wrap">
-                  <span className="text-[11px] text-slate-400">
-                    Cross-referenced against live global rates in {currency}:
-                  </span>
-                  <Link
-                    href={`/hotels?destination=${encodeURIComponent(urlAuditResult.hotelName)}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 text-xs font-bold transition-all"
-                  >
-                    <span>View Live Rate Audit on ATLAS ({currency})</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* SECTION 3: ANNUAL ROI CALCULATOR */}
-        <div className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl max-w-4xl mx-auto space-y-8">
-          <div className="text-center max-w-xl mx-auto space-y-2">
-            <h3 className="text-2xl font-black text-slate-900">
-              Will ATLAS Membership Pay for Itself?
-            </h3>
+            <h4 className="font-bold text-sm text-slate-900">
+              {locale === 'no' ? 'Tjener seg raskt inn' : 'Pays for Itself Fast'}
+            </h4>
             <p className="text-xs text-slate-500">
-              Calculate your personal return on investment (ROI) based on how often you travel:
+              {locale === 'no'
+                ? 'Et enkelt 2-netters hotellopphold eller én flyreise tur/retur sparer normalt inn hele årsavgiften.'
+                : 'A single 2-night stay or one roundtrip flight typically recovers the entire annual $179 fee.'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-6 text-xs">
-              <div className="space-y-2">
-                <div className="flex justify-between font-bold text-slate-700">
-                  <span>How many trips do you take per year?</span>
-                  <span className="font-mono font-black text-sm text-indigo-600">{tripsPerYear} Trips</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={tripsPerYear}
-                  onChange={(e) => setTripsPerYear(Number(e.target.value))}
-                  className="w-full accent-indigo-600"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between font-bold text-slate-700">
-                  <span>Average nights per trip:</span>
-                  <span className="font-mono font-black text-sm text-indigo-600">{avgNightsPerTrip} Nights</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="14"
-                  value={avgNightsPerTrip}
-                  onChange={(e) => setAvgNightsPerTrip(Number(e.target.value))}
-                  className="w-full accent-indigo-600"
-                />
-              </div>
-
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-slate-600 space-y-1">
-                <div>Total Nights Traveling per Year: <strong>{totalAnnualNights} Nights</strong></div>
-                <div>Average Wholesale Savings: <strong>~$165 / night</strong></div>
-                <div>Gold VIP Annual Membership Cost: <strong>$179 / year ($14.90/mo)</strong></div>
-              </div>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+              <Lock className="w-4 h-4" />
             </div>
+            <h4 className="font-bold text-sm text-slate-900">
+              {locale === 'no' ? 'Ekte Engrosavregning' : 'True Wholesale Clearing'}
+            </h4>
+            <p className="text-xs text-slate-500">
+              {locale === 'no'
+                ? 'Direkte kobling til B2B Bedbanks og IATA/NDC-linjer med 100% åpenhet rundt nettopriser.'
+                : 'Direct connection to B2B Bedbanks and airline NDC pipelines with 100% price transparency.'}
+            </p>
+          </div>
 
-            {/* Big ROI Result Box */}
-            <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 text-white text-center space-y-4 shadow-xl">
-              <div>
-                <span className="text-xs font-black uppercase text-emerald-100 tracking-wider">
-                  Your Estimated Annual Cash Savings:
-                </span>
-                <div className="text-4xl sm:text-5xl font-black font-mono mt-1">
-                  ${totalAnnualSavings.toLocaleString()}
-                </div>
-              </div>
-
-              <div className="p-4 bg-slate-950/20 rounded-2xl border border-white/20 text-xs space-y-1">
-                <div>Net Profit After Membership Fee: <strong className="text-amber-300 font-mono text-sm">+${netProfitForMember.toLocaleString()}</strong></div>
-                <div>Membership Return on Investment: <strong className="text-white font-mono text-sm">{returnOnInvestment}% ROI</strong></div>
-              </div>
-
-              <p className="text-[11px] text-emerald-100 leading-tight">
-                ✨ <strong>Your membership pays for itself on your very first trip</strong>, leaving you with thousands in pure savings and Visa card equity for the rest of the year!
-              </p>
-
-              <Link
-                href="/membership"
-                className="w-full py-3.5 bg-white hover:bg-slate-100 text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all inline-flex items-center justify-center gap-1.5"
-              >
-                <span>Unlock VIP Wholesale Rates Now</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
+            <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center font-bold">
+              <CreditCard className="w-4 h-4" />
             </div>
+            <h4 className="font-bold text-sm text-slate-900">
+              {locale === 'no' ? 'Risikofri Prøveperiode' : 'Zero Risk Free Trial'}
+            </h4>
+            <p className="text-xs text-slate-500">
+              {locale === 'no'
+                ? 'Prøv klubben gratis i 14 dager. Verifiser alle livepriser før medlemskapet trer i kraft.'
+                : 'Try the club free for 14 days. Inspect all live rates before your membership begins.'}
+            </p>
           </div>
         </div>
+
       </div>
     </div>
   );

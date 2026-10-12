@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MOCK_ESIM_PACKAGES } from '@/lib/mockData';
 import { EsimPackage } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Wifi,
   Smartphone,
@@ -22,12 +23,27 @@ import {
 
 export default function EsimPage() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const [activePackageModal, setActivePackageModal] = useState<EsimPackage | null>(null);
   const [installedQr, setInstalledQr] = useState(false);
 
-  const regions = ['All', 'Americas', 'Europe', 'Asia-Pacific', 'Global (140+ Countries)'];
+  const regions = locale === 'no'
+    ? [
+        { key: 'All', label: 'Alle Regioner' },
+        { key: 'Americas', label: 'Amerika' },
+        { key: 'Europe', label: 'Europa' },
+        { key: 'Asia-Pacific', label: 'Asia-Stillehavet' },
+        { key: 'Global (140+ Countries)', label: 'Global (140+ land)' }
+      ]
+    : [
+        { key: 'All', label: 'All' },
+        { key: 'Americas', label: 'Americas' },
+        { key: 'Europe', label: 'Europe' },
+        { key: 'Asia-Pacific', label: 'Asia-Pacific' },
+        { key: 'Global (140+ Countries)', label: 'Global (140+ Countries)' }
+      ];
 
   const filteredPackages = MOCK_ESIM_PACKAGES.filter((pkg) => {
     const matchRegion = selectedRegion === 'All' || pkg.region === selectedRegion;
@@ -39,19 +55,21 @@ export default function EsimPage() {
   });
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-sky-900/50">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl">
+        <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-3">
             <Wifi className="w-3.5 h-3.5" />
-            190+ Countries SIM-Less Travel Data
+            {locale === 'no' ? '190+ Land Reisedata Uten Fysisk SIM' : '190+ Countries SIM-Less Travel Data'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black">
-            High-Speed 5G Global Travel eSIM
+            {locale === 'no' ? 'Høyhastighets 5G Global Reisetilgang (eSIM)' : 'High-Speed 5G Global Travel eSIM'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            Never pay expensive $10/day international roaming fees again. Instant digital QR activation on your iPhone or Android device before you take off.
+            {locale === 'no'
+              ? 'Aldri betal dyre roamingkostnader på ferie igjen. Umiddelbar aktivering via QR-kode på iPhone eller Android før avreise.'
+              : 'Never pay expensive $10/day international roaming fees again. Instant digital QR activation on your iPhone or Android device before you take off.'}
           </p>
 
           {/* Search bar */}
@@ -61,7 +79,7 @@ export default function EsimPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search destination country (e.g. United States, Europe, Japan, Mexico)..."
+              placeholder={locale === 'no' ? 'Søk etter destinasjonsland (f.eks. USA, Spania, Japan, Thailand)...' : 'Search destination country (e.g. United States, Europe, Japan, Mexico)...'}
               className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white text-slate-900 placeholder-slate-400 font-semibold text-sm shadow-xl focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
@@ -74,15 +92,15 @@ export default function EsimPage() {
         <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
           {regions.map((reg) => (
             <button
-              key={reg}
-              onClick={() => setSelectedRegion(reg)}
+              key={reg.key}
+              onClick={() => setSelectedRegion(reg.key)}
               className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-sm ${
-                selectedRegion === reg
+                selectedRegion === reg.key
                   ? 'bg-sky-600 text-white shadow-sky-600/30'
                   : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
               }`}
             >
-              {reg}
+              {reg.label}
             </button>
           ))}
         </div>
@@ -100,43 +118,37 @@ export default function EsimPage() {
                     <span className="text-3xl">{pkg.flagEmoji}</span>
                     <div>
                       <h3 className="font-extrabold text-slate-900 text-base">{pkg.countryName}</h3>
-                      <div className="text-[11px] text-slate-500 font-medium">{pkg.carrierPartners}</div>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase">{pkg.networkSpeed}</span>
                     </div>
                   </div>
-
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase">
-                    5G High-Speed
+                  <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[10px] font-black uppercase">
+                    {pkg.dataAmount}
                   </span>
                 </div>
 
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2 mb-4">
-                  <div className="flex justify-between text-xs font-bold text-slate-700">
-                    <span>Data Allowance:</span>
-                    <span className="text-sky-600">{pkg.dataAmount}</span>
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1.5 mb-6 text-xs text-slate-600">
+                  <div className="flex justify-between">
+                    <span>{locale === 'no' ? 'Gyldighetsperiode:' : 'Validity Period:'}</span>
+                    <span className="font-bold text-slate-900">{pkg.validityDays} {locale === 'no' ? 'dager' : 'Days'}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>Validity Period:</span>
-                    <span>{pkg.validityDays} Days</span>
+                  <div className="flex justify-between">
+                    <span>{locale === 'no' ? 'Telenett:' : 'Supported Networks:'}</span>
+                    <span className="font-bold text-slate-900">{pkg.carrierPartners}</span>
                   </div>
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>Activation Type:</span>
-                    <span className="text-emerald-600 font-semibold">Instant Digital QR Scan</span>
+                  <div className="flex justify-between">
+                    <span>{locale === 'no' ? 'Deling / Hotspot:' : 'Personal Hotspot:'}</span>
+                    <span className="text-emerald-600 font-bold">{locale === 'no' ? 'Tillatt' : 'Enabled'}</span>
                   </div>
                 </div>
               </div>
 
-              <div>
-                <div className="flex items-end justify-between mb-4">
-                  <div>
-                    <div className="text-[10px] text-slate-400 line-through">
-                      Public Retail: ${pkg.publicRetailPrice.toFixed(2)}
-                    </div>
-                    <div className="text-xl font-black text-slate-900">
-                      <span className="text-emerald-600">${pkg.memberWholesalePrice.toFixed(2)}</span>
-                    </div>
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] text-slate-400">
+                    {locale === 'no' ? 'Medlemspris' : 'Member Rate'}
                   </div>
-                  <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                    Save {Math.round(((pkg.publicRetailPrice - pkg.memberWholesalePrice) / pkg.publicRetailPrice) * 100)}%
+                  <div className="text-2xl font-black text-slate-900">
+                    <span className="text-emerald-600">${pkg.memberWholesalePrice}</span>
                   </div>
                 </div>
 
@@ -145,10 +157,10 @@ export default function EsimPage() {
                     setActivePackageModal(pkg);
                     setInstalledQr(false);
                   }}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5"
+                  className="py-2.5 px-5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <QrCode className="w-4 h-4 text-amber-400" />
-                  Install Instant eSIM
+                  <span>{locale === 'no' ? 'Aktiver eSIM' : 'Activate eSIM'}</span>
                 </button>
               </div>
             </div>
@@ -156,83 +168,65 @@ export default function EsimPage() {
         </div>
       </div>
 
-      {/* eSIM Installation & QR Modal */}
+      {/* Activation Modal */}
       {activePackageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
           <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in zoom-in-95 duration-200">
             <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-6 text-white text-center relative">
               <button
                 onClick={() => setActivePackageModal(null)}
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="text-3xl mb-1">{activePackageModal.flagEmoji}</div>
-              <h3 className="text-xl font-black">{activePackageModal.countryName} 5G eSIM</h3>
+              <div className="text-4xl mb-2">{activePackageModal.flagEmoji}</div>
+              <h3 className="text-xl font-black">{activePackageModal.countryName} eSIM</h3>
               <p className="text-xs text-sky-200 mt-0.5">
-                {activePackageModal.dataAmount} • Valid for {activePackageModal.validityDays} Days
+                {activePackageModal.dataAmount} • {activePackageModal.validityDays} {locale === 'no' ? 'dagers gyldighet' : 'Days Validity'}
               </p>
             </div>
 
             <div className="p-6 text-center space-y-4">
               {installedQr ? (
                 <div className="space-y-4 animate-in zoom-in-95">
-                  <div className="w-44 h-44 mx-auto bg-white p-3 rounded-2xl border-2 border-slate-900 shadow-md flex items-center justify-center">
-                    <svg className="w-36 h-36 text-slate-900" viewBox="0 0 100 100" fill="currentColor">
-                      <rect x="10" y="10" width="25" height="25" fill="#000" />
-                      <rect x="15" y="15" width="15" height="15" fill="#fff" />
-                      <rect x="20" y="20" width="5" height="5" fill="#000" />
-                      <rect x="65" y="10" width="25" height="25" fill="#000" />
-                      <rect x="70" y="15" width="15" height="15" fill="#fff" />
-                      <rect x="75" y="20" width="5" height="5" fill="#000" />
-                      <rect x="10" y="65" width="25" height="25" fill="#000" />
-                      <rect x="15" y="70" width="15" height="15" fill="#fff" />
-                      <rect x="20" y="75" width="5" height="5" fill="#000" />
-                      <rect x="40" y="15" width="15" height="25" fill="#000" />
-                      <rect x="40" y="55" width="20" height="20" fill="#000" />
-                      <rect x="65" y="45" width="25" height="15" fill="#000" />
-                    </svg>
+                  <div className="w-48 h-48 mx-auto bg-white p-3 rounded-2xl border-2 border-slate-900 shadow-md flex items-center justify-center">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=LPA:1$smdp.io$${activePackageModal.id}-ATLAS`}
+                      alt="eSIM QR Code"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
-                  <div className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 p-2 rounded-xl">
-                    SM-DP+ Address: LPA:1$esim.atlastravel.club$ACTIVATION-KEY-9824
+                  <div className="text-xs text-slate-600">
+                    {locale === 'no'
+                      ? 'Skann koden med telefonens kamera i Innstillinger ➔ Mobilnett ➔ Legg til eSIM'
+                      : 'Scan this code with your phone camera in Settings ➔ Cellular ➔ Add eSIM'}
                   </div>
-                  <p className="text-xs text-slate-500">
-                    Open Camera on your iPhone/Android or go to <strong>Settings ➔ Cellular ➔ Add eSIM</strong> and point at this code.
-                  </p>
                   <button
                     onClick={() => setActivePackageModal(null)}
-                    className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md"
+                    className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
                   >
-                    Done
+                    {locale === 'no' ? 'Ferdig' : 'Done'}
                   </button>
                 </div>
               ) : (
                 <>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2">
-                    <div className="flex justify-between text-slate-500">
-                      <span>Public Roaming Rate:</span>
-                      <span className="line-through">${activePackageModal.publicRetailPrice.toFixed(2)}</span>
+                    <div className="flex justify-between text-slate-600">
+                      <span>{locale === 'no' ? 'Pakke:' : 'Package:'}</span>
+                      <span className="font-bold text-slate-900">{activePackageModal.dataAmount} High-Speed 5G</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
-                      <span>Wholesale Member Rate:</span>
-                      <span className="text-emerald-600 font-black text-base">
-                        ${activePackageModal.memberWholesalePrice.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold">
-                      ✓ Instant digital activation. Connects automatically upon landing.
+                      <span>{locale === 'no' ? 'Pris:' : 'Price:'}</span>
+                      <span className="text-emerald-600 font-black text-base">${activePackageModal.memberWholesalePrice}</span>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setInstalledQr(true)}
-                    className="w-full py-4 bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span className="font-black text-[#003087]">Pay</span>
-                    <span className="font-black text-[#0079C1]">Pal</span>
-                    <span className="font-bold text-slate-900">
-                      • Instant eSIM Activation (${activePackageModal.memberWholesalePrice.toFixed(2)})
-                    </span>
+                    <QrCode className="w-4 h-4" />
+                    <span>{locale === 'no' ? 'Generer Digital QR-Kode Nå' : 'Generate Digital QR Code Now'}</span>
                   </button>
                 </>
               )}

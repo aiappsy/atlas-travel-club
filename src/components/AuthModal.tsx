@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { X, ShieldCheck, Mail, Lock, User, Sparkles } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, Loader2, Sparkles, Check } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -48,6 +48,7 @@ export default function AuthModal({
   };
 
   const handleGoogle = async () => {
+    setError('');
     try {
       await signInWithGoogle();
       onClose();
@@ -56,177 +57,174 @@ export default function AuthModal({
     }
   };
 
+  const handleDemoAccess = () => {
+    toggleDemoMode();
+    onClose();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-        {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-sky-600 via-primary-600 to-indigo-700 p-6 text-white text-center relative">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          <div className="inline-flex items-center justify-center p-2.5 bg-white/10 rounded-2xl mb-3 backdrop-blur-md">
-            <Sparkles className="w-6 h-6 text-amber-300" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 p-8">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header */}
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-amber-50 border border-amber-200/60 flex items-center justify-center">
+            <Lock className="w-5 h-5 text-amber-700" />
           </div>
-          <h2 className="text-2xl font-bold">
-            {customTitle || (isSignUp ? 'Join the Wholesale Travel Club' : 'Member Sign In')}
+          <h2 className="text-2xl font-bold text-slate-900">
+            {customTitle || (isSignUp ? 'Create Member Account' : 'Welcome to Atlas')}
           </h2>
-          <p className="text-sky-100 text-sm mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             {customSubtitle || (isSignUp
-              ? 'Unlock 20% to 45% off hotels, rental cars & theme parks'
-              : 'Access your private closed-loop wholesale pricing')}
+              ? 'Unlock confidential 0% markup wholesale travel rates'
+              : 'Sign in to access your closed-loop member pricing')}
           </p>
         </div>
 
-        <div className="p-6">
-          {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm">
-              {error}
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs">
+            {error}
+          </div>
+        )}
+
+        {/* 1. Preferred Primary Choice: Google Sign In */}
+        <button
+          onClick={handleGoogle}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm shadow-sm transition-all hover:border-slate-300 cursor-pointer"
+        >
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.64v3h3.88c2.27-2.09 3.66-5.17 3.66-9.08z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.09C3.26 21.37 7.36 24 12 24z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.28 14.32c-.25-.72-.38-1.49-.38-2.32s.13-1.6.38-2.32V6.59H1.26C.46 8.18 0 9.99 0 12s.46 3.82 1.26 5.41l4.02-3.09z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.63 1.26 6.59l4.02 3.09c.95-2.83 3.6-4.93 6.72-4.93z"
+            />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        {/* Divider */}
+        <div className="relative my-5 text-center">
+          <hr className="border-slate-200" />
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            or with email
+          </span>
+        </div>
+
+        {/* 2. Email / Password Form */}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          {isSignUp && (
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. John Doe"
+                  className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-slate-800 placeholder-slate-400"
+                />
+              </div>
             </div>
           )}
 
-          {/* Google Sign In */}
-          <button
-            onClick={handleGoogle}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm shadow-sm transition-all hover:shadow"
-          >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.64v3h3.88c2.27-2.09 3.66-5.17 3.66-9.08z"
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-slate-800 placeholder-slate-400"
               />
-              <path
-                fill="#34A853"
-                d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.09C3.26 21.37 7.36 24 12 24z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.28 14.32c-.25-.72-.38-1.49-.38-2.32s.13-1.6.38-2.32V6.59H1.26C.46 8.18 0 9.99 0 12s.46 3.82 1.26 5.41l4.02-3.09z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.26 2.63 1.26 6.59l4.02 3.09c.95-2.83 3.6-4.93 6.72-4.93z"
-              />
-            </svg>
-            Continue with Google
-          </button>
+            </div>
+          </div>
 
-          {/* Instant VIP Demo Pass */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent text-slate-800 placeholder-slate-400"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 px-4 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-2"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+          </button>
+        </form>
+
+        {/* Switch mode */}
+        <div className="mt-5 text-center text-xs text-slate-500">
+          {isSignUp ? (
+            <span>
+              Already a member?{' '}
+              <button
+                type="button"
+                onClick={() => setIsSignUp(false)}
+                className="font-bold text-slate-900 hover:underline cursor-pointer"
+              >
+                Sign in
+              </button>
+            </span>
+          ) : (
+            <span>
+              Don&apos;t have an account?{' '}
+              <button
+                type="button"
+                onClick={() => setIsSignUp(true)}
+                className="font-bold text-slate-900 hover:underline cursor-pointer"
+              >
+                Join now
+              </button>
+            </span>
+          )}
+        </div>
+
+        {/* One-Click Demo Mode Preview */}
+        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
           <button
             type="button"
-            onClick={() => {
-              toggleDemoMode();
-              onClose();
-            }}
-            className="w-full mt-2.5 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 border border-amber-500/30 font-bold text-xs transition-all"
+            onClick={handleDemoAccess}
+            className="text-xs text-slate-500 hover:text-slate-800 font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>⚡ Instant VIP Member Access (Demo Pass)</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Instant Demo Access (Test as Active VIP)</span>
           </button>
-
-          <div className="relative my-6 text-center">
-            <hr className="border-slate-200" />
-            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs font-semibold text-slate-400 uppercase">
-              Or with email
-            </span>
-          </div>
-
-          {/* Email / Password Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Jane Doe"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
-                  />
-                </div>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@domain.com"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-semibold shadow-md shadow-sky-500/20 transition-all hover:shadow-lg text-sm"
-            >
-              {loading ? 'Processing...' : isSignUp ? 'Create Member Account' : 'Sign In'}
-            </button>
-          </form>
-
-          {/* Toggle Login / Signup */}
-          <div className="mt-5 text-center text-xs text-slate-500">
-            {isSignUp ? (
-              <span>
-                Already a club member?{' '}
-                <button
-                  onClick={() => setIsSignUp(false)}
-                  className="text-sky-600 font-bold hover:underline"
-                >
-                  Sign In
-                </button>
-              </span>
-            ) : (
-              <span>
-                Don’t have a membership yet?{' '}
-                <button
-                  onClick={() => setIsSignUp(true)}
-                  className="text-sky-600 font-bold hover:underline"
-                >
-                  Get VIP Pass
-                </button>
-              </span>
-            )}
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-1.5 text-xs text-slate-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>Encrypted with Google Firebase Security</span>
-          </div>
         </div>
       </div>
     </div>

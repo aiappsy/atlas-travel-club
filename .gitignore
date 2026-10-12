@@ -34,3 +34,6 @@ next-env.d.ts
 
 # session data
 .playwright_session/
+
+# firebase
+.firebase/

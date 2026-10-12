@@ -6,85 +6,167 @@ import {
   Scale, ShieldCheck, FileCheck, Building, CreditCard, 
   AlertCircle, ArrowRight, Shield, FileText, ChevronRight, Globe2 
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function LegalHubPage() {
-  const legalSections = [
-    {
-      category: 'Investor & Securities Compliance',
-      description: 'Regulatory memorandums, securities notices, and digital execution frameworks.',
-      docs: [
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
+
+  const legalSections = isNo
+    ? [
         {
-          title: 'Investor Disclosures & Safe Harbor',
-          desc: 'Rule 506(c) Regulation D notice, accredited investor standard, PSLRA forward-looking statements.',
-          href: '/legal/investor-disclosures',
-          badge: 'Securities Notice',
-          icon: Scale
+          category: 'Regulatorisk etterlevelse & investorer',
+          description: 'Regulatoriske notater, verdipapirvarsler og digitale signeringsrammeverk.',
+          docs: [
+            {
+              title: 'Investoropplysninger & Safe Harbor',
+              desc: 'Regulering D Rule 506(c)-merknad, standard for akkrediterte investorer, PSLRA fremadskuende uttalelser.',
+              href: '/legal/investor-disclosures',
+              badge: 'Verdipapirvarsel',
+              icon: Scale
+            },
+            {
+              title: 'Elektroniske signaturer (E-SIGN & eIDAS)',
+              desc: 'Lovpålagt opplysning under 15 U.S.C. § 7001, UETA og eIDAS for digital utførelse og kryptografisk signaturbok.',
+              href: '/legal/electronic-signatures',
+              badge: '15 U.S.C. § 7001',
+              icon: FileCheck
+            },
+            {
+              title: 'Lukket prisparietetsnotat',
+              desc: 'Konkurranserettslig grunnlag under US Sherman Act og fransk Loi Macron for engrosdistribusjon i lukkede medlemskretser.',
+              href: '/legal/rate-parity-compliance',
+              badge: 'Juridisk Notat',
+              icon: ShieldCheck
+            },
+            {
+              title: 'EU- & Norsk samsvarsnotat (RGF)',
+              desc: 'Harmonisering under EØS-avtalen, norsk Pakkereiselov, Reisegarantifondet (RGF), EU Digital Markets Act (DMA) og GDPR.',
+              href: '/legal/eu-norway-compliance',
+              badge: 'EØS / Norsk Lov',
+              icon: Globe2
+            }
+          ]
         },
         {
-          title: 'Electronic Signatures (E-SIGN Act)',
-          desc: 'Statutory disclosure under 15 U.S.C. § 7001 & UETA governing digital execution and cryptographic ledgers.',
-          href: '/legal/electronic-signatures',
-          badge: '15 U.S.C. § 7001',
-          icon: FileCheck
-        },
-        {
-          title: 'Closed-Loop Rate Parity Memorandum',
-          desc: 'Legal antitrust basis under US Sherman Act (15 U.S.C. § 1) and EU Loi Macron for wholesale rate distribution.',
-          href: '/legal/rate-parity-compliance',
-          badge: 'Antitrust Legal Brief',
-          icon: ShieldCheck
-        },
-        {
-          title: 'EU & Norwegian Compliance Memorandum',
-          desc: 'Harmonization under EØS-avtalen, Norwegian Pakkereiseloven, EU Digital Markets Act (DMA), eIDAS signatures, and GDPR.',
-          href: '/legal/eu-norway-compliance',
-          badge: 'EEA / Norsk Lov',
-          icon: Globe2
+          category: 'Reiseleverandører & forbrukeropplysninger',
+          description: 'Reisegaranti, lisenser, kortvilkår og operasjonelle ansvarsfraskrivelser.',
+          docs: [
+            {
+              title: 'Seller of Travel & Reisegaranti',
+              desc: 'Statlige registreringer i California (CST), Florida (ST), Washington og norsk Reisegarantifond (RGF).',
+              href: '/legal/seller-of-travel',
+              badge: 'Lisensiering',
+              icon: Building
+            },
+            {
+              title: 'Bank- & Visa®-kortopplysninger',
+              desc: 'Kortholdervilkår, 0 % valutapåslag i interbankmarkedet og Travel Vault-renteprotokoller.',
+              href: '/legal/banking-disclosures',
+              badge: 'Fintech & Kort',
+              icon: CreditCard
+            },
+            {
+              title: 'Reiseleverandør & ansvarsfraskrivelse',
+              desc: 'Uavhengige leverandørvilkår for engros bedbanks, flyselskaper, CRS-innsjekk og force majeure.',
+              href: '/legal/travel-disclaimer',
+              badge: 'Driftsvilkår',
+              icon: AlertCircle
+            },
+            {
+              title: 'Brukervilkår',
+              desc: 'Generelle plattformvilkår for medlemskap, kontosikkerhet og akseptabel bruk.',
+              href: '/terms',
+              badge: 'Medlemsavtale',
+              icon: FileText
+            },
+            {
+              title: 'Personvernerklæring',
+              desc: 'Databehandling, GDPR-overholdelse, informasjonskapsler og konfidensiell lagring.',
+              href: '/privacy',
+              badge: 'Personvern',
+              icon: Shield
+            }
+          ]
         }
       ]
-    },
-    {
-      category: 'Hospitality & Consumer Disclosures',
-      description: 'Travel supplier operations, state registrations, and financial disclosures.',
-      docs: [
+    : [
         {
-          title: 'Seller of Travel Disclosures',
-          desc: 'State statutory disclosures for California (CST), Florida (ST), and Washington escrow trust compliance.',
-          href: '/legal/seller-of-travel',
-          badge: 'State Licensing',
-          icon: Building
+          category: 'Investor & Securities Compliance',
+          description: 'Regulatory memorandums, securities notices, and digital execution frameworks.',
+          docs: [
+            {
+              title: 'Investor Disclosures & Safe Harbor',
+              desc: 'Rule 506(c) Regulation D notice, accredited investor standard, PSLRA forward-looking statements.',
+              href: '/legal/investor-disclosures',
+              badge: 'Securities Notice',
+              icon: Scale
+            },
+            {
+              title: 'Electronic Signatures (E-SIGN Act)',
+              desc: 'Statutory disclosure under 15 U.S.C. § 7001 & UETA governing digital execution and cryptographic ledgers.',
+              href: '/legal/electronic-signatures',
+              badge: '15 U.S.C. § 7001',
+              icon: FileCheck
+            },
+            {
+              title: 'Closed-Loop Rate Parity Memorandum',
+              desc: 'Legal antitrust basis under US Sherman Act (15 U.S.C. § 1) and EU Loi Macron for wholesale rate distribution.',
+              href: '/legal/rate-parity-compliance',
+              badge: 'Antitrust Legal Brief',
+              icon: ShieldCheck
+            },
+            {
+              title: 'EU & Norwegian Compliance Memorandum',
+              desc: 'Harmonization under EØS-avtalen, Norwegian Pakkereiseloven, EU Digital Markets Act (DMA), eIDAS signatures, and GDPR.',
+              href: '/legal/eu-norway-compliance',
+              badge: 'EEA / Norsk Lov',
+              icon: Globe2
+            }
+          ]
         },
         {
-          title: 'Banking & Visa® Card Disclosures',
-          desc: 'Cardholder terms, 0% FX interbank policies, and Travel Vault dividend distribution protocols.',
-          href: '/legal/banking-disclosures',
-          badge: 'Fintech & Cards',
-          icon: CreditCard
-        },
-        {
-          title: 'Travel & Supplier Disclaimer',
-          desc: 'Independent contractor terms for wholesale bedbanks, airlines, CRS check-in parity, and force majeure.',
-          href: '/legal/travel-disclaimer',
-          badge: 'Operational Disclaimer',
-          icon: AlertCircle
-        },
-        {
-          title: 'Terms of Service',
-          desc: 'General platform terms governing membership, account security, and acceptable use.',
-          href: '/terms',
-          badge: 'Member Agreement',
-          icon: FileText
-        },
-        {
-          title: 'Privacy Policy',
-          desc: 'Data protection, GDPR compliance, cookie policy, and confidential information retention standards.',
-          href: '/privacy',
-          badge: 'Data Protection',
-          icon: Shield
+          category: 'Hospitality & Consumer Disclosures',
+          description: 'Travel supplier operations, state registrations, and financial disclosures.',
+          docs: [
+            {
+              title: 'Seller of Travel Disclosures',
+              desc: 'State statutory disclosures for California (CST), Florida (ST), and Washington escrow trust compliance.',
+              href: '/legal/seller-of-travel',
+              badge: 'State Licensing',
+              icon: Building
+            },
+            {
+              title: 'Banking & Visa® Card Disclosures',
+              desc: 'Cardholder terms, 0% FX interbank policies, and Travel Vault dividend distribution protocols.',
+              href: '/legal/banking-disclosures',
+              badge: 'Fintech & Cards',
+              icon: CreditCard
+            },
+            {
+              title: 'Travel & Supplier Disclaimer',
+              desc: 'Independent contractor terms for wholesale bedbanks, airlines, CRS check-in parity, and force majeure.',
+              href: '/legal/travel-disclaimer',
+              badge: 'Operational Disclaimer',
+              icon: AlertCircle
+            },
+            {
+              title: 'Terms of Service',
+              desc: 'General platform terms governing membership, account security, and acceptable use.',
+              href: '/terms',
+              badge: 'Member Agreement',
+              icon: FileText
+            },
+            {
+              title: 'Privacy Policy',
+              desc: 'Data protection, GDPR compliance, cookie policy, and confidential information retention standards.',
+              href: '/privacy',
+              badge: 'Data Protection',
+              icon: Shield
+            }
+          ]
         }
-      ]
-    }
-  ];
+      ];
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 font-sans text-slate-800 antialiased">
@@ -94,20 +176,23 @@ export default function LegalHubPage() {
         <div className="max-w-5xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider">
             <Scale className="w-3.5 h-3.5 text-amber-600" />
-            Compliance & Governance Hub
+            {isNo ? 'Samsvar & juridisk oversikt' : 'Compliance & Governance Hub'}
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            Legal, Regulatory & Disclosure Directory
+            {isNo ? 'Juridisk, regulatorisk og opplysningskatalog' : 'Legal, Regulatory & Disclosure Directory'}
           </h1>
 
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-3xl">
-            Statutory legal notices, securities disclaimers, state Seller of Travel registrations, 
-            and closed-loop antitrust memorandums governing ATLAS Travel Club LLC.
+            {isNo
+              ? 'Lovpålagte juridiske merknader, verdipapiransvarsfraskrivelser, statlige Seller of Travel-registreringer og lukkede antitrust-memoranda for ATLAS Travel Club.'
+              : 'Statutory legal notices, securities disclaimers, state Seller of Travel registrations, and closed-loop antitrust memorandums governing ATLAS Travel Club LLC.'}
           </p>
 
           <div className="text-xs text-slate-400 font-mono pt-1">
-            Governing Entity: ATLAS Travel Club LLC (Manager-Managed LLC — Delaware / Wyoming)
+            {isNo
+              ? 'Ansvarlig juridisk enhet: ATLAS Travel Club LLC (Manager-Managed LLC — Delaware / Wyoming)'
+              : 'Governing Entity: ATLAS Travel Club LLC (Manager-Managed LLC — Delaware / Wyoming)'}
           </div>
         </div>
       </section>
@@ -149,7 +234,7 @@ export default function LegalHubPage() {
                     </div>
 
                     <div className="pt-2 flex items-center gap-1 text-xs font-bold text-amber-600">
-                      <span>Read Policy</span>
+                      <span>{isNo ? 'Les policy' : 'Read Policy'}</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </Link>
@@ -162,14 +247,22 @@ export default function LegalHubPage() {
         {/* Bottom Contact & Investor Portal Link */}
         <div className="p-6 rounded-3xl bg-white border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
           <div className="space-y-1">
-            <div className="font-bold text-slate-900">Are you evaluating an early-stage SAFE investment?</div>
-            <div className="text-slate-500">Review offering terms and download the full due diligence data room.</div>
+            <div className="font-bold text-slate-900">
+              {isNo
+                ? 'Vurderer du en SAFE-investering på tidlig stadium?'
+                : 'Are you evaluating an early-stage SAFE investment?'}
+            </div>
+            <div className="text-slate-500">
+              {isNo
+                ? 'Gjennomgå tilbudsvilkår og få tilgang til komplett datterselskaps datrom.'
+                : 'Review offering terms and download the full due diligence data room.'}
+            </div>
           </div>
           <Link
             href="/investors"
             className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all flex items-center gap-1.5 shrink-0"
           >
-            <span>Open Investor Portal</span>
+            <span>{isNo ? 'Åpne investorportal' : 'Open Investor Portal'}</span>
             <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
           </Link>
         </div>

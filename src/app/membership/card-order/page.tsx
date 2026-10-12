@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   CreditCard,
   Sparkles,
@@ -17,15 +18,16 @@ import Link from 'next/link';
 
 export default function PhysicalCardOrderPage() {
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80');
   const [foilStyle, setFoilStyle] = useState<'metallic_gold' | 'holographic_platinum' | 'brushed_titanium'>('metallic_gold');
   
   // Shipping form state
-  const [street, setStreet] = useState('742 Evergreen Terrace');
-  const [city, setCity] = useState('Springfield');
-  const [state, setState] = useState('OR');
-  const [zip, setZip] = useState('97477');
-  const [country, setCountry] = useState('United States');
+  const [street, setStreet] = useState('Dronning Eufemias gate 16');
+  const [city, setCity] = useState('Oslo');
+  const [state, setState] = useState('Oslo');
+  const [zip, setZip] = useState('0191');
+  const [country, setCountry] = useState('Norway');
 
   const [orderComplete, setOrderComplete] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,7 +52,7 @@ export default function PhysicalCardOrderPage() {
       });
       setLoading(false);
       setOrderComplete(true);
-    } catch (e) {
+    } catch {
       setLoading(false);
       setOrderComplete(true);
     }
@@ -64,25 +66,30 @@ export default function PhysicalCardOrderPage() {
       : 'from-amber-700 via-amber-900 to-amber-950 border-amber-400/50 text-white';
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Link
           href="/membership"
           className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Member Portal
+          <ArrowLeft className="w-4 h-4" />
+          <span>{locale === 'no' ? 'Tilbake til Medlemsportalen' : 'Back to Member Portal'}</span>
         </Link>
 
         <div className="max-w-3xl mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-800 text-xs font-black uppercase tracking-wider mb-2 border border-amber-300">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            Heavy PVC Photo ID Card Production
+            {locale === 'no' ? 'Fysisk PVC Medlemskort Produksjon' : 'Heavy PVC Photo ID Card Production'}
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
-            Order Your Physical Holographic Member ID Pass
+            {locale === 'no'
+              ? 'Bestill ditt fysiske holografiske medlemskort'
+              : 'Order Your Physical Holographic Member ID Pass'}
           </h1>
           <p className="text-slate-600 text-sm mt-1">
-            Personalized CR80 heavy PVC card with embedded NFC chip, security hologram, and physical photo ID for effortless hotel desk and car rental verification.
+            {locale === 'no'
+              ? 'Personlig CR80 PVC-kort med innebygd NFC-brikke, sikkerhetshologram og bilde-ID for smidig hotellinnsjekk og leiebilverifisering.'
+              : 'Personalized CR80 heavy PVC card with embedded NFC chip, security hologram, and physical photo ID for effortless hotel desk and car rental verification.'}
           </p>
         </div>
 
@@ -92,7 +99,7 @@ export default function PhysicalCardOrderPage() {
             <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
               <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-sky-600" />
-                Live Card Production Preview
+                <span>{locale === 'no' ? 'Forhåndsvisning i sanntid' : 'Live Card Production Preview'}</span>
               </h3>
 
               {/* Physical Card Mockup with Photo */}
@@ -105,243 +112,166 @@ export default function PhysicalCardOrderPage() {
                       <Sparkles className="w-4 h-4 text-amber-300" />
                     </div>
                     <span className="font-black text-sm tracking-wider uppercase">
-                      Hotels<span className="text-sky-400">Club</span>
+                      ATLAS <span className="text-sky-400">CLUB</span>
                     </span>
                   </div>
-
-                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-white/10 border border-white/20 text-amber-300">
-                    Official Photo ID
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-full bg-white/10 border border-white/20">
+                    VIP PASS
                   </span>
                 </div>
 
-                {/* Photo ID + Member Details */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-20 h-24 rounded-xl overflow-hidden border-2 border-amber-300/80 shadow-md shrink-0 bg-slate-800">
+                <div className="flex items-center gap-4 my-4">
+                  <div className="w-16 h-20 rounded-xl overflow-hidden border-2 border-white/40 shadow-md shrink-0">
                     <img src={photoUrl} alt="Member ID Photo" className="w-full h-full object-cover" />
                   </div>
-
                   <div className="space-y-1">
-                    <div className="text-[10px] uppercase font-bold text-white/50 tracking-wider">
-                      Verified Member
-                    </div>
-                    <div className="font-black text-base text-white uppercase tracking-wide">
-                      {user?.displayName || 'Alex Harrison'}
-                    </div>
-                    <div className="font-mono text-xs font-bold text-amber-300">
-                      {user?.memberId || 'HC-9824-VIP'}
-                    </div>
-                    <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> NFC Tap Enabled
+                    <div className="text-lg font-black tracking-tight">{user?.displayName || 'Alex Harrison'}</div>
+                    <div className="text-[11px] font-mono text-slate-300">ID: {user?.memberId || 'HC-9824-VIP'}</div>
+                    <div className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">
+                      {foilStyle === 'holographic_platinum' ? 'Platinum Tier' : foilStyle === 'brushed_titanium' ? 'Titanium Tier' : 'Gold VIP Tier'}
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[10px] text-white/60 font-mono">
-                  <span>EXP: {user?.validUntil || 'DEC 2026'}</span>
-                  <span>SECURITY CODE: HC-NFC-8819</span>
+                <div className="pt-4 border-t border-white/15 flex items-center justify-between text-[10px] text-slate-300 font-mono">
+                  <span>NFC 13.56MHz RFID EMBEDDED</span>
+                  <span>EXP: 12/28</span>
                 </div>
               </div>
 
-              {/* Foil Finish Selector */}
-              <div className="pt-2">
-                <label className="block text-xs font-bold uppercase text-slate-500 tracking-wider mb-2">
-                  Select Card Foil Finish
+              {/* Style selector */}
+              <div className="space-y-2 pt-2">
+                <label className="text-xs font-bold text-slate-700 block">
+                  {locale === 'no' ? 'Velg Kortfinish:' : 'Select Card Foil Finish:'}
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 text-xs">
                   <button
                     type="button"
                     onClick={() => setFoilStyle('metallic_gold')}
-                    className={`p-3 rounded-2xl border text-xs font-bold transition-all ${
+                    className={`p-2.5 rounded-xl border text-center font-bold transition-all cursor-pointer ${
                       foilStyle === 'metallic_gold'
-                        ? 'border-amber-500 bg-amber-50 text-amber-900 shadow-sm'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'border-amber-500 bg-amber-50 text-amber-950 shadow-sm'
+                        : 'border-slate-200 text-slate-600'
                     }`}
                   >
-                    ✨ Gold Hologram
+                    Metallic Gold
                   </button>
                   <button
                     type="button"
                     onClick={() => setFoilStyle('holographic_platinum')}
-                    className={`p-3 rounded-2xl border text-xs font-bold transition-all ${
+                    className={`p-2.5 rounded-xl border text-center font-bold transition-all cursor-pointer ${
                       foilStyle === 'holographic_platinum'
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-900 shadow-sm'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'border-indigo-500 bg-indigo-50 text-indigo-950 shadow-sm'
+                        : 'border-slate-200 text-slate-600'
                     }`}
                   >
-                    💎 Platinum Foil
+                    Holo Platinum
                   </button>
                   <button
                     type="button"
                     onClick={() => setFoilStyle('brushed_titanium')}
-                    className={`p-3 rounded-2xl border text-xs font-bold transition-all ${
+                    className={`p-2.5 rounded-xl border text-center font-bold transition-all cursor-pointer ${
                       foilStyle === 'brushed_titanium'
-                        ? 'border-slate-800 bg-slate-900 text-white shadow-sm'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'border-slate-900 bg-slate-100 text-slate-900 shadow-sm'
+                        : 'border-slate-200 text-slate-600'
                     }`}
                   >
-                    🛡️ Titanium Black
-                  </button>
-                </div>
-              </div>
-
-              {/* Photo selector shortcut */}
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-500 tracking-wider mb-1">
-                  ID Headshot Photo URL
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-semibold"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80')}
-                    className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
-                  >
-                    Preset Photo
+                    Titanium
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Shipping Address & Order Submission */}
-          <div className="lg:col-span-6">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+          {/* Shipping Details Form */}
+          <div className="lg:col-span-6 space-y-6">
+            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
+              <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
+                <Truck className="w-4 h-4 text-emerald-600" />
+                <span>{locale === 'no' ? 'Leveringsadresse' : 'Shipping Address'}</span>
+              </h3>
+
               {orderComplete ? (
-                <div className="text-center py-8 space-y-4 animate-in zoom-in-95">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-                    <Package className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-900">Physical Card Order Confirmed!</h3>
-                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    Your customized heavy PVC member card has been queued for laser engraving and USPS Priority dispatch to {city}, {state}.
+                <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-200 text-center space-y-3">
+                  <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
+                  <h4 className="text-lg font-black text-emerald-950">
+                    {locale === 'no' ? 'Kortbestilling Mottatt!' : 'Card Order Placed!'}
+                  </h4>
+                  <p className="text-xs text-emerald-800">
+                    {locale === 'no'
+                      ? 'Ditt fysiske medlemskort sendes med sporet ekspresslevering innen 3-5 virkedager.'
+                      : 'Your physical member pass will be produced and dispatched via tracked courier within 3-5 business days.'}
                   </p>
-                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 font-mono text-xs text-slate-700 space-y-1">
-                    <div>Carrier: <strong>USPS First-Class Priority Insured</strong></div>
-                    <div>Tracking ID: <strong>USPS-9400111899562534882190</strong></div>
-                  </div>
                   <Link
                     href="/membership"
-                    className="block w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md text-center"
+                    className="inline-block py-2.5 px-6 bg-emerald-600 text-white rounded-xl text-xs font-bold"
                   >
-                    Return to Member Portal
+                    {locale === 'no' ? 'Tilbake til Medlemsportalen' : 'Back to Member Portal'}
                   </Link>
                 </div>
               ) : (
-                <>
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <div>
-                      <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
-                        <Truck className="w-4 h-4 text-emerald-600" />
-                        Postal Shipping Address
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Dispatched worldwide in discreet security packaging.
-                      </p>
-                    </div>
-                    <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                      FREE Shipping (Gold / Platinum)
-                    </span>
+                <form onSubmit={handleOrderCard} className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
+                      {locale === 'no' ? 'Gateadresse' : 'Street Address'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={street}
+                      onChange={(e) => setStreet(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+                    />
                   </div>
-
-                  <form onSubmit={handleOrderCard} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                        Street Address
+                      <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
+                        {locale === 'no' ? 'Poststed' : 'City'}
                       </label>
                       <input
                         type="text"
                         required
-                        value={street}
-                        onChange={(e) => setStreet(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
                       />
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                          City
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                          State / Province
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={state}
-                          onChange={(e) => setState(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
-                        />
-                      </div>
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
+                        {locale === 'no' ? 'Postnummer' : 'Zip / Postal Code'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={zip}
+                        onChange={(e) => setZip(e.target.value)}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+                      />
                     </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-500 block mb-1">
+                      {locale === 'no' ? 'Land' : 'Country'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl"
+                    />
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                          Postal / ZIP Code
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={zip}
-                          onChange={(e) => setZip(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                          Country
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 space-y-2 text-xs">
-                      <div className="flex justify-between text-slate-500">
-                        <span>Custom Laser Engraved Card:</span>
-                        <span className="font-bold text-slate-900">$0.00 (Included in VIP Membership)</span>
-                      </div>
-                      <div className="flex justify-between text-slate-500">
-                        <span>USPS Insured Priority Shipping:</span>
-                        <span className="font-bold text-emerald-600">FREE ($0.00)</span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full py-4 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 mt-4"
-                    >
-                      <Package className="w-4 h-4" />
-                      <span>{loading ? 'Queuing Print Order...' : 'Submit Physical Card Order'}</span>
-                    </button>
-
-                    <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 text-center">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-                      <span>Manufactured by ISO 9001 Certified Plastic Card Printer</span>
-                    </div>
-                  </form>
-                </>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-md mt-2 cursor-pointer"
+                  >
+                    {loading
+                      ? (locale === 'no' ? 'Behandler bestilling...' : 'Processing Order...')
+                      : (locale === 'no' ? 'Bestill Fysisk Medlemskort ($0 Medlemsfordel)' : 'Submit Card Order ($0 Member Benefit)')}
+                  </button>
+                </form>
               )}
             </div>
           </div>

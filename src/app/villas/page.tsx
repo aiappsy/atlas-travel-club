@@ -5,6 +5,7 @@ import { MOCK_VILLAS } from '@/lib/mockData';
 import { LuxuryVillaEstate } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 import { usePlatform } from '@/context/PlatformContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Castle,
   Sparkles,
@@ -25,6 +26,7 @@ import Link from 'next/link';
 export default function VillasPage() {
   const { user } = useAuth();
   const { features } = usePlatform();
+  const { locale } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('All');
   const [selectedDest, setSelectedDest] = useState<string>('All');
@@ -40,23 +42,42 @@ export default function VillasPage() {
           <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
             <Castle className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900">Luxury Villas Currently Offline</h2>
+          <h2 className="text-2xl font-black text-slate-900">
+            {locale === 'no' ? 'Luksusvillaer for øyeblikket utilgjengelig' : 'Luxury Villas Currently Offline'}
+          </h2>
           <p className="text-xs text-slate-600">
-            The platform administrator has currently scheduled villa updates. Please check back shortly or explore our 5-star wholesale hotels.
+            {locale === 'no'
+              ? 'Plattformen gjennomfører for øyeblikket oppdateringer av villa-inventaret. Vennligst sjekk igjen snart eller utforsk våre 5-stjerners engroshoteller.'
+              : 'The platform administrator has currently scheduled villa updates. Please check back shortly or explore our 5-star wholesale hotels.'}
           </p>
           <Link
             href="/hotels"
             className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-md hover:bg-slate-800 transition-all"
           >
             <Building2 className="w-4 h-4" />
-            <span>Browse Wholesale Hotels</span>
+            <span>{locale === 'no' ? 'Utforsk Engroshoteller' : 'Browse Wholesale Hotels'}</span>
           </Link>
         </div>
       </div>
     );
   }
 
-  const propertyTypes = ['All', 'Beachfront Villa', 'Cliffside Retreat', 'Alpine Ski Chalet', 'Vineyard Estate'];
+  const propertyTypes = locale === 'no'
+    ? [
+        { key: 'All', label: 'Alle Typer' },
+        { key: 'Beachfront Villa', label: 'Strandvilla' },
+        { key: 'Cliffside Retreat', label: 'Klippevilla' },
+        { key: 'Alpine Ski Chalet', label: 'Alpechalet' },
+        { key: 'Vineyard Estate', label: 'Vingårdseiendom' }
+      ]
+    : [
+        { key: 'All', label: 'All' },
+        { key: 'Beachfront Villa', label: 'Beachfront Villa' },
+        { key: 'Cliffside Retreat', label: 'Cliffside Retreat' },
+        { key: 'Alpine Ski Chalet', label: 'Alpine Ski Chalet' },
+        { key: 'Vineyard Estate', label: 'Vineyard Estate' }
+      ];
+
   const destinations = [
     'All',
     'St. Barts',
@@ -93,19 +114,23 @@ export default function VillasPage() {
     });
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-24">
+    <div className="bg-slate-50 min-h-screen pb-24 font-sans text-slate-900">
       {/* Hero Banner */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-indigo-950">
-        <div className="max-w-7xl mx-auto text-center max-w-3xl">
+        <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-3 border border-amber-400/30">
             <Castle className="w-3.5 h-3.5 text-amber-400" />
-            Curated Ultra-Luxury Villas & Private Chalets
+            {locale === 'no' ? 'Håndplukkede Ultraluksus-Villaer & Private Chaleter' : 'Curated Ultra-Luxury Villas & Private Chalets'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black">
-            Wholesale Private Estates with Chef & Butler
+            {locale === 'no'
+              ? 'Private Engroseiendommer med Kokk & Butler'
+              : 'Wholesale Private Estates with Chef & Butler'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            100% private wholesale estates in St. Barts, Lake Como, Courchevel 1850, Tuscany, and Santorini with on-site private chefs, dedicated butlers, and infinity pools.
+            {locale === 'no'
+              ? '100% private engroseiendommer i St. Barts, Comosjøen, Courchevel 1850, Toscana og Santorini med private kokker, personlige butlere og evighetsbasseng.'
+              : '100% private wholesale estates in St. Barts, Lake Como, Courchevel 1850, Tuscany, and Santorini with on-site private chefs, dedicated butlers, and infinity pools.'}
           </p>
 
           {/* Search Filter */}
@@ -115,7 +140,7 @@ export default function VillasPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Destination, Country, or Villa name..."
+              placeholder={locale === 'no' ? 'Søk etter destinasjon, land eller villanavn...' : 'Search by Destination, Country, or Villa name...'}
               className="w-full pl-12 pr-4 py-3.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-white placeholder-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
           </div>
@@ -127,44 +152,50 @@ export default function VillasPage() {
         <div className="space-y-4 mb-8">
           {/* Property Types */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Type:</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+              {locale === 'no' ? 'Type:' : 'Type:'}
+            </span>
             {propertyTypes.map((type) => (
               <button
-                key={type}
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  selectedType === type
+                key={type.key}
+                onClick={() => setSelectedType(type.key)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                  selectedType === type.key
                     ? 'bg-slate-900 text-amber-400 shadow-md'
                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
-                {type}
+                {type.label}
               </button>
             ))}
           </div>
 
           {/* Destination Quick Filters */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">Destination:</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0 mr-1">
+              {locale === 'no' ? 'Destinasjon:' : 'Destination:'}
+            </span>
             {destinations.map((dest) => (
               <button
                 key={dest}
                 onClick={() => setSelectedDest(dest)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
                   selectedDest === dest
                     ? 'bg-amber-400 text-slate-950 font-bold shadow'
                     : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                 }`}
               >
-                {dest}
+                {dest === 'All' ? (locale === 'no' ? 'Alle' : 'All') : dest}
               </button>
             ))}
           </div>
 
-          {/* Controls Bar: Results Count & Sort */}
+          {/* Controls Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-200 text-xs">
             <div className="text-slate-600 font-semibold">
-              Showing <span className="font-black text-slate-900">{filteredVillas.length}</span> curated luxury estates
+              {locale === 'no' ? 'Viser ' : 'Showing '}
+              <span className="font-black text-slate-900">{filteredVillas.length}</span>
+              {locale === 'no' ? ' utvalgte luksuseiendommer' : ' curated luxury estates'}
               {(selectedType !== 'All' || selectedDest !== 'All' || searchTerm) && (
                 <button
                   onClick={() => {
@@ -172,24 +203,24 @@ export default function VillasPage() {
                     setSelectedDest('All');
                     setSearchTerm('');
                   }}
-                  className="ml-3 text-sky-600 hover:underline font-bold"
+                  className="ml-3 text-sky-600 hover:underline font-bold cursor-pointer"
                 >
-                  Clear all filters
+                  {locale === 'no' ? 'Nullstill filtre' : 'Clear all filters'}
                 </button>
               )}
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-slate-500 font-bold">Sort by:</span>
+              <span className="text-slate-500 font-bold">{locale === 'no' ? 'Sorter etter:' : 'Sort by:'}</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-white border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-400"
               >
-                <option value="featured">Featured First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="savings">Biggest Savings %</option>
+                <option value="featured">{locale === 'no' ? 'Anbefalte først' : 'Featured First'}</option>
+                <option value="price_asc">{locale === 'no' ? 'Pris: Lav til Høy' : 'Price: Low to High'}</option>
+                <option value="price_desc">{locale === 'no' ? 'Pris: Høy til Lav' : 'Price: High to Low'}</option>
+                <option value="savings">{locale === 'no' ? 'Størst rabatt %' : 'Biggest Savings %'}</option>
               </select>
             </div>
           </div>
@@ -213,7 +244,7 @@ export default function VillasPage() {
                     🏰 {villa.propertyType}
                   </div>
                   <div className="absolute top-3 right-3 bg-emerald-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow">
-                    SAVE {villa.savingsPercentage}%
+                    {locale === 'no' ? `SPAR ${villa.savingsPercentage}%` : `SAVE ${villa.savingsPercentage}%`}
                   </div>
                 </div>
 
@@ -224,9 +255,9 @@ export default function VillasPage() {
                     </div>
                     <h3 className="font-extrabold text-slate-900 text-xl mt-0.5">{villa.name}</h3>
                     <div className="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                      <span>🛏️ {villa.bedrooms} Bedrooms</span>
-                      <span>🚿 {villa.bathrooms} Baths</span>
-                      <span>👥 {villa.maxGuests} Guests</span>
+                      <span>🛏️ {villa.bedrooms} {locale === 'no' ? 'Soverom' : 'Bedrooms'}</span>
+                      <span>🚿 {villa.bathrooms} {locale === 'no' ? 'Bad' : 'Baths'}</span>
+                      <span>👥 {villa.maxGuests} {locale === 'no' ? 'Gjester' : 'Guests'}</span>
                     </div>
                   </div>
 
@@ -234,7 +265,7 @@ export default function VillasPage() {
                   <div className="p-3.5 bg-amber-50/80 rounded-2xl border border-amber-200/80 space-y-1.5 text-xs">
                     <div className="text-[10px] font-black uppercase text-amber-900 tracking-wider flex items-center gap-1">
                       <Utensils className="w-3 h-3 text-amber-700" />
-                      <span>Dedicated On-Site Staff Included:</span>
+                      <span>{locale === 'no' ? 'Dedikert personell inkludert:' : 'Dedicated On-Site Staff Included:'}</span>
                     </div>
                     <div className="grid grid-cols-1 gap-1">
                       {villa.staffIncluded.map((staff, i) => (
@@ -261,11 +292,11 @@ export default function VillasPage() {
               <div className="p-6 pt-0 border-t border-slate-100 mt-4 flex items-center justify-between">
                 <div>
                   <div className="text-[10px] text-slate-400 line-through">
-                    Public Retail: ${villa.publicPricePerNight.toLocaleString()}/nt
+                    {locale === 'no' ? 'Markedspris: ' : 'Public Retail: '}${villa.publicPricePerNight.toLocaleString()}/nt
                   </div>
                   <div className="text-xl font-black text-slate-900">
                     <span className="text-emerald-600">${villa.memberPricePerNight.toLocaleString()}</span>
-                    <span className="text-xs text-slate-500 font-normal"> /night</span>
+                    <span className="text-xs text-slate-500 font-normal">{locale === 'no' ? ' /natt' : ' /night'}</span>
                   </div>
                 </div>
 
@@ -274,10 +305,10 @@ export default function VillasPage() {
                     setSelectedVilla(villa);
                     setIsBooked(false);
                   }}
-                  className="py-3 px-5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5"
+                  className="py-3 px-5 bg-slate-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Castle className="w-4 h-4 text-amber-400" />
-                  <span>Reserve Estate</span>
+                  <span>{locale === 'no' ? 'Reserver Villa' : 'Reserve Estate'}</span>
                 </button>
               </div>
             </div>
@@ -292,7 +323,7 @@ export default function VillasPage() {
             <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-6 text-white text-center relative">
               <button
                 onClick={() => setSelectedVilla(null)}
-                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -311,17 +342,19 @@ export default function VillasPage() {
                   <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h4 className="text-xl font-black text-slate-900">Private Villa Confirmed!</h4>
+                  <h4 className="text-xl font-black text-slate-900">
+                    {locale === 'no' ? 'Privat Villa Reservert!' : 'Private Villa Confirmed!'}
+                  </h4>
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 font-mono text-xs text-slate-700 space-y-1 text-left">
-                    <div>Booking Ref: <strong>VILLA-COLLECTIONIST-9941</strong></div>
-                    <div>Estate: <strong>{selectedVilla.name}</strong></div>
-                    <div>Concierge Protocol: <strong>Private Chef menu preference intake dispatched via email</strong></div>
+                    <div>{locale === 'no' ? 'Bestillingsref:' : 'Booking Ref:'} <strong>VILLA-COLLECTIONIST-9941</strong></div>
+                    <div>{locale === 'no' ? 'Eiendom:' : 'Estate:'} <strong>{selectedVilla.name}</strong></div>
+                    <div>{locale === 'no' ? 'Concierge:' : 'Concierge:'} <strong>{locale === 'no' ? 'Menypreferanser for privat kokk er sendt til din e-post' : 'Private Chef menu preference intake dispatched via email'}</strong></div>
                   </div>
                   <button
                     onClick={() => setSelectedVilla(null)}
-                    className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md"
+                    className="w-full py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md cursor-pointer"
                   >
-                    Done
+                    {locale === 'no' ? 'Lukk' : 'Done'}
                   </button>
                 </div>
               ) : (
@@ -329,9 +362,9 @@ export default function VillasPage() {
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <label className="font-bold text-slate-700 uppercase text-[10px]">
-                        Length of Stay:
+                        {locale === 'no' ? 'Oppholdets lengde:' : 'Length of Stay:'}
                       </label>
-                      <span className="font-black text-slate-900">{nights} Nights</span>
+                      <span className="font-black text-slate-900">{nights} {locale === 'no' ? 'netter' : 'Nights'}</span>
                     </div>
                     <input
                       type="range"
@@ -339,34 +372,36 @@ export default function VillasPage() {
                       max="14"
                       value={nights}
                       onChange={(e) => setNights(Number(e.target.value))}
-                      className="w-full accent-emerald-500"
+                      className="w-full accent-emerald-500 cursor-pointer"
                     />
                   </div>
 
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-1.5">
                     <div className="flex justify-between text-slate-500">
-                      <span>Public Retail Total:</span>
+                      <span>{locale === 'no' ? 'Ordinær markedspris:' : 'Public Retail Total:'}</span>
                       <span className="line-through">${(selectedVilla.publicPricePerNight * nights).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between font-bold text-slate-900">
-                      <span>Wholesale Member Total ({nights} Nights):</span>
+                      <span>{locale === 'no' ? `Engrospris (${nights} netter):` : `Wholesale Member Total (${nights} Nights):`}</span>
                       <span className="text-emerald-600 font-black text-base">
                         ${(selectedVilla.memberPricePerNight * nights).toLocaleString()}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 text-emerald-700 font-semibold text-[11px]">
-                      ✓ Includes private chef, dedicated butler, daily housekeeping & concierge.
+                      {locale === 'no'
+                        ? '✓ Inkluderer privat kokk, egen butler, daglig renhold og 24/7 concierge.'
+                        : '✓ Includes private chef, dedicated butler, daily housekeeping & concierge.'}
                     </div>
                   </div>
 
                   <button
                     onClick={() => setIsBooked(true)}
-                    className="w-full py-4 bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span className="font-black text-[#003087]">Pay</span>
                     <span className="font-black text-[#0079C1]">Pal</span>
                     <span className="font-bold text-slate-900">
-                      • Confirm Villa Reservation (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})
+                      • {locale === 'no' ? 'Bekreft Villareservasjon' : 'Confirm Villa Reservation'} (${(selectedVilla.memberPricePerNight * nights).toLocaleString()})
                     </span>
                   </button>
                 </>

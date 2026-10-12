@@ -3,6 +3,7 @@
 import React, { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { MOCK_CRUISES } from '@/lib/mockData';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Ship,
   Anchor,
@@ -18,6 +19,7 @@ import {
 } from 'lucide-react';
 
 function CruisesSearchContent() {
+  const { t, locale } = useLanguage();
   const [selectedLine, setSelectedLine] = useState<string>('All');
   const [selectedDest, setSelectedDest] = useState<string>('All');
   const [maxPrice, setMaxPrice] = useState<number>(3000);
@@ -61,17 +63,17 @@ function CruisesSearchContent() {
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-sky-900/50">
+      <div className="bg-white text-slate-900 py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
         <div className="max-w-7xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider mb-2">
-            <Anchor className="w-3.5 h-3.5" />
-            Closed-Loop Wholesale Cruise Network
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider mb-2 border border-amber-200">
+            <Anchor className="w-3.5 h-3.5 text-amber-600" />
+            {t.cruises.heroBadge}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black">
-            Wholesale Cruise Sailings & Free Onboard Credit
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
+            {t.cruises.heroTitle}
           </h1>
-          <p className="text-slate-300 text-sm sm:text-base mt-2 max-w-2xl">
-            Save up to 40% on Royal Caribbean, Celebrity, and NCL with exclusive member bonuses: <strong>$150 to $400 Free Onboard Spending Cash</strong> and complimentary drink packages.
+          <p className="text-slate-600 text-sm sm:text-base mt-2 max-w-2xl">
+            {t.cruises.heroSubtitle}
           </p>
         </div>
       </div>

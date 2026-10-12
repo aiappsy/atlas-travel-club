@@ -1334,6 +1334,101 @@ export default function AdminPage() {
                 })}
               </div>
             </div>
+
+            {/* FREE MEMBERSHIP TRIAL SETTINGS */}
+            <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-800 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                  <h3 className="text-lg font-black text-white flex items-center gap-2">
+                    <Ticket className="w-5 h-5 text-amber-400" />
+                    Free Trial & Membership Access Settings
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Configure promotional free trial duration before automated membership subscription payment begins.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-3 py-1 border text-xs font-bold rounded-full flex items-center gap-1.5 ${
+                    features.enableFreeTrial
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                      : 'bg-slate-800 text-slate-400 border-slate-700'
+                  }`}>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{features.enableFreeTrial ? 'Free Trial Active' : 'Trial Disabled (Instant Charge)'}</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div className="p-5 bg-slate-800/80 rounded-2xl border border-slate-700 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-extrabold text-sm text-white">Offer Free Trial on Frontend</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        Displays 'Start Your Free Membership Now' with $0 due today.
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                      <input
+                        type="checkbox"
+                        checked={features.enableFreeTrial ?? true}
+                        onChange={(e) => updateFeatures({ enableFreeTrial: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+
+                  <div className="space-y-2 pt-2 border-t border-slate-700/60">
+                    <div className="flex justify-between items-center text-xs font-bold text-slate-300">
+                      <span>Free Trial Duration (Days before billing):</span>
+                      <span className="font-mono text-base font-black text-amber-400">
+                        {features.freeTrialDays ?? 14} Days
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="3"
+                        max="60"
+                        step="1"
+                        value={features.freeTrialDays ?? 14}
+                        onChange={(e) => updateFeatures({ freeTrialDays: Number(e.target.value) })}
+                        className="w-full accent-amber-500"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      {[7, 14, 30, 45].map((preset) => (
+                        <button
+                          key={preset}
+                          onClick={() => updateFeatures({ freeTrialDays: preset })}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                            (features.freeTrialDays ?? 14) === preset
+                              ? 'bg-amber-400 text-slate-950 font-black'
+                              : 'bg-slate-700/60 text-slate-300 hover:bg-slate-700'
+                          }`}
+                        >
+                          {preset} Days
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-5 bg-amber-500/10 rounded-2xl border border-amber-500/30 text-amber-200 text-xs space-y-2">
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span>Member Acquisition Impact</span>
+                  </div>
+                  <p className="leading-relaxed text-slate-300">
+                    Visitors signing up during the promotion receive immediate instant access to 0% retail markup wholesale rates. Credit cards are vaulted via Stripe, and billing begins automatically after <strong>{features.freeTrialDays ?? 14} days</strong> unless cancelled.
+                  </p>
+                  <div className="text-[11px] text-amber-400 font-mono pt-1">
+                    Current Frontend CTA: "Start Your Free {features.freeTrialDays ?? 14}-Day Membership" ($0 today)
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

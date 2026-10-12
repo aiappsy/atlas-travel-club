@@ -39,7 +39,7 @@ const nextConfig = {
     return [
       {
         source: '/launch',
-        destination: 'https://atlaslaunch.ai.studio',
+        destination: 'https://atlaslaunch.web.app',
         permanent: false,
       },
     ];

@@ -19,12 +19,15 @@ import {
 } from 'lucide-react';
 import { getOrganizationBySlug } from '@/modules/b2b/organizations';
 import LiveHotelSearch from '@/components/LiveHotelSearch';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function OrganizationPortalPage({
   params,
 }: {
   params: { slug: string };
 }) {
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
   const org = getOrganizationBySlug(params.slug);
   const [workEmail, setWorkEmail] = useState('');
   const [authStatus, setAuthStatus] = useState<'idle' | 'verified' | 'invalid'>('idle');
@@ -35,15 +38,19 @@ export default function OrganizationPortalPage({
     return (
       <div className="max-w-xl mx-auto py-24 px-4 text-center space-y-4">
         <Building2 className="w-12 h-12 text-slate-600 mx-auto" />
-        <h2 className="text-xl font-bold text-white">Organisasjonsportalen ble ikke funnet</h2>
+        <h2 className="text-xl font-bold text-white">
+          {isNo ? 'Organisasjonsportalen ble ikke funnet' : 'Organization Portal Not Found'}
+        </h2>
         <p className="text-xs text-slate-400">
-          Det finnes ingen aktiv bedriftsavtale for koden &quot;{params.slug}&quot;.
+          {isNo
+            ? `Det finnes ingen aktiv bedriftsavtale for koden "${params.slug}".`
+            : `No active corporate agreement found for code "${params.slug}".`}
         </p>
         <Link
           href="/b2b"
           className="inline-block px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold"
         >
-          Se alle bedriftsavtaler ➔
+          {isNo ? 'Se alle bedriftsavtaler ➔' : 'View all corporate agreements ➔'}
         </Link>
       </div>
     );
@@ -54,7 +61,11 @@ export default function OrganizationPortalPage({
     const clean = workEmail.trim().toLowerCase();
     if (!clean.includes('@')) {
       setAuthStatus('invalid');
-      setFeedbackMsg('Vennligst oppgi en gyldig e-postadresse.');
+      setFeedbackMsg(
+        isNo
+          ? 'Vennligst oppgi en gyldig e-postadresse.'
+          : 'Please provide a valid email address.'
+      );
       return;
     }
 
@@ -66,12 +77,16 @@ export default function OrganizationPortalPage({
     if (isDomainAllowed) {
       setAuthStatus('verified');
       setFeedbackMsg(
-        `✓ Verifisert! Din e-post (${clean}) er godkjent under ${org.shortName} sin fellesavtale. Tilgang er aktivert.`
+        isNo
+          ? `✓ Verifisert! Din e-post (${clean}) er godkjent under ${org.shortName} sin fellesavtale. Tilgang er aktivert.`
+          : `✓ Verified! Your email (${clean}) is approved under the ${org.shortName} master agreement. Access is active.`
       );
     } else {
       setAuthStatus('invalid');
       setFeedbackMsg(
-        `Kun e-postadresser som slutter på @${org.allowedEmailDomains.join(' eller @')} er godkjent for denne portalen.`
+        isNo
+          ? `Kun e-postadresser som slutter på @${org.allowedEmailDomains.join(' eller @')} er godkjent for denne portalen.`
+          : `Only corporate email addresses ending in @${org.allowedEmailDomains.join(' or @')} are approved for this portal.`
       );
     }
   };
@@ -99,7 +114,11 @@ export default function OrganizationPortalPage({
 
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Akkreditert Closed User Group (CUG) • 0% Påslag</span>
+              <span>
+                {isNo
+                  ? 'Akkreditert Closed User Group (CUG) • 0% Påslag'
+                  : 'Accredited Closed User Group (CUG) • 0% Markup'}
+              </span>
             </div>
           </div>
 
@@ -108,7 +127,7 @@ export default function OrganizationPortalPage({
             <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
               {org.name} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-sky-300 to-emerald-300">
-                Eksklusiv Reise- &amp; Hotellportal
+                {isNo ? 'Eksklusiv Reise- & Hotellportal' : 'Exclusive Travel & Hotel Portal'}
               </span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
@@ -119,17 +138,25 @@ export default function OrganizationPortalPage({
           {/* Quick Metrics & Whitelist Pill */}
           <div className="flex flex-wrap items-center gap-4 pt-2 text-xs">
             <div className="bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Godkjent Domene</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                {isNo ? 'Godkjent Domene' : 'Approved Domain'}
+              </span>
               <span className="text-white font-mono font-bold">@{org.allowedEmailDomains.join(', @')}</span>
             </div>
 
             <div className="bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Avtalefordel</span>
-              <span className="text-emerald-400 font-bold">{org.discountPercentage}% Rabatt på Engros</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                {isNo ? 'Avtalefordel' : 'Agreement Benefit'}
+              </span>
+              <span className="text-emerald-400 font-bold">
+                {org.discountPercentage}% {isNo ? 'Rabatt på Engros' : 'Wholesale Discount'}
+              </span>
             </div>
 
             <div className="bg-slate-900/90 border border-slate-800 rounded-xl px-3.5 py-2">
-              <span className="text-slate-400 block text-[10px] uppercase font-bold">Akkumulert Sparing YTD</span>
+              <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                {isNo ? 'Akkumulert Sparing YTD' : 'Accumulated Savings YTD'}
+              </span>
               <span className="text-amber-400 font-mono font-bold">{org.estimatedSavingsYtdNok.toLocaleString()} NOK</span>
             </div>
           </div>
@@ -143,16 +170,18 @@ export default function OrganizationPortalPage({
             <div>
               <h3 className="text-base font-black text-white flex items-center gap-2">
                 <Lock className="w-4 h-4 text-amber-400" />
-                Aktiver Tilgang med Din Jobb-E-post
+                {isNo ? 'Aktiver Tilgang med Din Jobb-E-post' : 'Activate Access with Your Corporate Email'}
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Ingen personlig betaling kreves. Skriv inn din e-postadresse under @{org.allowedEmailDomains[0]} for umiddelbar adgang.
+                {isNo
+                  ? `Ingen personlig betaling kreves. Skriv inn din e-postadresse under @${org.allowedEmailDomains[0]} for umiddelbar adgang.`
+                  : `No personal payment required. Enter your company email under @${org.allowedEmailDomains[0]} for instant access.`}
               </p>
             </div>
             {authStatus === 'verified' && (
               <span className="px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-black uppercase flex items-center gap-1.5 self-start sm:self-auto">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Aktiv Konsernbruker
+                {isNo ? 'Aktiv Konsernbruker' : 'Active Corporate Member'}
               </span>
             )}
           </div>
@@ -164,7 +193,7 @@ export default function OrganizationPortalPage({
                 required
                 value={workEmail}
                 onChange={(e) => setWorkEmail(e.target.value)}
-                placeholder={`fornavn.etternavn@${org.allowedEmailDomains[0]}`}
+                placeholder={`name@${org.allowedEmailDomains[0]}`}
                 className="flex-1 px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white outline-none focus:border-amber-400 font-mono"
               />
               <button
@@ -172,7 +201,7 @@ export default function OrganizationPortalPage({
                 className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer shrink-0"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Verifiser &amp; Lås Opp Engrospriser</span>
+                <span>{isNo ? 'Verifiser & Lås Opp Engrospriser' : 'Verify & Unlock Wholesale Rates'}</span>
               </button>
             </form>
           ) : (
@@ -182,7 +211,7 @@ export default function OrganizationPortalPage({
                 onClick={() => setAuthStatus('idle')}
                 className="text-[11px] underline text-slate-400 hover:text-white cursor-pointer ml-3 shrink-0"
               >
-                Bytt e-post
+                {isNo ? 'Bytt e-post' : 'Change email'}
               </button>
             </div>
           )}
@@ -209,7 +238,7 @@ export default function OrganizationPortalPage({
               }`}
             >
               <Building2 className="w-3.5 h-3.5" />
-              <span>Hoteller (1M+ Engrosrom)</span>
+              <span>{isNo ? 'Hoteller (1M+ Engrosrom)' : 'Hotels (1M+ Wholesale Rooms)'}</span>
             </button>
             <button
               onClick={() => setActiveTab('flights')}
@@ -220,12 +249,12 @@ export default function OrganizationPortalPage({
               }`}
             >
               <Plane className="w-3.5 h-3.5" />
-              <span>Fly (Duffel NDC + EU261 Sentinel)</span>
+              <span>{isNo ? 'Fly (Duffel NDC + EU261 Sentinel)' : 'Flights (Duffel NDC + EU261 Sentinel)'}</span>
             </button>
           </div>
 
           <span className="text-[11px] text-slate-400 hidden sm:inline">
-            Status: <span className="text-emerald-400 font-bold">B2B Engros Tilgang Aktiv</span>
+            Status: <span className="text-emerald-400 font-bold">{isNo ? 'B2B Engros Tilgang Aktiv' : 'B2B Wholesale Access Active'}</span>
           </span>
         </div>
 
@@ -238,15 +267,19 @@ export default function OrganizationPortalPage({
             <div className="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 mx-auto flex items-center justify-center">
               <Plane className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-black text-white">Direkte NDC Flyavtaler med EU261-Beskyttelse</h3>
+            <h3 className="text-lg font-black text-white">
+              {isNo ? 'Direkte NDC Flyavtaler med EU261-Beskyttelse' : 'Direct NDC Airline Agreements with EU261 Protection'}
+            </h3>
             <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-              Søk og bestill forretningsreiser og ferier direkte hos flyselskapene uten fordyrende GDS-tillegg eller OTA-kortgebyrer. Alle billetter registreres automatisk i Atlas Sentinel for forsinkelseserstatning inntil €600 per passasjer.
+              {isNo
+                ? 'Søk og bestill forretningsreiser og ferier direkte hos flyselskapene uten fordyrende GDS-tillegg eller OTA-kortgebyrer. Alle billetter registreres automatisk i Atlas Sentinel for forsinkelseserstatning inntil €600 per passasjer.'
+                : 'Search and book business and leisure flights directly with airlines with zero GDS markups or OTA credit card surcharges. All tickets are automatically monitored by Atlas Sentinel for flight delay compensation up to €600 per passenger.'}
             </p>
             <Link
               href="/flights"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all shadow-md"
             >
-              <span>Åpne Fullstendig Flyhub</span>
+              <span>{isNo ? 'Åpne Fullstendig Flyhub' : 'Open Flight Hub'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -257,7 +290,9 @@ export default function OrganizationPortalPage({
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4">
           <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-            Inkluderte Rettigheter under {org.shortName}-Avtalen:
+            {isNo
+              ? `Inkluderte Rettigheter under ${org.shortName}-Avtalen:`
+              : `Included Benefits under the ${org.shortName} Agreement:`}
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
             {org.features.map((feat, idx) => (

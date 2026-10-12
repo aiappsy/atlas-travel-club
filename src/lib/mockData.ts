@@ -213,6 +213,8 @@ export const DEFAULT_PLATFORM_CONFIG: PlatformFeatureFlags = {
   lastPublishedAt: '2026-08-26 07:00 UTC',
   geminiModelId: 'gemini-3.7-flash',
   autoUpgradeGeminiModel: true,
+  freeTrialDays: 14,
+  enableFreeTrial: true,
 };
 
 export const MOCK_NOMAD_VISAS: NomadVisaProgram[] = [
@@ -2274,104 +2276,27 @@ export const MOCK_VISA_ACCOUNT: VisaCardAccount = {
 
 export const MEMBERSHIP_TIERS: TierPlan[] = [
   {
-    id: 'free',
-    name: 'Explorer (Free)',
-    badgeColor: 'bg-slate-500',
-    priceMonthly: 0,
-    priceAnnual: 0,
-    wholesaleHotelDiscount: 'Up to 15% Off',
-    perksIncluded: [
-      'Search live hotel rates',
-      'Preview wholesale pricing',
-      'Flight delay compensation scanner',
-      'Standard customer support'
-    ]
-  },
-  {
-    id: 'nomad',
-    name: 'Global Nomad Passport',
-    badgeColor: 'bg-teal-600',
-    priceMonthly: 29.99,
-    priceAnnual: 279,
-    wholesaleHotelDiscount: 'Up to 45% Off (Monthly Coliving & Long-Stays)',
-    isPopular: true,
-    perksIncluded: [
-      'Free 10GB Global 5G Travel eSIM auto-renewed monthly',
-      'SafetyWing Travel Medical Insurance included',
-      'Digital Nomad Visa Application Concierge (Spain, Portugal, Dubai, Thailand)',
-      'Schengen 90/180-Day Automated Compliance Sentinel',
-      'Curated monthly coliving spaces with verified 300+ Mbps Fiber Wi-Fi',
-      'ATLAS Co-Branded Visa Card (Coming Soon)',
-      '3x Travel Vault Dividend Multiplier'
-    ]
-  },
-  {
-    id: 'silver',
-    name: 'Silver Club',
-    badgeColor: 'bg-slate-400',
-    priceMonthly: 9.99,
-    priceAnnual: 89,
-    wholesaleHotelDiscount: 'Up to 35% Off',
-    perksIncluded: [
-      'Access to 400,000+ wholesale hotels',
-      '2x Travel Vault Dividend Multiplier',
-      'Car rental discounts up to 25%',
-      'Global eSIM travel data discounts',
-      'EU261 Sentinel: 24/7 automated delay monitoring (€600 cash recovery, 0% legal cut)',
-      'Direct NDC net flight clearing (0% OTA retail markup)',
-      'Digital member card & app pass'
-    ]
-  },
-  {
     id: 'gold',
-    name: 'Gold VIP',
+    name: 'Atlas Club Membership',
     badgeColor: 'bg-amber-500',
     priceMonthly: 19.99,
     priceAnnual: 179,
-    wholesaleHotelDiscount: 'Up to 40% Off',
+    wholesaleHotelDiscount: 'Up to 45% Off Wholesale Bedbank Rates',
+    isPopular: true,
     perksIncluded: [
-      'Maximum wholesale rates (1M+ properties)',
-      '4x Travel Vault Dividend Multiplier (Annual Cash Payout)',
-      'Curated Ultra-Luxury Villas & Private Chalets (45% Off)',
-      'Wholesale cruise closed-loop pricing + $150 Onboard Credit',
-      'Hilton Honors Diamond & Marriott Platinum Status Matches',
-      'VIP Airport Fast-Track Immigration Escort Discounts ($85 flat rate)',
-      'Autonomous Post-Booking Price Drop Re-Booker (Cashback)',
-      'Supercar & Luxury Yacht Day Charters (Up to 45% Off)',
-      'Private Jet Empty Leg Member Access (Up to 80% Off)',
-      'Direct NDC airline flight clearing at exact net cost',
-      'EU261 Sentinel VIP: Automated €600/passenger delay cash recovery with 0% commission',
-      'Proactive AI Concierge Itinerary Gap Alerts',
-      'Physical holographic Photo ID card shipped free',
-      'Family pass (Up to 4 sub-members)'
-    ]
-  },
-  {
-    id: 'platinum',
-    name: 'Platinum Elite',
-    badgeColor: 'bg-purple-600',
-    priceMonthly: 39.99,
-    priceAnnual: 349,
-    wholesaleHotelDiscount: 'Up to 45% Off',
-    perksIncluded: [
-      'Guaranteed lowest rate price match + 10%',
-      '8x Travel Vault Dividend Multiplier (Maximum Club Profit Share)',
-      'Complimentary Private Villa Butler & Chef on all estate bookings',
-      'Complimentary Star Alliance Gold Airline Status Match included',
-      'Complimentary VIP Airport Fast-Track Pass annually',
-      'VIP Airport Lounge access discounts ($32 flat pass)',
-      'Complimentary Essential Travel Medical Insurance included',
-      'Wholesale cruises + $300 Free Onboard Credit bonus',
-      'Complimentary Supercar Track Day or Yacht Sunset Cruise',
-      'Private Jet Empty Leg Whole Aircraft Charter Discounts',
-      'Free 5GB Global Travel eSIM Data Pass every year',
-      'Titanium Physical Visa Prepaid Card (Coming Soon)',
-      'Dedicated Proactive AI Concierge + personal travel agent'
+      'Access to 1,000,000+ confidential wholesale hotels (WebBeds & RateHawk B2B)',
+      '0% Retail Markup: direct closed-bed net wholesale pricing',
+      'Direct carrier NDC flight clearing (0% ticketing markup or hidden fees)',
+      'EU261 Sentinel: automated 24/7 flight delay monitoring (€600 cash recovery, 0% cut)',
+      '1,400+ VIP airport lounges worldwide with complimentary food & drinks ($32 flat)',
+      'Wholesale cruise sailings with free onboard spending credit ($150–$400 bonus)',
+      'Autonomous price-drop sentinel with automatic cash refund deposits',
+      'Digital member pass & IATA rate parity exemption credentials'
     ]
   }
 ];
 
-export const GOLD_VIP_TIER: TierPlan = MEMBERSHIP_TIERS.find((t) => t.id === 'gold') || MEMBERSHIP_TIERS[2];
+export const GOLD_VIP_TIER: TierPlan = MEMBERSHIP_TIERS[0];
 export const GOLD_VIP_ANNUAL_FEE = 179;
 
 export function getDefaultTripDates(daysAhead: number = 14, stayLength: number = 3) {
@@ -2671,17 +2596,148 @@ export const MOCK_CRUISES: CruiseItinerary[] = [
 
 export const MOCK_LOUNGES: AirportLounge[] = [
   {
-    id: 'jfk-clubhouse',
+    id: 'dxb-emirates-first',
+    airportCode: 'DXB',
+    airportName: 'Dubai International Airport',
+    city: 'Dubai',
+    country: 'United Arab Emirates',
+    region: 'Middle East',
+    terminal: 'Terminal 3, Concourse A (Airside)',
+    loungeName: 'Emirates Sovereign First & Business Sanctuary',
+    image: '/lounges/dxb-emirates-lounge.jpg',
+    amenities: [
+      'À La Carte Fine Dining',
+      'Timeless Spa Treatments',
+      'Cigar & Cognac Bar',
+      'Private Quiet Suites',
+      'Direct Gate Boarding',
+      'Barista Coffee Bar'
+    ],
+    walkInPrice: 85,
+    memberPassPrice: 32,
+    operatingHours: '24 Hours Daily',
+    locationDetails: 'Airside - Concourse A, dedicated elevator post-duty free.',
+    tierAccess: 'Atlas Club Member'
+  },
+  {
+    id: 'lhr-virgin-clubhouse',
+    airportCode: 'LHR',
+    airportName: 'London Heathrow Airport',
+    city: 'London',
+    country: 'United Kingdom',
+    region: 'Europe',
+    terminal: 'Terminal 3, Upper Class Wing (Level 2)',
+    loungeName: 'The Royal Heathrow Clubhouse & Brasserie',
+    image: '/lounges/lhr-virgin-clubhouse.jpg',
+    amenities: [
+      'Chef-Prepared British Brasserie',
+      'Cocktail Lounge & Mixologist',
+      'Rainfall Shower Cabins',
+      'Outdoor Tarmac Viewing Deck',
+      'High-Speed Wi-Fi',
+      'Wellness Retreat'
+    ],
+    walkInPrice: 75,
+    memberPassPrice: 32,
+    operatingHours: '06:00 - 22:30 Daily',
+    locationDetails: 'Airside - Post-security, Lounge Zone H, Level 2.',
+    tierAccess: 'Atlas Club Member'
+  },
+  {
+    id: 'doh-al-mourjan',
+    airportCode: 'DOH',
+    airportName: 'Hamad International Airport',
+    city: 'Doha',
+    country: 'Qatar',
+    region: 'Middle East',
+    terminal: 'Terminal 1, South Concourse (Level 3)',
+    loungeName: 'Al Mourjan Global Prestige Lounge',
+    image: '/lounges/doh-hamad-garden.jpg',
+    amenities: [
+      'Reflecting Pool & Indoor Tropical Garden',
+      'Two Full-Service Dining Rooms',
+      'Private Family Quiet Pods',
+      'Shower Suites with L’Occitane Amenities',
+      'Executive Workstations',
+      'Apron Panoramic View'
+    ],
+    walkInPrice: 90,
+    memberPassPrice: 32,
+    operatingHours: '24 Hours Daily',
+    locationDetails: 'Airside - Level 3, directly opposite the iconic central concourse.',
+    tierAccess: 'Atlas Club Member'
+  },
+  {
+    id: 'sin-changi-silverkris',
+    airportCode: 'SIN',
+    airportName: 'Singapore Changi Airport',
+    city: 'Singapore',
+    country: 'Singapore',
+    region: 'Asia Pacific',
+    terminal: 'Terminal 3, Mezzanine Level (Gates A)',
+    loungeName: 'Changi SilverKris Sovereign Pavilion',
+    image: '/lounges/sin-silverkris-t3.jpg',
+    amenities: [
+      'Live Laksa & Asian Cuisine Kitchen',
+      'Champagne & Vintage Wine Bar',
+      'Private Productivity Rest Pods',
+      'Italian Marble Showers',
+      'Ultra-Fast Gigabit Wi-Fi',
+      'Runway Panoramic Views'
+    ],
+    walkInPrice: 70,
+    memberPassPrice: 32,
+    operatingHours: '24 Hours Daily',
+    locationDetails: 'Airside - Terminal 3 transit area, escalators near Gate A.',
+    tierAccess: 'Atlas Club Member'
+  },
+  {
+    id: 'jfk-centurion-oasis',
     airportCode: 'JFK',
     airportName: 'New York John F. Kennedy International',
-    terminal: 'Terminal 4, Concourse A',
-    loungeName: 'The Skyview Club & Oasis Lounge',
-    image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
-    amenities: ['Buffet Dining by Master Chefs', 'Craft Beer & Premium Spirits Bar', 'Private Shower Suites', 'High-Speed Wi-Fi', 'Quiet Nap Pods'],
+    city: 'New York',
+    country: 'United States',
+    region: 'Americas',
+    terminal: 'Terminal 4, Concourse A (Post-Security)',
+    loungeName: 'The Manhattan Skyview Oasis Lounge',
+    image: '/lounges/jfk-centurion.jpg',
+    amenities: [
+      'Farm-to-Table Dining by Michelin Chefs',
+      'Speakeasy Cocktail Bar & Sommelier',
+      'Private Soundproof Shower Suites',
+      'Equinox Relaxation Space',
+      'Barista Espresso Bar',
+      'High-Speed Wi-Fi'
+    ],
     walkInPrice: 65,
     memberPassPrice: 32,
-    operatingHours: '05:00 - 23:30 Daily',
+    operatingHours: '05:00 - 23:00 Daily',
     locationDetails: 'Airside - Post-security, adjacent to Gate A5.',
+    tierAccess: 'Atlas Club Member'
+  },
+  {
+    id: 'hkg-the-pier',
+    airportCode: 'HKG',
+    airportName: 'Hong Kong International Airport',
+    city: 'Hong Kong',
+    country: 'Hong Kong',
+    region: 'Asia Pacific',
+    terminal: 'Terminal 1, Level 6 (Near Gate 65)',
+    loungeName: 'The Pier Imperial Luxury Lounge',
+    image: '/lounges/hkg-cathay-the-deck.jpg',
+    amenities: [
+      'Traditional Chinese Teahouse',
+      'Signature Artisan Noodle Bar',
+      'Private Day Suites with Runway Views',
+      'Full Foot Massage Services',
+      'Green Granite Shower Suites',
+      'Fine Wine Cellar'
+    ],
+    walkInPrice: 80,
+    memberPassPrice: 32,
+    operatingHours: '05:30 - 00:30 Daily',
+    locationDetails: 'Airside - Level 6, near Gate 65.',
+    tierAccess: 'Atlas Club Member'
   }
 ];
 

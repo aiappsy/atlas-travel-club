@@ -20,9 +20,11 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function VaultPage() {
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const [vault, setVault] = useState(MOCK_VAULT_ACCOUNT);
   const [spendSimulation, setSpendSimulation] = useState<number>(5000);
 
@@ -36,7 +38,7 @@ export default function VaultPage() {
           href="/membership"
           className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Member Portal
+          <ArrowLeft className="w-4 h-4" /> {locale === 'no' ? 'Tilbake til Medlemsportalen' : 'Back to Member Portal'}
         </Link>
 
         {/* Hero Banner */}
@@ -44,13 +46,15 @@ export default function VaultPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-900 text-xs font-black uppercase tracking-wider mb-2 border border-amber-300">
               <Coins className="w-3.5 h-3.5 text-amber-600" />
-              Member-Owned Profit Sharing Program
+              {locale === 'no' ? 'Medlemseid Program for Overskuddsdeling' : 'Member-Owned Profit Sharing Program'}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
-              Travel Vault & Annual Profit Dividends
+              {locale === 'no' ? 'Reisehvelv & Årlige Dividender' : 'Travel Vault & Annual Profit Dividends'}
             </h1>
             <p className="text-slate-600 text-sm mt-1">
-              Unlike traditional travel agencies, ATLAS shares platform commissions and interchange profits with members. Every booking and Visa card swipe accumulates Vault Equity Units paid as an annual cash dividend.
+              {locale === 'no'
+                ? 'I motsetning til vanlige reisebyråer deler ATLAS klubbens overskudd og kortgebyrer tilbake til medlemmene som en årlig kontantdividende.'
+                : 'Unlike traditional travel agencies, ATLAS shares platform commissions and interchange profits with members. Every booking and Visa card swipe accumulates Vault Equity Units paid as an annual cash dividend.'}
             </p>
           </div>
 

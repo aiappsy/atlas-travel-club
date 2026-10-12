@@ -1,30 +1,57 @@
 'use client';
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface SidebarContextType {
-  isOpen: boolean;
-  toggleSidebar: () => void;
-  openSidebar: () => void;
-  closeSidebar: () => void;
+  isCollapsed: boolean;
+  toggleCollapse: () => void;
+  isMobileOpen: boolean;
+  toggleMobile: () => void;
+  closeMobile: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  // Collapsed state: true = icon only (64px), false = expanded (240px)
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
 
-  const toggleSidebar = () => setIsOpen((prev) => !prev);
-  const openSidebar = () => setIsOpen(true);
-  const closeSidebar = () => setIsOpen(false);
+  // Sync preference with localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('atlas_sidebar_collapsed');
+      if (saved !== null) {
+        setIsCollapsed(saved === 'true');
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('atlas_sidebar_collapsed', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const toggleMobile = () => setIsMobileOpen((prev) => !prev);
+  const closeMobile = () => setIsMobileOpen(false);
 
   return (
     <SidebarContext.Provider
       value={{
-        isOpen,
-        toggleSidebar,
-        openSidebar,
-        closeSidebar,
+        isCollapsed,
+        toggleCollapse,
+        isMobileOpen,
+        toggleMobile,
+        closeMobile,
       }}
     >
       {children}

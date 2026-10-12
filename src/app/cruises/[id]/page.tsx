@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { MOCK_CRUISES } from '@/lib/mockData';
 import { useAuth } from '@/context/AuthContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   Ship,
   Anchor,
@@ -25,6 +26,7 @@ import Link from 'next/link';
 export default function CruiseDetailPage() {
   const params = useParams();
   const { user } = useAuth();
+  const { locale } = useLanguage();
   const cruiseId = params?.id as string;
 
   const cruise = MOCK_CRUISES.find((c) => c.id === cruiseId) || MOCK_CRUISES[0];
@@ -48,13 +50,14 @@ export default function CruiseDetailPage() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Link
           href="/cruises"
           className="inline-flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 mb-4 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Wholesale Cruises
+          <ArrowLeft className="w-4 h-4" />
+          <span>{locale === 'no' ? 'Tilbake til engroscruise' : 'Back to Wholesale Cruises'}</span>
         </Link>
 
         {/* Title Header */}
@@ -66,13 +69,15 @@ export default function CruiseDetailPage() {
               </span>
               <span className="bg-amber-100 text-amber-900 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <Gift className="w-3 h-3 text-amber-600" />
-                +${selectedCabin.onboardCreditBonus} Free Onboard Credit
+                +${selectedCabin.onboardCreditBonus} {locale === 'no' ? 'Gratis ombordkreditt' : 'Free Onboard Credit'}
               </span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900">{cruise.title}</h1>
             <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
               <MapPin className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span>Departs: <strong>{cruise.departurePort}</strong> • Duration: <strong>{cruise.durationNights} Nights</strong></span>
+              <span>
+                {locale === 'no' ? 'Avgang:' : 'Departs:'} <strong>{cruise.departurePort}</strong> • {locale === 'no' ? 'Varighet:' : 'Duration:'} <strong>{cruise.durationNights} {locale === 'no' ? 'Netter' : 'Nights'}</strong>
+              </span>
             </div>
           </div>
 
@@ -82,10 +87,12 @@ export default function CruiseDetailPage() {
             </div>
             <div>
               <div className="text-[10px] uppercase font-bold text-emerald-800">
-                Member Wholesale Rate
+                {locale === 'no' ? 'Engros Medlemspris' : 'Member Wholesale Rate'}
               </div>
               <div className="text-sm font-black text-emerald-900">
-                Save {cruise.savingsPercentage}% vs Cruise Brochure
+                {locale === 'no'
+                  ? `Spar ${cruise.savingsPercentage}% mot ordinær brosjyrepris`
+                  : `Save ${cruise.savingsPercentage}% vs Cruise Brochure`}
               </div>
             </div>
           </div>
@@ -100,7 +107,9 @@ export default function CruiseDetailPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-6 sm:p-8">
             <div className="text-white">
-              <div className="text-xs font-bold text-amber-300 uppercase">Ports of Call:</div>
+              <div className="text-xs font-bold text-amber-300 uppercase">
+                {locale === 'no' ? 'Reiserute & Havner:' : 'Ports of Call:'}
+              </div>
               <div className="text-sm font-semibold text-slate-200 mt-0.5">
                 {cruise.portsOfCall.join(' ➔ ')}
               </div>
@@ -114,9 +123,11 @@ export default function CruiseDetailPage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-black text-slate-900">1. Select Stateroom Category</h2>
+                <h2 className="text-lg font-black text-slate-900">
+                  {locale === 'no' ? '1. Velg Lugarkategori' : '1. Select Stateroom Category'}
+                </h2>
                 <span className="text-xs font-bold text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full">
-                  Wholesale Net Staterooms
+                  {locale === 'no' ? 'Netto Engroslugarer' : 'Wholesale Net Staterooms'}
                 </span>
               </div>
 
@@ -159,11 +170,11 @@ export default function CruiseDetailPage() {
 
                         <div className="text-right shrink-0">
                           <div className="text-xs text-slate-400 line-through">
-                            Brochure: ${cabin.publicBrochurePrice}
+                            {locale === 'no' ? 'Brosjyre: ' : 'Brochure: '}${cabin.publicBrochurePrice}
                           </div>
                           <div className="text-xl font-black text-emerald-600">
                             ${cabin.wholesaleMemberPrice}
-                            <span className="text-xs text-slate-500 font-normal"> /person</span>
+                            <span className="text-xs text-slate-500 font-normal">{locale === 'no' ? ' /person' : ' /person'}</span>
                           </div>
                           <button
                             type="button"
@@ -173,7 +184,9 @@ export default function CruiseDetailPage() {
                                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                             }`}
                           >
-                            {isSelected ? 'Selected' : 'Select Cabin'}
+                            {isSelected
+                              ? (locale === 'no' ? 'Valgt' : 'Selected')
+                              : (locale === 'no' ? 'Velg Lugar' : 'Select Cabin')}
                           </button>
                         </div>
                       </div>
@@ -184,7 +197,7 @@ export default function CruiseDetailPage() {
             </div>
           </div>
 
-          {/* Right Checkout & PayPal Widget */}
+          {/* Right Checkout Widget */}
           <div className="lg:col-span-5">
             <div className="sticky top-24 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xl space-y-5">
               {bookingDone ? (
@@ -192,20 +205,30 @@ export default function CruiseDetailPage() {
                   <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-black text-slate-900">Wholesale Cruise Stateroom Confirmed!</h3>
+                  <h3 className="text-xl font-black text-slate-900">
+                    {locale === 'no' ? 'Engroscruise Bekreftet!' : 'Wholesale Cruise Stateroom Confirmed!'}
+                  </h3>
                   <p className="text-xs text-slate-500">
-                    Your {selectedCabin.name} reservation and <strong>${selectedCabin.onboardCreditBonus} Onboard Credit</strong> have been registered.
+                    {locale === 'no'
+                      ? `Din reservasjon for ${selectedCabin.name} og $${selectedCabin.onboardCreditBonus} ombordkreditt er registrert.`
+                      : `Your ${selectedCabin.name} reservation and $${selectedCabin.onboardCreditBonus} Onboard Credit have been registered.`}
                   </p>
                   <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 text-left space-y-1 text-xs">
-                    <div className="font-bold text-emerald-950">Wholesale Paid: ${totalWholesale}</div>
-                    <div className="text-emerald-700 font-extrabold">Instant Savings: ${totalSaved}</div>
-                    <div className="text-amber-700 font-bold">Onboard Spending Cash: +${selectedCabin.onboardCreditBonus}</div>
+                    <div className="font-bold text-emerald-950">
+                      {locale === 'no' ? 'Engrospris betalt: ' : 'Wholesale Paid: '}${totalWholesale}
+                    </div>
+                    <div className="text-emerald-700 font-extrabold">
+                      {locale === 'no' ? 'Spart umiddelbart: ' : 'Instant Savings: '}${totalSaved}
+                    </div>
+                    <div className="text-amber-700 font-bold">
+                      {locale === 'no' ? 'Ombordkreditt: ' : 'Onboard Spending Cash: '}+${selectedCabin.onboardCreditBonus}
+                    </div>
                   </div>
                   <Link
                     href="/membership"
                     className="block w-full py-3.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-md transition-all text-center"
                   >
-                    View in Member Portal
+                    {locale === 'no' ? 'Se i Medlemsportalen' : 'View in Member Portal'}
                   </Link>
                 </div>
               ) : (
@@ -213,7 +236,7 @@ export default function CruiseDetailPage() {
                   <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                     <div>
                       <div className="text-[10px] uppercase font-bold text-slate-400">
-                        Wholesale Total (2 Guests)
+                        {locale === 'no' ? 'Engrospris totalt (2 gjester)' : 'Wholesale Total (2 Guests)'}
                       </div>
                       <div className="text-3xl font-black text-slate-900">
                         ${totalWholesale}
@@ -221,10 +244,10 @@ export default function CruiseDetailPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-xs line-through text-slate-400">
-                        Brochure: ${totalBrochure}
+                        {locale === 'no' ? 'Brosjyre: ' : 'Brochure: '}${totalBrochure}
                       </div>
                       <div className="text-sm font-black text-emerald-600">
-                        Save ${totalSaved}
+                        {locale === 'no' ? `Spar $${totalSaved}` : `Save $${totalSaved}`}
                       </div>
                     </div>
                   </div>
@@ -232,16 +255,16 @@ export default function CruiseDetailPage() {
                   {/* Sailing Date Picker */}
                   <div>
                     <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                      Departure Date
+                      {locale === 'no' ? 'Avgangsdato' : 'Departure Date'}
                     </label>
                     <select
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 cursor-pointer"
                     >
                       {cruise.departureDates.map((d) => (
                         <option key={d} value={d}>
-                          Sailing: {d} (Roundtrip {cruise.departurePort})
+                          {d} (Roundtrip {cruise.departurePort})
                         </option>
                       ))}
                     </select>
@@ -251,25 +274,25 @@ export default function CruiseDetailPage() {
                   <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200 space-y-1.5 text-xs text-amber-900">
                     <div className="font-black flex items-center gap-1 text-amber-800">
                       <Gift className="w-4 h-4 text-amber-600" />
-                      Included VIP Member Privileges:
+                      {locale === 'no' ? 'Inkluderte VIP Medlemsfordeler:' : 'Included VIP Member Privileges:'}
                     </div>
                     <div className="text-[11px] font-medium space-y-1 text-amber-950">
-                      <div>✓ <strong>${selectedCabin.onboardCreditBonus} Free Onboard Credit</strong> (Spa & Excursions)</div>
-                      <div>✓ No Booking Service Fees ($0)</div>
-                      <div>✓ Port Taxes & Gratuity Assistance Included</div>
+                      <div>✓ <strong>+${selectedCabin.onboardCreditBonus} {locale === 'no' ? 'Gratis Ombordkreditt' : 'Free Onboard Credit'}</strong> ({locale === 'no' ? 'Spa & Utflukter' : 'Spa & Excursions'})</div>
+                      <div>✓ {locale === 'no' ? 'Null bestillingsgebyrer ($0)' : 'No Booking Service Fees ($0)'}</div>
+                      <div>✓ {locale === 'no' ? 'Havneavgifter & bistand inkludert' : 'Port Taxes & Gratuity Assistance Included'}</div>
                     </div>
                   </div>
 
                   {/* Payment Method Selector */}
                   <div className="space-y-2">
                     <label className="block text-[11px] font-bold text-slate-500 uppercase">
-                      Payment Gateway
+                      {locale === 'no' ? 'Betalingsmetode' : 'Payment Gateway'}
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('paypal')}
-                        className={`p-3 rounded-2xl border flex items-center justify-center gap-2 transition-all ${
+                        className={`p-3 rounded-2xl border flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           paymentMethod === 'paypal'
                             ? 'border-sky-500 bg-sky-50/60 font-bold text-sky-900 shadow-sm'
                             : 'border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -281,14 +304,14 @@ export default function CruiseDetailPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentMethod('credit_card')}
-                        className={`p-3 rounded-2xl border flex items-center justify-center gap-1.5 transition-all ${
+                        className={`p-3 rounded-2xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                           paymentMethod === 'credit_card'
                             ? 'border-sky-500 bg-sky-50/60 font-bold text-sky-900 shadow-sm'
                             : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
                         <CreditCard className="w-4 h-4 text-slate-700" />
-                        <span className="text-xs font-bold">Credit Card</span>
+                        <span className="text-xs font-bold">{locale === 'no' ? 'Kredittkort' : 'Credit Card'}</span>
                       </button>
                     </div>
                   </div>
@@ -298,27 +321,31 @@ export default function CruiseDetailPage() {
                     <button
                       onClick={handleBookCruise}
                       disabled={loading}
-                      className="w-full py-4 px-4 rounded-2xl bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-sm shadow-lg shadow-amber-400/20 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-4 px-4 rounded-2xl bg-[#FFC439] hover:bg-[#F2BA36] text-slate-950 font-black text-sm shadow-lg shadow-amber-400/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span className="font-black text-[#003087]">Pay</span>
                       <span className="font-black text-[#0079C1]">Pal</span>
                       <span className="font-bold text-slate-900 ml-1">
-                        {loading ? 'Locking Stateroom...' : 'Book Cruise with PayPal'}
+                        {loading
+                          ? (locale === 'no' ? 'Låser lugar...' : 'Locking Stateroom...')
+                          : (locale === 'no' ? 'Bestill cruise med PayPal' : 'Book Cruise with PayPal')}
                       </span>
                     </button>
                   ) : (
                     <button
                       onClick={handleBookCruise}
                       disabled={loading}
-                      className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg transition-all"
+                      className="w-full py-4 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg transition-all cursor-pointer"
                     >
-                      {loading ? 'Locking Stateroom...' : 'Pay with Credit Card'}
+                      {loading
+                        ? (locale === 'no' ? 'Låser lugar...' : 'Locking Stateroom...')
+                        : (locale === 'no' ? 'Betal med Kredittkort' : 'Pay with Credit Card')}
                     </button>
                   )}
 
                   <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-400 text-center">
                     <Lock className="w-3.5 h-3.5 text-emerald-500" />
-                    <span>Direct Cruise Line API Confirmation</span>
+                    <span>{locale === 'no' ? 'Direkte rederi API-bekreftelse' : 'Direct Cruise Line API Confirmation'}</span>
                   </div>
                 </>
               )}

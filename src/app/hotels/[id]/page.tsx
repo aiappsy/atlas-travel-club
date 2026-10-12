@@ -44,9 +44,11 @@ import type { ComparedHotel, RoomOption } from '@/app/api/hotels/compare/route';
 import { formatGoogleTravelUrlWithCurrency } from '@/lib/googleTravel';
 import { MEMBERSHIP_TIERS, GOLD_VIP_TIER, GOLD_VIP_ANNUAL_FEE, getDefaultTripDates } from '@/lib/mockData';
 import { getStoredVouchers } from '@/lib/vouchers';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function HotelDetailPage() {
   const { user, isMember, addBooking } = useAuth();
+  const { locale } = useLanguage();
   const { formatPrice: rawFormatPrice, formatHotelPrice, currency } = useCurrency();
   // Hotel rates from the API are already in the requested currency (matching Google Travel live rates).
   // Use formatHotelPrice so numbers are formatted with the proper symbol without being double-converted.
@@ -274,36 +276,36 @@ export default function HotelDetailPage() {
   };
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen pb-24 font-sans selection:bg-amber-400 selection:text-slate-950">
+    <div className="bg-slate-50 text-slate-900 min-h-screen pb-24 font-sans selection:bg-amber-100 selection:text-amber-900">
       {/* Top Breadcrumbs & Direct Verification Bar */}
-      <div className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-3">
+      <div className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-400 font-semibold">
-            <Link href="/hotels" className="hover:text-white flex items-center gap-1 transition-colors">
+          <div className="flex items-center gap-2 text-slate-500 font-medium">
+            <Link href="/" className="hover:text-slate-900 flex items-center gap-1 transition-colors">
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Search</span>
+              <span>{locale === 'no' ? 'Tilbake til søk' : 'Back to Search'}</span>
             </Link>
             <span>/</span>
-            <span className="text-slate-200">{hotel.city}</span>
+            <span className="text-slate-700">{hotel.city}</span>
             <span>/</span>
-            <span className="text-amber-400 font-bold truncate max-w-[200px] sm:max-w-xs">{hotel.name}</span>
+            <span className="text-slate-900 font-bold truncate max-w-[200px] sm:max-w-xs">{hotel.name}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-black uppercase tracking-wider border border-emerald-500/30 flex items-center gap-1 shrink-0">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>100% Rate Parity Exempt</span>
+            <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider border border-emerald-200 flex items-center gap-1 shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{locale === 'no' ? 'Unntatt Rate Parity' : 'Rate Parity Exempt'}</span>
             </span>
 
             <a
               href={hotel.officialWebsite}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold border border-slate-700 flex items-center gap-1 transition-colors"
+              className="px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold border border-slate-200 flex items-center gap-1 transition-colors"
               title="Open Official Hotel Website in new tab"
             >
-              <Globe className="w-3 h-3 text-sky-400" />
-              <span>Official Hotel Site ↗</span>
+              <Globe className="w-3 h-3 text-sky-600" />
+              <span>{locale === 'no' ? 'Hotellets nettside ↗' : 'Official Hotel Site ↗'}</span>
             </a>
           </div>
         </div>
@@ -314,85 +316,85 @@ export default function HotelDetailPage() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-bold uppercase tracking-wider">
                 {hotel.categoryLabel}
               </span>
-              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 text-xs font-bold">
-                <Star className="w-3.5 h-3.5 fill-amber-400" />
+              <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-white border border-slate-200 text-amber-600 text-xs font-bold shadow-xs">
+                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                 <span>{hotel.guestRating} / 10 Excellent ({hotel.reviewCount} reviews)</span>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
-                Bedbank GDS Audit: #{hotel.audit.auditHash.substring(0, 8)}
+              <span className="text-xs text-slate-500 font-mono">
+                Audit: #{hotel.audit.auditHash.substring(0, 8)}
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
               {hotel.name}
             </h1>
 
-            <p className="text-slate-400 text-xs sm:text-sm flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
+            <p className="text-slate-600 text-xs sm:text-sm flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
               <span>{hotel.address}</span>
             </p>
           </div>
 
           {/* Quick Wholesale Price Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950/80 border border-emerald-500/40 shadow-xl flex items-center justify-between sm:justify-end gap-6 shrink-0">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between sm:justify-end gap-6 shrink-0">
             <div>
-              <div className="text-[10px] uppercase font-black tracking-wider text-emerald-400">
-                Wholesale Member Rate
+              <div className="text-[10px] uppercase font-bold tracking-wider text-emerald-700">
+                {locale === 'no' ? 'Engros Medlemspris' : 'Member Wholesale Rate'}
               </div>
               <div className="flex items-baseline gap-1.5 mt-0.5">
-                <span className="text-3xl font-black text-white font-mono">{formatPrice(wholesalePerNight)}</span>
-                <span className="text-xs text-slate-400">/ night</span>
+                <span className="text-3xl font-black text-slate-900 font-mono">{formatPrice(wholesalePerNight)}</span>
+                <span className="text-xs text-slate-500">{locale === 'no' ? '/ natt' : '/ night'}</span>
               </div>
               <div className="text-[11px] text-slate-400 line-through">
-                Public Retail: {formatPrice(retailPerNight)}/nt
+                {locale === 'no' ? 'Markedspris: ' : 'Public Retail: '}{formatPrice(retailPerNight)}/nt
               </div>
             </div>
 
             <div className="text-right">
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200">
                 Save {formatPrice(totalSavings)} ({hotel.prices.atlasWholesale.savingsPercent}% Off)
               </span>
-              <div className="text-[11px] text-slate-400 mt-1">
-                {nights} Nights Total: <strong className="text-white">{formatPrice(totalWholesale)}</strong>
+              <div className="text-[11px] text-slate-500 mt-1">
+                {nights} Nights Total: <strong className="text-slate-900">{formatPrice(totalWholesale)}</strong>
               </div>
             </div>
           </div>
         </div>
 
         {/* Main Property Verified Showcase & Modal Trigger */}
-        <div className="relative rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-2xl group">
+        <div className="relative rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-md group">
           {/* Main Showcase Hero */}
           <div
             onClick={() => {
               setModalPhotoIdx(activePhotoIdx);
               setIsGalleryModalOpen(true);
             }}
-            className="relative aspect-[16/9] md:aspect-[21/9] max-h-[540px] w-full overflow-hidden cursor-pointer bg-slate-950"
+            className="relative aspect-[16/9] md:aspect-[21/9] max-h-[540px] w-full overflow-hidden cursor-pointer bg-slate-100"
             title="Click to expand full screen photo gallery"
           >
             <img
               src={activeImage}
               alt={hotel.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
 
             {/* Top Right Quick Fullscreen Badge */}
             <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
-              <span className="px-3 py-1.5 rounded-full bg-slate-950/75 hover:bg-slate-950 text-white backdrop-blur-md border border-white/20 text-xs font-bold flex items-center gap-1.5 shadow-lg transition-colors">
-                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+              <span className="px-3 py-1.5 rounded-full bg-white/90 hover:bg-white text-slate-900 backdrop-blur-md border border-slate-200 text-xs font-bold flex items-center gap-1.5 shadow-md transition-colors">
+                <Maximize2 className="w-3.5 h-3.5 text-slate-700" />
                 <span>Fullscreen</span>
               </span>
             </div>
 
             {/* Bottom Left Property Architecture Information */}
             <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 right-4 sm:right-auto max-w-xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-amber-400/50 text-amber-300 text-xs font-black uppercase tracking-wider mb-2 shadow-xl">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Verified Physical Property Architecture</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 text-slate-900 text-xs font-bold uppercase tracking-wider mb-2 shadow-md">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Verified Property Architecture</span>
               </div>
               <div className="text-white text-sm sm:text-base font-bold drop-shadow-md flex items-center gap-1.5">
                 <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
@@ -408,9 +410,9 @@ export default function HotelDetailPage() {
                   setModalPhotoIdx(activePhotoIdx);
                   setIsGalleryModalOpen(true);
                 }}
-                className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 py-2.5 rounded-2xl bg-slate-950/85 hover:bg-slate-900 text-white backdrop-blur-md border border-white/20 hover:border-amber-400/60 shadow-2xl flex items-center gap-2 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
+                className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 px-4 py-2.5 rounded-2xl bg-white/95 hover:bg-white text-slate-900 backdrop-blur-md border border-slate-200 shadow-lg flex items-center gap-2 text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-pointer"
               >
-                <Images className="w-4 h-4 text-amber-400" />
+                <Images className="w-4 h-4 text-amber-600" />
                 <span>View All Photos ({hotel.gallery.length})</span>
                 <Maximize2 className="w-3.5 h-3.5 text-slate-400" />
               </button>
@@ -419,10 +421,10 @@ export default function HotelDetailPage() {
 
           {/* Secondary Thumbnail Strip (Clicking opens Full Screen Modal directly at that photo) */}
           {hotel.gallery && hotel.gallery.length > 1 && (
-            <div className="p-3 bg-slate-950/80 border-t border-slate-800/80 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 sm:px-6">
+            <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 px-4 sm:px-6">
               <div className="flex items-center gap-3 overflow-x-auto scrollbar-none py-1">
-                <span className="text-xs font-bold text-slate-400 shrink-0 hidden sm:inline-block">
-                  Verified Property Views:
+                <span className="text-xs font-semibold text-slate-500 shrink-0 hidden sm:inline-block">
+                  Property Gallery:
                 </span>
                 {hotel.gallery.map((photo, idx) => (
                   <button
@@ -434,14 +436,13 @@ export default function HotelDetailPage() {
                     }}
                     className={`relative rounded-xl overflow-hidden border-2 shrink-0 w-24 h-16 sm:w-28 sm:h-18 transition-all hover:scale-105 cursor-pointer group/thumb ${
                       activePhotoIdx === idx
-                        ? 'border-amber-400 ring-2 ring-amber-400/30'
-                        : 'border-slate-800 hover:border-slate-600 opacity-75 hover:opacity-100'
+                        ? 'border-slate-900 ring-2 ring-slate-900/30'
+                        : 'border-slate-200 hover:border-slate-400 opacity-80 hover:opacity-100'
                     }`}
-                    title={`Open Photo ${idx + 1} in Full Screen`}
+                    title={`Open Photo ${idx + 1}`}
                   >
                     <img src={photo} alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-slate-950/20 group-hover/thumb:bg-transparent transition-colors" />
-                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-slate-950/85 text-[10px] text-amber-300 font-mono">
+                    <div className="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-slate-900/80 text-[10px] text-white font-mono">
                       #{idx + 1}
                     </div>
                   </button>
@@ -453,7 +454,7 @@ export default function HotelDetailPage() {
                   setModalPhotoIdx(0);
                   setIsGalleryModalOpen(true);
                 }}
-                className="text-xs font-bold text-amber-400 hover:text-amber-300 shrink-0 flex items-center gap-1 cursor-pointer ml-auto"
+                className="text-xs font-bold text-slate-900 hover:text-amber-700 shrink-0 flex items-center gap-1 cursor-pointer ml-auto"
               >
                 <span>Launch Gallery Viewer</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -480,7 +481,7 @@ export default function HotelDetailPage() {
                     <h3 className="text-base sm:text-lg font-black text-white truncate">{hotel.name}</h3>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-1 shrink-0">
                       <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                      Offisielle Google Travel Bilder
+                      Google Verified
                     </span>
                   </div>
                   <p className="text-xs text-slate-400 flex items-center gap-1 truncate">
@@ -562,76 +563,76 @@ export default function HotelDetailPage() {
         )}
 
         {/* Direct Public Rate Verification Banner (Click to check live) */}
-        <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3.5">
+        <div className="p-5 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 font-black text-xs">
+              <div className="w-6 h-6 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-700 font-bold text-xs">
                 G
               </div>
               <div>
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <span>Official Market Rate Audit</span>
+                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <span>Market Rate Audit</span>
                   <button
                     type="button"
                     onClick={() => setIsMarketAuditOpen(true)}
-                    className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/50 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-sm group/badge"
+                    className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold uppercase tracking-wider inline-flex items-center gap-1 transition-all cursor-pointer shadow-xs group/badge"
                     title={`Open Google Travel audit modal for ${hotel.name}`}
                   >
-                    <span>Google Travel Verified</span>
+                    <span>Google Verified</span>
                     <Maximize2 className="w-2.5 h-2.5 group-hover/badge:translate-x-0.5 transition-transform" />
                   </button>
                 </h4>
-                <p className="text-xs text-slate-400">
-                  Live third-party public rate comparison for {checkIn} to {checkOut}. Inspect side-by-side rates from Google Travel:
+                <p className="text-xs text-slate-500">
+                  Live third-party public rate comparison for {checkIn} to {checkOut}:
                 </p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-500/20 via-sky-500/10 to-emerald-500/20 hover:from-sky-500/30 hover:to-emerald-500/30 text-sky-300 hover:text-white border border-sky-500/40 text-xs font-bold transition-all shadow-md self-start sm:self-auto shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-semibold transition-all self-start sm:self-auto shrink-0 cursor-pointer"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Audit All Google Providers ({checkIn} to {checkOut})</span>
-              <Maximize2 className="w-3.5 h-3.5 text-sky-400" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>Audit Google Rates ({checkIn} to {checkOut})</span>
+              <Maximize2 className="w-3.5 h-3.5 text-slate-500" />
             </button>
           </div>
 
           {/* Interactive Tax Transparency & Room Baseline Alignment Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1.5 text-amber-300 font-bold">
-                <BedDouble className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <div className="flex items-center gap-1.5 text-slate-800 font-bold">
+                <BedDouble className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                 <span>Standard Room Baseline</span>
               </div>
-              <span className="text-slate-600 hidden sm:inline">•</span>
-              <div className="flex items-center gap-1.5 text-slate-300">
-                <Calendar className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                <span>Stay: <strong className="text-white font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
+              <span className="text-slate-300 hidden sm:inline">•</span>
+              <div className="flex items-center gap-1.5 text-slate-600">
+                <Calendar className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span>Stay: <strong className="text-slate-900 font-bold">{checkIn} ➔ {checkOut}</strong> ({nights} {nights === 1 ? 'Night' : 'Nights'})</span>
               </div>
             </div>
 
             {/* Mode Toggle */}
-            <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-xl border border-slate-800 shrink-0 self-start sm:self-auto">
+            <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200 shrink-0 self-start sm:self-auto shadow-xs">
               <button
                 type="button"
                 onClick={() => setShowAllInclusive(true)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   showAllInclusive
-                    ? 'bg-emerald-500 text-slate-950 font-black shadow'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-emerald-600 text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Includes mandatory destination taxes and resort fees matching Google Travel headline pricing"
               >
-                ✓ Taxes & Fees Included
+                ✓ Taxes Included
               </button>
               <button
                 type="button"
                 onClick={() => setShowAllInclusive(false)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   !showAllInclusive
-                    ? 'bg-slate-800 text-amber-300 font-black shadow border border-amber-400/30'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-slate-900 text-white font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
                 title="Base room cost before regional taxes and mandatory fees"
               >
@@ -640,16 +641,16 @@ export default function HotelDetailPage() {
             </div>
           </div>
 
-          <div className="text-[11px] text-slate-400 px-1 flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+          <div className="text-[11px] text-slate-500 px-1 flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 text-sky-600 shrink-0" />
             <span>
               {showAllInclusive ? (
                 <>
-                  <strong className="text-emerald-400 font-semibold">Taxes & Fees Included:</strong> Rates include ~{taxPercent}% {taxBreakdown?.taxLabel || 'local hospitality taxes & fees'} (matching Google Travel European/Norwegian live rates).
+                  <strong className="text-emerald-700 font-semibold">Taxes Included:</strong> Rates include ~{taxPercent}% {taxBreakdown?.taxLabel || 'local hospitality taxes & fees'}.
                 </>
               ) : (
                 <>
-                  <strong className="text-amber-400 font-semibold">Base Room Only:</strong> Excludes ~{taxPercent}% destination lodging taxes collected at check-in.
+                  <strong className="text-amber-700 font-semibold">Base Room Only:</strong> Excludes ~{taxPercent}% destination lodging taxes collected at check-in.
                 </>
               )}
             </span>
@@ -660,60 +661,60 @@ export default function HotelDetailPage() {
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-sky-500/50 transition-all text-center group cursor-pointer"
+              className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all text-center group cursor-pointer"
               title="Click to audit Booking.com price vs ATLAS Wholesale"
             >
-              <div className="font-bold text-sky-400 text-xs flex items-center justify-center gap-1">
+              <div className="font-bold text-sky-700 text-xs flex items-center justify-center gap-1">
                 <span>Booking.com</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-sky-400" />
+                <Maximize2 className="w-3 h-3 text-slate-400 group-hover:text-sky-600" />
               </div>
-              <div className="text-base font-bold text-slate-300 line-through mt-1">{formatPrice(bookingPerNight)}</div>
-              <div className="text-[10px] text-sky-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
+              <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(bookingPerNight)}</div>
+              <div className="text-[10px] text-sky-700 font-semibold mt-0.5">{showAllInclusive ? 'Taxes Included' : 'Base Rate'} ↗</div>
             </button>
 
             {/* Hotels.com */}
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-rose-500/50 transition-all text-center group cursor-pointer"
+              className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all text-center group cursor-pointer"
               title="Click to audit Hotels.com price vs ATLAS Wholesale"
             >
-              <div className="font-bold text-rose-400 text-xs flex items-center justify-center gap-1">
+              <div className="font-bold text-rose-700 text-xs flex items-center justify-center gap-1">
                 <span>Hotels.com</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-rose-400" />
+                <Maximize2 className="w-3 h-3 text-slate-400 group-hover:text-rose-600" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(hotelsComPerNight)}</div>
-              <div className="text-[10px] text-rose-400 font-semibold mt-0.5">Breakfast & Cancel ↗</div>
+              <div className="text-[10px] text-rose-700 font-semibold mt-0.5">Retail Rate ↗</div>
             </button>
 
             {/* Agoda */}
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-purple-500/50 transition-all text-center group cursor-pointer"
+              className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all text-center group cursor-pointer"
               title="Click to audit Agoda price vs ATLAS Wholesale"
             >
-              <div className="font-bold text-purple-400 text-xs flex items-center justify-center gap-1">
+              <div className="font-bold text-purple-700 text-xs flex items-center justify-center gap-1">
                 <span>Agoda</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-purple-400" />
+                <Maximize2 className="w-3 h-3 text-slate-400 group-hover:text-purple-600" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(agodaPerNight)}</div>
-              <div className="text-[10px] text-purple-400 font-semibold mt-0.5">Promo Direct ↗</div>
+              <div className="text-[10px] text-purple-700 font-semibold mt-0.5">Retail Rate ↗</div>
             </button>
 
             {/* Expedia */}
             <button
               type="button"
               onClick={() => setIsMarketAuditOpen(true)}
-              className="p-3 rounded-2xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/50 transition-all text-center group cursor-pointer"
+              className="p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all text-center group cursor-pointer"
               title="Click to audit Expedia price vs ATLAS Wholesale"
             >
-              <div className="font-bold text-blue-400 text-xs flex items-center justify-center gap-1">
+              <div className="font-bold text-blue-700 text-xs flex items-center justify-center gap-1">
                 <span>Expedia</span>
-                <Maximize2 className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+                <Maximize2 className="w-3 h-3 text-slate-400 group-hover:text-blue-600" />
               </div>
               <div className="text-base font-bold text-slate-400 line-through mt-1">{formatPrice(expediaPerNight)}</div>
-              <div className="text-[10px] text-blue-400 font-semibold mt-0.5">{showAllInclusive ? 'Taxes & Fees Included' : 'Base Rate Only'} ↗</div>
+              <div className="text-[10px] text-blue-700 font-semibold mt-0.5">{showAllInclusive ? 'Taxes Included' : 'Base Rate'} ↗</div>
             </button>
           </div>
         </div>
@@ -723,38 +724,38 @@ export default function HotelDetailPage() {
           {/* Left Column (8 cols): Description, Amenities, Room Tiers */}
           <div className="lg:col-span-8 space-y-8">
             {/* About Property */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-              <h3 className="text-xl font-black text-white">About the Property</h3>
-              <p className="text-slate-300 text-sm sm:base leading-relaxed">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+              <h3 className="text-xl font-bold text-slate-900">About the Property</h3>
+              <p className="text-slate-600 text-sm sm:base leading-relaxed">
                 {hotel.description}
               </p>
 
-              <div className="pt-4 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                  <div className="text-slate-400">Check-In Time</div>
-                  <div className="font-bold text-white mt-0.5">{hotel.checkInTime}</div>
+              <div className="pt-4 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="text-slate-500">Check-In Time</div>
+                  <div className="font-bold text-slate-900 mt-0.5">{hotel.checkInTime}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                  <div className="text-slate-400">Check-Out Time</div>
-                  <div className="font-bold text-white mt-0.5">{hotel.checkOutTime}</div>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="text-slate-500">Check-Out Time</div>
+                  <div className="font-bold text-slate-900 mt-0.5">{hotel.checkOutTime}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                  <div className="text-slate-400">Wholesale Clearing</div>
-                  <div className="font-bold text-emerald-400 mt-0.5">0% Markup Guaranteed</div>
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div className="text-slate-500">Wholesale Clearing</div>
+                  <div className="font-bold text-emerald-700 mt-0.5">0% Markup Guaranteed</div>
                 </div>
               </div>
             </div>
 
             {/* Verified Amenities */}
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
-              <h3 className="text-xl font-black text-white">Verified Amenities & Services</h3>
+            <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-4">
+              <h3 className="text-xl font-bold text-slate-900">Verified Amenities &amp; Services</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                 {hotel.amenities.map((amenity, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-200 font-semibold flex items-center gap-2"
+                    className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-medium flex items-center gap-2"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>{amenity}</span>
                   </div>
                 ))}
@@ -764,8 +765,8 @@ export default function HotelDetailPage() {
             {/* Room Options & Wholesale Pricing Matrix */}
             <div id="room-selection" className="space-y-4 scroll-mt-24">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-black text-white">Select Your Wholesale Room Tier</h3>
-                <span className="text-xs text-amber-400 font-bold">
+                <h3 className="text-xl font-bold text-slate-900">Select Room Tier</h3>
+                <span className="text-xs text-amber-700 font-semibold">
                   {hotel.roomOptions?.length || 1} Room Types Available
                 </span>
               </div>
@@ -783,53 +784,53 @@ export default function HotelDetailPage() {
                       onClick={() => setSelectedRoom(room)}
                       className={`p-6 rounded-3xl border-2 transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-slate-900 border-amber-400 shadow-xl'
-                          : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                          ? 'bg-white border-slate-900 ring-2 ring-slate-900/20 shadow-md'
+                          : 'bg-white border-slate-200 hover:border-slate-300 shadow-sm'
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="text-lg font-black text-white">{room.name}</h4>
+                            <h4 className="text-lg font-bold text-slate-900">{room.name}</h4>
                             {isSelected && (
-                              <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">
+                              <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-bold uppercase">
                                 Selected
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-300 leading-relaxed">
+                          <p className="text-xs text-slate-600 leading-relaxed">
                             {room.description}
                           </p>
 
-                          <div className="flex flex-wrap gap-2 text-[11px] text-slate-400 pt-1">
-                            <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-semibold text-slate-300">
+                          <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 pt-1">
+                            <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 font-medium text-slate-700">
                               🛏️ {room.bedType}
                             </span>
-                            <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-semibold text-slate-300">
+                            <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 font-medium text-slate-700">
                               👥 {room.capacity}
                             </span>
-                            <span className="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-semibold text-slate-300">
+                            <span className="bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 font-medium text-slate-700">
                               📐 {room.sizeSqFt} sq ft
                             </span>
                           </div>
                         </div>
 
                         {/* Pricing & Selection Action */}
-                        <div className="text-left md:text-right border-t md:border-t-0 md:border-l border-slate-800 pt-4 md:pt-0 md:pl-6 shrink-0 space-y-1">
-                          <div className="text-[10px] uppercase font-black text-emerald-400">
-                            Wholesale Clearing
+                        <div className="text-left md:text-right border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 shrink-0 space-y-1">
+                          <div className="text-[10px] uppercase font-bold text-emerald-700">
+                            Wholesale Member Rate
                           </div>
                           <div className="flex items-baseline gap-1 md:justify-end">
-                            <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+                            <span className="text-2xl sm:text-3xl font-black text-emerald-700 font-mono">
                               {formatPrice(room.wholesaleRate)}
                             </span>
-                            <span className="text-xs text-slate-400">/ night</span>
+                            <span className="text-xs text-slate-500">/ night</span>
                           </div>
                           <div className="text-xs text-slate-400 line-through">
                             Public OTA: {formatPrice(room.publicRetailRate)}/nt
                           </div>
-                          <div className="text-xs font-bold text-amber-300 pt-1">
-                            You save {formatPrice(roomTotalSavings)} on {nights} nights
+                          <div className="text-xs font-bold text-amber-700 pt-1">
+                            Save {formatPrice(roomTotalSavings)} on {nights} nights
                           </div>
                         </div>
                       </div>
@@ -842,134 +843,134 @@ export default function HotelDetailPage() {
 
           {/* Right Column (4 cols): Sticky Member Booking Console */}
           <div className="lg:col-span-4">
-            <div className="sticky top-20 p-6 sm:p-7 rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="sticky top-20 p-6 sm:p-7 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-6 text-slate-900">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div>
-                  <div className="text-[11px] font-black uppercase text-amber-400">
+                  <div className="text-[11px] font-bold uppercase text-amber-700">
                     VIP Member Reservation
                   </div>
-                  <div className="text-lg font-black text-white">Wholesale Checkout</div>
+                  <div className="text-lg font-bold text-slate-900">Wholesale Checkout</div>
                 </div>
-                <span className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  <Lock className="w-4 h-4 text-emerald-400" />
+                <span className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <Lock className="w-4 h-4 text-emerald-600" />
                 </span>
               </div>
 
               {/* Booking Parameters */}
               <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                  <div className="text-[10px] uppercase font-black text-slate-400 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-sky-600" />
                     <span>Selected Dates ({nights} Nights)</span>
                   </div>
-                  <div className="font-bold text-white text-sm">
+                  <div className="font-bold text-slate-900 text-sm">
                     {checkIn} ➔ {checkOut}
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                  <div className="text-[10px] uppercase font-black text-slate-400 flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5 text-indigo-400" />
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5 text-indigo-600" />
                     <span>Occupancy</span>
                   </div>
-                  <div className="font-bold text-white text-sm">
+                  <div className="font-bold text-slate-900 text-sm">
                     {hotel?.guestSummary || guests}
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
-                  <div className="text-[10px] uppercase font-black text-slate-400">
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+                  <div className="text-[10px] uppercase font-bold text-slate-500">
                     Room Tier
                   </div>
-                  <div className="font-bold text-amber-300 text-sm truncate">
+                  <div className="font-bold text-slate-900 text-sm truncate">
                     {currentRoom?.name || hotel.roomType}
                   </div>
                 </div>
               </div>
 
               {/* Price Breakdown */}
-              <div className="space-y-2.5 pt-4 border-t border-slate-800 text-xs">
-                <div className="flex justify-between text-slate-400">
-                  <span>Raw Bedbank Wholesale Net ({formatPrice(wholesalePerNight)} × {nights} nts)</span>
-                  <span className="font-mono text-white font-bold">{formatPrice(rawWholesaleTotal)}</span>
+              <div className="space-y-2.5 pt-4 border-t border-slate-100 text-xs">
+                <div className="flex justify-between text-slate-600">
+                  <span>Wholesale Net ({formatPrice(wholesalePerNight)} × {nights} nts)</span>
+                  <span className="font-mono text-slate-900 font-bold">{formatPrice(rawWholesaleTotal)}</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
+                <div className="flex justify-between text-slate-600">
                   <span className="flex items-center gap-1">
-                    <span>Est. Destination Taxes & Fees ({taxPercent}%)</span>
+                    <span>Destination Taxes &amp; Fees ({taxPercent}%)</span>
                   </span>
-                  <span className="font-mono text-emerald-400 font-bold">
+                  <span className="font-mono text-emerald-700 font-bold">
                     {showAllInclusive ? '✓ Included in Total' : `+${formatPrice(Math.round(rawWholesaleTotal * (taxPercent / 100)))} at Check-in`}
                   </span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span>OTA Marketing Ad Tax (20-45%)</span>
-                  <span className="font-mono text-emerald-400 font-bold">-{formatPrice(0)} (Eliminated)</span>
+                <div className="flex justify-between text-slate-600">
+                  <span>OTA Marketing Markup</span>
+                  <span className="font-mono text-emerald-700 font-bold">-{formatPrice(0)} (0% Markup)</span>
                 </div>
-                <div className="flex justify-between text-slate-400">
-                  <span className="flex items-center gap-1.5 text-slate-300 font-medium">
-                    <span>Transaction & Merchant Clearing Fee (3.8%)</span>
+                <div className="flex justify-between text-slate-600">
+                  <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                    <span>Transaction Settlement Fee (4.9%)</span>
                   </span>
-                  <span className="font-mono text-amber-300 font-bold">+{formatPrice(Math.round(rawWholesaleTotal * 0.038))}</span>
+                  <span className="font-mono text-slate-900 font-bold">+{formatPrice(Math.round(rawWholesaleTotal * 0.049))}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 pt-0.5 space-y-1">
+                <div className="text-[10px] text-slate-500 pt-0.5 space-y-1">
                   <div className="flex items-center gap-1">
-                    <Info className="w-3 h-3 text-sky-400 shrink-0" />
+                    <Info className="w-3 h-3 text-sky-600 shrink-0" />
                     <span>
                       {showAllInclusive
-                        ? `Includes ~${taxPercent}% local taxes & mandatory fees (${taxBreakdown?.taxLabel || 'Tourism & Municipal VAT'}).`
-                        : `Excludes ~${taxPercent}% local hospitality taxes paid directly to property.`}
+                        ? `Includes ~${taxPercent}% local taxes & fees (${taxBreakdown?.taxLabel || 'VAT'}).`
+                        : `Excludes ~${taxPercent}% lodging taxes paid at property.`}
                     </span>
                   </div>
-                  <div className="text-[10px] text-amber-300/80 leading-tight">
-                    * 0% Hotel Room Markup. Transaction fee is billed at cost to cover credit card interchange (Visa/Mastercard) and secure B2B booking settlement.
+                  <div className="text-[10px] text-slate-400 leading-tight">
+                    * 0% hotel room markup. Standard transaction fee covers payment processing at cost.
                   </div>
                 </div>
                 {appliedVoucher && (
-                  <div className="flex justify-between items-center text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2.5 py-1.5 rounded-lg border border-emerald-500/20">
+                  <div className="flex justify-between items-center text-xs text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200">
                     <span className="flex items-center gap-1.5">
-                      <Ticket className="w-3.5 h-3.5" />
+                      <Ticket className="w-3.5 h-3.5 text-emerald-600" />
                       <span>Promo Voucher ({appliedVoucher.code})</span>
                     </span>
                     <span className="font-mono">-{formatPrice(appliedVoucher.discountAmount)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-sm font-black pt-2 border-t border-slate-800">
-                  <span className="text-white">Total Member Price</span>
-                  <span className="font-mono text-emerald-400 text-lg">{formatPrice(finalMemberPrice)}</span>
+                <div className="flex justify-between text-sm font-bold pt-2 border-t border-slate-100">
+                  <span className="text-slate-900">Total Member Price</span>
+                  <span className="font-mono text-slate-900 text-lg font-black">{formatPrice(finalMemberPrice)}</span>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 text-center space-y-1 shadow-md">
-                  <div className="text-sm sm:text-base font-black text-emerald-400 font-mono">
+                <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
+                  <div className="text-sm sm:text-base font-black text-emerald-800 font-mono">
                     ⚡ YOU SAVE {formatPrice(combinedTotalSavings)} ({Math.round((combinedTotalSavings / totalRetail) * 100)}% OFF)
                   </div>
-                  <div className="text-[11px] font-bold text-amber-300">
-                    Public Total: <span className="line-through text-rose-300">{formatPrice(totalRetail)}</span> • Recoups {paybackPercent}% of Annual Membership ({activeTierPlan.name})
+                  <div className="text-[11px] font-bold text-slate-600">
+                    Public Total: <span className="line-through text-slate-400">{formatPrice(totalRetail)}</span>
                   </div>
                 </div>
 
                 {/* Promo Code / Discount Voucher Input Box */}
-                <div className="pt-2 border-t border-slate-800/80">
+                <div className="pt-2 border-t border-slate-100">
                   {!appliedVoucher ? (
                     <div>
                       {!isVoucherOpen ? (
                         <button
                           type="button"
                           onClick={() => setIsVoucherOpen(true)}
-                          className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="text-[11px] font-semibold text-amber-700 hover:text-amber-800 flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Ticket className="w-3.5 h-3.5" />
                           <span>Have a promo voucher or discount code?</span>
                         </button>
                       ) : (
                         <form onSubmit={handleApplyVoucher} className="space-y-2 animate-fade-in">
-                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-300">
-                            <span className="flex items-center gap-1.5 text-amber-400">
+                          <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                            <span className="flex items-center gap-1.5 text-amber-700">
                               <Ticket className="w-3.5 h-3.5" />
                               <span>Apply Promo Voucher</span>
                             </span>
                             <button
                               type="button"
                               onClick={() => { setIsVoucherOpen(false); setVoucherError(null); }}
-                              className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                              className="text-slate-400 hover:text-slate-600 cursor-pointer"
                             >
                               ✕
                             </button>
@@ -980,29 +981,29 @@ export default function HotelDetailPage() {
                               placeholder="e.g. ATLAS100, WELCOME20"
                               value={voucherInput}
                               onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
-                              className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs uppercase text-white placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                              className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs uppercase text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500"
                             />
                             <button
                               type="submit"
                               disabled={voucherLoading || !voucherInput.trim()}
-                              className="px-3.5 py-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
                             >
                               {voucherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
                             </button>
                           </div>
                           {voucherError && (
-                            <p className="text-[11px] text-rose-400 font-semibold">{voucherError}</p>
+                            <p className="text-[11px] text-rose-600 font-semibold">{voucherError}</p>
                           )}
                         </form>
                       )}
                     </div>
                   ) : (
-                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs animate-fade-in">
+                    <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs animate-fade-in">
                       <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                         <div>
-                          <span className="font-mono font-black text-white">{appliedVoucher.code}</span>
-                          <span className="text-[11px] text-emerald-300 ml-1.5">
+                          <span className="font-mono font-bold text-slate-900">{appliedVoucher.code}</span>
+                          <span className="text-[11px] text-emerald-700 ml-1.5">
                             ({appliedVoucher.message})
                           </span>
                         </div>
@@ -1010,7 +1011,7 @@ export default function HotelDetailPage() {
                       <button
                         type="button"
                         onClick={handleRemoveVoucher}
-                        className="text-[11px] font-bold text-slate-400 hover:text-rose-400 transition-colors ml-2 cursor-pointer"
+                        className="text-[11px] font-bold text-slate-400 hover:text-rose-600 transition-colors ml-2 cursor-pointer"
                       >
                         Remove
                       </button>
@@ -1019,42 +1020,42 @@ export default function HotelDetailPage() {
                 </div>
 
                 {/* Transparency Notice Box */}
-                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-1.5 text-[11px]">
-                  <div className="flex items-center gap-1.5 font-bold text-sky-400">
-                    <Info className="w-3.5 h-3.5 shrink-0" />
-                    <span>Transparent Pricing Policy</span>
+                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                    <Info className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                    <span>Member Wholesale Pass-Through</span>
                   </div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Commercial OTAs mark up hotels by 20%–45% to fund advertising. ATLAS passes through raw bedbank wholesale rates. The 3.8% buffer covers direct credit card processing (Visa/Mastercard/Stripe), multi-currency FX settlement, and 24/7 B2B clearing guarantees so you receive pure wholesale pricing with zero hidden margins.
+                  <p className="text-slate-500 leading-relaxed">
+                    0% hotel room markup. Wholesale bedbank rates are passed directly to active members with a discreet 4.9% transaction settlement fee.
                   </p>
                 </div>
               </div>
 
               {/* Member Status Gate Indicator */}
-              <div className="p-3.5 rounded-2xl border border-slate-800 bg-slate-950/80 text-xs">
+              <div className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50 text-xs">
                 {isMember && user ? (
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>Active Member: {user.displayName} ({user.tier.toUpperCase()} VIP)</span>
+                    <div className="flex items-center gap-2 text-emerald-800 font-bold">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Active Member ({user.tier.toUpperCase()} VIP)</span>
                     </div>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-md border border-emerald-500/30">
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md border border-emerald-200">
                       Wholesale Unlocked
                     </span>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 text-amber-300 font-bold">
-                        <Lock className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>Closed-Bed Wholesale Rate: Membership Required</span>
+                      <div className="flex items-center gap-2 text-amber-800 font-bold">
+                        <Lock className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Closed Member Rate: Membership Required</span>
                       </div>
-                      <span className="text-[10px] bg-amber-400/20 text-amber-300 font-black px-2 py-0.5 rounded-md border border-amber-400/30">
+                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md border border-amber-200">
                         Rate Gated
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">
-                      Hotel Rate Parity contracts legally prohibit selling wholesale rates to non-members. You must be an active club member to access 0% retail markup and book this stay.
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Rate parity contracts require membership to book wholesale rates at 0% markup.
                     </p>
                   </div>
                 )}
@@ -1062,36 +1063,36 @@ export default function HotelDetailPage() {
 
               {/* Action Button */}
               {isBooked ? (
-                <div className="p-5 rounded-2xl bg-emerald-950/80 border border-emerald-500 text-center space-y-3 animate-fade-in">
-                  <CheckCircle2 className="w-9 h-9 text-emerald-400 mx-auto" />
-                  <div className="font-black text-white text-base">Wholesale Allocation Confirmed!</div>
-                  <p className="text-xs text-emerald-300">
-                    Reservation #{hotel.audit.auditHash.substring(0, 10).toUpperCase()} has been secured at 0% markup for {nights} nights.
+                <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-300 text-center space-y-3 animate-fade-in">
+                  <CheckCircle2 className="w-9 h-9 text-emerald-600 mx-auto" />
+                  <div className="font-bold text-slate-900 text-base">Wholesale Reservation Confirmed!</div>
+                  <p className="text-xs text-emerald-800">
+                    Reservation #{hotel.audit.auditHash.substring(0, 10).toUpperCase()} confirmed at wholesale for {nights} nights.
                     {appliedVoucher && (
-                      <span className="block text-amber-300 font-mono mt-1">
+                      <span className="block text-amber-800 font-mono mt-1">
                         Promo Voucher {appliedVoucher.code} (-{formatPrice(appliedVoucher.discountAmount)}) Applied
                       </span>
                     )}
                   </p>
-                  <div className="pt-2 border-t border-emerald-800/80 flex flex-col gap-2">
+                  <div className="pt-2 border-t border-emerald-200 flex flex-col gap-2">
                     <a
                       href={`/api/bookings/voucher?format=html&bookingRef=ATLAS-${hotel.audit.auditHash.substring(0, 8).toUpperCase()}&hotelName=${encodeURIComponent(hotel.name)}&guestName=${encodeURIComponent(user?.displayName || 'VIP Member')}&checkIn=${checkIn}&checkOut=${checkOut}&roomType=${encodeURIComponent(currentRoom?.name || hotel.roomType)}&nights=${nights}&totalPaid=${finalMemberPrice}&savings=${combinedTotalSavings}${appliedVoucher ? `&voucherCode=${appliedVoucher.code}` : ''}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="py-2.5 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-1.5 shadow-lg"
+                      className="py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-md"
                     >
-                      <Download className="w-4 h-4 text-slate-950" />
-                      <span>Download Official PDF Hotel Voucher (Check-In Pass)</span>
+                      <Download className="w-4 h-4 text-amber-400" />
+                      <span>Download Official PDF Hotel Voucher</span>
                     </a>
                     <Link
                       href="/membership"
-                      className="py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-black transition-colors"
+                      className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors text-center"
                     >
                       View in Member Portal ➔
                     </Link>
                     <button
                       onClick={() => setIsBooked(false)}
-                      className="text-[11px] text-slate-400 hover:text-white underline cursor-pointer"
+                      className="text-[11px] text-slate-500 hover:text-slate-900 underline cursor-pointer"
                     >
                       Make Another Booking
                     </button>
@@ -1101,19 +1102,19 @@ export default function HotelDetailPage() {
                 <div className="space-y-2.5">
                   <Link
                     href={`/membership?hotelId=${hotel.id}&hotelName=${encodeURIComponent(hotel.name)}&hotelCity=${encodeURIComponent(hotel.city)}&wholesaleRate=${wholesalePerNight}&savings=${savingsPerNight}&totalSavings=${totalSavings}&totalWholesale=${finalMemberPrice}&totalRetail=${totalRetail}&nights=${nights}&checkIn=${checkIn}&checkOut=${checkOut}`}
-                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer text-center"
+                    className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer text-center"
                   >
-                    <Lock className="w-4 h-4 text-slate-950 shrink-0" />
-                    <span>Join Club to Book Closed Bed Rate ({formatPrice(finalMemberPrice)})</span>
-                    <ArrowRight className="w-4 h-4 text-slate-950 shrink-0" />
+                    <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span>Join Club to Book ({formatPrice(finalMemberPrice)})</span>
+                    <ArrowRight className="w-4 h-4 text-white shrink-0" />
                   </Link>
 
                   <button
                     type="button"
                     onClick={() => setIsAuthOpen(true)}
-                    className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-semibold text-xs border border-slate-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <span>Already a member? Sign in to unlock instant booking</span>
+                    <span>Already a member? Sign in to unlock booking</span>
                   </button>
                 </div>
               ) : (
@@ -1139,15 +1140,15 @@ export default function HotelDetailPage() {
                     });
                     setIsBooked(true);
                   }}
-                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-slate-950 font-black text-sm shadow-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer"
+                  className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-slate-950" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                   <span>Reserve at Wholesale ({formatPrice(finalMemberPrice)})</span>
                 </button>
               )}
 
-              <p className="text-[10px] text-slate-500 text-center leading-relaxed">
-                Guaranteed 0% retail markup under closed-loop B2B bedbank clearing contract. Free cancellation up to 48 hours prior to check-in.
+              <p className="text-[10px] text-slate-400 text-center leading-relaxed">
+                Guaranteed 0% retail markup. Free cancellation up to 48 hours prior to check-in.
               </p>
             </div>
           </div>

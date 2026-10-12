@@ -36,11 +36,17 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
+import { usePlatform } from '@/context/PlatformContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { getStoredVouchers } from '@/lib/vouchers';
 
 function MembershipContent() {
   const { user, isMember, upgradeTier, bookings, toggleDemoMode } = useAuth();
   const { formatPrice } = useCurrency();
+  const { features } = usePlatform();
+  const { t, locale } = useLanguage();
+  const isTrialActive = features.enableFreeTrial ?? true;
+  const trialDays = features.freeTrialDays ?? 14;
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -123,7 +129,36 @@ function MembershipContent() {
   const checkIn = searchParams.get('checkIn');
   const checkOut = searchParams.get('checkOut');
 
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const hasPendingHotel = Boolean(hotelId && hotelName);
+
+  const handleDirectStripeCheckout = async (tierId: string, tierName: string) => {
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId,
+          billingCycle,
+          userEmail: user?.email || undefined,
+          userId: user?.uid || 'guest',
+          discountCode: appliedMembershipVoucher?.code || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        openSignUpModal(tierId, tierName);
+      }
+    } catch {
+      openSignUpModal(tierId, tierName);
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   const openSignUpModal = (tierId: string, tierName: string) => {
     setSelectedTier(tierId);
@@ -145,31 +180,31 @@ function MembershipContent() {
     return (
       <div className="bg-slate-50 min-h-screen pb-20">
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-sky-900/50">
+        <div className="bg-white text-slate-900 py-10 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-bold uppercase tracking-wider border border-emerald-500/30 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold uppercase tracking-wider border border-emerald-200 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   Active Membership Status
                 </span>
               </div>
-              <h1 className="text-3xl sm:text-4xl font-black">{user.displayName}&apos;s Member Portal</h1>
-              <p className="text-slate-300 text-xs sm:text-sm mt-1">
-                Member ID: <strong className="font-mono text-amber-300">{user.memberId}</strong> • Valid through {user.validUntil}
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900">{user.displayName}&apos;s Member Portal</h1>
+              <p className="text-slate-600 text-xs sm:text-sm mt-1">
+                Member ID: <strong className="font-mono text-amber-600">{user.memberId}</strong> • Valid through {user.validUntil}
               </p>
             </div>
 
             {/* Quick Stats Banner */}
-            <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-sm">
               <div>
-                <div className="text-[10px] text-slate-300 uppercase font-bold">Lifetime Savings</div>
-                <div className="text-2xl font-black text-emerald-400">{formatPrice(user.lifetimeSavings)}</div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">Lifetime Savings</div>
+                <div className="text-2xl font-black text-emerald-600">{formatPrice(user.lifetimeSavings)}</div>
               </div>
-              <div className="h-8 w-px bg-white/20"></div>
+              <div className="h-8 w-px bg-slate-200"></div>
               <div>
-                <div className="text-[10px] text-slate-300 uppercase font-bold">Total Bookings</div>
-                <div className="text-2xl font-black text-white">{user.totalBookings}</div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">Total Bookings</div>
+                <div className="text-2xl font-black text-slate-900">{user.totalBookings}</div>
               </div>
             </div>
           </div>
@@ -178,23 +213,23 @@ function MembershipContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
           {/* Pending Hotel Banner if member navigated from a hotel room */}
           {hasPendingHotel && (
-            <div className="mb-8 p-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-slate-900 to-indigo-950 border border-emerald-500/50 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in">
+            <div className="mb-8 p-6 rounded-3xl bg-white border-2 border-emerald-500/40 text-slate-900 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in">
               <div className="space-y-1 text-center sm:text-left">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-black uppercase tracking-wider border border-emerald-500/30">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase tracking-wider border border-emerald-200">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                   Membership Verified: Closed Bed Rates Unlocked
                 </div>
-                <h3 className="text-xl font-black text-white">
+                <h3 className="text-xl font-black text-slate-900">
                   Ready to book {hotelName} ({hotelCity || 'Destination'})
                 </h3>
-                <p className="text-xs text-slate-300">
-                  Wholesale Rate: <strong className="text-emerald-400 font-mono">{formatPrice(Number(wholesaleRate || 169))}/night</strong> • Total: <strong className="text-white">{formatPrice(Number(totalWholesale || 507))}</strong> for {nights} nights.
-                  {totalSavings && <span className="text-emerald-400 font-bold ml-1.5">(Save {formatPrice(Number(totalSavings))})</span>}
+                <p className="text-xs text-slate-600">
+                  Wholesale Rate: <strong className="text-emerald-600 font-mono">{formatPrice(Number(wholesaleRate || 169))}/night</strong> • Total: <strong className="text-slate-900 font-mono">{formatPrice(Number(totalWholesale || 507))}</strong> for {nights} nights.
+                  {totalSavings && <span className="text-emerald-600 font-bold ml-1.5">(Save {formatPrice(Number(totalSavings))})</span>}
                 </p>
               </div>
               <Link
                 href={`/hotels/${hotelId}?checkIn=${checkIn || ''}&checkOut=${checkOut || ''}&nights=${nights}`}
-                className="py-3 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm shadow-xl flex items-center gap-2 shrink-0 transition-all transform hover:scale-105"
+                className="py-3 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-sm shadow-md flex items-center gap-2 shrink-0 transition-all transform hover:scale-105"
               >
                 <span>Complete Booking Now ➔</span>
               </Link>
@@ -223,49 +258,29 @@ function MembershipContent() {
                 </div>
               </div>
 
-              {/* Membership Upgrade Options */}
+              {/* Active Membership Plan Details */}
               <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  Upgrade Membership Tier
-                </h3>
-                <div className="space-y-2">
-                  {MEMBERSHIP_TIERS.filter((t) => t.id !== 'free').map((tier) => {
-                    const isCurrent = user.tier === tier.id;
-                    return (
-                      <div
-                        key={tier.id}
-                        className={`p-3.5 rounded-2xl border flex items-center justify-between transition-all ${
-                          isCurrent
-                            ? 'border-emerald-500 bg-emerald-50/40'
-                            : 'border-slate-200 hover:border-slate-300 bg-slate-50'
-                        }`}
-                      >
-                        <div>
-                          <div className="text-xs font-bold text-slate-900">{tier.name}</div>
-                          <div className="text-[10px] text-slate-500">
-                            {tier.wholesaleHotelDiscount} • {tier.priceAnnual === 0 ? 'Free' : `${formatPrice(tier.priceAnnual)}/yr`}
-                          </div>
-                        </div>
-
-                        {isCurrent ? (
-                          <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
-                            Current Plan
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              upgradeTier(tier.id as any);
-                              alert(`Tier updated to ${tier.name}`);
-                            }}
-                            className="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors"
-                          >
-                            Switch
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="flex items-center justify-between">
+                  <h3 className="font-black text-slate-900 text-sm flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    Your Club Membership
+                  </h3>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                    Active VIP
+                  </span>
+                </div>
+                <div className="p-4 rounded-2xl bg-emerald-50/40 border border-emerald-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-900">Atlas Club Membership</span>
+                    <span className="font-mono font-bold text-emerald-700 text-xs">{formatPrice(179)}/yr</span>
+                  </div>
+                  <p className="text-xs text-slate-600">
+                    0% retail markup across 1,000,000+ luxury hotels, NDC flight clearing, and EU261 €600 delay sentinel.
+                  </p>
+                  <div className="pt-2 text-[11px] text-slate-500 border-t border-emerald-200/60 flex items-center justify-between">
+                    <span>Valid through: {user.validUntil}</span>
+                    <span className="text-emerald-700 font-semibold">Full Privileges Active</span>
+                  </div>
                 </div>
               </div>
 
@@ -403,9 +418,9 @@ function MembershipContent() {
 
   // NON-MEMBER VISITOR LANDING VIEW: Rich Sign-Up Section explaining Closed Bed Rates & Rate Parity
   return (
-    <div className="bg-slate-950 text-white min-h-screen pb-24 font-sans selection:bg-amber-400 selection:text-slate-950">
+    <div className="bg-slate-50 text-slate-900 min-h-screen pb-24 font-sans selection:bg-amber-400 selection:text-slate-900">
       {/* Top Notice Ribbon */}
-      <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 py-2.5 px-4 text-center text-xs font-black tracking-wide shadow-md">
+      <div className="bg-amber-100/80 border-b border-amber-200/80 text-amber-900 py-2.5 px-4 text-center text-xs font-bold tracking-wide">
         🔒 Closed-Loop Private Membership: B2B Wholesale Bedbank Rates are 100% Exempt from Public Rate Parity Laws
       </div>
 
@@ -413,45 +428,44 @@ function MembershipContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-10">
         {/* Pending Hotel Stay Callout Banner */}
         {hasPendingHotel && (
-          <div className="mb-12 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 border-2 border-amber-400 shadow-2xl relative overflow-hidden animate-in fade-in duration-300">
-            <div className="absolute top-0 right-0 transform translate-x-8 -translate-y-8 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="mb-12 p-6 sm:p-8 rounded-3xl bg-white border-2 border-amber-400 shadow-xl relative overflow-hidden animate-in fade-in duration-300">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500 text-white text-xs font-black uppercase tracking-wider shadow-sm">
                   <Lock className="w-3.5 h-3.5" />
                   Wholesale Allocation Pending • Sign-Up Required to Book
                 </div>
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900">
                   {hotelName}
                 </h2>
-                <p className="text-slate-300 text-sm">
+                <p className="text-slate-600 text-sm">
                   {hotelCity ? `${hotelCity} • ` : ''}
                   {nights} Nights {checkIn && checkOut ? `(${checkIn} to ${checkOut})` : ''}
                 </p>
-                <div className="text-xs text-amber-300/90 font-medium pt-1 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="text-xs text-amber-700 font-medium pt-1 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>Public Rate Parity rules forbid non-member checkout. Activate membership below to lock in this net rate.</span>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-950/80 p-5 rounded-2xl border border-slate-800">
+              <div className="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                 <div className="text-center sm:text-left">
-                  <div className="text-[10px] uppercase font-bold text-slate-400">Public Retail Total</div>
-                  <div className="text-lg font-bold text-rose-400 line-through font-mono">
+                  <div className="text-[10px] uppercase font-bold text-slate-500">Public Retail Total</div>
+                  <div className="text-lg font-bold text-rose-500 line-through font-mono">
                     {formatPrice(Number(totalRetail || (Number(wholesaleRate || 169) + Number(savings || 122)) * Number(nights)))}
                   </div>
                 </div>
 
-                <div className="h-10 w-px bg-slate-800 hidden sm:block"></div>
+                <div className="h-10 w-px bg-slate-200 hidden sm:block"></div>
 
                 <div className="text-center sm:text-left">
-                  <div className="text-[10px] uppercase font-bold text-emerald-400">Wholesale Net Total</div>
-                  <div className="text-3xl font-black text-emerald-400 font-mono">
+                  <div className="text-[10px] uppercase font-bold text-emerald-600">Wholesale Net Total</div>
+                  <div className="text-3xl font-black text-emerald-600 font-mono">
                     {formatPrice(Number(totalWholesale || Number(wholesaleRate || 169) * Number(nights)))}
                   </div>
                 </div>
 
-                <div className="px-3.5 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-center">
+                <div className="px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-center">
                   <div className="text-[10px] uppercase font-bold">Instant Savings</div>
                   <div className="text-base font-black font-mono">
                     -{formatPrice(Number(totalSavings || Number(savings || 122) * Number(nights)))}
@@ -460,15 +474,15 @@ function MembershipContent() {
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <span className="text-slate-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <span className="text-slate-600 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-amber-500" />
                 <span>Already hold an ATLAS Club membership?</span>
               </span>
               <button
                 type="button"
                 onClick={openSignInModal}
-                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black transition-all flex items-center gap-1.5 shadow-md cursor-pointer text-xs"
+                className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer text-xs"
               >
                 <span>Sign In to Unlock &amp; Book Rate ➔</span>
               </button>
@@ -478,30 +492,32 @@ function MembershipContent() {
 
         {/* Main Headline */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-amber-300 text-xs font-bold uppercase tracking-wider border border-amber-400/30">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Private Closed-Loop Wholesale Travel Club
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            {locale === 'no' ? 'Lukket Medlemsbasert Engrosklubb' : 'Private Closed-Loop Wholesale Travel Club'}
           </div>
-          <h1 className="text-3xl sm:5xl lg:text-6xl font-black tracking-tight leading-tight">
-            Why You Must Be a Member to Book Wholesale
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-slate-900">
+            {locale === 'no' ? 'Hvorfor du må være medlem for å bestille til engrospris' : 'Why You Must Be a Member to Book Wholesale'}
           </h1>
-          <p className="text-slate-300 text-sm sm:text-lg leading-relaxed">
-            By international hospitality law, raw B2B bedbank rates cannot be sold to the open public. Membership gives you legal, password-protected access to 0% retail markup pricing.
+          <p className="text-slate-600 text-sm sm:text-lg leading-relaxed">
+            {locale === 'no'
+              ? 'I henhold til internasjonale prisparitetsregler kan ikke lukkede B2B-engrospriser selges offentlig. Medlemskap gir deg lovlig, passordbeskyttet tilgang til 0% påslagspriser.'
+              : 'By international hospitality law, raw B2B bedbank rates cannot be sold to the open public. Membership gives you legal, password-protected access to 0% retail markup pricing.'}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <button
               onClick={openSignInModal}
-              className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
+              className="text-xs text-slate-600 hover:text-slate-900 font-bold underline cursor-pointer"
             >
-              Already a member? Sign in to your account ➔
+              {locale === 'no' ? 'Allerede medlem? Logg inn på kontoen din ➔' : 'Already a member? Sign in to your account ➔'}
             </button>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-300">•</span>
             <button
               onClick={toggleDemoMode}
-              className="text-xs text-emerald-400 hover:text-emerald-300 font-bold underline cursor-pointer"
+              className="text-xs text-emerald-600 hover:text-emerald-700 font-bold underline cursor-pointer"
             >
-              Instant 1-Click VIP Demo Activation (Test Rates)
+              {locale === 'no' ? 'Lynrask 1-Klikks VIP Test-Aktivering' : 'Instant 1-Click VIP Demo Activation (Test Rates)'}
             </button>
           </div>
         </div>
@@ -510,79 +526,79 @@ function MembershipContent() {
       {/* 4 Pillars Explaining Wholesale Travel & Protection */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-400/10 text-amber-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black border border-amber-100">
               <ShieldAlert className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white">1. The Public Rate Parity Trap</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">1. The Public Rate Parity Trap</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               When hotels partner with Expedia and Booking.com, contracts legally bind them never to publicly advertise lower prices. This inflates public hotel rates by 20% to 45% to fund billions in search ads.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 text-emerald-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black border border-emerald-100">
               <Building2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white">2. B2B Bedbanks &amp; Closed Beds</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">2. B2B Bedbanks &amp; Closed Beds</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               To sell surplus rooms without breaching parity, luxury hotels dump inventory into B2B clearinghouses (WebBeds). By statute, these net rates can only be booked behind gated private memberships.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-sky-400/10 text-sky-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-black border border-sky-100">
               <Plane className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white">3. Direct Airline NDC Clearing</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">3. Direct Airline NDC Clearing</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Direct connection to 300+ airlines removes old GDS distribution surcharges (€15–€25/leg) and eliminates OTA payment junk fees. Pure carrier net rates with 0% retail markup.
             </p>
           </div>
 
-          <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-400/10 text-indigo-400 flex items-center justify-center font-black">
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black border border-indigo-100">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-white">4. EU261 €600 Delay Protection</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-base font-bold text-slate-900">4. EU261 €600 Delay Protection</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
               Automated 24/7 flight delay sentinel. If your flight is delayed 3+ hours, we help you recover up to €600 (~7 000 NOK) in statutory cash with 0% legal deduction (unlike AirHelp’s 35–50% cut).
             </p>
           </div>
         </div>
       </div>
 
-      {/* Membership Tiers Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      {/* Single Unified Membership Section */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="text-center space-y-4 mb-10">
-          <h2 className="text-2xl sm:text-4xl font-black text-white">
-            Choose Your Membership Tier to Start Booking
+          <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
+            Atlas Club Membership
           </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
-            Your membership pays for itself on your very first stay. Select a plan below to complete registration and immediately unlock closed-bed checkout.
+          <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
+            One single, transparent membership that unlocks confidential closed-loop B2B wholesale rates with 0% retail markup.
           </p>
 
           {/* Billing Switcher */}
-          <div className="inline-flex items-center p-1.5 bg-slate-900 border border-slate-800 rounded-2xl">
+          <div className="inline-flex items-center p-1.5 bg-slate-100 border border-slate-200 rounded-2xl">
             <button
               onClick={() => setBillingCycle('annual')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 billingCycle === 'annual'
-                  ? 'bg-amber-400 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Annual Pass (Save 25% Best Value)
+              {locale === 'no' ? 'Årskort (Spar 25% Beste verdi)' : 'Annual Pass (Save 25% Best Value)'}
             </button>
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
                 billingCycle === 'monthly'
-                  ? 'bg-amber-400 text-slate-950 shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Monthly Billing
+              {locale === 'no' ? 'Månedlig betaling' : 'Monthly Billing'}
             </button>
           </div>
 
@@ -594,22 +610,22 @@ function MembershipContent() {
                   <button
                     type="button"
                     onClick={() => setIsMembershipVoucherOpen(true)}
-                    className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer mx-auto"
+                    className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer mx-auto"
                   >
                     <Ticket className="w-3.5 h-3.5" />
                     <span>Have an invitation promo code or voucher?</span>
                   </button>
                 ) : (
-                  <form onSubmit={handleApplyMembershipVoucher} className="space-y-2 animate-fade-in bg-slate-900/90 p-4 rounded-2xl border border-slate-800">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
-                      <span className="flex items-center gap-1.5 text-amber-400">
+                  <form onSubmit={handleApplyMembershipVoucher} className="space-y-2 animate-fade-in bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span className="flex items-center gap-1.5 text-amber-600">
                         <Ticket className="w-3.5 h-3.5" />
                         <span>Apply Membership Voucher</span>
                       </span>
                       <button
                         type="button"
                         onClick={() => { setIsMembershipVoucherOpen(false); setMembershipVoucherError(null); }}
-                        className="text-slate-500 hover:text-slate-300 cursor-pointer"
+                        className="text-slate-400 hover:text-slate-600 cursor-pointer"
                       >
                         ✕
                       </button>
@@ -620,29 +636,29 @@ function MembershipContent() {
                         placeholder="e.g. WELCOME20, FOUNDER50"
                         value={membershipVoucherInput}
                         onChange={(e) => setMembershipVoucherInput(e.target.value.toUpperCase())}
-                        className="flex-1 px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs uppercase text-white placeholder-slate-600 focus:outline-none focus:border-amber-400"
+                        className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs uppercase text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500"
                       />
                       <button
                         type="submit"
                         disabled={membershipVoucherLoading || !membershipVoucherInput.trim()}
-                        className="px-4 py-2 bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 font-black text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer"
+                        className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-black text-xs rounded-xl transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
                       >
                         {membershipVoucherLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Apply'}
                       </button>
                     </div>
                     {membershipVoucherError && (
-                      <p className="text-xs text-rose-400 font-semibold">{membershipVoucherError}</p>
+                      <p className="text-xs text-rose-500 font-semibold">{membershipVoucherError}</p>
                     )}
                   </form>
                 )}
               </div>
             ) : (
-              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs animate-fade-in max-w-sm mx-auto">
+              <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs animate-fade-in max-w-sm mx-auto">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <div>
-                    <span className="font-mono font-black text-white">{appliedMembershipVoucher.code}</span>
-                    <span className="text-[11px] text-emerald-300 ml-1.5">
+                    <span className="font-mono font-black text-slate-900">{appliedMembershipVoucher.code}</span>
+                    <span className="text-[11px] text-emerald-700 ml-1.5">
                       ({appliedMembershipVoucher.message})
                     </span>
                   </div>
@@ -650,7 +666,7 @@ function MembershipContent() {
                 <button
                   type="button"
                   onClick={handleRemoveMembershipVoucher}
-                  className="text-xs font-bold text-slate-400 hover:text-rose-400 transition-colors ml-2 cursor-pointer"
+                  className="text-xs font-bold text-slate-500 hover:text-rose-500 transition-colors ml-2 cursor-pointer"
                 >
                   Remove
                 </button>
@@ -659,110 +675,101 @@ function MembershipContent() {
           </div>
         </div>
 
-        {/* Tiers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {MEMBERSHIP_TIERS.map((tier) => {
-            const isFeatured = tier.id === 'gold';
-            const rawPrice = billingCycle === 'annual' ? tier.priceAnnual : tier.priceMonthly;
-            let discountedPrice = rawPrice;
-            if (rawPrice > 0 && appliedMembershipVoucher) {
-              if (appliedMembershipVoucher.discountType === 'percentage') {
-                discountedPrice = Math.round(rawPrice * (1 - appliedMembershipVoucher.discountValue / 100));
-              } else {
-                discountedPrice = Math.max(0, rawPrice - appliedMembershipVoucher.discountValue);
-              }
+        {/* The Single Membership Card */}
+        {(() => {
+          const tier = MEMBERSHIP_TIERS[0];
+          const rawPrice = billingCycle === 'annual' ? tier.priceAnnual : tier.priceMonthly;
+          let discountedPrice = rawPrice;
+          if (rawPrice > 0 && appliedMembershipVoucher) {
+            if (appliedMembershipVoucher.discountType === 'percentage') {
+              discountedPrice = Math.round(rawPrice * (1 - appliedMembershipVoucher.discountValue / 100));
+            } else {
+              discountedPrice = Math.max(0, rawPrice - appliedMembershipVoucher.discountValue);
             }
-            const hasDiscount = rawPrice > 0 && discountedPrice < rawPrice;
-            const price = rawPrice === 0 ? 'Free' : formatPrice(discountedPrice);
-            const cycleLabel = rawPrice === 0 ? '' : billingCycle === 'annual' ? '/year' : '/month';
+          }
+          const hasDiscount = rawPrice > 0 && discountedPrice < rawPrice;
+          const price = formatPrice(discountedPrice);
+          const cycleLabel = billingCycle === 'annual' ? '/year' : '/month';
 
-            return (
-              <div
-                key={tier.id}
-                className={`rounded-3xl p-6 sm:p-7 flex flex-col justify-between border transition-all ${
-                  isFeatured
-                    ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 border-2 border-amber-400 shadow-2xl relative lg:-translate-y-2'
-                    : 'bg-slate-900/90 border-slate-800 hover:border-slate-700 shadow-lg'
-                }`}
-              >
-                {isFeatured && (
-                  <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow-lg">
-                    ★ Most Popular • Best Value
-                  </div>
-                )}
+          return (
+            <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-amber-500 shadow-xl relative max-w-2xl mx-auto space-y-6">
+              <div className="absolute -top-3.5 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-black text-[11px] uppercase tracking-wider shadow-md">
+                ★ All-Inclusive Private Travel Club Pass
+              </div>
 
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
                 <div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      {tier.id === 'free' ? 'Starter' : 'Wholesale Access'}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${tier.badgeColor} text-white`}>
-                      {tier.name.split(' ')[0]}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-black text-white mt-2">{tier.name}</h3>
-
-                  <div className="mt-4 flex items-baseline gap-1.5 flex-wrap">
-                    {hasDiscount && (
-                      <span className="text-xl font-bold text-slate-500 line-through font-mono">
-                        {formatPrice(rawPrice)}
-                      </span>
-                    )}
-                    <span className="text-3xl sm:text-4xl font-black text-white font-mono">{price}</span>
-                    {cycleLabel && <span className="text-xs text-slate-400 font-medium">{cycleLabel}</span>}
-                  </div>
-
-                  <div className="mt-2 text-xs font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1 px-2.5 rounded-lg inline-block">
+                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
+                    Full Access Membership
+                  </span>
+                  <h3 className="text-2xl font-black text-slate-900 mt-1">{tier.name}</h3>
+                  <div className="mt-2 text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 py-1 px-2.5 rounded-lg inline-block">
                     {tier.wholesaleHotelDiscount}
                   </div>
-
-                  {/* Perks List */}
-                  <div className="mt-6 space-y-2.5 pt-4 border-t border-slate-800 text-xs">
-                    {tier.perksIncluded.map((perk, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span className="text-slate-300 leading-snug">{perk}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-slate-800 space-y-2">
-                  <button
-                    onClick={() => openSignUpModal(tier.id, tier.name)}
-                    className={`w-full py-3.5 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] cursor-pointer shadow-lg ${
-                      isFeatured
-                        ? 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950'
-                        : 'bg-white hover:bg-slate-100 text-slate-950'
-                    }`}
-                  >
-                    <span>
-                      {hasPendingHotel
-                        ? `Join to Book ${hotelName?.substring(0, 14)}...`
-                        : `Select & Join ${tier.name}`}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  <div className="text-[10px] text-center text-slate-400">
-                    Instant digital activation • Cancel anytime
+                <div className="text-left sm:text-right">
+                  {hasDiscount && (
+                    <div className="text-lg font-bold text-slate-400 line-through font-mono">
+                      {formatPrice(rawPrice)}
+                    </div>
+                  )}
+                  <div className="flex items-baseline gap-1 sm:justify-end">
+                    <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono">{price}</span>
+                    <span className="text-xs text-slate-500 font-medium">{cycleLabel}</span>
                   </div>
+                  <span className="text-[11px] text-slate-400">0% Retail Markup • Net Clearing</span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+
+              {/* Perks in 2 clean columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {tier.perksIncluded.map((perk, i) => (
+                  <div key={i} className="flex items-start gap-2.5">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <span className="text-slate-700 leading-snug">{perk}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA Button */}
+              <div className="pt-4 border-t border-slate-100 space-y-2">
+                <button
+                  onClick={() => handleDirectStripeCheckout(tier.id, tier.name)}
+                  disabled={checkoutLoading}
+                  className="w-full py-4 rounded-2xl font-black text-sm sm:text-base flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white shadow-lg transition-all transform hover:scale-[1.01] cursor-pointer"
+                >
+                  <span>
+                    {checkoutLoading
+                      ? (locale === 'no' ? 'Viderekobler til sikker Stripe-kasse...' : 'Redirecting to Secure Stripe Checkout...')
+                      : hasPendingHotel
+                      ? `${locale === 'no' ? 'Bli medlem for å bestille' : 'Join to Book'} ${hotelName?.substring(0, 16)}...`
+                      : isTrialActive
+                      ? (locale === 'no' ? `Start ditt ${trialDays}-dagers prøvemedlemskap nå` : `Start Your ${trialDays}-Day Trial Membership Now`)
+                      : (locale === 'no' ? 'Bli medlem i Atlas Klubb' : 'Join Atlas Club Membership')}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+
+                <div className="text-[11px] text-center text-slate-500">
+                  {locale === 'no'
+                    ? '0 kr å betale i dag • Umiddelbar digital aktivering • Avslutt når som helst • Beskyttet av 30 dagers prisgaranti'
+                    : '$0 due today • Instant digital activation • Cancel anytime • Protected by 30-day rate parity guarantee'}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* 30-Day Rate Parity Guarantee */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-16">
-        <div className="p-8 rounded-3xl bg-slate-900 border border-slate-800 text-center space-y-3">
-          <ShieldCheck className="w-12 h-12 text-emerald-400 mx-auto" />
-          <h3 className="text-xl sm:text-2xl font-black text-white">
+        <div className="p-8 rounded-3xl bg-white border border-slate-200 text-center space-y-3 shadow-sm">
+          <ShieldCheck className="w-12 h-12 text-emerald-600 mx-auto" />
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900">
             100% Rate Parity Money-Back Guarantee
           </h3>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
             If within 30 days of joining you find a publicly available price on Expedia or Booking.com for an identical room and date that ATLAS cannot beat at raw wholesale, we will refund 100% of your membership fee immediately.
           </p>
         </div>
@@ -784,7 +791,7 @@ export default function MembershipPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400 text-sm">
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-500 text-sm">
           Loading membership portal...
         </div>
       }

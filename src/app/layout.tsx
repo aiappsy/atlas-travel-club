@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { PlatformProvider } from '@/context/PlatformContext';
 import { SidebarProvider } from '@/context/SidebarContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
+import { LanguageProvider } from '@/context/LanguageContext';
 import AppLayout from '@/components/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -20,15 +21,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="no" className="scroll-smooth">
       <body className={`${inter.className} antialiased min-h-screen bg-slate-50`}>
         <PlatformProvider>
           <AuthProvider>
-            <CurrencyProvider>
-              <SidebarProvider>
-                <AppLayout>{children}</AppLayout>
-              </SidebarProvider>
-            </CurrencyProvider>
+            <LanguageProvider>
+              <CurrencyProvider>
+                <SidebarProvider>
+                  <AppLayout>{children}</AppLayout>
+                </SidebarProvider>
+              </CurrencyProvider>
+            </LanguageProvider>
           </AuthProvider>
         </PlatformProvider>
       </body>

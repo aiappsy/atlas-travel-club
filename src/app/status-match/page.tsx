@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Lock,
   ArrowRight,
-  Zap,
   Award,
   CreditCard,
   Building2,
@@ -18,9 +17,11 @@ import {
   X
 } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function StatusMatchPage() {
   const { user } = useAuth();
+  const { t, locale } = useLanguage();
   const [selectedProgram, setSelectedProgram] = useState<StatusMatchProgram | null>(null);
   const [loyaltyNumber, setLoyaltyNumber] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -32,13 +33,17 @@ export default function StatusMatchPage() {
         <div className="max-w-7xl mx-auto text-center max-w-3xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-black uppercase tracking-wider mb-3 border border-amber-400/30">
             <Award className="w-3.5 h-3.5 text-amber-400" />
-            Instant Loyalty Elite Status Match
+            {locale === 'no' ? 'Umiddelbar Match av Elitestatus' : 'Instant Loyalty Elite Status Match'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black">
-            Skip 60 Nights of Stays: Instant Diamond & Platinum Status
+            {locale === 'no'
+              ? 'Slipp 60 hotellnetter: Umiddelbar Diamond- og Platinum-status'
+              : 'Skip 60 Nights of Stays: Instant Diamond & Platinum Status'}
           </h1>
           <p className="text-slate-300 text-sm sm:text-base mt-2">
-            As an ATLAS VIP member, bridge your tier to receive instant Hilton Honors Diamond, Marriott Bonvoy Platinum, and Star Alliance Gold status. Enjoy complimentary suite upgrades, executive lounge breakfasts, and 4 PM late checkouts everywhere you travel.
+            {locale === 'no'
+              ? 'Som ATLAS VIP-medlem kan du matche medlemskapet ditt til øyeblikkelig Hilton Honors Diamond, Marriott Bonvoy Platinum og Star Alliance Gold. Nyt gratis suiteoppgraderinger, loungefrokoster og sen utsjekk over hele verden.'
+              : 'As an ATLAS VIP member, bridge your tier to receive instant Hilton Honors Diamond, Marriott Bonvoy Platinum, and Star Alliance Gold status. Enjoy complimentary suite upgrades, executive lounge breakfasts, and 4 PM late checkouts everywhere you travel.'}
           </p>
         </div>
       </div>

@@ -171,6 +171,22 @@ export class DuffelProvider {
         else if (cabin === 'premium_economy') mappedCabin = 'Premium Economy';
         else if (cabin === 'first') mappedCabin = 'First';
 
+        // Baggage parsing
+        const pax = seg.passengers?.[0];
+        let checkedBags = 0;
+        let carryOnBags = 0;
+        if (pax?.baggages && Array.isArray(pax.baggages)) {
+          for (const b of pax.baggages) {
+            if (b.type === 'checked') checkedBags += (b.quantity || 1);
+            if (b.type === 'carry_on') carryOnBags += (b.quantity || 1);
+          }
+        }
+        const baggageParts = [];
+        if (checkedBags > 0) baggageParts.push(`${checkedBags}x Checked Bag${checkedBags > 1 ? 's' : ''}`);
+        else baggageParts.push('Cabin Bag Only (0 Checked)');
+        if (carryOnBags > 0) baggageParts.push(`${carryOnBags}x Carry-on`);
+        const baggageAllowanceStr = baggageParts.join(' + ') || 'Carrier Standard Allowance';
+
         normalized.push({
           id: offer.id,
           offerId: offer.id,
@@ -194,7 +210,7 @@ export class DuffelProvider {
           totalAtCost: Math.round(clearing.totalAmountCharged),
           retailOtaComparison: Math.round(clearing.retailOtaComparison),
           memberInstantSavings: Math.round(clearing.memberInstantSavings),
-          baggageAllowance: 'Included (Carrier Standard)',
+          baggageAllowance: baggageAllowanceStr,
           rawOffer: offer,
         });
       }
