@@ -14,7 +14,7 @@ export default function PortalPage() {
         {
           title: 'Prelaunch / Venteliste',
           badge: '100% Live på Hoveddomenet',
-          badgeClass: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           desc: 'Offisiell lanseringsside med sparekalkulator, FAQ, medlemskap og e-postinnsamling. Hoveddomenet ruter hit.',
           url: 'https://atlastravelclub.com',
           path: 'atlastravelclub.com',
@@ -24,8 +24,8 @@ export default function PortalPage() {
         {
           title: 'Main App Showcase',
           badge: 'Live Showcase URL',
-          badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-          desc: 'Den fullstendige medlemsplattformen med 71 ruter, tospråklig støtte (NO/EN), concierge og reisesøk.',
+          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+          desc: 'Den fullstendige medlemsplattformen med 76 ruter, tospråklig støtte (NO/EN), concierge og reisesøk.',
           url: 'https://atlasclub.web.app',
           path: 'atlasclub.web.app',
           icon: '🌐',
@@ -34,7 +34,7 @@ export default function PortalPage() {
         {
           title: 'Lokal Utviklingsserver',
           badge: 'Localhost',
-          badgeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+          badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
           desc: 'Kjører lokalt på din maskin (port 3000) for umiddelbar testing av nye endringer før deploy.',
           url: 'http://localhost:3000',
           path: 'localhost:3000',
@@ -47,8 +47,8 @@ export default function PortalPage() {
       cards: [
         {
           title: 'Hoteller & Resorts',
-          badge: 'Søkemotor & Rate Parity',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          badge: '1M+ Grossistpriser',
+          badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
           desc: 'Hotellsøkemotor med prissammenligninger mot Booking.com/Expedia og eksklusive medlemspriser.',
           url: 'https://atlasclub.web.app/hotels',
           path: '/hotels',
@@ -56,17 +56,35 @@ export default function PortalPage() {
         },
         {
           title: 'Fly & Ruter',
-          badge: 'Flybestilling',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          badge: 'NDC Netto Fares',
+          badgeClass: 'bg-sky-50 text-sky-700 border-sky-200',
           desc: 'Søk etter globale flyruter med direkteforbindelser, Business- og First Class-fordeler.',
           url: 'https://atlasclub.web.app/flights',
           path: '/flights',
           icon: '✈️',
         },
         {
+          title: 'DragonPass Lounger',
+          badge: '1 300+ VIP Lounger',
+          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+          desc: 'Global loungetilgang og Fast-Track via DragonPass. Søk etter flyplass (LHR, DXB, OSL, SIN) og generer digitale QR-pass.',
+          url: 'https://atlasclub.web.app/lounges',
+          path: '/lounges',
+          icon: '☕',
+        },
+        {
+          title: 'Billeie & Kjøretøy',
+          badge: '0,- Egenandel',
+          badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
+          desc: 'Premium billeie og luksusflåte med inkluderte forsikringer og VIP-levering på rullebanen.',
+          url: 'https://atlasclub.web.app/cars',
+          path: '/cars',
+          icon: '🚗',
+        },
+        {
           title: 'Luksuscruise',
-          badge: 'Cruiseruter',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          badge: 'Wholesale Seilinger',
+          badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
           desc: 'Eksklusive seilinger i Middelhavet, Karibia og arktiske farvann med dedikerte ombordkreditter.',
           url: 'https://atlasclub.web.app/cruises',
           path: '/cruises',
@@ -75,7 +93,7 @@ export default function PortalPage() {
         {
           title: 'Private Villaer',
           badge: 'Luxury Estates',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           desc: 'Håndplukkede luksusvillaer verden over med concierge-fasiliteter og privat stab.',
           url: 'https://atlasclub.web.app/villas',
           path: '/villas',
@@ -83,21 +101,12 @@ export default function PortalPage() {
         },
         {
           title: 'Aktiviteter & Opplevelser',
-          badge: 'Opplevelser',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+          badge: 'Signaturopplevelser',
+          badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
           desc: 'Safarier, vinsmakinger, helikopterturer og kuraterte reisemålsopplevelser.',
           url: 'https://atlasclub.web.app/activities',
           path: '/activities',
           icon: '🏄‍♂️',
-        },
-        {
-          title: 'Billeie & Kjøretøy',
-          badge: 'Premium Rental',
-          badgeClass: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-          desc: 'Premium billeie med inkluderte forsikringer og eksklusive oppgraderinger for medlemmer.',
-          url: 'https://atlasclub.web.app/cars',
-          path: '/cars',
-          icon: '🚗',
         },
       ],
     },
@@ -107,7 +116,7 @@ export default function PortalPage() {
         {
           title: 'Medlemskapsplaner',
           badge: 'Planer & Nivåer',
-          badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+          badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
           desc: 'Detaljert oversikt over fordelene for Silver, Gold, Platinum og Founder.',
           url: 'https://atlasclub.web.app/membership',
           path: '/membership',
@@ -115,8 +124,8 @@ export default function PortalPage() {
         },
         {
           title: 'Sparekalkulator',
-          badge: 'Interaktiv Kalkulator',
-          badgeClass: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+          badge: 'Interaktiv ROI',
+          badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
           desc: 'La potensielle medlemmer beregne nøyaktig hva de sparer per ferie og gjennom året.',
           url: 'https://atlasclub.web.app/calculator',
           path: '/calculator',
@@ -124,8 +133,8 @@ export default function PortalPage() {
         },
         {
           title: 'Ofte Stilte Spørsmål',
-          badge: 'FAQ & Vilkår',
-          badgeClass: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+          badge: 'FAQ & Kunnskap',
+          badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
           desc: 'Klare svar om hvordan klubben fungerer, prisgaranti, kanselleringsvilkår og kundestøtte.',
           url: 'https://atlasclub.web.app/faq',
           path: '/faq',
@@ -139,7 +148,7 @@ export default function PortalPage() {
         {
           title: 'Firebase Console',
           badge: 'Google Cloud Platform',
-          badgeClass: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+          badgeClass: 'bg-orange-50 text-orange-700 border-orange-200',
           desc: 'Administrasjon for prosjektet (bizmaster-abfed): Hosting-domener, Cloud Functions og logger.',
           url: 'https://console.firebase.google.com/project/bizmaster-abfed/overview',
           path: 'console.firebase.google.com',
@@ -148,7 +157,7 @@ export default function PortalPage() {
         {
           title: 'GitHub Repositories',
           badge: 'Source Code',
-          badgeClass: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
+          badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
           desc: 'Kildekoden for både atlasprelaunch og atlastravelnewfromaistudio.',
           url: 'https://github.com/aiappsy',
           path: 'github.com/aiappsy',
@@ -159,18 +168,18 @@ export default function PortalPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#07090C] text-[#F3F4F6] px-4 py-12 md:py-16 selection:bg-[#D4AF37] selection:text-black">
+    <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-12 md:py-16 font-sans">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <header className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-semibold tracking-wider uppercase mb-4">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-200 bg-amber-50 text-amber-900 text-xs font-bold tracking-wider uppercase mb-4 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Private Mission Control Portal
           </div>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] mb-3">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-3">
             ATLAS Travel Club Portaloversikt
           </h1>
-          <p className="text-gray-400 text-base max-w-xl mx-auto">
+          <p className="text-slate-600 text-base max-w-xl mx-auto">
             Sentral hub med direkte lenker og oversikt over alle deler av reiseplattformen.
           </p>
         </header>
@@ -180,55 +189,55 @@ export default function PortalPage() {
           {sections.map((section, idx) => (
             <div key={idx}>
               <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-[#ECC86B]">
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500">
                   {section.title}
                 </h2>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-amber-500/30 to-transparent" />
+                <div className="h-[1px] flex-1 bg-slate-200" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {section.cards.map((card, cIdx) => (
                   <div
                     key={cIdx}
-                    className={`flex flex-col justify-between p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 hover:-translate-y-1 ${
+                    className={`flex flex-col justify-between p-6 rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
                       card.primary
-                        ? 'bg-[#121620]/90 border-amber-500/40 hover:border-amber-400 shadow-lg shadow-black/40'
-                        : 'bg-[#0E121A]/70 border-white/10 hover:border-amber-500/40 hover:shadow-lg hover:shadow-black/30'
+                        ? 'bg-white border-amber-300 shadow-sm'
+                        : 'bg-white border-slate-200/80 shadow-xs'
                     }`}
                   >
                     <div>
                       <div className="flex items-start gap-3.5 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-xl shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-xl shrink-0">
                           {card.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-base text-white truncate">
+                          <h3 className="font-bold text-base text-slate-900 truncate">
                             {card.title}
                           </h3>
                           <span
-                            className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded border mt-1 ${card.badgeClass}`}
+                            className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded border mt-1 ${card.badgeClass}`}
                           >
                             {card.badge}
                           </span>
                         </div>
                       </div>
-                      <p className="text-gray-400 text-xs leading-relaxed mb-6">
+                      <p className="text-slate-600 text-xs leading-relaxed mb-6">
                         {card.desc}
                       </p>
                     </div>
 
-                    <div className="pt-4 border-t border-white/5 flex items-center justify-between gap-3">
-                      <span className="font-mono text-xs text-gray-500 truncate max-w-[140px]">
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <span className="font-mono text-xs text-slate-400 truncate max-w-[140px]">
                         {card.path}
                       </span>
                       <a
                         href={card.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                           card.primary
-                            ? 'bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black hover:brightness-110'
-                            : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+                            ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xs'
+                            : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
                         }`}
                       >
                         Åpne Siden →
@@ -242,7 +251,7 @@ export default function PortalPage() {
         </div>
 
         {/* Footer */}
-        <footer className="text-center mt-16 pt-8 border-t border-white/5 text-xs text-gray-500">
+        <footer className="text-center mt-16 pt-8 border-t border-slate-200 text-xs text-slate-500">
           ATLAS Travel Club &bull; Private Internal Directory &bull; Konfidensiell
         </footer>
       </div>

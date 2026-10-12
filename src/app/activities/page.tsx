@@ -5,16 +5,12 @@ import {
   Sparkles,
   Compass,
   ArrowRight,
-  CheckCircle2,
-  Calendar,
   Clock,
   MapPin,
   Star,
   Users,
-  ShieldCheck,
   Check
 } from 'lucide-react';
-import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -113,20 +109,20 @@ export default function ActivitiesPage() {
     : SAMPLE_ACTIVITIES.filter(a => a.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-[#07090C] text-[#F3F4F6] selection:bg-[#D4AF37] selection:text-black">
-      {/* Header */}
-      <div className="relative pt-12 pb-20 px-4 border-b border-white/5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/20 via-[#07090C] to-[#07090C]">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-semibold tracking-wider uppercase mb-5">
-            <Compass className="w-3.5 h-3.5 text-amber-400" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
+      {/* Light Header */}
+      <div className="bg-white border-b border-slate-200/80 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
+            <Compass className="w-3.5 h-3.5 text-amber-600" />
             {isNo ? 'Kuraterte Signaturopplevelser' : 'Curated Signature Experiences'}
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] mb-4">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
             {isNo ? 'Opplevelser Utover det Vanlige' : 'Beyond Exceptional Adventures'}
           </h1>
 
-          <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {isNo
               ? 'Privat tilgang til lukkede vinkjellere, helikoptercharter, yacht-seilinger og ørkensafarier. Skreddersydd med personlig concierge for klubbens medlemmer.'
               : 'Privileged access to restricted estates, private aviation tours, and bespoke culinary journeys designed exclusively for ATLAS Club members.'}
@@ -135,7 +131,7 @@ export default function ActivitiesPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 -mt-8 pb-24">
+      <div className="max-w-6xl mx-auto px-4 mt-8">
         {/* Category Filter */}
         <div className="flex flex-wrap gap-2 justify-center mb-10">
           {categories.map((cat) => (
@@ -144,8 +140,8 @@ export default function ActivitiesPage() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedCategory === cat
-                  ? 'bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black shadow-md shadow-amber-500/20'
-                  : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/5'
+                  ? 'bg-amber-500 text-white shadow-xs'
+                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
               }`}
             >
               {cat === 'All' ? (isNo ? 'Alle Opplevelser' : 'All Experiences') : cat}
@@ -161,84 +157,83 @@ export default function ActivitiesPage() {
             return (
               <div
                 key={act.id}
-                className="bg-[#0E121A] border border-white/10 hover:border-amber-500/40 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between group shadow-xl"
+                className="bg-white border border-slate-200/80 hover:border-amber-300 rounded-2xl overflow-hidden transition-all duration-200 flex flex-col justify-between group shadow-xs hover:shadow-md"
               >
-                <div className="relative h-64 overflow-hidden bg-black/60">
+                <div className="relative h-64 overflow-hidden bg-slate-100">
                   <img
                     src={act.image}
                     alt={act.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E121A] via-transparent to-black/40" />
 
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-amber-300 border border-amber-500/30">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-md text-slate-900 border border-slate-200 shadow-2xs">
                       {act.category}
                     </span>
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 backdrop-blur-md">
                       {isNo ? `Spar ${formatPrice(convertPrice(savings))}` : `Save ${formatPrice(convertPrice(savings))}`}
                     </span>
                   </div>
 
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] text-amber-300 font-bold flex items-center gap-1">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-200 text-[11px] text-amber-700 font-bold flex items-center gap-1 shadow-2xs">
+                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                     <span>{act.rating} ({act.reviewsCount})</span>
-                  </div>
-
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <div className="text-xs text-amber-300 font-semibold mb-1 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {act.location}
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-serif font-bold text-white">
-                      {act.title}
-                    </h3>
                   </div>
                 </div>
 
                 <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
-                  <div className="flex items-center justify-between py-2 border-y border-white/5 text-xs text-gray-300">
+                  <div>
+                    <div className="text-xs text-amber-700 font-bold mb-1 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {act.location}
+                    </div>
+                    <h3 className="text-xl font-black text-slate-900">
+                      {act.title}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-y border-slate-100 text-xs text-slate-600 font-medium">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-amber-400" />
+                      <Clock className="w-3.5 h-3.5 text-amber-600" />
                       {act.duration}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5 text-amber-400" />
+                      <Users className="w-3.5 h-3.5 text-amber-600" />
                       {act.groupSize}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
                       {isNo ? 'Høydepunkter' : 'Highlights'}
                     </h4>
                     <div className="space-y-1">
                       {act.highlights.map((h, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
-                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <div key={i} className="flex items-center gap-2 text-xs text-slate-700 font-medium">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>{h}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 flex items-end justify-between">
+                  <div className="pt-4 border-t border-slate-100 flex items-end justify-between">
                     <div>
-                      <div className="text-xs text-gray-400 line-through">
+                      <div className="text-xs text-slate-400 line-through">
                         {isNo ? 'Ordinær pris: ' : 'Retail: '}
                         {formatPrice(convertPrice(act.retailPrice))}
                       </div>
-                      <div className="text-2xl md:text-3xl font-serif font-bold text-amber-300">
+                      <div className="text-2xl font-black text-slate-900">
                         {formatPrice(convertPrice(act.memberPrice))}
                       </div>
-                      <div className="text-[11px] text-gray-400">
+                      <div className="text-[11px] text-slate-500 font-medium">
                         {isNo ? 'Medlemspris per opplevelse' : 'Exclusive member rate'}
                       </div>
                     </div>
 
                     <button
                       onClick={() => setSelectedActivity(act)}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black hover:brightness-110 shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500 hover:bg-amber-600 text-white shadow-xs flex items-center gap-1.5 transition-all"
                     >
                       {isNo ? 'Bestill Opplevelse' : 'Book Experience'}
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -253,39 +248,39 @@ export default function ActivitiesPage() {
 
       {/* Booking Modal */}
       {selectedActivity && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0E121A] border border-amber-500/30 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
             {!booked ? (
               <>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-700">
                       {isNo ? 'Bekreft Opplevelse' : 'Confirm Experience'}
                     </span>
-                    <h3 className="text-xl font-serif font-bold text-white mt-1">
+                    <h3 className="text-xl font-black text-slate-900 mt-1">
                       {selectedActivity.title}
                     </h3>
                   </div>
                   <button
                     onClick={() => setSelectedActivity(null)}
-                    className="text-gray-400 hover:text-white text-lg p-1"
+                    className="text-slate-400 hover:text-slate-900 text-lg p-1"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="space-y-3 py-3 border-y border-white/5 text-sm">
+                <div className="space-y-3 py-3 border-y border-slate-100 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Sted:' : 'Location:'}</span>
-                    <span className="font-semibold text-white">{selectedActivity.location}</span>
+                    <span className="text-slate-500">{isNo ? 'Sted:' : 'Location:'}</span>
+                    <span className="font-bold text-slate-900">{selectedActivity.location}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Varighet:' : 'Duration:'}</span>
-                    <span className="font-semibold text-white">{selectedActivity.duration}</span>
+                    <span className="text-slate-500">{isNo ? 'Varighet:' : 'Duration:'}</span>
+                    <span className="font-bold text-slate-900">{selectedActivity.duration}</span>
                   </div>
-                  <div className="flex justify-between text-base pt-2 border-t border-white/5">
-                    <span className="font-bold text-white">{isNo ? 'Medlemspris:' : 'Member Rate:'}</span>
-                    <span className="font-serif font-bold text-amber-300">
+                  <div className="flex justify-between text-base pt-2 border-t border-slate-100">
+                    <span className="font-bold text-slate-900">{isNo ? 'Medlemspris:' : 'Member Rate:'}</span>
+                    <span className="font-black text-slate-900">
                       {formatPrice(convertPrice(selectedActivity.memberPrice))}
                     </span>
                   </div>
@@ -294,13 +289,13 @@ export default function ActivitiesPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setSelectedActivity(null)}
-                    className="flex-1 py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider text-gray-300 hover:bg-white/5"
+                    className="flex-1 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50"
                   >
                     {isNo ? 'Avbryt' : 'Cancel'}
                   </button>
                   <button
                     onClick={() => setBooked(true)}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-lg shadow-amber-500/20"
+                    className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider shadow-xs"
                   >
                     {isNo ? 'Bekreft & Bestill' : 'Confirm & Request'}
                   </button>
@@ -308,23 +303,23 @@ export default function ActivitiesPage() {
               </>
             ) : (
               <div className="text-center py-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-3xl">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 flex items-center justify-center mx-auto mb-4 text-3xl font-black">
                   ✓
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-white mb-2">
+                <h3 className="text-2xl font-black text-slate-900 mb-2">
                   {isNo ? 'Opplevelse Reservert!' : 'Experience Requested!'}
                 </h3>
-                <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                <p className="text-sm text-slate-600 mb-6 leading-relaxed">
                   {isNo
-                    ? 'Din VIP Concierge har mottatt forespørselen og kontakter deg for å bekrefte dato, tidspunkt og eventuelle spesialønsker.'
-                    : 'Your VIP Concierge has received your request and will contact you directly to confirm logistics and bespoke requests.'}
+                    ? 'Din VIP Concierge har mottatt forespørselen og kontakter deg for å bekrefte detaljer og dato.'
+                    : 'Your VIP Concierge has received your request and will contact you directly.'}
                 </p>
                 <button
                   onClick={() => {
                     setSelectedActivity(null);
                     setBooked(false);
                   }}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black text-xs font-bold uppercase tracking-wider"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider"
                 >
                   {isNo ? 'Lukk' : 'Close'}
                 </button>

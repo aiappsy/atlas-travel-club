@@ -7,22 +7,16 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  Lock,
-  Clock,
   Calendar,
   Users,
   MapPin,
-  SlidersHorizontal,
-  Info,
   DollarSign,
   Fuel,
   Gauge,
   Briefcase,
   Key,
-  Star,
   Check
 } from 'lucide-react';
-import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -143,7 +137,7 @@ const SAMPLE_CARS: CarRentalOffer[] = [
 ];
 
 export default function CarsPage() {
-  const { currentCurrency, convertPrice, formatPrice } = useCurrency();
+  const { convertPrice, formatPrice } = useCurrency();
   const { currentLanguage } = useLanguage();
   const isNo = currentLanguage === 'no';
 
@@ -172,49 +166,49 @@ export default function CarsPage() {
   const categories = ['All', 'Luxury Sedan', 'Executive SUV', 'Sports & Performance', 'Premium Electric'];
 
   return (
-    <div className="min-h-screen bg-[#07090C] text-[#F3F4F6] selection:bg-[#D4AF37] selection:text-black">
-      {/* Top Banner & Header */}
-      <div className="relative pt-12 pb-20 px-4 border-b border-white/5 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-950/20 via-[#07090C] to-[#07090C]">
-        <div className="max-w-6xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-semibold tracking-wider uppercase mb-5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24">
+      {/* Light Header */}
+      <div className="bg-white border-b border-slate-200/80 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             {isNo ? 'ATLAS Premium Billeie & Flåte' : 'ATLAS Prestige Fleet & Car Rental'}
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] mb-4">
-            {isNo ? 'Kjør med Perfeksjon og Eksklusivitet' : 'Drive Perfection Across Every Destination'}
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+            {isNo ? 'Kjør med Perfeksjon og Eleganse' : 'Drive Perfection Across Every Destination'}
           </h1>
 
-          <p className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
             {isNo
-              ? 'Luksussedaner, kraftfulle SUV-er og eksotiske sportsbiler. Forhandlede medlemspriser med 0,- egenandel, ubegrenset kjørelengde og VIP-levering direkte på rullebanen.'
+              ? 'Luksussedaner, kraftfulle SUV-er og eksotiske sportsbiler. Forhandlede medlemspriser med 0,- egenandel, fri kilometer og VIP-levering direkte på rullebanen.'
               : 'Direct corporate rates on prestige luxury sedans, executive SUVs, and exotic sports cars. Zero deductibles, guaranteed model availability, and runway curbside delivery.'}
           </p>
 
           {/* Quick Stats Badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto mt-8">
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5 justify-center">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs font-semibold text-gray-300">
-                {isNo ? '0,- Egenandel Inkludert' : 'Zero Excess Deductible'}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto pt-4">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2 justify-center">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-xs font-bold text-slate-700">
+                {isNo ? '0,- Egenandel' : 'Zero Excess'}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5 justify-center">
-              <Gauge className="w-4 h-4 text-amber-400 shrink-0" />
-              <span className="text-xs font-semibold text-gray-300">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2 justify-center">
+              <Gauge className="w-4 h-4 text-amber-600 shrink-0" />
+              <span className="text-xs font-bold text-slate-700">
                 {isNo ? 'Fri Kjørelengde' : 'Unlimited Mileage'}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5 justify-center">
-              <Key className="w-4 h-4 text-blue-400 shrink-0" />
-              <span className="text-xs font-semibold text-gray-300">
-                {isNo ? 'Garantert Modell' : 'Guaranteed Exact Model'}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2 justify-center">
+              <Key className="w-4 h-4 text-sky-600 shrink-0" />
+              <span className="text-xs font-bold text-slate-700">
+                {isNo ? 'Garantert Modell' : 'Guaranteed Model'}
               </span>
             </div>
-            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/5 flex items-center gap-2.5 justify-center">
-              <DollarSign className="w-4 h-4 text-[#D4AF37] shrink-0" />
-              <span className="text-xs font-semibold text-gray-300">
-                {isNo ? 'Opptil -40% Medlemspris' : 'Up to -40% Off Retail'}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-2 justify-center">
+              <DollarSign className="w-4 h-4 text-amber-600 shrink-0" />
+              <span className="text-xs font-bold text-slate-700">
+                {isNo ? 'Opptil -40% Rabatt' : 'Up to -40% Off'}
               </span>
             </div>
           </div>
@@ -222,19 +216,19 @@ export default function CarsPage() {
       </div>
 
       {/* Main Search & Catalog Section */}
-      <div className="max-w-6xl mx-auto px-4 -mt-10 pb-24">
+      <div className="max-w-6xl mx-auto px-4 mt-8">
         {/* Search Filter Bar */}
-        <div className="bg-[#0F141E] border border-amber-500/25 rounded-2xl p-6 shadow-2xl backdrop-blur-xl mb-10">
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs mb-10">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                <MapPin className="w-3.5 h-3.5 inline mr-1 text-[#D4AF37]" />
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                <MapPin className="w-3.5 h-3.5 inline mr-1 text-amber-600" />
                 {isNo ? 'Hentested / Flyplass' : 'Pickup Location'}
               </label>
               <select
                 value={pickupCity}
                 onChange={(e) => setPickupCity(e.target.value)}
-                className="w-full bg-[#161D2A] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-500 font-semibold"
               >
                 <option value="Nice / Cannes, France">Nice Côte d'Azur (NCE) & Cannes</option>
                 <option value="Oslo Gardermoen, Norway">Oslo Gardermoen (OSL)</option>
@@ -246,35 +240,35 @@ export default function CarsPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                <Calendar className="w-3.5 h-3.5 inline mr-1 text-[#D4AF37]" />
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                <Calendar className="w-3.5 h-3.5 inline mr-1 text-amber-600" />
                 {isNo ? 'Hentedato' : 'Pickup Date'}
               </label>
               <input
                 type="date"
                 value={pickupDate}
                 onChange={(e) => setPickupDate(e.target.value)}
-                className="w-full bg-[#161D2A] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-500 font-semibold"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                <Calendar className="w-3.5 h-3.5 inline mr-1 text-[#D4AF37]" />
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                <Calendar className="w-3.5 h-3.5 inline mr-1 text-amber-600" />
                 {isNo ? 'Leveringsdato' : 'Return Date'}
               </label>
               <input
                 type="date"
                 value={returnDate}
                 onChange={(e) => setReturnDate(e.target.value)}
-                className="w-full bg-[#161D2A] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-500 font-semibold"
               />
             </div>
 
             <div className="flex flex-col justify-end">
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2.5 text-center flex items-center justify-between">
-                <span className="text-xs text-gray-400">{isNo ? 'Leieperiode:' : 'Duration:'}</span>
-                <span className="text-sm font-bold text-amber-300">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-center flex items-center justify-between">
+                <span className="text-xs text-amber-800 font-medium">{isNo ? 'Varighet:' : 'Duration:'}</span>
+                <span className="text-sm font-black text-amber-900">
                   {rentalDays} {isNo ? 'dager' : 'days'}
                 </span>
               </div>
@@ -282,15 +276,15 @@ export default function CarsPage() {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2 mt-6 pt-5 border-t border-white/5">
+          <div className="flex flex-wrap gap-2 mt-6 pt-5 border-t border-slate-100">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   selectedCategory === cat
-                    ? 'bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black shadow-md shadow-amber-500/20'
-                    : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/5'
+                    ? 'bg-amber-500 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
                 {cat === 'All' ? (isNo ? 'Alle Kategorier' : 'All Categories') : cat}
@@ -309,84 +303,83 @@ export default function CarsPage() {
             return (
               <div
                 key={car.id}
-                className="bg-[#0E121A] border border-white/10 hover:border-amber-500/40 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between group shadow-xl"
+                className="bg-white border border-slate-200/80 hover:border-amber-300 rounded-2xl overflow-hidden transition-all duration-200 flex flex-col justify-between group shadow-xs hover:shadow-md"
               >
-                {/* Image & Category Tag */}
-                <div className="relative h-64 overflow-hidden bg-black/60">
+                {/* Image */}
+                <div className="relative h-64 overflow-hidden bg-slate-100">
                   <img
                     src={car.image}
                     alt={car.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E121A] via-transparent to-black/40" />
 
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-amber-300 border border-amber-500/30">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-md text-slate-900 border border-slate-200 shadow-2xs">
                       {car.category}
                     </span>
-                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 backdrop-blur-md">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 backdrop-blur-md">
                       {isNo ? `Spar ${formatPrice(convertPrice(savingsTotal))}` : `Save ${formatPrice(convertPrice(savingsTotal))}`}
                     </span>
                   </div>
 
-                  <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[11px] text-gray-300 font-medium">
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-200 text-[11px] text-slate-700 font-bold shadow-2xs">
                     {car.supplier}
-                  </div>
-
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <h3 className="text-xl md:text-2xl font-serif font-bold text-white mb-1">
-                      {car.name}
-                    </h3>
                   </div>
                 </div>
 
                 {/* Specs and Details */}
                 <div className="p-6 space-y-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 mb-1">
+                      {car.name}
+                    </h3>
+                  </div>
+
                   {/* Quick specs icons */}
-                  <div className="grid grid-cols-4 gap-2 py-3 border-y border-white/5 text-center text-xs text-gray-300">
+                  <div className="grid grid-cols-4 gap-2 py-3 border-y border-slate-100 text-center text-xs text-slate-600 font-medium">
                     <div className="flex flex-col items-center gap-1">
-                      <Users className="w-4 h-4 text-amber-400" />
+                      <Users className="w-4 h-4 text-amber-600" />
                       <span>{car.seats} {isNo ? 'Seter' : 'Seats'}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
-                      <Briefcase className="w-4 h-4 text-amber-400" />
+                      <Briefcase className="w-4 h-4 text-amber-600" />
                       <span>{car.luggage} {isNo ? 'Kofferter' : 'Bags'}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
-                      <Fuel className="w-4 h-4 text-amber-400" />
+                      <Fuel className="w-4 h-4 text-amber-600" />
                       <span>{car.fuelType}</span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
-                      <Gauge className="w-4 h-4 text-amber-400" />
+                      <Gauge className="w-4 h-4 text-amber-600" />
                       <span>{car.transmission}</span>
                     </div>
                   </div>
 
                   {/* Highlights */}
                   <div>
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
                       {isNo ? 'Utstyr & Høydepunkter' : 'Features & Highlights'}
                     </h4>
                     <div className="grid grid-cols-2 gap-1.5">
                       {car.features.map((feat, i) => (
-                        <div key={i} className="flex items-center gap-1.5 text-xs text-gray-300">
-                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          <span className="truncate">{feat}</span>
+                        <div key={i} className="flex items-center gap-1.5 text-xs text-slate-700">
+                          <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate font-medium">{feat}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Included Club Perks */}
-                  <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-3.5 space-y-1.5">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
+                  <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3.5 space-y-1.5">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-amber-600" />
                       {isNo ? 'ATLAS Medlemsfordeler Inkludert' : 'ATLAS Club Inclusions'}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-[11px] text-gray-300">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-[11px] text-amber-800">
                       {car.includedPerks.map((perk, pIdx) => (
                         <div key={pIdx} className="flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
                           <span>{perk}</span>
                         </div>
                       ))}
@@ -394,28 +387,28 @@ export default function CarsPage() {
                   </div>
 
                   {/* Price and CTA */}
-                  <div className="pt-4 border-t border-white/5 flex items-end justify-between">
+                  <div className="pt-4 border-t border-slate-100 flex items-end justify-between">
                     <div>
-                      <div className="text-xs text-gray-400 line-through">
+                      <div className="text-xs text-slate-400 line-through">
                         {isNo ? 'Ordinær OTA-pris: ' : 'Retail OTA: '}
                         {formatPrice(convertPrice(retailTotal))}
                       </div>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-2xl md:text-3xl font-serif font-bold text-amber-300">
+                        <span className="text-2xl font-black text-slate-900">
                           {formatPrice(convertPrice(memberTotal))}
                         </span>
-                        <span className="text-xs text-gray-400">
-                          / {rentalDays} {isNo ? 'dager totalt' : 'days total'}
+                        <span className="text-xs text-slate-500 font-medium">
+                          / {rentalDays} {isNo ? 'dager' : 'days'}
                         </span>
                       </div>
-                      <div className="text-[11px] text-emerald-400 font-medium">
+                      <div className="text-[11px] text-emerald-700 font-bold">
                         ({formatPrice(convertPrice(car.memberPricePerDay))} / {isNo ? 'dag' : 'day'})
                       </div>
                     </div>
 
                     <button
                       onClick={() => setSelectedCar(car)}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black hover:brightness-110 shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all"
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-amber-500 hover:bg-amber-600 text-white shadow-xs flex items-center gap-1.5 transition-all"
                     >
                       {isNo ? 'Reserver Bil' : 'Reserve Vehicle'}
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -430,47 +423,43 @@ export default function CarsPage() {
 
       {/* Reservation Modal */}
       {selectedCar && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0E121A] border border-amber-500/30 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
             {!bookingConfirmed ? (
               <>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-700">
                       {isNo ? 'Bekreft Medlemsreservasjon' : 'Confirm Member Reservation'}
                     </span>
-                    <h3 className="text-2xl font-serif font-bold text-white">
+                    <h3 className="text-2xl font-black text-slate-900">
                       {selectedCar.name}
                     </h3>
                   </div>
                   <button
                     onClick={() => setSelectedCar(null)}
-                    className="text-gray-400 hover:text-white text-lg p-1"
+                    className="text-slate-400 hover:text-slate-900 text-lg p-1"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="space-y-3 py-3 border-y border-white/5 text-sm">
+                <div className="space-y-3 py-3 border-y border-slate-100 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Hentested:' : 'Pickup Location:'}</span>
-                    <span className="font-semibold text-white">{pickupCity}</span>
+                    <span className="text-slate-500">{isNo ? 'Hentested:' : 'Pickup Location:'}</span>
+                    <span className="font-bold text-slate-900">{pickupCity}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Leieperiode:' : 'Duration:'}</span>
-                    <span className="font-semibold text-white">{pickupDate} til {returnDate} ({rentalDays} {isNo ? 'dager' : 'days'})</span>
+                    <span className="text-slate-500">{isNo ? 'Leieperiode:' : 'Duration:'}</span>
+                    <span className="font-bold text-slate-900">{pickupDate} til {returnDate} ({rentalDays} {isNo ? 'dager' : 'days'})</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Egenandel:' : 'Deductible Excess:'}</span>
-                    <span className="font-semibold text-emerald-400">0,- (Full VIP Protection)</span>
+                    <span className="text-slate-500">{isNo ? 'Egenandel:' : 'Deductible Excess:'}</span>
+                    <span className="font-bold text-emerald-600">0,- (Full VIP Dekning)</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">{isNo ? 'Sikkerhetsdepositum (reserveres):' : 'Security Hold:'}</span>
-                    <span className="font-semibold text-white">{formatPrice(convertPrice(selectedCar.deposit))}</span>
-                  </div>
-                  <div className="flex justify-between text-base pt-2 border-t border-white/5">
-                    <span className="font-bold text-white">{isNo ? 'Medlemspris totalt:' : 'Total Member Fare:'}</span>
-                    <span className="font-serif font-bold text-amber-300">
+                  <div className="flex justify-between text-base pt-2 border-t border-slate-100">
+                    <span className="font-bold text-slate-900">{isNo ? 'Medlemspris totalt:' : 'Total Member Fare:'}</span>
+                    <span className="font-black text-slate-900">
                       {formatPrice(convertPrice(selectedCar.memberPricePerDay * rentalDays))}
                     </span>
                   </div>
@@ -479,13 +468,13 @@ export default function CarsPage() {
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setSelectedCar(null)}
-                    className="flex-1 py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider text-gray-300 hover:bg-white/5"
+                    className="flex-1 py-3 rounded-xl border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-50"
                   >
                     {isNo ? 'Avbryt' : 'Cancel'}
                   </button>
                   <button
                     onClick={() => setBookingConfirmed(true)}
-                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black text-xs font-bold uppercase tracking-wider hover:brightness-110 shadow-lg shadow-amber-500/20"
+                    className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider shadow-xs"
                   >
                     {isNo ? 'Bekreft & Lås Pris' : 'Confirm & Lock Rate'}
                   </button>
@@ -493,23 +482,23 @@ export default function CarsPage() {
               </>
             ) : (
               <div className="text-center py-6">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-3xl">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-700 flex items-center justify-center mx-auto mb-4 text-3xl font-black">
                   ✓
                 </div>
-                <h3 className="text-2xl font-serif font-bold text-white mb-2">
+                <h3 className="text-2xl font-black text-slate-900 mb-2">
                   {isNo ? 'Reservasjon Bekreftet!' : 'Reservation Confirmed!'}
                 </h3>
-                <p className="text-sm text-gray-400 mb-6 leading-relaxed">
+                <p className="text-sm text-slate-600 mb-6 leading-relaxed">
                   {isNo
-                    ? `Din ${selectedCar.name} er reservert for henting i ${pickupCity}. Detaljert leiebekreftelse og VIP-hentekode er sendt til din medlemskonto.`
-                    : `Your ${selectedCar.name} is reserved for curbside delivery in ${pickupCity}. Confirmation and concierge pass sent to your account.`}
+                    ? `Din ${selectedCar.name} er reservert for henting i ${pickupCity}. Detaljert bekreftelse og VIP-hentekode er sendt til din konto.`
+                    : `Your ${selectedCar.name} is reserved for curbside delivery in ${pickupCity}. Confirmation sent to your account.`}
                 </p>
                 <button
                   onClick={() => {
                     setSelectedCar(null);
                     setBookingConfirmed(false);
                   }}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#ECC86B] via-[#D4AF37] to-[#A67C1E] text-black text-xs font-bold uppercase tracking-wider"
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold uppercase tracking-wider"
                 >
                   {isNo ? 'Lukk' : 'Close'}
                 </button>
