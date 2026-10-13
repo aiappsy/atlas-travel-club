@@ -149,7 +149,37 @@ export default function TermsOfServicePage() {
           {/* Section 6 */}
           <section className="space-y-3">
             <h2 className="text-xl font-black text-slate-900">
-              {locale === 'no' ? '6. Ansvarsbegrensning' : '6. Limitation of Liability'}
+              {locale === 'no'
+                ? '6. Lojalitetsprogram (Club Credits) og VCC-oppgjør'
+                : '6. Loyalty Program (Club Credits) & VCC Settlement'}
+            </h2>
+            <p>
+              <strong>{locale === 'no' ? 'Tokenverdi & Opptjening:' : 'Token Value & Accrual:'}</strong>{' '}
+              {locale === 'no'
+                ? 'Medlemmer kan opptjene ATLAS Club Credits ved bestillinger. Verdien er fastsatt til 100 poeng = 1,00 USD. Poeng har ingen kontantverdi utenom ATLAS-bestillinger og kan ikke overføres til tredjepart.'
+                : 'Members earn ATLAS Club Credits on qualifying wholesale and cruise reservations. Club Credits are fixed at 100 points = $1.00 USD. Points carry no independent cash liquidation value outside ATLAS bookings.'}
+            </p>
+            <p>
+              <strong>{locale === 'no' ? 'Maksimal samfinansiering (50 % Tak):' : 'Co-Payment Cap (50% Ceiling):'}</strong>{' '}
+              {locale === 'no'
+                ? 'For å bevare klubbens likviditetsbuffer kan oppsparte Club Credits dekke maksimalt 50 % av en reservasjons totalbeløp. Resterende 50 % må gjøres opp med godkjent betalingskort via Stripe.'
+                : 'To protect platform liquidity and working capital buffers, Club Credits can fund up to a maximum of 50% of any travel transaction. The remaining balance must be paid via an authorized credit card through Stripe.'}
+            </p>
+            <p>
+              <strong>{locale === 'no' ? 'Opptjeningssperre & Utløp:' : 'Vesting Delay & Expiration:'}</strong>{' '}
+              {locale === 'no'
+                ? 'Opptjente poeng frigis etter fullført reise (7 dager for hotell, 14 dager for cruise etter utsjekk) etter bekreftet oppgjør fra reiseleverandør. Poeng utløper etter 18 måneders inaktivitet på medlemskontoen. Se våre utfyllende '
+                : 'Points vest and clear into the member vault following itinerary completion (7 days post check-out for hotels, 14 days for cruises) following partner commission reconciliation. Unredeemed credits expire after 18 months of account inactivity. See our full '}
+              <Link href="/legal/commercial-terms" className="text-amber-600 font-bold hover:underline">
+                {locale === 'no' ? 'Kommersielle vilkår →' : 'Commercial Terms →'}
+              </Link>
+            </p>
+          </section>
+
+          {/* Section 7 */}
+          <section className="space-y-3">
+            <h2 className="text-xl font-black text-slate-900">
+              {locale === 'no' ? '7. Ansvarsbegrensning' : '7. Limitation of Liability'}
             </h2>
             <p>
               {locale === 'no'

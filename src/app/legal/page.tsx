@@ -67,6 +67,13 @@ export default function LegalHubPage() {
               icon: CreditCard
             },
             {
+              title: 'Kommersielle vilkår & lojalitetspoeng',
+              desc: 'Club Credits tokenverdi (100p = $1), 50 % samfinansiering, 14 dagers opptjeningssperre og VCC-oppgjørsregler.',
+              href: '/legal/commercial-terms',
+              badge: 'Lojalitet & Vilkår',
+              icon: CreditCard
+            },
+            {
               title: 'Reiseleverandør & ansvarsfraskrivelse',
               desc: 'Uavhengige leverandørvilkår for engros bedbanks, flyselskaper, CRS-innsjekk og force majeure.',
               href: '/legal/travel-disclaimer',
@@ -141,6 +148,13 @@ export default function LegalHubPage() {
               desc: 'Cardholder terms, 0% FX interbank policies, and Travel Vault dividend distribution protocols.',
               href: '/legal/banking-disclosures',
               badge: 'Fintech & Cards',
+              icon: CreditCard
+            },
+            {
+              title: 'Commercial Terms & Loyalty Points',
+              desc: 'Club Credits token valuation (100 pts = $1), 50% co-pay cap, 14-day escrow vesting delay, and VCC settlement rules.',
+              href: '/legal/commercial-terms',
+              badge: 'Loyalty & Terms',
               icon: CreditCard
             },
             {

@@ -144,6 +144,21 @@ CORE ATLAS PLATFORM KNOWLEDGE:
    - Private Jet Empty Leg Positioning Flights (up to 75%-80% off standard charter).
    - Global 5G eSIM data.
 
+9. ATLAS Club Credits (Loyalty Points & Treasury Rails):
+   - Fixed token valuation: 100 points = $1.00 USD.
+   - Earn on all eligible hotel and cruise bookings (e.g., 2,500 – 12,500+ pts).
+   - Spendable like cash on future bookings at checkout.
+   - 50% Co-Payment Cap: To safeguard club cash buffers, points can cover at most 50% of any trip total. The remainder is settled via card.
+   - Minimum Redemption Floor: 5,000 points ($50.00 USD).
+   - Vesting Safeguards: 7-day post-checkout vesting for hotels, 14-day post-disembarkation for cruises.
+   - Dual-Rail Treasury: Commissions received from outside partners fund Wise Business & Wise VCC for point redemptions; direct card payments fund Stripe Issuing VCC.
+   - Dedicated Member Vault: Available at /rewards.
+
+10. Luxury Ocean & Expedition Cruises (/cruises):
+   - 25,000+ wholesale cruise itineraries across ultra-luxury and premium lines: Silversea, Regent Seven Seas, Celebrity Cruises, Seabourn, Ritz-Carlton Yacht Collection.
+   - Complimentary Onboard Credit (OBC up to $600 USD) and thousands of bonus Club Credits per sailing.
+   - 24/7 dedicated maritime concierge and zero retail drip markups.
+
 ${contextSection}
 
 Instructions:
@@ -342,6 +357,24 @@ function generateDomainConciergeResponse(
   // 14. PRIVATE JETS & EMPTY-LEG CHARTERS
   else if (q.includes('jet') || q.includes('empty leg') || q.includes('private flight') || q.includes('charter') || q.includes('lounge')) {
     reply = `🛩️ **ATLAS Private Aviation & Empty-Leg Clearing:**\n\nWhen private charter aircraft reposition without passengers, ATLAS members access these **Empty-Leg Seats at up to 75%–80% below retail charter rates**:\n\n• **London Luton ➔ Nice / Cannes**: From **$1,150 / seat** (Cessna Citation XLS)\n• **Miami ➔ New York Teterboro**: From **$1,450 / seat** (Bombardier Challenger 350)\n• **Geneva ➔ Dubai Al Maktoum**: From **$2,800 / seat** (Gulfstream G550)\n\n☕ **VIP Airport Lounge Access**: Includes complimentary champagne, private boarding gate, and customs escort at 500+ private FBO terminals worldwide. Explore active listings on our [Private Jets](/private-jets) portal!`;
+  }
+
+  // 15. ATLAS CLUB CREDITS & LOYALTY REWARDS VAULT
+  else if (
+    q.includes('point') || q.includes('points') || q.includes('credit') || q.includes('credits') ||
+    q.includes('poeng') || q.includes('reward') || q.includes('loyal') || q.includes('vault') ||
+    q.includes('cashback') || q.includes('redemption')
+  ) {
+    reply = `💎 **ATLAS Club Credits & Rewards Vault (/rewards):**\n\nATLAS operates a sovereign rewards token system giving members back travel purchasing power:\n\n• **Token Value**: **100 Points = $1.00 USD** (pegged firmly; never diluted).\n• **Earning**: Earn thousands of Club Credits on qualifying wholesale hotels and luxury cruise voyages.\n• **50% Co-Payment Cap**: You can apply your points up to **50% of any booking total** at checkout. The remaining 50% is paid with your card, ensuring continuous wholesale supplier settlement and platform liquidity.\n• **Minimum Redemption**: 5,000 points ($50.00 USD) in 1,000 pt increments.\n• **Vesting Delays**: Points clear into your spendable vault **7 days after hotel check-out** or **14 days after cruise disembarkation**, once supplier reconciliations are finalized.\n• **Dual-Rail Treasury**: Redemptions are settled via dedicated Wise Business Virtual Commercial Cards (VCC), funded by partner commissions.\n\nVisit your personal [Rewards Vault](/rewards) to view your cleared balance and pending escrow!`;
+  }
+
+  // 16. LUXURY CRUISES & OCEAN EXPEDITIONS
+  else if (
+    q.includes('cruise') || q.includes('cruises') || q.includes('cruising') ||
+    q.includes('seiling') || q.includes('skip') || q.includes('silversea') ||
+    q.includes('regent') || q.includes('celebrity') || q.includes('ritz')
+  ) {
+    reply = `🚢 **ATLAS Luxury Cruises & Ocean Expeditions (/cruises):**\n\nWe provide members wholesale voyage access across 25,000+ itineraries with world-class maritime fleets:\n\n• **Curated Fleets**: Silversea, Regent Seven Seas, Celebrity Cruises, Seabourn, and The Ritz-Carlton Yacht Collection.\n• **Complimentary Onboard Credit (OBC)**: Up to **$600 USD** in stateroom credits for fine dining, spa, and shore excursions.\n• **Club Credits Earned**: Every cruise voyage awards **+10,000 to +35,000 ATLAS Club Credits** credited directly to your Rewards Vault.\n• **Zero Retail Markups**: Direct wholesale access bypasses high retail agency commissions.\n\nExplore departures in the Mediterranean, Caribbean, Fjords, and Antarctica on our [Cruises Portal](/cruises)!`;
   }
 
   // 15. DYNAMIC CONVERSATIONAL HOTEL OR GENERAL TRAVEL RESPONSE

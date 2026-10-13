@@ -63,6 +63,27 @@ const FAQ_ITEMS: FaqItem[] = [
     aNo: 'Vi tilbyr medlemskap fra Silver til Founder-nivå, både som månedlig og årlig abonnement. Årlig medlemskap gir to måneder gratis og prioriterte flyplassfordeler. Det er ingen bindingstid utover den forhåndsbetalte perioden.',
     aEn: 'We offer tiers from Silver to Founder on both monthly and annual subscriptions. Annual plans grant two complimentary months and priority status. There are no lock-in commitments beyond your paid cycle.',
   },
+  {
+    category: 'membership',
+    qNo: 'Hvordan fungerer lojalitetspoengene (ATLAS Club Credits)?',
+    qEn: 'How does the ATLAS Club Credits loyalty system work?',
+    aNo: 'Hver gang du bestiller hotell eller cruise opptjener du Club Credits med en fast verdi på 100 poeng = $1,00 USD. Poengene dine kan brukes som betalingsmiddel for fremtidige reiser. For å ivareta klubbens likviditet kan poeng dekke inntil 50 % av en reservasjons totalbeløp (50 % samfinansieringstak), med et minimumsuttak på 5 000 poeng ($50).',
+    aEn: 'Whenever you book hotels or cruises, you earn ATLAS Club Credits pegged at 100 points = $1.00 USD. Accumulated credits can be spent like cash on future bookings. To ensure platform liquidity, credits can cover up to 50% of any reservation total (50% co-payment cap), with a minimum redemption floor of 5,000 points ($50).',
+  },
+  {
+    category: 'bookings',
+    qNo: 'Hvordan fungerer cruisebestillinger og ombordkreditt (OBC)?',
+    qEn: 'How do cruise bookings and onboard credits (OBC) work?',
+    aNo: 'Vi tilbyr direkte grossisttilgang til over 25 000 seilinger via verdens ledende cruiserederier (inkludert Silversea, Regent Seven Seas, Celebrity og Ritz-Carlton Yacht Collection). Mange avganger inkluderer eksklusiv ombordkreditt (opptil $600 USD) og opptjening av ATLAS Club Credits på hele reisen.',
+    aEn: 'We provide direct wholesale booking access to over 25,000 itineraries across world-class cruise lines (including Silversea, Regent Seven Seas, Celebrity, and Ritz-Carlton Yacht Collection). Qualifying voyages feature exclusive onboard credits (up to $600 USD) plus ATLAS Club Credits earned on the entire journey.',
+  },
+  {
+    category: 'parity',
+    qNo: 'Når blir opptjente Club Credits tilgjengelige i min Rewards Vault?',
+    qEn: 'When do earned Club Credits vest and become available in my Rewards Vault?',
+    aNo: 'For å beskytte mot kanselleringer og uavhentede reiser, frigis poengene til din tilgjengelige saldo etter fullført reise: 7 dager etter utsjekk for hotell, og 14 dager etter fullført seilas for cruise, så snart oppgjøret fra leverandøren er bekreftet.',
+    aEn: 'To safeguard against booking cancellations, points are cleared into your spendable vault balance following completion of travel: 7 days post check-out for hotels, and 14 days post disembarkation for cruises, upon partner commission reconciliation.',
+  },
 ];
 
 export default function FaqPage() {
