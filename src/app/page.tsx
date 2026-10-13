@@ -203,6 +203,138 @@ export default function LuxuryHomePage() {
         <LiveHotelSearch initialDestination="Paris" />
       </section>
 
+      {/* OFFICIAL ATLAS TRAVEL CARD — COMING SOON SHOWCASE */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-amber-500/30 shadow-2xl p-8 sm:p-12 lg:p-16">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-6">
+              
+              {/* Coming Soon Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-black tracking-widest uppercase shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>{locale === 'no' ? 'KOMMER SNART • EKSKLUSIVT FOR MEDLEMMER' : 'COMING SOON • MEMBER EXCLUSIVE'}</span>
+              </div>
+
+              {/* Title & Subtitle */}
+              <div className="space-y-3">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                  {locale === 'no' ? (
+                    <>
+                      ATLAS Sovereign Metal Card <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
+                        Visa® Prestige i Massivt Metall
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      The Sovereign Metal Card <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
+                        Visa® Prestige in Solid Brushed Metal
+                      </span>
+                    </>
+                  )}
+                </h2>
+
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+                  {locale === 'no'
+                    ? 'Det ultimate betalingsmiddelet for luksusreisende. Utviklet for suveren global mobilitet med 0 % valutapåslag, DragonPass VIP-loungetilgang og direkte integrasjon med ATLAS Rewards Vault.'
+                    : 'The definitive physical card for discerning global travelers. Engineered for sovereign mobility featuring 0% FX interbank spread, 1,300+ DragonPass lounges, and seamless Rewards Vault redemption.'}
+                </p>
+              </div>
+
+              {/* Key Highlights Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+                  <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
+                    {locale === 'no' ? '0 % Valutapåslag' : '0% Foreign FX Fees'}
+                  </div>
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    {locale === 'no'
+                      ? 'Rene interbank-kurser i over 150 valutaer uten skjulte bankmarginer.'
+                      : 'True mid-market interbank exchange rates worldwide with zero retail spread.'}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+                  <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
+                    {locale === 'no' ? '1 300+ Flyplasslounger' : '1,300+ Airport Lounges'}
+                  </div>
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    {locale === 'no'
+                      ? 'Integrert DragonPass-adgang og prioritert sikkerhetskontroll (Fast-Track).'
+                      : 'Built-in DragonPass VIP privileges and fast-track airport security escort.'}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+                  <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
+                    {locale === 'no' ? 'Club Credits Integrasjon' : 'Club Credits Redemption'}
+                  </div>
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    {locale === 'no'
+                      ? 'Bruk dine Club Credits direkte (100p = $1) med 50 % samfinansieringstak.'
+                      : 'Direct 100 pts = $1 spending with automated 50% liquidity safeguard.'}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
+                  <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
+                    {locale === 'no' ? 'Massivt Metall & Sikkerhet' : 'Solid Metal & Apple Pay'}
+                  </div>
+                  <div className="text-xs text-slate-300 leading-relaxed">
+                    {locale === 'no'
+                      ? 'Lasergravert 18g stål, biometrisk chip og umiddelbar Apple & Google Wallet.'
+                      : '18g laser-etched metal, contactless chip, and instant mobile wallet provisioning.'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Links */}
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <Link
+                  href="/membership/visa-card"
+                  className="px-6 py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm tracking-wide uppercase transition-all shadow-lg hover:shadow-amber-500/25 flex items-center gap-2 transform hover:scale-[1.02]"
+                >
+                  <CreditCard className="w-4 h-4 text-slate-950" />
+                  <span>{locale === 'no' ? 'Utforsk Kortfordeler →' : 'Explore Card Privileges →'}</span>
+                </Link>
+
+                <Link
+                  href="/membership"
+                  className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
+                >
+                  <span>{locale === 'no' ? 'Se Medlemskap' : 'View Memberships'}</span>
+                </Link>
+              </div>
+
+            </div>
+
+            {/* Right Card Visual */}
+            <div className="lg:col-span-5 flex justify-center">
+              <div className="relative group max-w-md w-full">
+                <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-amber-300 rounded-3xl blur-xl opacity-30 group-hover:opacity-50 transition duration-500" />
+                <div className="relative rounded-3xl overflow-hidden border-2 border-amber-500/40 shadow-2xl bg-slate-900">
+                  <img
+                    src="/atlas-final-card.jpg"
+                    alt="ATLAS Sovereign Visa Metal Card"
+                    className="w-full h-auto object-cover transform group-hover:scale-[1.02] transition-transform duration-500"
+                  />
+                  <div className="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/20 text-[10px] font-mono font-bold text-amber-300 uppercase tracking-widest">
+                    Prestige Metal Edition
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Clean Ecosystem Cards */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

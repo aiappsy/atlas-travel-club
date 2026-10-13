@@ -29,17 +29,17 @@
   <line x1="185" y1="30" x2="185" y2="130" stroke="#CBD5E1" stroke-width="2" />
 
   <!-- Right Typography: Bold, high contrast, readable -->
-  <text x="215" y="86" 
+  <text x="215" y="84" 
         font-family="'Cinzel', 'Trajan Pro', 'Didot', serif" 
         font-size="56" 
-        font-weight="800" 
+        font-weight="900" 
         letter-spacing="16" 
         fill="#0F172A">ATLAS</text>
 
-  <text x="218" y="122" 
+  <text x="218" y="126" 
         font-family="'Montserrat', 'Helvetica Neue', 'Arial', sans-serif" 
-        font-size="20" 
-        font-weight="800" 
-        letter-spacing="9" 
-        fill="#475569">TRAVEL CLUB</text>
+        font-size="25" 
+        font-weight="900" 
+        letter-spacing="10" 
+        fill="#0F172A">TRAVEL CLUB</text>
 </svg>

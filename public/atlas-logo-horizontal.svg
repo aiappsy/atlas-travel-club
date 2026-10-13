@@ -35,15 +35,14 @@
   <text x="210" y="85" 
         font-family="'Cinzel', 'Trajan Pro', 'Didot', serif" 
         font-size="52" 
-        font-weight="600" 
+        font-weight="700" 
         letter-spacing="18" 
         fill="url(#hAtlasGold)">ATLAS</text>
 
-  <text x="215" y="118" 
+  <text x="215" y="120" 
         font-family="'Montserrat', 'Helvetica Neue', sans-serif" 
-        font-size="14" 
-        font-weight="400" 
-        letter-spacing="14" 
-        fill="#E5C158" 
-        opacity="0.9">TRAVEL CLUB</text>
+        font-size="18" 
+        font-weight="800" 
+        letter-spacing="11" 
+        fill="#FCEAB1">TRAVEL CLUB</text>
 </svg>

@@ -8,9 +8,9 @@
     </linearGradient>
     <linearGradient id="atlasOrbit" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#B3861B" stop-opacity="0.2" />
-      <stop offset="30%" stop-color="#E5C158" stop-opacity="0.9" />
+      <stop offset="30%" stop-color="#E5C158" stop-opacity="1" />
       <stop offset="50%" stop-color="#FFF5D8" />
-      <stop offset="70%" stop-color="#E5C158" stop-opacity="0.9" />
+      <stop offset="70%" stop-color="#E5C158" stop-opacity="1" />
       <stop offset="100%" stop-color="#B3861B" stop-opacity="0.2" />
     </linearGradient>
   </defs>
@@ -49,11 +49,11 @@
 
   <text x="300" y="585" 
         font-family="'Montserrat', 'Helvetica Neue', sans-serif" 
-        font-size="20" 
-        font-weight="400" 
+        font-size="24" 
+        font-weight="800" 
         letter-spacing="18" 
-        fill="#E5C158" 
-        opacity="0.9"
+        fill="#FFF5D8" 
+        opacity="1"
         text-anchor="middle">TRAVEL CLUB</text>
 
   <line x1="220" y1="625" x2="380" y2="625" stroke="url(#atlasGold)" stroke-width="1.2" opacity="0.5" />
