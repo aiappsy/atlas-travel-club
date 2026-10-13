@@ -78,6 +78,20 @@ export default function CommercialTermsPage() {
             </p>
           </section>
 
+          <section className="space-y-2.5">
+            <h2 className="text-base font-black text-slate-900">5. ATLAS Club Credits (Rewards) & Dual-Rail VCC Settlement</h2>
+            <p>
+              ATLAS operates a closed-loop loyalty token program (&quot;Club Credits&quot;) governed by strict liquidity safeguards:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-slate-600">
+              <li><strong>Valuation & Parity:</strong> 100 Club Credits equal $1.00 USD (10 NOK / £0.80 GBP) in non-cash purchasing credits towards verified supplier inventory.</li>
+              <li><strong>Vesting Period:</strong> Points earned on completed cruise voyages vest 14 days post-completion; hotel stays vest 7 days post-checkout. Unvested points remain in escrow and are automatically revoked in the event of booking cancellation.</li>
+              <li><strong>50% Co-Pay Cap:</strong> Club Credits may cover up to a maximum of 50% of any total booking transaction. The remaining minimum 50% must be remitted via valid credit card or payment card.</li>
+              <li><strong>Dual-Rail Settlement:</strong> Points-funded booking portions are settled via commercial Wise Business VCC backed by collected partner commissions. Card-funded balances are settled synchronously via Stripe Issuing VCC rails.</li>
+              <li><strong>Expiration:</strong> Accumulated Club Credits are subject to an 18-month rolling active window, resetting upon any completed member transaction or annual renewal.</li>
+            </ul>
+          </section>
+
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
             <Link href="/legal" className="flex items-center gap-1.5 text-slate-700 font-bold hover:underline">
               <ArrowLeft className="w-3.5 h-3.5" />

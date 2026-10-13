@@ -279,6 +279,16 @@ function generateDomainConciergeResponse(
     reply = `🔄 **ATLAS Cancellation & Refund Policy:**\n\n1. 🟢 **Free Cancellation**: The vast majority of ATLAS wholesale allotments include **100% Free Cancellation up to 48 hours prior to check-in**.\n\n2. ⚡ **Instant Processing**: If you need to cancel an eligible reservation, you can do so in 1 click from your Member Dashboard, and your refund is processed immediately to your original payment method.\n\n3. 📅 **Date Modifications**: Because our bookings connect directly to live Bedbank feeds, date modifications are subject to live room availability and seasonal wholesale rate adjustments.\n\n4. 🛡️ **Non-Refundable Promos**: A small subset of last-minute flash inventory is marked as non-refundable by the hotel, which is always clearly highlighted in bold before you confirm.`;
   }
 
+  // 9B. CRUISE BOOKINGS & CRUISE WHITE-LABEL
+  else if (q.includes('cruise') || q.includes('sail') || q.includes('ship') || q.includes('silversea') || q.includes('regent') || q.includes('seabourn') || q.includes('celebrity')) {
+    reply = `🚢 **ATLAS Prestige Cruise Collection & Rewards Advantage:**\n\n1. 🌊 **Premier Fleet Coverage**: Access luxury ocean and river itineraries across **Silversea, Regent Seven Seas, Seabourn, Celebrity, and Ritz-Carlton Yacht Collection**.\n\n2. 👑 **Up to 10% Back in Club Credits**: Every stateroom booking earns 5%–10% back in ATLAS Club Credits (Points), credited directly to your Rewards Vault.\n\n3. 🍸 **Free Onboard Credit**: Member staterooms receive $200–$1,000 in complimentary onboard spending money for shore excursions, spa treatments, and specialty dining.\n\n4. 🔒 **Automated Booking & 24/7 Operator Support**: Bookings feature live deck plans, real-time cabin selection, and round-the-clock maritime concierge support.\n\nExplore active voyages in the [ATLAS Cruise Directory](/cruises)!`;
+  }
+
+  // 9C. ATLAS REWARDS POINTS & CLUB CREDITS
+  else if (q.includes('point') || q.includes('credit') || q.includes('reward') || q.includes('vault') || q.includes('how to spend points') || q.includes('club credit')) {
+    reply = `💎 **ATLAS Club Credits (Points) & Liquidity Safeguards:**\n\n1. 🪙 **Universal Valuation**: **100 Points = $1.00 USD (10 NOK / £0.80 GBP)** in direct purchasing credits.\n\n2. 📈 **Earn on Every Journey**: Members earn 5%–10% back on hotels, flights, cruises, and car rentals.\n\n3. 🛡️ **50% Co-Pay Cap**: To preserve platform liquidity, Club Credits can cover up to **50% of any booking total**, with the remaining balance settled via card.\n\n4. ⏳ **Vesting Schedule**: Points for cruises vest 14 days post-sailing; hotel stays vest 7 days post-checkout. Unvested points remain safely in escrow.\n\n5. 💵 **Minimum Floor**: Redeem starting at 5,000 points ($50 USD) in 1,000-point increments.\n\nReview your cleared balance and transaction history in the [ATLAS Rewards Vault](/rewards)!`;
+  }
+
   // 10. MEMBERSHIP TIERS, PRICING & ROI
   else if (
     q.includes('membership') || q.includes('how much') || q.includes('join') ||

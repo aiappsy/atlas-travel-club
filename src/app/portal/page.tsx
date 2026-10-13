@@ -9,6 +9,8 @@ export default function PortalPage() {
   const isNo = locale === 'no';
 
   const content = {
+    cardShowcaseTitle: isNo ? 'Offisielt ATLAS Travel Card (Visa)' : 'Official ATLAS Travel Card (Visa)',
+    cardShowcaseSub: isNo ? 'Eksklusivt metallkort med 100% matchende klubblogo' : 'Exclusive metal Visa card with verified brand identity',
     badge: isNo ? 'Privat Mission Control Portal' : 'Private Mission Control Portal',
     title: isNo ? 'ATLAS Travel Club Portaloversikt' : 'ATLAS Travel Club Directory & Hub',
     subtitle: isNo
@@ -145,6 +147,17 @@ export default function PortalPage() {
         title: isNo ? '💎 Medlemskap & Verdi' : '💎 Membership Architecture & Value Proposition',
         cards: [
           {
+            title: isNo ? 'ATLAS Rewards Hvelv' : 'Rewards Vault & Club Credits',
+            badge: isNo ? 'Lojalitet & Poeng' : 'Loyalty Ledger & Vault',
+            badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+            desc: isNo
+              ? 'Oversikt over opptjente og innvekslede Club Credits, 50 % dekningstak og likviditetsbeskyttelse.'
+              : 'Real-time ledger of earned and redeemed credits, 50% co-pay cap, and treasury liquidity guards.',
+            url: 'https://atlasclub.web.app/rewards',
+            path: '/rewards',
+            icon: '👑',
+          },
+          {
             title: isNo ? 'Medlemskapsplaner' : 'Membership Tiers & Benefits',
             badge: isNo ? 'Planer & Nivåer' : 'Tier Matrix',
             badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
@@ -247,9 +260,24 @@ export default function PortalPage() {
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-3">
             {content.title}
           </h1>
-          <p className="text-slate-600 text-base max-w-xl mx-auto">
+          <p className="text-slate-600 text-base max-w-xl mx-auto mb-8">
             {content.subtitle}
           </p>
+
+          {/* OFFICIAL CARD SHOWCASE */}
+          <div className="max-w-2xl mx-auto bg-slate-900 text-white p-6 md:p-8 rounded-3xl border border-amber-500/30 shadow-2xl">
+            <div className="inline-block px-3.5 py-1 bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+              {content.cardShowcaseTitle}
+            </div>
+            <p className="text-slate-400 text-xs md:text-sm mb-6">{content.cardShowcaseSub}</p>
+            <div className="overflow-hidden rounded-2xl border border-amber-500/30 shadow-2xl">
+              <img 
+                src="/atlas-final-card.jpg" 
+                alt="ATLAS Travel Card" 
+                className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-300"
+              />
+            </div>
+          </div>
         </header>
 
         {/* Sections */}
