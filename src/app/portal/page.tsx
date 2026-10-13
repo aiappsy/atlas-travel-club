@@ -1,12 +1,59 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import { Lock, KeyRound, ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+
+const PORTAL_AUTH_KEY = 'atlas_mission_control_auth';
+const CORRECT_PIN = 'atlas2026';
 
 export default function PortalPage() {
   const { locale, setLocale } = useLanguage();
   const isNo = locale === 'no';
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+  const [isCheckingSession, setIsCheckingSession] = useState<boolean>(true);
+
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem(PORTAL_AUTH_KEY);
+      if (stored === 'granted') {
+        setIsAuthenticated(true);
+      }
+    } catch {
+      // sessionStorage unavailable
+    } finally {
+      setIsCheckingSession(false);
+    }
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput.trim().toLowerCase() === CORRECT_PIN.toLowerCase()) {
+      try {
+        sessionStorage.setItem(PORTAL_AUTH_KEY, 'granted');
+      } catch {
+        // ignore
+      }
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError(isNo ? 'Feil adgangskode. Vennligst prøv igjen.' : 'Invalid security passkey. Please try again.');
+    }
+  };
+
+  const handleLogout = () => {
+    try {
+      sessionStorage.removeItem(PORTAL_AUTH_KEY);
+    } catch {
+      // ignore
+    }
+    setIsAuthenticated(false);
+    setPasswordInput('');
+  };
 
   const content = {
     cardShowcaseTitle: isNo ? 'Offisielt ATLAS Travel Card (Visa)' : 'Official ATLAS Travel Card (Visa)',
@@ -98,26 +145,26 @@ export default function PortalPage() {
             icon: '☕',
           },
           {
+            title: isNo ? 'Luksuscruise' : 'Luxury Ocean Voyages',
+            badge: isNo ? 'Wholesale Seilinger' : 'Curated Ocean Lines',
+            badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+            desc: isNo
+              ? 'Eksklusive seilinger med Silversea, Regent og Celebrity med ombordkreditt og Club Credits.'
+              : 'Wholesale cruise inventory, stateroom allocations, complimentary OBC, and Club Credits earnings.',
+            url: 'https://atlasclub.web.app/cruises',
+            path: '/cruises',
+            icon: '🚢',
+          },
+          {
             title: isNo ? 'Billeie & Kjøretøy' : 'Prestige Fleet & Car Rental',
             badge: isNo ? '0,- Egenandel' : 'Zero Excess Deductible',
             badgeClass: 'bg-slate-100 text-slate-700 border-slate-200',
             desc: isNo
-              ? 'Premium billeie og luksusflåte med inkluderte forsikringer og VIP-levering på rullebanen.'
-              : 'Corporate rates on executive SUVs, electric performance vehicles, and guaranteed models with curbside delivery.',
+              ? 'Premium billeie og luksusflåte med inkluderte forsikringer og VIP-levering.'
+              : 'Corporate rates on executive SUVs, luxury fleets, and guaranteed curbside delivery.',
             url: 'https://atlasclub.web.app/cars',
             path: '/cars',
             icon: '🚗',
-          },
-          {
-            title: isNo ? 'Luksuscruise' : 'Luxury Ocean Voyages',
-            badge: isNo ? 'Wholesale Seilinger' : 'Curated Ocean Lines',
-            badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-            desc: isNo
-              ? 'Eksklusive seilinger i Middelhavet, Karibia og arktiske farvann med dedikerte ombordkreditter.'
-              : 'Wholesale cruise inventory, stateroom allocations, and complimentary onboard spending credits.',
-            url: 'https://atlasclub.web.app/cruises',
-            path: '/cruises',
-            icon: '🚢',
           },
           {
             title: isNo ? 'Private Villaer' : 'Private Villa Estates',
@@ -135,7 +182,7 @@ export default function PortalPage() {
             badge: isNo ? 'Signaturopplevelser' : 'Bespoke Adventures',
             badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
             desc: isNo
-              ? 'Safarier, vinsmakinger, helikopterturer og kuraterte reisemålsopplevelser.'
+              ? 'Safarier, helikopterturer og kuraterte reisemålsopplevelser.'
               : 'Private aviation charters, grand cru vineyard access, and bespoke adventures reserved for members.',
             url: 'https://atlasclub.web.app/activities',
             path: '/activities',
@@ -144,18 +191,19 @@ export default function PortalPage() {
         ],
       },
       {
-        title: isNo ? '💎 Medlemskap & Verdi' : '💎 Membership Architecture & Value Proposition',
+        title: isNo ? '💎 Medlemskap, Lojalitet & Verdi' : '💎 Membership, Loyalty & Value Proposition',
         cards: [
           {
             title: isNo ? 'ATLAS Rewards Hvelv' : 'Rewards Vault & Club Credits',
-            badge: isNo ? 'Lojalitet & Poeng' : 'Loyalty Ledger & Vault',
+            badge: isNo ? '100p = $1 USD' : '100 pts = $1 USD',
             badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
             desc: isNo
-              ? 'Oversikt over opptjente og innvekslede Club Credits, 50 % dekningstak og likviditetsbeskyttelse.'
+              ? 'Oversikt over opptjente Club Credits, opptjeningsstatus, 50 % samfinansieringstak og VCC-oppgjørsregler.'
               : 'Real-time ledger of earned and redeemed credits, 50% co-pay cap, and treasury liquidity guards.',
             url: 'https://atlasclub.web.app/rewards',
             path: '/rewards',
-            icon: '👑',
+            icon: '💎',
+            primary: true,
           },
           {
             title: isNo ? 'Medlemskapsplaner' : 'Membership Tiers & Benefits',
@@ -190,6 +238,17 @@ export default function PortalPage() {
             path: '/faq',
             icon: '💬',
           },
+          {
+            title: isNo ? 'Juridisk & Samsvarshub' : 'Compliance & Governance Hub',
+            badge: isNo ? 'Kommersielle Vilkår' : 'Commercial Terms',
+            badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+            desc: isNo
+              ? 'Lovfestede garantier, Reisegarantifondet (RGF), lukkede antitrustnotater og kommersielle tokenvilkår.'
+              : 'Statutory guarantees, Norwegian RGF, closed-loop antitrust briefs, and commercial token covenants.',
+            url: 'https://atlasclub.web.app/legal',
+            path: '/legal',
+            icon: '⚖️',
+          },
         ],
       },
       {
@@ -222,32 +281,125 @@ export default function PortalPage() {
     ],
   };
 
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+      </div>
+    );
+  }
+
+  // PASSWORD GATE IF NOT AUTHENTICATED
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12 font-sans antialiased text-slate-900">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+          <div className="text-center space-y-3 mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto text-amber-600">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-[11px] font-bold tracking-wider uppercase">
+              <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+              {isNo ? 'Sikkerhetsbeskyttet Portal' : 'Security Protected Portal'}
+            </div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+              {isNo ? 'ATLAS Mission Control' : 'ATLAS Mission Control'}
+            </h1>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              {isNo
+                ? 'Dette er et beskyttet internt administrasjonsområde. Tast inn din adgangskode for å fortsette.'
+                : 'This is a private administrative gateway. Enter your master passkey to unlock access.'}
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+                {isNo ? 'Adgangskode' : 'Master Passkey'}
+              </label>
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => {
+                  setPasswordInput(e.target.value);
+                  setAuthError('');
+                }}
+                placeholder={isNo ? 'Tast inn adgangskode...' : 'Enter passkey...'}
+                autoFocus
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:outline-none focus:border-amber-500 focus:bg-white transition-all shadow-inner"
+              />
+            </div>
+
+            {authError && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <span>{authError}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
+            >
+              <span>{isNo ? 'Lås Opp Portal' : 'Unlock Portal'}</span>
+              <ArrowRight className="w-4 h-4 text-amber-400" />
+            </button>
+          </form>
+
+          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span>ATLAS Travel Club &bull; Confidential</span>
+            <button
+              onClick={() => setLocale(isNo ? 'en' : 'no')}
+              className="font-bold text-slate-600 hover:text-slate-900 underline"
+            >
+              {isNo ? 'Switch to English' : 'Bytt til Norsk'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-12 md:py-16 font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* Language selector in Portal Header */}
-        <div className="flex justify-end mb-6">
-          <div className="inline-flex items-center p-1 rounded-full bg-white border border-slate-200 text-xs font-bold shadow-xs">
+        {/* Language selector & Logout in Portal Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{isNo ? 'Autentisert Sesjon' : 'Authenticated Session'}</span>
+          </div>
+
+          <div className="flex items-center gap-3">
             <button
-              onClick={() => setLocale('no')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer ${
-                isNo
-                  ? 'bg-slate-900 text-white shadow-2xs font-black'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
+              onClick={handleLogout}
+              className="px-3 py-1.5 rounded-full bg-white border border-slate-200 hover:bg-slate-100 text-xs font-bold text-slate-600 transition-all cursor-pointer shadow-2xs"
             >
-              <span>🇳🇴</span> Norsk
+              {isNo ? 'Lås portal (Logg ut)' : 'Lock Portal (Log Out)'}
             </button>
-            <button
-              onClick={() => setLocale('en')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer ${
-                !isNo
-                  ? 'bg-slate-900 text-white shadow-2xs font-black'
-                  : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              <span>🇬🇧</span> English
-            </button>
+
+            <div className="inline-flex items-center p-1 rounded-full bg-white border border-slate-200 text-xs font-bold shadow-xs">
+              <button
+                onClick={() => setLocale('no')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer ${
+                  isNo
+                    ? 'bg-slate-900 text-white shadow-2xs font-black'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <span>🇳🇴</span> Norsk
+              </button>
+              <button
+                onClick={() => setLocale('en')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer ${
+                  !isNo
+                    ? 'bg-slate-900 text-white shadow-2xs font-black'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <span>🇬🇧</span> English
+              </button>
+            </div>
           </div>
         </div>
 
