@@ -42,7 +42,7 @@ import { getStoredVouchers } from '@/lib/vouchers';
 
 function MembershipContent() {
   const { user, isMember, upgradeTier, bookings, toggleDemoMode } = useAuth();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency } = useCurrency();
   const { features } = usePlatform();
   const { t, locale } = useLanguage();
   const isTrialActive = features.enableFreeTrial ?? true;
@@ -272,7 +272,9 @@ function MembershipContent() {
                 <div className="p-4 rounded-2xl bg-emerald-50/40 border border-emerald-200/80 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-bold text-slate-900">Atlas Club Membership</span>
-                    <span className="font-mono font-bold text-emerald-700 text-xs">{formatPrice(179)}/yr</span>
+                    <span className="font-mono font-bold text-emerald-700 text-xs">
+                      {currency === 'NOK' ? '1 290 kr/år' : currency === 'EUR' ? '115 €/yr' : currency === 'GBP' ? '£99/yr' : '$120/yr'}
+                    </span>
                   </div>
                   <p className="text-xs text-slate-600">
                     0% retail markup across 1,000,000+ luxury hotels, NDC flight clearing, and EU261 €600 delay sentinel.
@@ -606,7 +608,7 @@ function MembershipContent() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {locale === 'no' ? 'Årsmedlemskap (Spar 25 % • Beste verdi)' : 'Annual Pass (Save 25% Best Value)'}
+              {locale === 'no' ? 'Årsmedlemskap (Kun 107,50 kr/mnd • Beste verdi)' : 'Annual Pass (Only 107.50 NOK/mo • Best Value)'}
             </button>
             <button
               onClick={() => setBillingCycle('monthly')}
@@ -616,7 +618,7 @@ function MembershipContent() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {locale === 'no' ? 'Månedlig betaling' : 'Monthly Billing'}
+              {locale === 'no' ? 'Månedlig betaling (129 kr/mnd)' : 'Monthly Billing (129 NOK/mo)'}
             </button>
           </div>
 
@@ -696,18 +698,51 @@ function MembershipContent() {
         {/* The Single Membership Card */}
         {(() => {
           const tier = MEMBERSHIP_TIERS[0];
-          const rawPrice = billingCycle === 'annual' ? tier.priceAnnual : tier.priceMonthly;
-          let discountedPrice = rawPrice;
-          if (rawPrice > 0 && appliedMembershipVoucher) {
+
+          // Canonical fixed club membership pricing per currency (avoids fluctuating live FX rounding discrepancies):
+          // NOK: 1 290 kr / year (107,50 kr/mnd) or 129 kr / month
+          // EUR: 115 € / year or 12 € / month
+          // GBP: £99 / year or £10 / month
+          // USD: $120 / year or $12 / month
+          let basePrice = 120;
+          let cycleLabel = billingCycle === 'annual' ? (locale === 'no' ? '/år' : '/year') : (locale === 'no' ? '/mnd' : '/month');
+          let periodSubtext = '';
+
+          if (currency === 'NOK') {
+            basePrice = billingCycle === 'annual' ? 1290 : 129;
+            periodSubtext = locale === 'no'
+              ? (billingCycle === 'annual' ? '1 290 kr/år (kun 107,50 kr/mnd) • 0 kr i gebyr på alt' : '129 kr/mnd • Ingen binding • 0 kr i gebyr på alt')
+              : (billingCycle === 'annual' ? '1,290 NOK/yr (only 107.50 NOK/mo) • 0 kr fee on everything' : '129 NOK/mo • Cancel anytime • 0 kr fee');
+          } else if (currency === 'EUR') {
+            basePrice = billingCycle === 'annual' ? 115 : 12;
+            periodSubtext = billingCycle === 'annual' ? '115 €/yr (~9.58 €/mo) • 0% fee on everything' : '12 €/mo • Cancel anytime • 0% fee';
+          } else if (currency === 'GBP') {
+            basePrice = billingCycle === 'annual' ? 99 : 10;
+            periodSubtext = billingCycle === 'annual' ? '£99/yr (~£8.25/mo) • 0% fee on everything' : '£10/mo • Cancel anytime • 0% fee';
+          } else {
+            basePrice = billingCycle === 'annual' ? 120 : 12;
+            periodSubtext = billingCycle === 'annual' ? '$120/yr ($10/mo) • 0% fee on everything' : '$12/mo • Cancel anytime • 0% fee';
+          }
+
+          let discountedPrice = basePrice;
+          if (appliedMembershipVoucher) {
             if (appliedMembershipVoucher.discountType === 'percentage') {
-              discountedPrice = Math.round(rawPrice * (1 - appliedMembershipVoucher.discountValue / 100));
+              discountedPrice = Math.round(basePrice * (1 - appliedMembershipVoucher.discountValue / 100));
             } else {
-              discountedPrice = Math.max(0, rawPrice - appliedMembershipVoucher.discountValue);
+              discountedPrice = Math.max(0, basePrice - appliedMembershipVoucher.discountValue);
             }
           }
-          const hasDiscount = rawPrice > 0 && discountedPrice < rawPrice;
-          const price = formatPrice(discountedPrice);
-          const cycleLabel = billingCycle === 'annual' ? '/year' : '/month';
+          const hasDiscount = discountedPrice < basePrice;
+
+          const formatCurrencyValue = (val: number) => {
+            if (currency === 'NOK') return `${val.toLocaleString('nb-NO')} kr`;
+            if (currency === 'EUR') return `${val.toLocaleString()} €`;
+            if (currency === 'GBP') return `£${val.toLocaleString()}`;
+            return `$${val.toLocaleString()}`;
+          };
+
+          const price = formatCurrencyValue(discountedPrice);
+          const rawPriceDisplay = formatCurrencyValue(basePrice);
 
           return (
             <div className="bg-white rounded-3xl p-6 sm:p-10 border-2 border-amber-500 shadow-xl relative max-w-2xl mx-auto space-y-6">
@@ -729,14 +764,14 @@ function MembershipContent() {
                 <div className="text-left sm:text-right">
                   {hasDiscount && (
                     <div className="text-lg font-bold text-slate-400 line-through font-mono">
-                      {formatPrice(rawPrice)}
+                      {rawPriceDisplay}
                     </div>
                   )}
                   <div className="flex items-baseline gap-1 sm:justify-end">
                     <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono">{price}</span>
                     <span className="text-xs text-slate-500 font-medium">{cycleLabel}</span>
                   </div>
-                  <span className="text-[11px] text-emerald-600 font-bold">{locale === 'no' ? '1 290 kr/år (107,50 kr/mnd) • 0 kr i gebyr på alt' : '1 290 NOK/yr (~$120) • 0 kr / 0% fee on everything'}</span>
+                  <span className="text-[11px] text-emerald-600 font-bold">{periodSubtext}</span>
                 </div>
               </div>
 

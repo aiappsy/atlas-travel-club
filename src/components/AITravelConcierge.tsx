@@ -278,7 +278,7 @@ export default function AITravelConcierge() {
         body: JSON.stringify({
           prompt: query,
           hotelContext: activeHc,
-          userContext: { name: userName, isMember },
+          userContext: { name: userName, isMember, locale },
           travelProfile,
           features,
           history,

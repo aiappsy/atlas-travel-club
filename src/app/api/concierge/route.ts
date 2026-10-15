@@ -84,7 +84,7 @@ async function queryGeminiApi(
   return null;
 }
 
-function buildAuraSystemPrompt(hotelContext?: HotelConciergeContext, userName?: string, travelProfile?: any): string {
+function buildAuraSystemPrompt(hotelContext?: HotelConciergeContext, userName?: string, travelProfile?: any, isNorwegian: boolean = false): string {
   let contextSection = '';
   if (hotelContext && hotelContext.name) {
     contextSection = `
@@ -116,7 +116,17 @@ VERIFIED MEMBER PERSONALIZED PROFILE & TRAVEL DNA:
 `;
   }
 
-  return `You are Aura, the proactive VIP AI Travel Concierge for ATLAS Travel Club (The Private Wholesale Travel & Sovereign Banking Club).
+  const norwegianLanguagePreamble = isNorwegian
+    ? `
+CRITICAL LANGUAGE DIRECTIVE:
+The user is speaking Norwegian or has selected Norwegian as their language.
+YOU MUST RESPOND 100% IN FLUENT, PROFESSIONAL, SOPHISTICATED NORWEGIAN (BOKMÅL).
+NEVER respond in English when the user speaks Norwegian or isNorwegian is true!
+Maintain an elite, polite, selling, VIP concierge tone representing HARD ROCK CAPITAL LTD's ATLAS club.
+`
+    : '';
+
+  return `${norwegianLanguagePreamble}You are Aura, the proactive VIP AI Travel Concierge for ATLAS Travel Club (The Private Wholesale Travel & Sovereign Banking Club).
 User: ${userName || 'VIP Member'}.
 
 You have deep mastery over the entire ATLAS platform, hospitality law, global B2B bedbanks, rate parity covenants, luxury hotel pricing, airline passenger rights (EU261), and digital nomad relocation.
@@ -220,7 +230,8 @@ function generateDomainConciergeResponse(
   query: string,
   hotelContext?: HotelConciergeContext,
   features: PlatformFeatureFlags = DEFAULT_PLATFORM_CONFIG,
-  travelProfile?: any
+  travelProfile?: any,
+  isNorwegian: boolean = false
 ): { reply: string; bookingAction?: any; showHowItWorksLink?: boolean; showNomadLink?: boolean; showProofLink?: boolean } {
   const q = query.toLowerCase().trim();
   let reply = '';
@@ -246,12 +257,22 @@ function generateDomainConciergeResponse(
   if (
     q === 'hi' || q === 'hello' || q === 'hey' || q.startsWith('hello') || q.startsWith('hi ') ||
     q.includes('good morning') || q.includes('good evening') || q.includes('who are you') ||
-    q.includes('what is aura') || q === 'help' || q.includes('what can you do')
+    q.includes('what is aura') || q === 'help' || q.includes('what can you do') ||
+    q === 'hei' || q === 'hallo' || q.startsWith('hei ') || q.startsWith('hallo ') ||
+    q.includes('hvem er du') || q.includes('hva kan du') || q.includes('hjelp')
   ) {
-    if (hasHotel) {
-      reply = `👋 Hello! I am **Aura**, your VIP Travel Concierge for ATLAS.\n\nI see you are currently reviewing **${hotelName}** in ${city} for **${dates}** (${nights} nights):\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Member Savings**: **You pocket $${savings} (${savingsPct}% Off)**\n\nI can explain rate parity, clarify room categories, confirm tax inclusions, or help lock in your wholesale room reservation. What would you like to know?`;
+    if (isNorwegian) {
+      if (hasHotel) {
+        reply = `👋 Hei! Jeg er **Aura**, din personlige VIP Travel Concierge for ATLAS.\n\nJeg ser at du vurderer **${hotelName}** i ${city} for **${dates}** (${nights} netter):\n\n• **Offisiell retailpris**: $${pubRate}/natt ($${pubTotal} totalt) hos ${ota}\n• **ATLAS Engrospris**: **$${wsRate}/natt ($${wsTotal} totalt)**\n• **Din medlemsgevinst**: **Du sparer $${savings} (${savingsPct}% rabatt)**\n\nJeg kan forklare rate parity, romkategorier, bekrefte at alle skatter er inkludert, eller hjelpe deg med å låse inn reservasjonen med en gang. Hva kan jeg bistå med?`;
+      } else {
+        reply = `👋 Hei! Jeg er **Aura**, din personlige VIP AI Travel Concierge for ATLAS.\n\nJeg er direkte tilkoblet **50+ institusjonelle B2B Bedbanks og grossister (Hotelbeds, WebBeds)** på over 1 000 000 luksushoteller over hele verden. Våre medlemmer unngår de 20%–45% påslagene som vanlige reisesider tar for reklame, og får ren engrospris med 0 kr påslag.\n\n**Dette kan jeg hjelpe deg med nå:**\n• **Prisrevisjon**: Se hvorfor ethvert hotell eller by er billigere hos ATLAS enn Booking.com eller Expedia.\n• **Rate Parity**: Forstå hvorfor åpne reisesider har identiske priser, og hvorfor ATLAS har juridisk unntak.\n• **Skatter og avgifter**: Se hvordan alle lokale skatter er 100% forhåndsbetalt.\n• **Vouchere & Innsjekk**: Lær hvordan våre offisielle B2B-vouchere fungerer ved innsjekk.\n• **Rewards Vault**: Se hvordan du tjener og bruker Club Credits på reiser.\n\nHvilken destinasjon eller hvilket hotell planlegger du å besøke?`;
+      }
     } else {
-      reply = `👋 Hello! I am **Aura**, your proactive VIP AI Travel Concierge for ATLAS.\n\nI am continuously connected to **50+ institutional B2B Bedbanks and wholesale clearing feeds (Hotelbeds, WebBeds)** across 1,000,000+ luxury properties worldwide. I help our members bypass the 20%–45% OTA retail ad markup, audit rate parity, and navigate sovereign travel.\n\n**Here is how I can assist you right now:**\n• **Audit Rates**: Ask why any hotel or city is cheaper on ATLAS vs Booking.com or Expedia.\n• **Rate Parity**: Understand why public OTAs contractually advertise identical prices.\n• **Taxes & Resort Fees**: See why all destination taxes and fees are prepaid upfront.\n• **Vouchers & Check-In**: Learn how B2B Bedbank confirmation vouchers work at the front desk.\n• **Digital Nomad & Visas**: Explore 0% tax nomad visas and Schengen 90/180-day compliance.\n\nWhich destination or property are you planning to visit?`;
+      if (hasHotel) {
+        reply = `👋 Hello! I am **Aura**, your VIP Travel Concierge for ATLAS.\n\nI see you are currently reviewing **${hotelName}** in ${city} for **${dates}** (${nights} nights):\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Member Savings**: **You pocket $${savings} (${savingsPct}% Off)**\n\nI can explain rate parity, clarify room categories, confirm tax inclusions, or help lock in your wholesale room reservation. What would you like to know?`;
+      } else {
+        reply = `👋 Hello! I am **Aura**, your proactive VIP AI Travel Concierge for ATLAS.\n\nI am continuously connected to **50+ institutional B2B Bedbanks and wholesale clearing feeds (Hotelbeds, WebBeds)** across 1,000,000+ luxury properties worldwide. I help our members bypass the 20%–45% OTA retail ad markup, audit rate parity, and navigate sovereign travel.\n\n**Here is how I can assist you right now:**\n• **Audit Rates**: Ask why any hotel or city is cheaper on ATLAS vs Booking.com or Expedia.\n• **Rate Parity**: Understand why public OTAs contractually advertise identical prices.\n• **Taxes & Resort Fees**: See why all destination taxes and fees are prepaid upfront.\n• **Vouchers & Check-In**: Learn how B2B Bedbank confirmation vouchers work at the front desk.\n• **Digital Nomad & Visas**: Explore 0% tax nomad visas and Schengen 90/180-day compliance.\n\nWhich destination or property are you planning to visit?`;
+      }
     }
   }
 
@@ -260,10 +281,15 @@ function generateDomainConciergeResponse(
     hasHotel &&
     (q.includes('reserve') || q.includes('lock in') || q.includes('how to book') ||
      q.includes('book now') || q.includes('confirm booking') ||
+     q.includes('bestill') || q.includes('reserver') || q.includes('lås inn') ||
      /\bbook\s+(this|my|a|the|now|it)\b/i.test(q) ||
      (q.includes('book') && !q.includes('booking.com') && !q.includes('why') && !q.includes('cheaper')))
   ) {
-    reply = `👑 **Ready to Reserve ${hotelName} (${city})!**\n\nHere is your locked-in B2B wholesale audit summary:\n- **Property**: **${hotelName}** (${city})\n- **Stay Dates**: **${dates}** (${nights} Nights)\n- **Public Retail Benchmark**: $${pubRate}/nt ($${pubTotal} total) on ${ota}\n- **ATLAS Member Net Rate**: **$${wsRate}/nt ($${wsTotal} total)**\n- **Instant Member Profit**: **Save $${savings} (${savingsPct}% Off)**\n\nAll destination taxes and resort fees are 100% prepaid. Click **Lock In Wholesale Rate** below to secure your instant B2B voucher:`;
+    if (isNorwegian) {
+      reply = `👑 **Klar til å låse inn ${hotelName} (${city})!**\n\nHer er din bekreftede B2B-engrosrevisjon:\n- **Hotell**: **${hotelName}** (${city})\n- **Oppholdsdatoer**: **${dates}** (${nights} netter)\n- **Veiledende retailpris**: $${pubRate}/natt ($${pubTotal} totalt) hos ${ota}\n- **ATLAS Medlemspris**: **$${wsRate}/natt ($${wsTotal} totalt)**\n- **Din medlemsgevinst**: **Spar $${savings} (${savingsPct}% rabatt)**\n\nAlle lokale skatter og avgifter er 100% forhåndsbetalt. Klikk **Lås inn engrospris** under for å sikre din offisielle B2B-voucher:`;
+    } else {
+      reply = `👑 **Ready to Reserve ${hotelName} (${city})!**\n\nHere is your locked-in B2B wholesale audit summary:\n- **Property**: **${hotelName}** (${city})\n- **Stay Dates**: **${dates}** (${nights} Nights)\n- **Public Retail Benchmark**: $${pubRate}/nt ($${pubTotal} total) on ${ota}\n- **ATLAS Member Net Rate**: **$${wsRate}/nt ($${wsTotal} total)**\n- **Instant Member Profit**: **Save $${savings} (${savingsPct}% Off)**\n\nAll destination taxes and resort fees are 100% prepaid. Click **Lock In Wholesale Rate** below to secure your instant B2B voucher:`;
+    }
     bookingAction = {
       hotelId: hotelContext!.id || 'hotel-stay',
       hotelName,
@@ -280,76 +306,140 @@ function generateDomainConciergeResponse(
     q.includes('differ') || q.includes('different') || q.includes('room type') ||
     q.includes('mismatch') || q.includes('more expensive') || q.includes('price higher') ||
     q.includes('rate higher') || (q.includes('higher') && (q.includes('price') || q.includes('rate') || q.includes('cost'))) ||
-    (q.includes('verify') && (q.includes('price') || q.includes('rate') || q.includes('show') || q.includes('see')))
+    (q.includes('verify') && (q.includes('price') || q.includes('rate') || q.includes('show') || q.includes('see'))) ||
+    q.includes('varierer') || q.includes('forskjellig') || q.includes('romtype') || q.includes('dyrere') ||
+    q.includes('høyere pris') || q.includes('hvorfor varierer')
   ) {
     showHowItWorksLink = true;
     const propName = hasHotel ? hotelName : 'a luxury hotel';
-    reply = `🏨 **Why OTA Prices Can Differ When Clicking Out for ${propName}:**\n\nWhen you click **"Verify on Booking.com"** or **"Verify on Expedia"**, you might see higher prices than the headline audit. Here is the transparent reason:\n\n1. 🏷️ **Google Hotels Indexes the Baseline Entry Room**: Our live wholesale audit pulls the lowest entry-level rate (e.g. Standard Queen, Room-Only) available across public channels.\n\n2. 🛏️ **OTAs Display Their Entire Catalog**: When you arrive on the OTA landing page, they display their full inventory — including **Executive Suites, Deluxe Ocean/City Views, and Breakfast-Included packages** which carry much higher price tags.\n\n3. 🛡️ **The ATLAS Wholesale Guarantee**: ${hasHotel ? `Your wholesale rate of **$${wsRate}/night ($${wsTotal} total)**` : 'Our wholesale member rate'} is cleared directly through institutional B2B Bedbanks (Hotelbeds, WebBeds) and is guaranteed to beat both entry-level and premium rooms on any retail site!\n\nWould you like me to help you reserve your room allotment now?`;
+    if (isNorwegian) {
+      reply = `🏨 **Hvorfor priser hos reisesider kan variere ved direkte klikk for ${hasHotel ? hotelName : 'luksushoteller'}:**\n\nNår du klikker for å sjekke prisen hos Booking.com eller Expedia, kan du noen ganger se høyere priser enn i vår prisoversikt. Her er den åpne forklaringen:\n\n1. 🏷️ **Google Hotels indekserer rimeligste standardrom**: Prissammenligningen henter det rimeligste innstegsrommet (f.eks. Standard Queen, kun rom).\n\n2. 🛏️ **Reisesidene viser hele katalogen sin**: Når du lander på deres side, fremhever de ofte **Executive Suites, Deluxe rom med havutsikt og pakker med frokost inkludert**, som naturlig koster mer.\n\n3. 🛡️ **ATLAS Engrosgaranti**: ${hasHotel ? `Din medlemspris på **$${wsRate}/natt ($${wsTotal} totalt)**` : 'Vår engrospris'} leveres direkte fra institusjonelle B2B Bedbanks (Hotelbeds, WebBeds) og slår både standardrom og premium-suiter på enhver åpen nettside!\n\nØnsker du at jeg skal hjelpe deg med å reservere rommet nå?`;
+    } else {
+      reply = `🏨 **Why OTA Prices Can Differ When Clicking Out for ${propName}:**\n\nWhen you click **"Verify on Booking.com"** or **"Verify on Expedia"**, you might see higher prices than the headline audit. Here is the transparent reason:\n\n1. 🏷️ **Google Hotels Indexes the Baseline Entry Room**: Our live wholesale audit pulls the lowest entry-level rate (e.g. Standard Queen, Room-Only) available across public channels.\n\n2. 🛏️ **OTAs Display Their Entire Catalog**: When you arrive on the OTA landing page, they display their full inventory — including **Executive Suites, Deluxe Ocean/City Views, and Breakfast-Included packages** which carry much higher price tags.\n\n3. 🛡️ **The ATLAS Wholesale Guarantee**: ${hasHotel ? `Your wholesale rate of **$${wsRate}/night ($${wsTotal} total)**` : 'Our wholesale member rate'} is cleared directly through institutional B2B Bedbanks (Hotelbeds, WebBeds) and is guaranteed to beat both entry-level and premium rooms on any retail site!\n\nWould you like me to help you reserve your room allotment now?`;
+    }
   }
 
   // 4. TAXES, RESORT FEES & AT-COST MERCHANT PROCESSING
-  else if (q.includes('tax') || q.includes('taxes') || q.includes('resort fee') || q.includes('vat') || q.includes('hidden fee') || q.includes('extra charge')) {
-    const propContext = hasHotel
-      ? `For **${hotelName}**, local taxes & fees are ~${hotelContext!.taxPercent || 20}% (${hotelContext!.taxLabel || 'Lodging Taxes & Resort Fees'}).`
-      : 'Destination taxes typically range from 12% to 28% depending on city ordinances.';
+  else if (
+    q.includes('tax') || q.includes('taxes') || q.includes('resort fee') || q.includes('vat') ||
+    q.includes('hidden fee') || q.includes('extra charge') || q.includes('skatt') || q.includes('skatter') ||
+    q.includes('mva') || q.includes('gebyr') || q.includes('gebyrer') || q.includes('resort-gebyr')
+  ) {
+    if (isNorwegian) {
+      const propContextNo = hasHotel
+        ? `For **${hotelName}** utgjør lokale skatter og avgifter ca. ${hotelContext!.taxPercent || 20}% (${hotelContext!.taxLabel || 'Byspesifikke skatter og resort-avgifter'}).`
+        : 'Destinasjonsskatter varierer typisk fra 12% til 28% avhengig av land og by.';
+      reply = `🧾 **Hvordan hotellskatter og resort-gebyrer fungerer på ATLAS:**\n\n1. 🏛️ **Lokale hotellskatter & obligatoriske gebyrer**: ${propContextNo}\n\n2. 👁️ **Lokketilbud hos åpne reisesider**: Amerikanske og internasjonale bookingsider viser ofte lokkepriser uten skatter, og legger først til store gebyrer på siste betalingsside.\n\n3. ✅ **ATLAS Alt Inkludert-standard**: Hos ATLAS er prisen som standard **100% Alt Inkludert (Skatter & Gebyrer inkludert)**, så du slipper ubehagelige overraskelser i resepsjonen ved ankomst.\n\n4. 💳 **0 kr i påslag**: ATLAS formidler 100% rå nettopris fra leverandøren uten ekstra fortjenestepåslag.\n\n5. 🔀 **Sammenlign enkelt**: Du kan når som helst bytte mellom **Alt Inkludert** og **Grunnpris** i søket for å sammenligne krone for krone mot andre aktører!`;
+    } else {
+      const propContext = hasHotel
+        ? `For **${hotelName}**, local taxes & fees are ~${hotelContext!.taxPercent || 20}% (${hotelContext!.taxLabel || 'Lodging Taxes & Resort Fees'}).`
+        : 'Destination taxes typically range from 12% to 28% depending on city ordinances.';
 
-    reply = `🧾 **How Hotel Taxes & Resort Fees Work on ATLAS:**\n\n1. 🏛️ **Destination Lodging Taxes & Mandatory Fees**: ${propContext}\n\n2. 👁️ **The OTA Bait-and-Switch**: Public retail sites in the US frequently display deceptive "pre-tax room rates" and only disclose high resort fees and lodging taxes on the final payment screen.\n\n3. ✅ **ATLAS All-Inclusive Standard**: By default, your ATLAS rate is **100% All-Inclusive (Taxes & Fees Included)** so there are never surprise fees at the hotel front desk upon check-in.\n\n4. 💳 **Zero Room Markup & At-Cost Processing**: ATLAS passes 100% net wholesale room rates. A nominal ~3.5% merchant processing fee is billed at cost at checkout to cover credit card processing (Visa/Mastercard) and secure B2B settlement.\n\n5. 🔀 **Switch Anytime**: You can toggle between **All-Inclusive** and **Base Room Rate** in our search bar or audit modal to compare apples-to-apples against any OTA!`;
+      reply = `🧾 **How Hotel Taxes & Resort Fees Work on ATLAS:**\n\n1. 🏛️ **Destination Lodging Taxes & Mandatory Fees**: ${propContext}\n\n2. 👁️ **The OTA Bait-and-Switch**: Public retail sites in the US frequently display deceptive "pre-tax room rates" and only disclose high resort fees and lodging taxes on the final payment screen.\n\n3. ✅ **ATLAS All-Inclusive Standard**: By default, your ATLAS rate is **100% All-Inclusive (Taxes & Fees Included)** so there are never surprise fees at the hotel front desk upon check-in.\n\n4. 💳 **Zero Room Markup & At-Cost Processing**: ATLAS passes 100% net wholesale room rates. A nominal ~3.5% merchant processing fee is billed at cost at checkout to cover credit card processing (Visa/Mastercard) and secure B2B settlement.\n\n5. 🔀 **Switch Anytime**: You can toggle between **All-Inclusive** and **Base Room Rate** in our search bar or audit modal to compare apples-to-apples against any OTA!`;
+    }
   }
 
   // 5. RATE PARITY LAW & WHY OTAS HAVE IDENTICAL RATES
   else if (
     q.includes('same price') || q.includes('identical') || q.includes('same rate') ||
-    q.includes('rate parity') || q.includes('all otas') || q.includes('why same')
+    q.includes('rate parity') || q.includes('all otas') || q.includes('why same') ||
+    q.includes('samme pris') || q.includes('like priser') || q.includes('lik pris') ||
+    q.includes('hvorfor like') || q.includes('hvorfor samme')
   ) {
     showHowItWorksLink = true;
-    reply = `⚖️ **Why All OTAs (Expedia, Booking.com, Hotels.com) Often Show Identical Rates:**\n\n1. 📜 **Contractual Rate Parity Clauses**: Major hotel chains sign contracts with Expedia and Booking.com containing strict "Rate Parity" covenants. These prohibit any public website from advertising a lower price on the open web.\n\n2. 🌐 **Google Hotels Benchmark**: Because of parity clauses, Google Hotels indexes virtually identical rates across all public OTAs.\n\n3. 👑 **ATLAS Closed-Loop Parity Exemption**: Under international competition law and EU antitrust rulings, closed-loop private membership clubs are **legally exempt from public rate parity covenants**.\n\nBecause ATLAS is not a public booking site, hotels and institutional Bedbanks (Hotelbeds, WebBeds) securely pass us confidential net wholesale inventory with **0% retail ad markup**!`;
+    if (isNorwegian) {
+      reply = `⚖️ **Hvorfor Booking.com, Expedia og Hotels.com ofte har identiske priser:**\n\n1. 📜 **Avtalefestet Rate Parity**: De store hotellkjedene inngår strenge avtaler med Booking.com og Expedia som krever at nøyaktig samme pris vises på alle åpne nettsider.\n\n2. 🌐 **Google Hotels Benchmark**: På grunn av denne prispariteten viser Google Hotels stort sett identiske priser over hele linjen.\n\n3. 👑 **ATLAS sitt lukkede medlemsunntak**: I henhold til europeisk og internasjonal konkurranserett er lukkede, private medlemsklubber **juridisk unntatt fra offentlig Rate Parity**.\n\nFordi ATLAS er en lukket medlemsklubb, kan hotellene og globale Bedbanks (Hotelbeds, WebBeds) trygt gi oss konfidensielle engrospriser med **0 kr i retailpåslag**!`;
+    } else {
+      reply = `⚖️ **Why All OTAs (Expedia, Booking.com, Hotels.com) Often Show Identical Rates:**\n\n1. 📜 **Contractual Rate Parity Clauses**: Major hotel chains sign contracts with Expedia and Booking.com containing strict "Rate Parity" covenants. These prohibit any public website from advertising a lower price on the open web.\n\n2. 🌐 **Google Hotels Benchmark**: Because of parity clauses, Google Hotels indexes virtually identical rates across all public OTAs.\n\n3. 👑 **ATLAS Closed-Loop Parity Exemption**: Under international competition law and EU antitrust rulings, closed-loop private membership clubs are **legally exempt from public rate parity covenants**.\n\nBecause ATLAS is not a public booking site, hotels and institutional Bedbanks (Hotelbeds, WebBeds) securely pass us confidential net wholesale inventory with **0% retail ad markup**!`;
+    }
   }
 
   // 6. HOW ATLAS WORKS / WHY CHEAPER / BEDBANK MECHANISM
   else if (
     q.includes('how it works') || q.includes('why cheaper') || q.includes('how does it work') ||
     q.includes('wholesale') || q.includes('bedbank') || q.includes('hotelbeds') || q.includes('webbeds') ||
-    q.includes('what is atlas') || q.includes('about atlas') || q.includes('how can you be')
+    q.includes('what is atlas') || q.includes('about atlas') || q.includes('how can you be') ||
+    q.includes('hvordan fungerer') || q.includes('hvorfor billigere') || q.includes('hva er atlas') ||
+    q.includes('hvordan virker') || q.includes('engros')
   ) {
     showHowItWorksLink = true;
-    const hotelExample = hasHotel
-      ? `On **${hotelName}**, that eliminates **$${savings}** in public ad tax for your stay!`
-      : 'That saves members an average of 20% to 45% on every booking.';
+    if (isNorwegian) {
+      const hotelExampleNo = hasHotel
+        ? `På **${hotelName}** fjerner dette **$${savings}** i unødvendige reklamepåslag for ditt opphold!`
+        : 'Dette sparer medlemmene i gjennomsnitt 20% til 45% på hver eneste bestilling.';
+      reply = `🛡️ **Slik fungerer ATLAS sin lukkede engrosmodell:**\n\n1. 📢 **Uten fordyrende markedsføringspåslag**: Åpne bookingsider (Booking.com, Expedia) bruker milliarder hvert år på Google-annonser, TV-reklamer og sponsorater. Dette finansieres med et **20%–45% påslag** på hotellrommet ditt.\n\n2. 🏢 **Institusjonelle B2B Bedbanks**: Hotellene selger ledig kapasitet diskré via konfidensielle grossistnettverk (**Hotelbeds, WebBeds**) med **18%–42% engrosrabatt** for å fylle rommene uten å ødelegge sine offisielle priser.\n\n3. 🔒 **0 kr hotellpåslag**: ATLAS sender **100% av den rå engrosprisen** direkte videre til våre medlemmer. ${hotelExampleNo}\n\n4. 🧾 **100% Ren Abonnementsmodell (1 290 kr/år)**: ATLAS har 0 kr i bookinggebyrer, 0 kr i transaksjonstillegg og 0% provisjonspåslag. Du betaler nøyaktig det hotellet koster i innkjøp.\n\n5. 🎫 **Offisielle B2B-vouchere**: Bestillingen bekreftes med umiddelbar, offisiell Bedbank-voucher med garantert innsjekk og døgnåpen leverandørstøtte.`;
+    } else {
+      const hotelExample = hasHotel
+        ? `On **${hotelName}**, that eliminates **$${savings}** in public ad tax for your stay!`
+        : 'That saves members an average of 20% to 45% on every booking.';
 
-    reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. 📢 **The OTA Ad Tax**: Public OTAs (Expedia, Booking.com) spend billions every year on Google Search Ads, TV commercials, and billboard campaigns. To fund this, they add a **20%–45% retail markup** on top of hotel rooms.\n\n2. 🏢 **The Institutional Bedbank Clearing Feed**: Hotels quietly allocate unsold room inventory to confidential **B2B Bedbanks (Hotelbeds, WebBeds)** at **18%–42% wholesale net discounts** to keep rooms filled without diluting their public retail pricing.\n\n3. 🔒 **0% Hotel Room Markup**: ATLAS passes **100% of the raw wholesale net room rate** directly to verified club members with zero markup. ${hotelExample}\n\n4. 🧾 **100% Ren Abonnementsmodell**: I motsetning til åpne bookingsider har ATLAS **0 kr i bookingtillegg, 0 kr i transaksjonsgebyr og 0% påslag**. Du betaler nøyaktig leverandørens B2B-engrospris direkte ved utsjekk.\n\n5. 🎫 **Official B2B Vouchers**: Bookings are backed by instant, official B2B Bedbank vouchers with guaranteed check-in and 24/7 supplier support.`;
+      reply = `🛡️ **The 100% Transparent Truth About How ATLAS Works:**\n\n1. 📢 **The OTA Ad Tax**: Public OTAs (Expedia, Booking.com) spend billions every year on Google Search Ads, TV commercials, and billboard campaigns. To fund this, they add a **20%–45% retail markup** on top of hotel rooms.\n\n2. 🏢 **The Institutional Bedbank Clearing Feed**: Hotels quietly allocate unsold room inventory to confidential **B2B Bedbanks (Hotelbeds, WebBeds)** at **18%–42% wholesale net discounts** to keep rooms filled without diluting their public retail pricing.\n\n3. 🔒 **0% Hotel Room Markup**: ATLAS passes **100% of the raw wholesale net room rate** directly to verified club members with zero markup. ${hotelExample}\n\n4. 🧾 **100% Ren Abonnementsmodell**: I motsetning til åpne bookingsider har ATLAS **0 kr i bookingtillegg, 0 kr i transaksjonsgebyr og 0% påslag**. Du betaler nøyaktig leverandørens B2B-engrospris direkte ved utsjekk.\n\n5. 🎫 **Official B2B Vouchers**: Bookings are backed by instant, official B2B Bedbank vouchers with guaranteed check-in and 24/7 supplier support.`;
+    }
   }
 
   // 7. IS IT REAL / LEGITIMACY / SAFETY / LEGAL GUARANTEES
   else if (
     q.includes('real') || q.includes('legit') || q.includes('scam') || q.includes('fake') ||
     q.includes('trust') || q.includes('legal') || q.includes('license') || q.includes('guarantee') ||
-    q.includes('safe') || q.includes('is this for real')
+    q.includes('safe') || q.includes('is this for real') || q.includes('ekte') || q.includes('svindel') ||
+    q.includes('trygt') || q.includes('lovlig') || q.includes('garanti')
   ) {
     showProofLink = true;
-    reply = `🛡️ **Yes, ATLAS is 100% Real, Legal, and Fully Compliant:**\n\n1. 📜 **Institutional B2B Partnerships**: ATLAS operates under direct B2B integration with the world's largest travel wholesalers (**Hotelbeds, WebBeds, Sabre, Amadeus**), the same infrastructure used by luxury travel agencies worldwide.\n\n2. ⚖️ **Rate Parity Exemption Certified**: International hospitality antitrust regulations legally protect closed-loop private member clubs from retail rate parity restrictions.\n\n3. 🏦 **Consumer Protection & Escrow Compliance**: All bookings are fully backed and bonded under Norwegian Travel Guarantee Fund (RGF) standards and European Package Travel Directive consumer protections.\n\n4. 🔒 **PCI-DSS Level 1 Security**: Payments are processed through bank-grade encrypted payment gateways with direct B2B voucher issuance.\n\n5. 🏨 **Guaranteed Room Fulfillment**: Every reservation issues an official Bedbank voucher with an active supplier reservation code verifiable directly with hotel reservations desks.\n\nWould you like to test a live rate audit on any hotel of your choice?`;
+    if (isNorwegian) {
+      reply = `🛡️ **Ja, ATLAS er 100% ekte, trygt og fullt lisensiert:**\n\n1. 📜 **Hard Rock Capital Ltd**: Registrert i England & Wales (Org.nr. 16833237) under ledelse av grunnlegger Pål Juritzen.\n2. 🏢 **Direkte B2B-integrasjoner**: Vi opererer på samme institusjonelle infrastruktur som verdens ledende luksusreisebyråer (**Hotelbeds, WebBeds, Sabre, Amadeus**).\n3. ⚖️ **Juridisk godkjent Rate Parity-unntak**: Internasjonale konkurranseregler sikrer lukkede klubber retten til å formidle engrospriser.\n4. 🏦 **Forbrukerbeskyttelse & Reisegaranti**: Alle bestillinger oppfyller kravene i Reisegarantifondet (RGF) og EUs pakkereisedirektiv.\n5. 🔒 **Bankgradert sikkerhet**: Betalinger behandles med PCI-DSS Level 1 kryptering og direkte B2B-kupongutstedelse med garantert innsjekk.`;
+    } else {
+      reply = `🛡️ **Yes, ATLAS is 100% Real, Legal, and Fully Compliant:**\n\n1. 📜 **Institutional B2B Partnerships**: ATLAS operates under direct B2B integration with the world's largest travel wholesalers (**Hotelbeds, WebBeds, Sabre, Amadeus**), the same infrastructure used by luxury travel agencies worldwide.\n\n2. ⚖️ **Rate Parity Exemption Certified**: International hospitality antitrust regulations legally protect closed-loop private member clubs from retail rate parity restrictions.\n\n3. 🏦 **Consumer Protection & Escrow Compliance**: All bookings are fully backed and bonded under Norwegian Travel Guarantee Fund (RGF) standards and European Package Travel Directive consumer protections.\n\n4. 🔒 **PCI-DSS Level 1 Security**: Payments are processed through bank-grade encrypted payment gateways with direct B2B voucher issuance.\n\n5. 🏨 **Guaranteed Room Fulfillment**: Every reservation issues an official Bedbank voucher with an active supplier reservation code verifiable directly with hotel reservations desks.\n\nWould you like to test a live rate audit on any hotel of your choice?`;
+    }
   }
 
   // 8. CHECK-IN VOUCHER & FRONT DESK PROTOCOL
   else if (
     q.includes('voucher') || q.includes('check in') || q.includes('front desk') ||
-    q.includes('confirmation') || q.includes('how do i check in') || q.includes('what happens at check in')
+    q.includes('confirmation') || q.includes('how do i check in') || q.includes('what happens at check in') ||
+    q.includes('innsjekk') || q.includes('hvordan sjekker') || q.includes('kupong') || q.includes('resepsjon')
   ) {
-    reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nChecking in with an ATLAS reservation is seamless:\n\n1. 🎟️ **Instant Digital Voucher**: Upon reserving, you receive an official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code (available as PDF or Apple/Google Wallet pass).\n\n2. 🏨 **Front Desk Presentation**: Present the voucher or digital pass at check-in along with your government ID. Your room is **100% prepaid** directly through ATLAS wholesale clearing.\n\n3. 🤫 **Rate Parity Compliance**: The hotel front desk sees a confirmed, prepaid reservation from the Bedbank network and will not discuss net wholesale pricing.\n\n4. 🆘 **24/7 Priority Supplier Hotline**: If a front desk clerk has questions about the B2B allocation, our dedicated emergency supplier desk is available 24/7/365 (+1-800-847-ATLAS / +44 20 8123 4567).\n\nYour stay is guaranteed.`;
+    if (isNorwegian) {
+      reply = `📄 **Offisiell B2B Engros Innsjekks-Voucher:**\n\nInnsjekking med en ATLAS-reservasjon er helt sømløs:\n\n1. 🎟️ **Umiddelbar Digital Voucher**: Ved bestilling mottar du en offisiell B2B-voucher med ditt unike **Bedbank referansenummer (WebBeds/Hotelbeds)** og QR-kode (tilgjengelig som PDF og i Apple/Google Wallet).\n\n2. 🏨 **Enkel innsjekking**: Vis kupongen eller det digitale lommebok-passet sammen med legitimasjon i resepsjonen. Rommet ditt er **100% forhåndsbetalt** gjennom vår grossistavtale.\n\n3. 🤫 **Rate Parity-konfidensialitet**: Resepsjonen ser en bekreftet og forhåndsbetalt bedriftsbestilling og diskuterer ikke engrospriser.\n\n4. 🆘 **24/7 Døgnåpen Leverandørsupport**: Skulle resepsjonen ha spørsmål om tildelingen, er vår dedikerte B2B-støttelinje tilgjengelig 24 timer i døgnet (+44 20 8123 4567 / +1-800-847-ATLAS).\n\nOppholdet ditt er 100% garantert.`;
+    } else {
+      reply = `📄 **Official B2B Wholesale Check-in Voucher Protocol:**\n\nChecking in with an ATLAS reservation is seamless:\n\n1. 🎟️ **Instant Digital Voucher**: Upon reserving, you receive an official B2B voucher featuring your **Bedbank Confirmation ID (WebBeds/Hotelbeds)** and cryptographic QR code (available as PDF or Apple/Google Wallet pass).\n\n2. 🏨 **Front Desk Presentation**: Present the voucher or digital pass at check-in along with your government ID. Your room is **100% prepaid** directly through ATLAS wholesale clearing.\n\n3. 🤫 **Rate Parity Compliance**: The hotel front desk sees a confirmed, prepaid reservation from the Bedbank network and will not discuss net wholesale pricing.\n\n4. 🆘 **24/7 Priority Supplier Hotline**: If a front desk clerk has questions about the B2B allocation, our dedicated emergency supplier desk is available 24/7/365 (+1-800-847-ATLAS / +44 20 8123 4567).\n\nYour stay is guaranteed.`;
+    }
   }
 
   // 9. CANCELLATION & REFUND POLICIES
-  else if (q.includes('cancel') || q.includes('refund') || q.includes('change date') || q.includes('policy')) {
-    reply = `🔄 **ATLAS Cancellation & Refund Policy:**\n\n1. 🟢 **Free Cancellation**: The vast majority of ATLAS wholesale allotments include **100% Free Cancellation up to 48 hours prior to check-in**.\n\n2. ⚡ **Instant Processing**: If you need to cancel an eligible reservation, you can do so in 1 click from your Member Dashboard, and your refund is processed immediately to your original payment method.\n\n3. 📅 **Date Modifications**: Because our bookings connect directly to live Bedbank feeds, date modifications are subject to live room availability and seasonal wholesale rate adjustments.\n\n4. 🛡️ **Non-Refundable Promos**: A small subset of last-minute flash inventory is marked as non-refundable by the hotel, which is always clearly highlighted in bold before you confirm.`;
+  else if (
+    q.includes('cancel') || q.includes('refund') || q.includes('change date') || q.includes('policy') ||
+    q.includes('avbestill') || q.includes('kanseller') || q.includes('refusjon') || q.includes('avbestilling')
+  ) {
+    if (isNorwegian) {
+      reply = `🔄 **ATLAS Avbestillings- og Refusjonsvilkår:**\n\n1. 🟢 **Gratis avbestilling**: Det store flertallet av våre engrosrom inkluderer **100% gratis avbestilling frem til 48 timer før innsjekk**.\n\n2. ⚡ **Umiddelbar behandling**: Ved avbestilling i ditt medlemsdashbord behandles refusjonen umiddelbart tilbake til ditt opprinnelige betalingskort.\n\n3. 📅 **Datoendring**: Fordi vi er koblet direkte til levende grossistfeeder, følger eventuelle datoendringer hotellets ledige kapasitet og gjeldende engrospris.\n\n4. 🛡️ **Tydelig merking**: Enkelte kampanjer med ekstra store rabatter er merket som ikke-refunderbare fra hotellet. Dette fremheves alltid klart og tydelig med fet skrift før du bestiller.`;
+    } else {
+      reply = `🔄 **ATLAS Cancellation & Refund Policy:**\n\n1. 🟢 **Free Cancellation**: The vast majority of ATLAS wholesale allotments include **100% Free Cancellation up to 48 hours prior to check-in**.\n\n2. ⚡ **Instant Processing**: If you need to cancel an eligible reservation, you can do so in 1 click from your Member Dashboard, and your refund is processed immediately to your original payment method.\n\n3. 📅 **Date Modifications**: Because our bookings connect directly to live Bedbank feeds, date modifications are subject to live room availability and seasonal wholesale rate adjustments.\n\n4. 🛡️ **Non-Refundable Promos**: A small subset of last-minute flash inventory is marked as non-refundable by the hotel, which is always clearly highlighted in bold before you confirm.`;
+    }
   }
 
   // 9B. CRUISE BOOKINGS & CRUISE WHITE-LABEL
-  else if (q.includes('cruise') || q.includes('sail') || q.includes('ship') || q.includes('silversea') || q.includes('regent') || q.includes('seabourn') || q.includes('celebrity')) {
-    reply = `🚢 **ATLAS Prestige Cruise Collection & Rewards Advantage:**\n\n1. 🌊 **Premier Fleet Coverage**: Access luxury ocean and river itineraries across **Silversea, Regent Seven Seas, Seabourn, Celebrity, and Ritz-Carlton Yacht Collection**.\n\n2. 👑 **Up to 10% Back in Club Credits**: Every stateroom booking earns 5%–10% back in ATLAS Club Credits (Points), credited directly to your Rewards Vault.\n\n3. 🍸 **Free Onboard Credit**: Member staterooms receive $200–$1,000 in complimentary onboard spending money for shore excursions, spa treatments, and specialty dining.\n\n4. 🔒 **Automated Booking & 24/7 Operator Support**: Bookings feature live deck plans, real-time cabin selection, and round-the-clock maritime concierge support.\n\nExplore active voyages in the [ATLAS Cruise Directory](/cruises)!`;
+  else if (
+    q.includes('cruise') || q.includes('sail') || q.includes('ship') || q.includes('silversea') ||
+    q.includes('regent') || q.includes('seabourn') || q.includes('celebrity') || q.includes('seiling')
+  ) {
+    if (isNorwegian) {
+      reply = `🚢 **ATLAS Prestige Cruise Collection (/cruises):**\n\n1. 🌊 **Verdens ledende rederier**: Tilgang til 25 000+ seilinger med **Silversea, Regent Seven Seas, Seabourn, Celebrity Cruises og Ritz-Carlton Yacht Collection**.\n\n2. 💎 **100% Provisjonsrefusjon som Poeng**: Rederiene forbyr rabatt i kassen (Rate Parity). ATLAS overholder reglene, men gir 100% av grossistprovisjonen (10%–16%) tilbake til deg som Club Credits i din Rewards Vault!\n\n3. 🍸 **Opptil $600 i Onboard Credit**: Få gratis lommepenger om bord til spesialrestauranter, utflukter og spabehandlinger.\n\n4. 🎙️ **40-minutters Audio Deep Dive**: Hør vår grundige podcast om cruisemekanikken direkte på cruisesiden.\n\nUtforsk seilingene i [ATLAS Cruisekatalog](/cruises)!`;
+    } else {
+      reply = `🚢 **ATLAS Prestige Cruise Collection & Rewards Advantage:**\n\n1. 🌊 **Premier Fleet Coverage**: Access luxury ocean and river itineraries across **Silversea, Regent Seven Seas, Seabourn, Celebrity, and Ritz-Carlton Yacht Collection**.\n\n2. 👑 **Up to 10% Back in Club Credits**: Every stateroom booking earns 5%–10% back in ATLAS Club Credits (Points), credited directly to your Rewards Vault.\n\n3. 🍸 **Free Onboard Credit**: Member staterooms receive $200–$1,000 in complimentary onboard spending money for shore excursions, spa treatments, and specialty dining.\n\n4. 🔒 **Automated Booking & 24/7 Operator Support**: Bookings feature live deck plans, real-time cabin selection, and round-the-clock maritime concierge support.\n\nExplore active voyages in the [ATLAS Cruise Directory](/cruises)!`;
+    }
   }
 
   // 9C. ATLAS REWARDS POINTS & CLUB CREDITS
-  else if (q.includes('point') || q.includes('credit') || q.includes('reward') || q.includes('vault') || q.includes('how to spend points') || q.includes('club credit')) {
-    reply = `💎 **ATLAS Club Credits (Points) & Liquidity Safeguards:**\n\n1. 🪙 **Universal Valuation**: **100 Points = $1.00 USD (10 NOK / £0.80 GBP)** in direct purchasing credits.\n\n2. 📈 **Earn on Every Journey**: Members earn 5%–10% back on hotels, flights, cruises, and car rentals.\n\n3. 🛡️ **50% Co-Pay Cap**: To preserve platform liquidity, Club Credits can cover up to **50% of any booking total**, with the remaining balance settled via card.\n\n4. ⏳ **Vesting Schedule**: Points for cruises vest 14 days post-sailing; hotel stays vest 7 days post-checkout. Unvested points remain safely in escrow.\n\n5. 💵 **Minimum Floor**: Redeem starting at 5,000 points ($50 USD) in 1,000-point increments.\n\nReview your cleared balance and transaction history in the [ATLAS Rewards Vault](/rewards)!`;
+  else if (
+    q.includes('point') || q.includes('credit') || q.includes('reward') || q.includes('vault') ||
+    q.includes('how to spend points') || q.includes('club credit') || q.includes('poeng') ||
+    q.includes('saldo') || q.includes('cashback') || q.includes('fordeler') || q.includes('bonus')
+  ) {
+    if (isNorwegian) {
+      reply = `💎 **ATLAS Rewards Vault & Club Credits (/rewards):**\n\n1. 🪙 **Krystallklar verdi**: **100 poeng = $1,00 USD (ca. 10 NOK / £0,80 GBP)** i reelle reisekreditter.\n\n2. 📈 **Tjen på hver reise**: Få 100% av formidlingsprovisjonene på hotell, fly og cruise kreditert rett til din personlige Rewards Vault.\n\n3. 🛡️ **50% Egenandeltak**: For å beskytte klubbens likviditetsreserver kan poeng dekke inntil **50% av totalbeløpet** på enhver bestilling, mens resten gjøres opp med kort.\n\n4. ⏳ **Escrow & Likviditetssikring**: Opptjente poeng står som \`🟡 Venter på oppgjør (In Escrow)\` frem til provisjonen fra leverandøren har landet på Hard Rock Capital Ltd sin bankkonto (30–60 dager etter gjennomført reise). Deretter frigis de til \`🟢 Disponibel Saldo\` for umiddelbar bruk.\n\n5. 📱 **Digital Wallet**: Last ned ditt personlige medlemskort direkte til **Apple Wallet** eller **Google Wallet** for sanntidsoppdatering av din poengsaldo!\n\n6. 💵 **Lav innløsningsgrense**: Bruk poeng fra 5 000 poeng ($50 USD) i intervaller på 1 000 poeng.\n\nSe din saldo og transaksjonshistorikk i [ATLAS Rewards Vault](/rewards)!`;
+    } else {
+      reply = `💎 **ATLAS Club Credits (Points) & Liquidity Safeguards:**\n\n1. 🪙 **Universal Valuation**: **100 Points = $1.00 USD (10 NOK / £0.80 GBP)** in direct purchasing credits.\n\n2. 📈 **Earn on Every Journey**: Members earn 5%–10% back on hotels, flights, cruises, and car rentals.\n\n3. 🛡️ **50% Co-Pay Cap**: To preserve platform liquidity, Club Credits can cover up to **50% of any booking total**, with the remaining balance settled via card.\n\n4. ⏳ **Vesting Schedule**: Points for cruises vest 14 days post-sailing; hotel stays vest 7 days post-checkout. Unvested points remain safely in escrow.\n\n5. 💵 **Minimum Floor**: Redeem starting at 5,000 points ($50 USD) in 1,000-point increments.\n\nReview your cleared balance and transaction history in the [ATLAS Rewards Vault](/rewards)!`;
+    }
   }
 
   // 10. MEMBERSHIP TIERS, PRICING & ROI
@@ -398,31 +488,26 @@ function generateDomainConciergeResponse(
   }
 
   // 13. FLIGHT DELAY & EU261 CASH COMPENSATION
-  else if (q.includes('delay') || q.includes('claim') || q.includes('cancelled flight') || q.includes('eu261') || q.includes('compensation') || q.includes('airhelp')) {
-    reply = `⚖️ **ATLAS EU261 & International Flight Disruption Compensation Sentinel:**\n\nIf your flight was delayed by 3+ hours or cancelled within the last 3 years, you are legally entitled to statutory cash compensation under European Regulation 261/2004 and UK Air Passenger Rights:\n\n- ✈️ **Short-Haul (< 1,500 km, e.g. Oslo ➔ London/Stockholm)**: **€250 ($275)** per passenger.\n- ✈️ **Medium-Haul (1,500 – 3,500 km, e.g. Oslo ➔ Barcelona/Rome/Mallorca)**: **€400 ($440)** per passenger.\n- ✈️ **Long-Haul (> 3,500 km, e.g. Frankfurt/London ➔ New York/Miami)**: **€600 ($650)** per passenger.\n\n🛡️ **Instant Verification**: Enter any flight number in our [Live Flight Claims Scanner](/flight-claims) for immediate verification and direct payout straight to your ATLAS Visa Card!`;
+  else if (
+    q.includes('delay') || q.includes('claim') || q.includes('cancelled flight') ||
+    q.includes('eu261') || q.includes('compensation') || q.includes('airhelp') ||
+    q.includes('forsinkelse') || q.includes('erstatning') || q.includes('innstilt fly') ||
+    q.includes('kansellert fly') || q.includes('flyforsinkelse')
+  ) {
+    if (isNorwegian) {
+      reply = `⚖️ **ATLAS EU261 & Passasjerrettigheter ved Flyforsinkelse:**\n\nDersom flyet ditt ble forsinket med 3+ timer eller innstilt i løpet av de siste 3 årene, har du lovfestet rett til standardisert kontanterstatning etter EU/EØS-forordning 261/2004:\n\n- ✈️ **Kortdistanse (< 1 500 km, f.eks. Oslo ➔ London/Stockholm/København)**: **250 €** per passasjer.\n- ✈️ **Mellomdistanse (1 500 – 3 500 km, f.eks. Oslo ➔ Barcelona/Roma/Mallorca/Alicante)**: **400 €** per passasjer.\n- ✈️ **Langdistanse (> 3 500 km, f.eks. Oslo/Frankfurt ➔ New York/Bangkok/Dubai)**: **600 €** per passasjer.\n\n🛡️ **0% Gebyrsnoking**: Tradisjonelle kravselskaper krever 30%–45% i gebyr. ATLAS veileder deg slik at hele erstatningen tilfaller deg direkte!`;
+    } else {
+      reply = `⚖️ **ATLAS EU261 & International Flight Disruption Compensation Sentinel:**\n\nIf your flight was delayed by 3+ hours or cancelled within the last 3 years, you are legally entitled to statutory cash compensation under European Regulation 261/2004 and UK Air Passenger Rights:\n\n- ✈️ **Short-Haul (< 1,500 km, e.g. Oslo ➔ London/Stockholm)**: **€250 ($275)** per passenger.\n- ✈️ **Medium-Haul (1,500 – 3,500 km, e.g. Oslo ➔ Barcelona/Rome/Mallorca)**: **€400 ($440)** per passenger.\n- ✈️ **Long-Haul (> 3,500 km, e.g. Frankfurt/London ➔ New York/Miami)**: **€600 ($650)** per passenger.\n\n🛡️ **Instant Verification**: Enter any flight number in our [Live Flight Claims Scanner](/flight-claims) for immediate verification and direct payout straight to your ATLAS Visa Card!`;
+    }
   }
 
   // 14. PRIVATE JETS & EMPTY-LEG CHARTERS
-  else if (q.includes('jet') || q.includes('empty leg') || q.includes('private flight') || q.includes('charter') || q.includes('lounge')) {
-    reply = `🛩️ **ATLAS Private Aviation & Empty-Leg Clearing:**\n\nWhen private charter aircraft reposition without passengers, ATLAS members access these **Empty-Leg Seats at up to 75%–80% below retail charter rates**:\n\n• **London Luton ➔ Nice / Cannes**: From **$1,150 / seat** (Cessna Citation XLS)\n• **Miami ➔ New York Teterboro**: From **$1,450 / seat** (Bombardier Challenger 350)\n• **Geneva ➔ Dubai Al Maktoum**: From **$2,800 / seat** (Gulfstream G550)\n\n☕ **VIP Airport Lounge Access**: Includes complimentary champagne, private boarding gate, and customs escort at 500+ private FBO terminals worldwide. Explore active listings on our [Private Jets](/private-jets) portal!`;
-  }
-
-  // 15. ATLAS CLUB CREDITS & LOYALTY REWARDS VAULT
-  else if (
-    q.includes('point') || q.includes('points') || q.includes('credit') || q.includes('credits') ||
-    q.includes('poeng') || q.includes('reward') || q.includes('loyal') || q.includes('vault') ||
-    q.includes('cashback') || q.includes('redemption')
-  ) {
-    reply = `💎 **ATLAS Club Credits & Rewards Vault (/rewards):**\n\nATLAS operates a sovereign rewards token system giving members back travel purchasing power:\n\n• **Token Value**: **100 Points = $1.00 USD** (pegged firmly; never diluted).\n• **Earning**: Earn thousands of Club Credits on qualifying wholesale hotels and luxury cruise voyages.\n• **50% Co-Payment Cap**: You can apply your points up to **50% of any booking total** at checkout. The remaining 50% is paid with your card, ensuring continuous wholesale supplier settlement and platform liquidity.\n• **Minimum Redemption**: 5,000 points ($50.00 USD) in 1,000 pt increments.\n• **Vesting Delays**: Points clear into your spendable vault **7 days after hotel check-out** or **14 days after cruise disembarkation**, once supplier reconciliations are finalized.\n• **Dual-Rail Treasury**: Redemptions are settled via dedicated Wise Business Virtual Commercial Cards (VCC), funded by partner commissions.\n\nVisit your personal [Rewards Vault](/rewards) to view your cleared balance and pending escrow!`;
-  }
-
-  // 16. LUXURY CRUISES & OCEAN EXPEDITIONS
-  else if (
-    q.includes('cruise') || q.includes('cruises') || q.includes('cruising') ||
-    q.includes('seiling') || q.includes('skip') || q.includes('silversea') ||
-    q.includes('regent') || q.includes('celebrity') || q.includes('ritz')
-  ) {
-    reply = `🚢 **ATLAS Luxury Cruises & Ocean Expeditions (/cruises):**\n\nWe provide members wholesale voyage access across 25,000+ itineraries with world-class maritime fleets:\n\n• **Curated Fleets**: Silversea, Regent Seven Seas, Celebrity Cruises, Seabourn, and The Ritz-Carlton Yacht Collection.\n• **Complimentary Onboard Credit (OBC)**: Up to **$600 USD** in stateroom credits for fine dining, spa, and shore excursions.\n• **Club Credits Earned**: Every cruise voyage awards **+10,000 to +35,000 ATLAS Club Credits** credited directly to your Rewards Vault.\n• **Zero Retail Markups**: Direct wholesale access bypasses high retail agency commissions.\n\nExplore departures in the Mediterranean, Caribbean, Fjords, and Antarctica on our [Cruises Portal](/cruises)!`;
+  else if (q.includes('jet') || q.includes('empty leg') || q.includes('private flight') || q.includes('charter') || q.includes('privatfly')) {
+    if (isNorwegian) {
+      reply = `🛩️ **ATLAS Privatfly & Empty-Leg Formidling (/private-jets):**\n\nNår private charterfly reposisjonerer uten passasjerer, får ATLAS-medlemmer tilgang til disse **tomme flysetene med inntil 75%–80% rabatt sammenlignet med standard charter**:\n\n• **London Luton ➔ Nice / Cannes**: Fra **$1 150 / sete** (Cessna Citation XLS)\n• **Oslo Gardermoen ➔ Genève / Zürich**: Fra **$1 650 / sete** (Challenger 350)\n• **Genève ➔ Dubai Al Maktoum**: Fra **$2 800 / sete** (Gulfstream G550)\n\n☕ **VIP FBO-Terminaler**: Inkluderer champagne i privat lounge, egen passkontroll og diskré ombordstigning på under 15 minutter. Utforsk ledige ruter på [Privatfly](/private-jets)!`;
+    } else {
+      reply = `🛩️ **ATLAS Private Aviation & Empty-Leg Clearing:**\n\nWhen private charter aircraft reposition without passengers, ATLAS members access these **Empty-Leg Seats at up to 75%–80% below retail charter rates**:\n\n• **London Luton ➔ Nice / Cannes**: From **$1,150 / seat** (Cessna Citation XLS)\n• **Miami ➔ New York Teterboro**: From **$1,450 / seat** (Bombardier Challenger 350)\n• **Geneva ➔ Dubai Al Maktoum**: From **$2,800 / seat** (Gulfstream G550)\n\n☕ **VIP Airport Lounge Access**: Includes complimentary champagne, private boarding gate, and customs escort at 500+ private FBO terminals worldwide. Explore active listings on our [Private Jets](/private-jets) portal!`;
+    }
   }
 
   // 17. B2B & INSTITUTIONAL ENTERPRISE SALES
@@ -432,7 +517,11 @@ function generateDomainConciergeResponse(
     q.includes('firmareise') || q.includes('agenturer') || q.includes('tekna') ||
     q.includes('organisasjon') || q.includes('forretningsreise')
   ) {
-    reply = `🏢 **ATLAS B2B Enterprise & Institutional Agreements (/b2b):**\n\nWe partner directly with corporations, associations, and unions to slash business travel expenditure:\n\n• **30%–50% Travel Cost Reduction**: Replaces traditional Travel Management Companies (TMCs) and high-commission booking tools with direct wholesale bedbank and NDC air feeds.\n• **Headcount Savings Calculator**: Calculate exact corporate ROI based on your team size at [/b2b](/b2b).\n• **Turnkey Partner Portals**: Live examples include [Agenturer.no](/b2b/portal/agenturer-no) (Nordic sales agent network) and [Tekna](/b2b/portal/tekna) (105,000 engineers).\n• **Audit-Ready Financials**: Automated MVA/VAT expense receipting with zero personal credit card float.\n• **Case Study & Audited Proofs**: Review verified corporate cost studies at [/case-study](/case-study) and [/proof](/proof).\n\nWould you like to request an institutional enterprise proposal for your organization?`;
+    if (isNorwegian) {
+      reply = `🏢 **ATLAS B2B Bedriftsavtaler & Institusjonelle Lisenser (/b2b):**\n\nVi inngår direkte rammeavtaler med bedrifter, bransjeorganisasjoner og fagforeninger for å kutte reisekostnader drastisk:\n\n• **30%–50% Kostnadskutt**: Erstatter fordyrende forretningsreisebyråer (TMC) og gebyrtunge bestillingssystemer med direkte nettopriser på hotell og fly.\n• **Bedriftskalkulator**: Beregn nøyaktig besparelse for din virksomhet på [/b2b](/b2b).\n• **Skreddersydde Portaler**: Se eksempler som [Agenturer.no](/b2b/portal/agenturer-no) og [Tekna](/b2b/portal/tekna).\n• **MVA/VAT & Regnskap**: Automatiserte, revisjonsklare kvitteringer med full oversikt.\n\nØnsker du at vi utarbeider et uforpliktende bedriftsforslag for din virksomhet?`;
+    } else {
+      reply = `🏢 **ATLAS B2B Enterprise & Institutional Agreements (/b2b):**\n\nWe partner directly with corporations, associations, and unions to slash business travel expenditure:\n\n• **30%–50% Travel Cost Reduction**: Replaces traditional Travel Management Companies (TMCs) and high-commission booking tools with direct wholesale bedbank and NDC air feeds.\n• **Headcount Savings Calculator**: Calculate exact corporate ROI based on your team size at [/b2b](/b2b).\n• **Turnkey Partner Portals**: Live examples include [Agenturer.no](/b2b/portal/agenturer-no) (Nordic sales agent network) and [Tekna](/b2b/portal/tekna) (105,000 engineers).\n• **Audit-Ready Financials**: Automated MVA/VAT expense receipting with zero personal credit card float.\n• **Case Study & Audited Proofs**: Review verified corporate cost studies at [/case-study](/case-study) and [/proof](/proof).\n\nWould you like to request an institutional enterprise proposal for your organization?`;
+    }
   }
 
   // 18. ATLAS SOVEREIGN METAL VISA CARD
@@ -441,7 +530,11 @@ function generateDomainConciergeResponse(
     q.includes('metal') || q.includes('kredittkort') || q.includes('sovereign card') ||
     q.includes('debetkort') || q.includes('betalingskort')
   ) {
-    reply = `💳 **The ATLAS Sovereign Metal Card (Visa Infinite — Coming Soon):**\n\nDesigned exclusively for ATLAS members to navigate global travel with zero banking frictions:\n\n• **16g Solid Brushed Steel**: Heavy luxury metal form factor featuring the official ATLAS wordmark.\n• **Direct Vault Integration**: Spend your ATLAS Club Credits seamlessly anywhere Visa is accepted worldwide.\n• **0% Foreign Exchange (FX) Fees**: Wholesale interbank exchange rates with zero bank spread.\n• **DragonPass Lounge Integration**: Tap into 1,300+ VIP airport lounges and fast-track security lanes globally.\n• **Worldwide ATM Fee Rebates**: Free cash withdrawals across 200+ countries.\n\nCheck out the card showcase on our [Homepage](/) and stay tuned for early founder card dispatch!`;
+    if (isNorwegian) {
+      reply = `💳 **ATLAS Sovereign Metal Card (Visa — Lanseres snart):**\n\nEksklusivt metallkort designet for ATLAS-medlemmer for sømløs global reise uten bankgebyrer:\n\n• **16g Børstet Rustfritt Stål**: Tungt luksusmetall med inngravert ATLAS-identitet.\n• **Direkte koblet til Rewards Vault**: Bruk dine opptjente Club Credits direkte overalt hvor Visa aksepteres i verden.\n• **0% Valutapåslag (FX)**: Rå interbank-vekslingskurs uten banksmøring eller skjulte spread.\n• **DragonPass VIP Lounger**: Adgang til 1 300+ flyplasslounger og fast-track sikkerhetskontroll.\n• **Gebyrfrie minibankuttak**: Gratis kontantuttak i over 200 land.\n\nSe kortpresentasjonen på [Forsiden](/) og hold deg oppdatert i medlemsportalen!`;
+    } else {
+      reply = `💳 **The ATLAS Sovereign Metal Card (Visa Infinite — Coming Soon):**\n\nDesigned exclusively for ATLAS members to navigate global travel with zero banking frictions:\n\n• **16g Solid Brushed Steel**: Heavy luxury metal form factor featuring the official ATLAS wordmark.\n• **Direct Vault Integration**: Spend your ATLAS Club Credits seamlessly anywhere Visa is accepted worldwide.\n• **0% Foreign Exchange (FX) Fees**: Wholesale interbank exchange rates with zero bank spread.\n• **DragonPass Lounge Integration**: Tap into 1,300+ VIP airport lounges and fast-track security lanes globally.\n• **Worldwide ATM Fee Rebates**: Free cash withdrawals across 200+ countries.\n\nCheck out the card showcase on our [Homepage](/) and stay tuned for early founder card dispatch!`;
+    }
   }
 
   // 19. CRUISE RATE PARITY AUDIO & PODCAST FACT-CHECK
@@ -450,7 +543,11 @@ function generateDomainConciergeResponse(
     q.includes('fact-check') || q.includes('samme pris') || q.includes('identical price') ||
     q.includes('hvorfor samme') || q.includes('lyd') || q.includes('episode')
   ) {
-    reply = `🎙️ **Verified Audio Deep Dive: Why Luxury Cruise Prices Are Identical (/cruises):**\n\nWe have published a 40-minute executive briefing directly on our cruise portal explaining the financial mechanics of the industry:\n\n1. ⚖️ **Retail Rate Parity Laws**: Why Silversea, Regent, and Ritz-Carlton contractually ban Expedia and OTAs from discounting ticket prices publicly.\n2. 💰 **The Hidden 10%–16% Commission**: Cruise lines quietly pay large wholesale commissions, which standard OTAs pocket 100% as corporate profit.\n3. 💎 **The ATLAS Arbitrage**: ATLAS complies with rate parity at checkout, but rebates that 10% back to you as Club Credits in your Rewards Vault + up to $600 USD in Onboard Credit.\n\nYou can listen to or download the full audio episode directly on our [Cruises Portal](/cruises)!`;
+    if (isNorwegian) {
+      reply = `🎙️ **Verifisert Audio Deep Dive & Podcast Briefing:**\n\nVi har publisert grundige executive podcasts og PDF-rapporter direkte på plattformen:\n\n1. 📱 **Digitale Lommebøker vs. Lojalitetsapper (/rewards)**: Hvordan Apple & Google Wallet erstatter tradisjonelle lojalitetsapper med sanntids saldo og likviditetsvern.\n2. 🚢 **Rate Parity & Luksuscruise (/cruises)**: 40-minutters faktasjekk som forklarer hvorfor rederier forbyr rabatter, og hvordan ATLAS gir deg 100% av provisjonen tilbake som Club Credits.\n\nDu kan lytte til podcastene og laste ned den fullstendige PDF-rapporten direkte i [ATLAS Rewards Vault](/rewards)!`;
+    } else {
+      reply = `🎙️ **Verified Audio Deep Dive: Why Luxury Cruise Prices Are Identical (/cruises):**\n\nWe have published a 40-minute executive briefing directly on our cruise portal explaining the financial mechanics of the industry:\n\n1. ⚖️ **Retail Rate Parity Laws**: Why Silversea, Regent, and Ritz-Carlton contractually ban Expedia and OTAs from discounting ticket prices publicly.\n2. 💰 **The Hidden 10%–16% Commission**: Cruise lines quietly pay large wholesale commissions, which standard OTAs pocket 100% as corporate profit.\n3. 💎 **The ATLAS Arbitrage**: ATLAS complies with rate parity at checkout, but rebates that 10% back to you as Club Credits in your Rewards Vault + up to $600 USD in Onboard Credit.\n\nYou can listen to or download the full audio episode directly on our [Cruises Portal](/cruises)!`;
+    }
   }
 
   // 20. ATLAS SIGNATURE RESORTS (FERIELEILIGHETER FRA 2 890 NOK)
@@ -473,14 +570,14 @@ function generateDomainConciergeResponse(
     reply = `🍷 **Atlas Gourmet & Spa Escapes — 0 kr i Rompris (/spa-breaks):**\n\nGjennom vårt partnerskap med Connex (Holiday Plus) fyller utvalgte 3–4* superior velværerhoteller i Europa ledig kapasitet med en genial modell:\n\n• **Rompris**: **0 NOK** (gratis opphold for 2 personer i 2–4 netter).\n• **100% Transparent Økonomi**: Du betaler kun hotellets offisielle, faste halvpensjonspris (**€35–€60 per person/dag**) for rikholdig frokost og gourmet fleretters middag direkte ved utsjekk på hotellet.\n• **Dokumentert besparelse**: Sparer typisk **over 6 700 NOK** per helg eller miniferie sammenlignet med Booking.com og Expedia.\n• **Håndplukkede destinasjoner**: Dolomittene (Sør-Tyrol), Chianti (Toscana), Schwarzwald (Tyskland), Salzburg (Østerrike), Gardasjøen og Provence.\n• **Umiddelbar kupongutstedelse**: Aktiver din unike verdikupong (HP-xxxx-ATLAS) med ett klikk på vår portal.\n\nHent din 0 kr hotellkupong på [Gourmet & Spa Escapes](/spa-breaks)!`;
   }
 
-  // 20. BESPOKE TRAVEL PLAN, ITINERARY & OUTINGS GENERATOR
+  // 22. BESPOKE TRAVEL PLAN, ITINERARY & OUTINGS GENERATOR
   else if (
     q.includes('reiseplan') || q.includes('travel plan') || q.includes('itinerary') ||
     q.includes('utflukt') || q.includes('outings') || q.includes('dag for dag') ||
     q.includes('day by day') || q.includes('things to do') || q.includes('aktivitet') ||
     q.includes('hva bør jeg gjøre') || q.includes('schedule')
   ) {
-    const dest = hasHotel ? hotelContext!.city || 'your destination' : 'Barcelona / Paris';
+    const dest = hasHotel ? hotelContext!.city || 'din destinasjon' : 'Barcelona / Paris';
     const hotelRef = hasHotel ? ` med opphold på **${hotelName}**` : '';
     const homeHub = travelProfile?.homeAirport || 'OSL';
     const cabin = travelProfile?.preferredCabinClass || 'Business Class';
@@ -509,9 +606,13 @@ function generateDomainConciergeResponse(
       `💡 *Ønsker du at jeg reserverer noen av disse utfluktene eller overfører reiseplanen til dine aktive bestillinger?*`;
   }
 
-  // 21. DYNAMIC CONVERSATIONAL HOTEL OR GENERAL TRAVEL RESPONSE
+  // 23. DYNAMIC CONVERSATIONAL HOTEL OR GENERAL TRAVEL RESPONSE
   else if (hasHotel) {
-    reply = `🏨 **Wholesale Intelligence for ${hotelName} (${city}):**\n\nRegarding your question about **"${query}"** for your stay from **${dates}**:\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Instant Member Savings**: **$${savings} (${savingsPct}% Off)**\n\nEvery ATLAS booking includes all destination taxes, 0% retail markup, full rate parity protection, and guaranteed B2B Bedbank check-in vouchers. Would you like me to reserve this rate or explain room categories?`;
+    if (isNorwegian) {
+      reply = `🏨 **Engrosanalyse for ${hotelName} (${city}):**\n\nAngående ditt spørsmål om **"${query}"** for oppholdet **${dates}**:\n\n• **Offisiell retailpris**: $${pubRate}/natt ($${pubTotal} totalt) hos ${ota}\n• **ATLAS Engrospris**: **$${wsRate}/natt ($${wsTotal} totalt)**\n• **Din medlemsgevinst**: **$${savings} (${savingsPct}% rabatt)**\n\nAlle bestillinger hos ATLAS inkluderer alle destinasjonsskatter, 0 kr i påslag, full rate parity-beskyttelse og garantert B2B Bedbank-innsjekking. Ønsker du at jeg låser inn denne prisen for deg, eller vil du ha detaljer om romkategoriene?`;
+    } else {
+      reply = `🏨 **Wholesale Intelligence for ${hotelName} (${city}):**\n\nRegarding your question about **"${query}"** for your stay from **${dates}**:\n\n• **Public Retail Rate**: $${pubRate}/night ($${pubTotal} total) on ${ota}\n• **ATLAS Wholesale Rate**: **$${wsRate}/night ($${wsTotal} total)**\n• **Instant Member Savings**: **$${savings} (${savingsPct}% Off)**\n\nEvery ATLAS booking includes all destination taxes, 0% retail markup, full rate parity protection, and guaranteed B2B Bedbank check-in vouchers. Would you like me to reserve this rate or explain room categories?`;
+    }
     bookingAction = {
       hotelId: hotelContext!.id || 'hotel-stay',
       hotelName,
@@ -522,10 +623,30 @@ function generateDomainConciergeResponse(
       savings,
     };
   } else {
-    reply = `✨ I am **Aura**, your proactive VIP Travel Concierge.\n\nRegarding your question about **"${query}"**:\n\nATLAS operates directly on institutional B2B Bedbanks (Hotelbeds, WebBeds) across 1,000,000+ luxury hotels worldwide. By eliminating public retail ad costs (the 20%–45% markup charged by Booking.com and Expedia), our members access net wholesale pass-through pricing with zero retail markup.\n\n**Would you like me to:**\n1. Run a live wholesale rate audit for a specific hotel or city?\n2. Explain rate parity and the legal closed-loop exemption?\n3. Show how taxes and resort fees are prepaid upfront?\n4. Guide you through B2B check-in voucher guarantees?\n\nTell me which hotel or city you are considering!`;
+    if (isNorwegian) {
+      reply = `✨ Jeg er **Aura**, din personlige VIP Travel Concierge for ATLAS.\n\nAngående ditt spørsmål om **"${query}"**:\n\nATLAS gir deg direkte tilgang til over 1 000 000 luksushoteller via institusjonelle B2B Bedbanks (Hotelbeds, WebBeds) og flygrossister med 0 kr påslag. Du betaler nøyaktig leverandørens engrospris.\n\n**Hva ønsker du at jeg skal hjelpe deg med?**\n1. Sjekke engrosprisen på et bestemt hotell eller reisemål?\n2. Forklare hvorfor ATLAS er fritatt Rate Parity?\n3. Vise hvordan du bruker poeng og Rewards Vault?\n4. Guide deg gjennom våre eksklusive feriesuiter (fra 2 890 kr for 7 netter)?\n\nFortell meg hvilket hotell eller reisemål du har i tankene!`;
+    } else {
+      reply = `✨ I am **Aura**, your proactive VIP Travel Concierge.\n\nRegarding your question about **"${query}"**:\n\nATLAS operates directly on institutional B2B Bedbanks (Hotelbeds, WebBeds) across 1,000,000+ luxury hotels worldwide. By eliminating public retail ad costs (the 20%–45% markup charged by Booking.com and Expedia), our members access net wholesale pass-through pricing with zero retail markup.\n\n**Would you like me to:**\n1. Run a live wholesale rate audit for a specific hotel or city?\n2. Explain rate parity and the legal closed-loop exemption?\n3. Show how taxes and resort fees are prepaid upfront?\n4. Guide you through B2B check-in voucher guarantees?\n\nTell me which hotel or city you are considering!`;
+    }
   }
 
   return { reply, bookingAction, showHowItWorksLink, showNomadLink, showProofLink };
+}
+
+function detectIsNorwegian(query: string, userLocale?: string): boolean {
+  if (userLocale && userLocale.toLowerCase().startsWith('no')) return true;
+  if (/[æøåÆØÅ]/.test(query)) return true;
+  const norwegianWords = [
+    'hei', 'hallo', 'hva', 'hvorfor', 'hvordan', 'hvem', 'når', 'hvilke', 'hvilken',
+    'poeng', 'saldo', 'reise', 'reiser', 'hotell', 'fly', 'flyreiser', 'leilighet',
+    'ferie', 'ferier', 'bestill', 'bestille', 'bestilling', 'medlem', 'medlemskap',
+    'fordeler', 'pass', 'lommebok', 'utflukt', 'utflukter', 'norge', 'oslo', 'kroner',
+    'nok', 'skatt', 'skatter', 'gebyr', 'gebyrer', 'avbestille', 'avbestilling',
+    'erstatning', 'forsinkelse', 'voucher', 'kupong', 'halvpensjon', 'opphold',
+    'norsk', 'språk', 'forstår', 'hjelp', 'vis'
+  ];
+  const qLower = query.toLowerCase();
+  return norwegianWords.some((w) => new RegExp(`\\b${w}\\b`, 'i').test(qLower));
 }
 
 export async function POST(req: NextRequest) {
@@ -533,6 +654,7 @@ export async function POST(req: NextRequest) {
     const { prompt, hotelContext, userContext, travelProfile, features: passedFeatures, history } = await req.json();
     const query = (prompt || '').trim();
     const features: PlatformFeatureFlags = passedFeatures || DEFAULT_PLATFORM_CONFIG;
+    const isNorwegian = detectIsNorwegian(query, userContext?.locale);
 
     const activeModel = resolveActiveGeminiModel({
       modelOverride: features.geminiModelId,
@@ -550,13 +672,13 @@ export async function POST(req: NextRequest) {
 
     // 1. If an API key is configured, call Google Gemini with full platform grounding
     if (apiKey) {
-      const systemPrompt = buildAuraSystemPrompt(hotelContext, userContext?.name, travelProfile);
+      const systemPrompt = buildAuraSystemPrompt(hotelContext, userContext?.name, travelProfile, isNorwegian);
       reply = await queryGeminiApi(apiKey, activeModel.id, systemPrompt, query, history);
     }
 
     // 2. If Gemini is not configured or failed, use our comprehensive Deep Domain Intelligence Engine
     if (!reply) {
-      const domainResult = generateDomainConciergeResponse(query, hotelContext, features, travelProfile);
+      const domainResult = generateDomainConciergeResponse(query, hotelContext, features, travelProfile, isNorwegian);
       reply = domainResult.reply;
       bookingAction = domainResult.bookingAction;
       showHowItWorksLink = domainResult.showHowItWorksLink || false;
@@ -567,7 +689,7 @@ export async function POST(req: NextRequest) {
     // Ensure booking action is attached if user is asking to book the active hotel
     if (!bookingAction && hotelContext && hotelContext.name) {
       const qLower = query.toLowerCase();
-      if (qLower.includes('book') || qLower.includes('reserve') || qLower.includes('lock in')) {
+      if (qLower.includes('book') || qLower.includes('reserve') || qLower.includes('lock in') || qLower.includes('bestill') || qLower.includes('reserver')) {
         bookingAction = {
           hotelId: hotelContext.id || 'hotel-stay',
           hotelName: hotelContext.name,
@@ -626,7 +748,11 @@ export async function POST(req: NextRequest) {
           const flightComp = tripItinerary.components.flight;
           const loungeComp = tripItinerary.components.lounge;
 
-          reply = `🎯 **Atlas Central Brain: Full Wholesale Package Assembled for ${dest}!**\n\nI have mobilized our 5 domain subagents (Hotels, Flights, Lounges, Cruises, and Finance Guardian) to create your synchronized 0% retail markup itinerary:\n\n• 🏨 **Wholesale Hotel**: ${hotelComp?.hotelName || 'Luxury 5★ Palace'} ($${hotelComp?.rawWholesaleNetPrice || 310}/nt)\n• ✈️ **NDC Flight Direct**: ${flightComp?.airlineName || 'British Airways / SAS'} (${flightComp?.cabinClass || 'Business'})\n• ☕ **VIP Airport Lounge**: ${loungeComp?.name || 'Club Aspire VIP Lounge'} (£${loungeComp?.wholesaleNetCostGbp || 22.50} vs £${loungeComp?.publicWalkUpPriceGbp || 48} walk-in)\n\n💰 **Consolidated Savings**: Save **$${tripItinerary.pricing.memberTotalSavings}** vs. public retail travel aggregators!\n\nReview the synchronized trip card below to lock in the wholesale bundle:`;
+          if (isNorwegian) {
+            reply = `🎯 **Atlas Central Brain: Komplett engrospakke sammensatt for ${dest}!**\n\nJeg har mobilisert våre 5 domenesubagenter (Hoteller, Fly, Lounger, Cruise og Finans) for å sette sammen en synkronisert reiserute med 0 kr påslag:\n\n• 🏨 **Engroshotell**: ${hotelComp?.hotelName || 'Luksus 5★ Palass'} ($${hotelComp?.rawWholesaleNetPrice || 310}/natt)\n• ✈️ **Direkte NDC-fly**: ${flightComp?.airlineName || 'SAS / British Airways'} (${flightComp?.cabinClass || 'Business'})\n• ☕ **VIP Flyplasslounge**: ${loungeComp?.name || 'Club Aspire VIP Lounge'}\n\n💰 **Samlet Medlemsbesparelse**: Spar **$${tripItinerary.pricing.memberTotalSavings}** mot åpne reisesider!\n\nSe detaljene i reisekortet under for å sikre pakken:`;
+          } else {
+            reply = `🎯 **Atlas Central Brain: Full Wholesale Package Assembled for ${dest}!**\n\nI have mobilized our 5 domain subagents (Hotels, Flights, Lounges, Cruises, and Finance Guardian) to create your synchronized 0% retail markup itinerary:\n\n• 🏨 **Wholesale Hotel**: ${hotelComp?.hotelName || 'Luxury 5★ Palace'} ($${hotelComp?.rawWholesaleNetPrice || 310}/nt)\n• ✈️ **NDC Flight Direct**: ${flightComp?.airlineName || 'British Airways / SAS'} (${flightComp?.cabinClass || 'Business'})\n• ☕ **VIP Airport Lounge**: ${loungeComp?.name || 'Club Aspire VIP Lounge'} (£${loungeComp?.wholesaleNetCostGbp || 22.50} vs £${loungeComp?.publicWalkUpPriceGbp || 48} walk-in)\n\n💰 **Consolidated Savings**: Save **$${tripItinerary.pricing.memberTotalSavings}** vs. public retail travel aggregators!\n\nReview the synchronized trip card below to lock in the wholesale bundle:`;
+          }
         }
       } catch (err) {
         console.warn('Atlas Brain auto-trip assemble fallback:', err);

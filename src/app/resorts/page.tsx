@@ -373,13 +373,11 @@ export default function ResortsPage() {
               <span>{isNo ? 'Søk fly til nettopris' : 'Search NDC Net Flights'}</span>
             </Link>
             <a
-              href="https://www.resortcerts.com/preview365"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#featured-resorts"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-xs"
             >
               <Compass className="w-4 h-4 text-amber-200" />
-              <span>{isNo ? 'Bla i global katalog (4 000+ resorts)' : 'Preview Global Catalog (4,000+ Resorts)'}</span>
+              <span>{isNo ? 'Utforsk utvalgte resorts (4 000+ totalt)' : 'Explore Featured Resorts (4,000+ Total)'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -456,65 +454,82 @@ export default function ResortsPage() {
           </div>
         </div>
 
-        {/* PRICING TRUTH & TRANSPARENCY BOX (Official 2026 Incentivations/RCI Sheet Explained) */}
-        <div className="bg-amber-50/70 border border-amber-200/90 rounded-3xl p-6 sm:p-8 space-y-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-200/80 text-amber-900 flex items-center justify-center font-black text-lg shrink-0">
-              💡
-            </div>
+        {/* EXCLUSIVE LUXURY RESORTS VALUE PROPOSITION (100% ON-SITE) */}
+        <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-amber-500/30 rounded-3xl p-6 sm:p-8 space-y-6 text-white shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div className="space-y-1">
-              <h3 className="text-base sm:text-lg font-black text-amber-950">
-                {isNo ? 'Full åpenhet: Hvordan fungerer B2B-engrosprisene og rabattene?' : 'Full Transparency: How Wholesale Rates & Discounts Work'}
-              </h3>
-              <p className="text-xs sm:text-sm text-amber-900/80 leading-relaxed">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-bold uppercase tracking-wider rounded-full mb-1">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isNo ? 'Eksklusiv Medlemsfordel' : 'Exclusive Member Privilege'}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 {isNo
-                  ? 'Vi handler direkte fra Resort Vacation Certificates (Incentivations / RCI). Her er fakta om prisene så du aldri blir lurt av skjulte gebyrer:'
-                  : 'We procure directly via Resort Vacation Certificates (Incentivations / RCI). Here are the exact economics so you never face hidden surprises:'}
+                  ? '7 netter i romslig ferieleilighet til fast klubbpris'
+                  : '7-Night Full Condo Stays at Fixed Member Rates'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                {isNo
+                  ? 'Gjennom våre lukkede allianser sikrer ATLAS tilgang til førsteklasses ferieleiligheter i Middelhavet og Kanariøyene. Én fast klubbpris for hele reisefølget – uansett om dere er 2, 4 eller 6 personer.'
+                  : 'Through private institutional partnerships, ATLAS unlocks premium full-condo accommodations across the Mediterranean and Canary Islands. One flat club rate for your entire party.'}
               </p>
+            </div>
+
+            <div className="shrink-0 bg-slate-800/80 border border-amber-500/30 rounded-2xl p-4 text-center">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                {isNo ? 'Typisk hotellpris på nettet' : 'Typical Public OTA Cost'}
+              </div>
+              <div className="text-lg font-black text-slate-400 line-through">
+                12 000 – 25 000 kr
+              </div>
+              <div className="text-sm font-black text-amber-400 mt-0.5">
+                {isNo ? 'ATLAS fra 2 890 kr / uke' : 'ATLAS from 2,890 NOK / wk'}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs">
-            <div className="p-4 rounded-2xl bg-white border border-amber-200/70 space-y-1.5 shadow-2xs">
-              <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                <span className="text-emerald-600 font-black">1.</span>
-                <span>{isNo ? 'Promo Price vs Retail Price' : 'Promo Price vs Retail'}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs relative z-10">
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <div className="font-bold text-amber-300 text-sm flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{isNo ? 'Hele leiligheten inkludert' : 'Full Private Condo'}</span>
               </div>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed text-[11px]">
                 {isNo
-                  ? 'Veiledende pris for et 365-dagers sertifikat er $499 (~5 400 kr). Vår rabatterte B2B-promo-innkjøpspris er $379 (~4 100 kr). For Last-Minute er promo-prisen kun $219 (~2 400 kr).'
-                  : 'Retail price on an open certificate is $499. Our negotiated B2B promo cost is $379. For Last-Minute, promo cost drops to $219.'}
+                  ? 'Separate soverom, fullt utstyrt kjøkken, spiseplass og terrasse. Perfekt for familier og par som ønsker friheten til å lage egne måltider og ha god plass.'
+                  : 'Multiple bedrooms, full kitchen, dining area, and balcony. Exceptional comfort and space for families and groups.'}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-amber-200/70 space-y-1.5 shadow-2xs">
-              <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                <span className="text-rose-600 font-black">2.</span>
-                <span>{isNo ? 'Hvorfor Atlas avviser $69-sertifikatene' : 'Why We Reject $69 Vouchers'}</span>
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <div className="font-bold text-amber-300 text-sm flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{isNo ? '100 % Forhåndsbetalt' : '100% Fully Prepaid'}</span>
               </div>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed text-[11px]">
                 {isNo
-                  ? 'Det finnes $69-sertifikater i markedet, men de krever en obligatorisk egenandel (Buy-up) på fra $299 (~3 300 kr) ved booking! Atlas leverer utelukkende 100% forhåndsbetalte sertifikater der leiligheten koster 0 kr ved booking.'
-                  : 'Certain $69 vouchers exist in marketing circles, but they mandate a $299+ co-pay upon booking. Atlas rejects this and only issues 100% prepaid stays with $0 co-pay.'}
+                  ? 'Klubbprisen dekker hele oppholdet for 7 netter. Ingen obligatoriske bookinggebyrer på nett, og full pris- og avbestillingstrygghet.'
+                  : 'Your member rate covers all 7 nights. Zero mandatory online co-pays and complete price integrity from start to finish.'}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-amber-200/70 space-y-1.5 shadow-2xs">
-              <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                <span className="text-sky-600 font-black">3.</span>
-                <span>{isNo ? 'Test tilgjengelighet før du kjøper' : 'Test Drive Live Inventory'}</span>
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <div className="font-bold text-amber-300 text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>{isNo ? 'Personlig Concierge-hjelp' : 'Dedicated VIP Concierge'}</span>
               </div>
-              <p className="text-slate-600 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed text-[11px]">
                 {isNo
-                  ? 'Du kan gå til ResortCerts.com/Incentivations og klikke "Explore Resorts" for å se nøyaktig hvilke uker og leiligheter som er ledige i sanntid før du bruker penger.'
-                  : 'You can visit ResortCerts.com/Incentivations and click "Explore Resorts" to search and verify real-time inventory before purchasing.'}
+                  ? 'Alt håndteres 100 % inne på ATLAS. Velg ditt ønskede resort under, så ordner vår VIP Concierge hele bestillingen direkte for deg.'
+                  : 'Seamless on-site booking. Select your preferred resort below, and our dedicated VIP Concierge coordinates the entire reservation.'}
               </p>
             </div>
           </div>
         </div>
 
         {/* REGION FILTER TABS */}
-        <div className="space-y-4">
+        <div id="featured-resorts" className="space-y-4 scroll-mt-20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-2xl font-black text-slate-900 tracking-tight">
