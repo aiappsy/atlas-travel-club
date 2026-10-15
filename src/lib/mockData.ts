@@ -2279,25 +2279,25 @@ export const MEMBERSHIP_TIERS: TierPlan[] = [
     id: 'gold',
     name: 'Atlas Club Membership',
     badgeColor: 'bg-amber-500',
-    priceMonthly: 19.99,
-    priceAnnual: 179,
-    wholesaleHotelDiscount: 'Up to 45% Off Wholesale Bedbank Rates',
+    priceMonthly: 12,
+    priceAnnual: 120, // 1 290 NOK / år ($120 USD / 107.50 NOK/mnd)
+    wholesaleHotelDiscount: '100% Rene B2B Nettopriser • 0 kr i bookinggebyr',
     isPopular: true,
     perksIncluded: [
-      'Access to 1,000,000+ confidential wholesale hotels (WebBeds & RateHawk B2B)',
-      '0% Retail Markup: direct closed-bed net wholesale pricing',
-      'Direct carrier NDC flight clearing (0% ticketing markup or hidden fees)',
-      'EU261 Sentinel: automated 24/7 flight delay monitoring (€600 cash recovery, 0% cut)',
-      '1,400+ VIP airport lounges worldwide with complimentary food & drinks ($32 flat)',
-      'Wholesale cruise sailings with free onboard spending credit ($150–$400 bonus)',
-      'Autonomous price-drop sentinel with automatic cash refund deposits',
-      'Digital member pass & IATA rate parity exemption credentials'
+      'Tilgang til 1 000 000+ hemmelige B2B-engroshoteller (0 kr i bookinggebyr)',
+      '100% ren abonnementsmodell: Betal nøyaktig engrospris uten påslag',
+      'Leiebil via Duffel med 0 kr påslag (Atlas tjener provisjon direkte fra leverandør)',
+      'Direkte flyclearing (IATA NDC) uten billettpåslag eller gebyrer',
+      'EU261-overvåking: Automatisk bistand til opptil 600 € erstatning ved forsinkelser',
+      'DragonPass VIP Airport Suite: 1 400+ lounger, Fast Track, Dining & eSIM til B2B nettopris',
+      'Garantert ingen skjulte gebyrer, provisjonspåslag eller transaksjonsgebyr',
+      'Digitalt VIP-medlemsbevis med IATA-paritetsfritak'
     ]
   }
 ];
 
 export const GOLD_VIP_TIER: TierPlan = MEMBERSHIP_TIERS[0];
-export const GOLD_VIP_ANNUAL_FEE = 179;
+export const GOLD_VIP_ANNUAL_FEE = 120;
 
 export function getDefaultTripDates(daysAhead: number = 14, stayLength: number = 3) {
   const checkInDate = new Date();

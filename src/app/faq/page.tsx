@@ -23,65 +23,65 @@ interface FaqItem {
 const FAQ_ITEMS: FaqItem[] = [
   {
     category: 'membership',
-    qNo: 'Hva er ATLAS Travel Club, og hvordan skiller dere dere fra vanlige bookingsider?',
+    qNo: 'Hva er Atlas, og hvordan skiller dere dere fra vanlige bestillingssider?',
     qEn: 'What is ATLAS Travel Club, and how do you differ from regular booking platforms?',
-    aNo: 'ATLAS Travel Club er en lukket, medlemsbasert reiseklubb forbeholdt inviterte og godkjente medlemmer. Fordi vi ikke er en åpen forhandlerside, omgår vi Rate Parity-klausuler fra hoteller og flyselskaper, noe som gir våre medlemmer tilgang til rene grossist- og nettopriser uten provisjonspåslag.',
+    aNo: 'Atlas er en lukket medlemsklubb forbeholdt medlemmer. Fordi prisene våre vises bak en sikker innlogging, omgår vi prisparitetsklausuler fra hoteller og flyselskaper. Dette gir våre medlemmer direkte tilgang til ekte B2B-engrospriser helt uten provisjon eller påslag.',
     aEn: 'ATLAS Travel Club is a private, members-only travel collective. Because our rates are shielded behind a private membership wall, we bypass standard OTA Rate Parity clauses, granting members pure wholesale net rates with zero retail commission markups.',
   },
   {
     category: 'parity',
-    qNo: 'Hva innebærer 110% Rate Parity Guarantee (Prismatch)?',
+    qNo: 'Hva innebærer prisgarantien vår?',
     qEn: 'What does the 110% Rate Parity Guarantee entail?',
-    aNo: 'Dersom du finner det samme hotellrommet eller flyet billigere offentlig tilgjengelig på en autorisert nettside (f.eks. Booking.com eller Expedia) med identiske vilkår innen 24 timer etter bestilling, refunderer vi prisforskjellen pluss 10% ekstra i reisekreditt.',
+    aNo: 'Dersom du finner det samme hotellrommet eller flyet billigere offentlig tilgjengelig på en autorisert nettside (som Booking.com eller Expedia) med identiske vilkår innen 24 timer etter bestilling, refunderer vi prisforskjellen pluss 10 % ekstra i reisekreditt.',
     aEn: 'If you locate an identical publicly bookable room or flight on an authorized site with matching terms within 24 hours of booking, ATLAS refunds the complete difference plus an extra 10% in travel credits.',
   },
   {
     category: 'lounges',
     qNo: 'Hvordan fungerer tilgangen til flyplasslounger med DragonPass?',
     qEn: 'How does DragonPass airport lounge access work for members?',
-    aNo: 'Alle Platinum- og Founder-medlemmer har ubegrenset digital tilgang til over 1 300 VIP-lounger globalt gjennom vårt integrerte DragonPass-samarbeid. Du genererer ditt digitale lounge-pass direkte i appen med en QR-kode som scannes ved inngangen.',
+    aNo: 'Alle medlemmer har digital tilgang til over 1 400 VIP-lounger globalt gjennom vårt partnerskap med DragonPass for kun 330 kr per besøk (ordinær dørpris ca. 700–950 kr). Du henter ditt digitale pass direkte i appen og viser QR-koden ved inngangen.',
     aEn: 'Platinum and Founder members enjoy digital lounge access across 1,300+ lounges globally via our DragonPass integration. Digital lounge boarding passes are generated directly within the app via a scannable QR code.',
   },
   {
     category: 'bookings',
     qNo: 'Kan jeg bestille reiser for venner og familie med mitt medlemskap?',
     qEn: 'Can I book travel for friends and family using my membership?',
-    aNo: 'Ja! Som medlem kan du bestille hotellrom, villaer og flyreiser for reisefølget ditt. Medlemmet må selv administrere bestillingen gjennom sin profil.',
+    aNo: 'Ja. Som medlem kan du bestille hotellrom, leiebil og flyreiser for familie og venner du reiser sammen med. Du administrerer reservasjonene direkte fra din egen medlemskonto.',
     aEn: 'Yes! Members can book accommodations, private villas, and flights for companions and family traveling with them through their account dashboard.',
   },
   {
     category: 'bookings',
-    qNo: 'Hvilke kansellerings- og endringsvilkår gjelder for medlemsbestillinger?',
+    qNo: 'Hvilke avbestillings- og endringsvilkår gjelder for medlemsbestillinger?',
     qEn: 'What cancellation and change policies apply to bookings?',
-    aNo: 'De fleste av våre hotell- og leiebilbestillinger inkluderer gratis avbestilling frem til 24–48 timer før ankomst. For fly gjelder flyselskapets respektive billettregler, med full assistanse fra vårt 24/7 Concierge-team.',
+    aNo: 'De fleste av våre hotell- og leiebilbestillinger inkluderer gratis avbestilling frem til 24–48 timer før ankomst. For fly gjelder flyselskapets billettregler, med full oppfølging fra vår døgnåpne concierge.',
     aEn: 'Most hotel and car rental bookings include flexible complimentary cancellation up to 24–48 hours before check-in. Flight changes follow airline fare rules with complete assistance from our VIP concierge team.',
   },
   {
     category: 'membership',
     qNo: 'Hva koster et medlemskap, og er det bindingstid?',
     qEn: 'How much does membership cost, and is there a lock-in period?',
-    aNo: 'Vi tilbyr medlemskap fra Silver til Founder-nivå, både som månedlig og årlig abonnement. Årlig medlemskap gir to måneder gratis og prioriterte flyplassfordeler. Det er ingen bindingstid utover den forhåndsbetalte perioden.',
-    aEn: 'We offer tiers from Silver to Founder on both monthly and annual subscriptions. Annual plans grant two complimentary months and priority status. There are no lock-in commitments beyond your paid cycle.',
+    aNo: 'Atlas har en fast årskontingent på 1 290 kr per år (kun 107,50 kr per måned). Til gjengjeld tar vi 0 kr i påslag og 0 kr i bestillingsgebyrer på alt – hotell, bil, fly og VIP-lounger. Det er ingen bindingstid utover den forhåndsbetalte perioden.',
+    aEn: 'ATLAS operates on a pure flat membership of 1 290 NOK / year (~$120 / yr or ~107 NOK/mo). In return, you get 0 kr booking fees and 0% markups on everything – hotels, cars, flights, and VIP airport services. There are no lock-in commitments beyond your paid term.',
   },
   {
     category: 'membership',
-    qNo: 'Hvordan fungerer lojalitetspoengene (ATLAS Club Credits)?',
+    qNo: 'Hvordan fungerer Atlas Travel Kickback?',
     qEn: 'How does the ATLAS Club Credits loyalty system work?',
-    aNo: 'Hver gang du bestiller hotell eller cruise opptjener du Club Credits med en fast verdi på 100 poeng = $1,00 USD. Poengene dine kan brukes som betalingsmiddel for fremtidige reiser. For å ivareta klubbens likviditet kan poeng dekke inntil 50 % av en reservasjons totalbeløp (50 % samfinansieringstak), med et minimumsuttak på 5 000 poeng ($50).',
+    aNo: 'Når du bestiller reiser der leverandøren utbetaler provisjon (for eksempel cruise og enkelte pakkereiser), deler Atlas denne provisjonen 50/50 direkte tilbake til din medlemskonto. Saldoen kan motregnes neste års medlemskontingent (1 290 kr) eller tas ut direkte.',
     aEn: 'Whenever you book hotels or cruises, you earn ATLAS Club Credits pegged at 100 points = $1.00 USD. Accumulated credits can be spent like cash on future bookings. To ensure platform liquidity, credits can cover up to 50% of any reservation total (50% co-payment cap), with a minimum redemption floor of 5,000 points ($50).',
   },
   {
     category: 'bookings',
-    qNo: 'Hvordan fungerer cruisebestillinger og ombordkreditt (OBC)?',
+    qNo: 'Hvordan fungerer cruisebestillinger og ombordkreditt?',
     qEn: 'How do cruise bookings and onboard credits (OBC) work?',
-    aNo: 'Vi tilbyr direkte grossisttilgang til over 25 000 seilinger via verdens ledende cruiserederier (inkludert Silversea, Regent Seven Seas, Celebrity og Ritz-Carlton Yacht Collection). Mange avganger inkluderer eksklusiv ombordkreditt (opptil $600 USD) og opptjening av ATLAS Club Credits på hele reisen.',
+    aNo: 'Vi tilbyr direkte tilgang til over 25 000 seilinger via verdens ledende luksusrederier (inkludert Silversea, Regent Seven Seas, Celebrity og Ritz-Carlton Yacht Collection). Svært mange avganger inkluderer eksklusiv kreditt om bord (opptil 600 USD) samt 50 % kickback på provisjonen.',
     aEn: 'We provide direct wholesale booking access to over 25,000 itineraries across world-class cruise lines (including Silversea, Regent Seven Seas, Celebrity, and Ritz-Carlton Yacht Collection). Qualifying voyages feature exclusive onboard credits (up to $600 USD) plus ATLAS Club Credits earned on the entire journey.',
   },
   {
     category: 'parity',
-    qNo: 'Når blir opptjente Club Credits tilgjengelige i min Rewards Vault?',
+    qNo: 'Når blir opptjent kickback utbetalt til min konto?',
     qEn: 'When do earned Club Credits vest and become available in my Rewards Vault?',
-    aNo: 'For å beskytte mot kanselleringer og uavhentede reiser, frigis poengene til din tilgjengelige saldo etter fullført reise: 7 dager etter utsjekk for hotell, og 14 dager etter fullført seilas for cruise, så snart oppgjøret fra leverandøren er bekreftet.',
+    aNo: 'For å sikre mot kanselleringer utbetales kickback så snart leverandøren har bekreftet gjennomført reise – normalt 7 dager etter utsjekk for hotell og 14 dager etter endt seilas for cruise.',
     aEn: 'To safeguard against booking cancellations, points are cleared into your spendable vault balance following completion of travel: 7 days post check-out for hotels, and 14 days post disembarkation for cruises, upon partner commission reconciliation.',
   },
 ];
@@ -111,7 +111,7 @@ export default function FaqPage() {
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
             <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
-            {isNo ? 'Ofte Stilte Spørsmål' : 'Frequently Asked Questions'}
+            {isNo ? 'Ofte stilte spørsmål' : 'Frequently Asked Questions'}
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
@@ -120,7 +120,7 @@ export default function FaqPage() {
 
           <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-6">
             {isNo
-              ? 'Lær mer om hvordan ATLAS Travel Club sikrer grossistpriser, våre garantier, medlemsfordeler og VIP Concierge.'
+              ? 'Lær mer om hvordan Atlas fungerer, prisgarantien vår, medlemsfordeler og personlig concierge.'
               : 'Detailed answers on wholesale pricing mechanics, rate guarantees, lounge access, and concierge privileges.'}
           </p>
 
@@ -144,10 +144,10 @@ export default function FaqPage() {
         <div className="flex flex-wrap gap-2 justify-center mb-10">
           {[
             { id: 'all', label: isNo ? 'Alle spørsmål' : 'All Topics' },
-            { id: 'membership', label: isNo ? 'Medlemskap & Planer' : 'Membership' },
-            { id: 'parity', label: isNo ? 'Prisgaranti & Besparelser' : 'Price Parity' },
-            { id: 'lounges', label: isNo ? 'Fly & Lounger' : 'Lounges & Flights' },
-            { id: 'bookings', label: isNo ? 'Bestilling & Vilkår' : 'Bookings & Policies' },
+            { id: 'membership', label: isNo ? 'Medlemskap' : 'Membership' },
+            { id: 'parity', label: isNo ? 'Prisgaranti' : 'Price Parity' },
+            { id: 'lounges', label: isNo ? 'Fly og lounger' : 'Lounges & Flights' },
+            { id: 'bookings', label: isNo ? 'Bestilling og vilkår' : 'Bookings & Policies' },
           ].map((tab) => (
             <button
               key={tab.id}

@@ -1,8 +1,8 @@
 export interface PartnerCommissionModel {
-  membershipPriceNok: number; // 990 NOK
+  membershipPriceNok: number; // 1 290 NOK
   threeAndFreeThreshold: number; // 3 members = own fee waived
-  directCommissionPerMemberNok: number; // 270 NOK (approx €24)
-  tier2OverridePerMemberNok: number; // 90 NOK (approx €8)
+  directCommissionPerMemberNok: number; // 350 NOK (approx €30)
+  tier2OverridePerMemberNok: number; // 120 NOK (approx €10)
   b2bCorporateCommissionPercent: number; // 20% recurring
 }
 

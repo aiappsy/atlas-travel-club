@@ -43,14 +43,53 @@ const DEFAULT_USER: UserProfile = {
   createdAt: '2025-01-15',
 };
 
+export const DEMO_BOOKINGS: BookingRecord[] = [
+  {
+    id: 'bk-7492',
+    hotelId: 'hotel-arts-barcelona',
+    hotelName: 'Hotel Arts Barcelona (The Ritz-Carlton)',
+    hotelCity: 'Barcelona',
+    hotelImage: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
+    roomName: 'Club Level Executive Sea View Suite',
+    checkInDate: '2026-11-12',
+    checkOutDate: '2026-11-16',
+    nights: 4,
+    totalMemberPaid: 1840,
+    totalSaved: 680,
+    status: 'confirmed',
+    confirmationCode: 'ATLAS-BCN-84920',
+    createdAt: '2026-10-10',
+  },
+];
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [bookings, setBookings] = useState<BookingRecord[]>([]);
+  const [bookings, setBookings] = useState<BookingRecord[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('atlas_member_bookings');
+        if (stored) return JSON.parse(stored);
+      } catch (e) {
+        // ignore
+      }
+    }
+    return DEMO_BOOKINGS;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('atlas_member_bookings', JSON.stringify(bookings));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [bookings]);
 
   useEffect(() => {
     // Listen to Firebase Auth state

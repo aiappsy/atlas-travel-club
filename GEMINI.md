@@ -1,11 +1,11 @@
 # ATLAS Travel Club — System Rules & Operational Standards
 
-> **PRIMARY DIRECTIVE**:
-> The primary business objective of ATLAS Travel Club is twofold:
-> 1. **Front-End**: Flawless, verified credibility to drive signups and paying subscribers.
-> 2. **Members Area**: Absolute delight, transparency, and authentic wholesale rates to keep members happy and retained.
->
-> Any sloppy rates, broken links, fake hotel names, or unsolicited refactors destroy credibility and are strictly forbidden.
+> **PRIMARY DIRECTIVES & LEGAL IDENTITY**:
+> 1. **Operating Entity**: **HARD ROCK CAPITAL LTD** (UK Company #16833237, 71-75 Shelton Street, Covent Garden, London, WC2H 9JQ, United Kingdom).
+> 2. **Founder & Managing Director**: **Pål Juritzen** (`paljuritzen@gmail.com`, `+47 40059493`).
+> 3. **Business Objective**: Flawless, verified credibility to drive signups, delight members with authentic wholesale rates (0 kr markup), and rebate 100% of commissions as Rewards Vault points.
+> 4. **Strict Points Liquidity Guard**: Points earned from travel bookings are `🟡 Pending (In Escrow)` until partner commissions physically clear in our bank account (30–60 days). Only cleared points can be redeemed.
+> 5. **FORBIDDEN**: NEVER use "Atlas Global AS" or "ATLAS VIP Platform Inc." under any circumstances.
 
 ---
 

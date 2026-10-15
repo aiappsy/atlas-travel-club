@@ -494,14 +494,14 @@ function MembershipContent() {
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            {locale === 'no' ? 'Lukket Medlemsbasert Engrosklubb' : 'Private Closed-Loop Wholesale Travel Club'}
+            {locale === 'no' ? 'Eksklusiv medlemsklubb' : 'Private Closed-Loop Wholesale Travel Club'}
           </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-slate-900">
-            {locale === 'no' ? 'Hvorfor du må være medlem for å bestille til engrospris' : 'Why You Must Be a Member to Book Wholesale'}
+            {locale === 'no' ? 'Hvorfor må du være medlem for å bestille til engrospris?' : 'Why You Must Be a Member to Book Wholesale'}
           </h1>
           <p className="text-slate-600 text-sm sm:text-lg leading-relaxed">
             {locale === 'no'
-              ? 'I henhold til internasjonale prisparitetsregler kan ikke lukkede B2B-engrospriser selges offentlig. Medlemskap gir deg lovlig, passordbeskyttet tilgang til 0% påslagspriser.'
+              ? 'I henhold til internasjonale prisparitetsregler kan ikke lukkede B2B-engrospriser selges offentlig. Medlemskap gir deg lovlig, passordbeskyttet tilgang til ekte innkjøpspriser.'
               : 'By international hospitality law, raw B2B bedbank rates cannot be sold to the open public. Membership gives you legal, password-protected access to 0% retail markup pricing.'}
           </p>
 
@@ -517,7 +517,7 @@ function MembershipContent() {
               onClick={toggleDemoMode}
               className="text-xs text-emerald-600 hover:text-emerald-700 font-bold underline cursor-pointer"
             >
-              {locale === 'no' ? 'Lynrask 1-Klikks VIP Test-Aktivering' : 'Instant 1-Click VIP Demo Activation (Test Rates)'}
+              {locale === 'no' ? 'Test plattformen med 1 klikk' : 'Instant 1-Click VIP Demo Activation (Test Rates)'}
             </button>
           </div>
         </div>
@@ -530,9 +530,13 @@ function MembershipContent() {
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black border border-amber-100">
               <ShieldAlert className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">1. The Public Rate Parity Trap</h3>
+            <h3 className="text-base font-bold text-slate-900">
+              {locale === 'no' ? '1. Prisparitetsfellen' : '1. The Public Rate Parity Trap'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              When hotels partner with Expedia and Booking.com, contracts legally bind them never to publicly advertise lower prices. This inflates public hotel rates by 20% to 45% to fund billions in search ads.
+              {locale === 'no'
+                ? 'Når hoteller samarbeider med offentlige portaler som Expedia og Booking.com, forplikter de seg juridisk til aldri å vise lavere priser åpent. Dette tvinger opp prisene med 20–45 % for å finansiere milliardkampanjer i søkemotorer.'
+                : 'When hotels partner with Expedia and Booking.com, contracts legally bind them never to publicly advertise lower prices. This inflates public hotel rates by 20% to 45% to fund billions in search ads.'}
             </p>
           </div>
 
@@ -540,9 +544,13 @@ function MembershipContent() {
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black border border-emerald-100">
               <Building2 className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">2. B2B Bedbanks &amp; Closed Beds</h3>
+            <h3 className="text-base font-bold text-slate-900">
+              {locale === 'no' ? '2. B2B-grossister og lukkede priser' : '2. B2B Bedbanks & Closed Beds'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              To sell surplus rooms without breaching parity, luxury hotels dump inventory into B2B clearinghouses (WebBeds). By statute, these net rates can only be booked behind gated private memberships.
+              {locale === 'no'
+                ? 'For å selge ledig kapasitet uten å bryte prispariteten, legger kvalitetshotellene overskuddsrom inn i lukkede grossistdatabaser (WebBeds, RateHawk). Disse engrosprisene er ved lov forbeholdt lukkede medlemsklubber.'
+                : 'To sell surplus rooms without breaching parity, luxury hotels dump inventory into B2B clearinghouses (WebBeds). By statute, these net rates can only be booked behind gated private memberships.'}
             </p>
           </div>
 
@@ -550,9 +558,13 @@ function MembershipContent() {
             <div className="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center font-black border border-sky-100">
               <Plane className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">3. Direct Airline NDC Clearing</h3>
+            <h3 className="text-base font-bold text-slate-900">
+              {locale === 'no' ? '3. Direkte flynettverk (IATA/NDC)' : '3. Direct Airline NDC Clearing'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Direct connection to 300+ airlines removes old GDS distribution surcharges (€15–€25/leg) and eliminates OTA payment junk fees. Pure carrier net rates with 0% retail markup.
+              {locale === 'no'
+                ? 'Direktekobling til over 300 flyselskaper fjerner gamle distribusjonsgebyrer (150–250 kr per strekning) og eliminerer kortgebyrer. Ekte nettopriser direkte fra flyselskapene med 0 kr i påslag.'
+                : 'Direct connection to 300+ airlines removes old GDS distribution surcharges (€15–€25/leg) and eliminates OTA payment junk fees. Pure carrier net rates with 0% retail markup.'}
             </p>
           </div>
 
@@ -560,9 +572,13 @@ function MembershipContent() {
             <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black border border-indigo-100">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">4. EU261 €600 Delay Protection</h3>
+            <h3 className="text-base font-bold text-slate-900">
+              {locale === 'no' ? '4. EU261-passasjervern (opptil 7 000 kr)' : '4. EU261 €600 Delay Protection'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Automated 24/7 flight delay sentinel. If your flight is delayed 3+ hours, we help you recover up to €600 (~7 000 NOK) in statutory cash with 0% legal deduction (unlike AirHelp’s 35–50% cut).
+              {locale === 'no'
+                ? 'Automatisk overvåking av flyforsinkelser døgnet rundt. Dersom flyet ditt er over 3 timer forsinket, hjelper vi deg å kreve inntil 7 000 kr (€600) i kontanter uten provisjonskutt (i motsetning til tjenester som tar 35–50 %).'
+                : 'Automated 24/7 flight delay sentinel. If your flight is delayed 3+ hours, we help you recover up to €600 (~7 000 NOK) in statutory cash with 0% legal deduction (unlike AirHelp’s 35–50% cut).'}
             </p>
           </div>
         </div>
@@ -572,10 +588,12 @@ function MembershipContent() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
         <div className="text-center space-y-4 mb-10">
           <h2 className="text-2xl sm:text-4xl font-black text-slate-900">
-            Atlas Club Membership
+            {locale === 'no' ? 'Atlas Club-medlemskap' : 'Atlas Club Membership'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
-            One single, transparent membership that unlocks confidential closed-loop B2B wholesale rates with 0% retail markup.
+            {locale === 'no'
+              ? 'Ett enkelt og transparent medlemskap som åpner lukkede B2B-engrospriser med 0 kr i bookinggebyr og 0 kr i påslag.'
+              : 'One single, transparent membership that unlocks confidential closed-loop B2B wholesale rates with 0% retail markup.'}
           </p>
 
           {/* Billing Switcher */}
@@ -588,7 +606,7 @@ function MembershipContent() {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {locale === 'no' ? 'Årskort (Spar 25% Beste verdi)' : 'Annual Pass (Save 25% Best Value)'}
+              {locale === 'no' ? 'Årsmedlemskap (Spar 25 % • Beste verdi)' : 'Annual Pass (Save 25% Best Value)'}
             </button>
             <button
               onClick={() => setBillingCycle('monthly')}
@@ -718,7 +736,7 @@ function MembershipContent() {
                     <span className="text-3xl sm:text-4xl font-black text-slate-900 font-mono">{price}</span>
                     <span className="text-xs text-slate-500 font-medium">{cycleLabel}</span>
                   </div>
-                  <span className="text-[11px] text-slate-400">0% Retail Markup • Net Clearing</span>
+                  <span className="text-[11px] text-emerald-600 font-bold">{locale === 'no' ? '1 290 kr/år (107,50 kr/mnd) • 0 kr i gebyr på alt' : '1 290 NOK/yr (~$120) • 0 kr / 0% fee on everything'}</span>
                 </div>
               </div>
 

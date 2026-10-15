@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Users, Bed, Plus, Minus, X, Info, Check, ChevronDown } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export interface GuestRoomConfig {
   rooms: number;
@@ -17,17 +18,19 @@ interface GuestRoomPickerProps {
   className?: string;
 }
 
-export function formatGuestSummary(config: GuestRoomConfig): string {
+export function formatGuestSummary(config: GuestRoomConfig, locale: string = 'en'): string {
   const { rooms, adults, childrenAges } = config;
-  const adultsStr = `${adults} ${adults === 1 ? 'Adult' : 'Adults'}`;
-  const roomsStr = `${rooms} ${rooms === 1 ? 'Room' : 'Rooms'}`;
+  const isNo = locale === 'no';
+
+  const adultsStr = `${adults} ${adults === 1 ? (isNo ? 'voksen' : 'Adult') : (isNo ? 'voksne' : 'Adults')}`;
+  const roomsStr = `${rooms} ${rooms === 1 ? (isNo ? 'rom' : 'Room') : (isNo ? 'rom' : 'Rooms')}`;
   
   if (!childrenAges || childrenAges.length === 0) {
     return `${adultsStr} · ${roomsStr}`;
   }
 
   const kidsCount = childrenAges.length;
-  const kidsStr = `${kidsCount} ${kidsCount === 1 ? 'Child' : 'Kids'}`;
+  const kidsStr = `${kidsCount} ${kidsCount === 1 ? (isNo ? 'barn' : 'Child') : (isNo ? 'barn' : 'Kids')}`;
   return `${adultsStr}, ${kidsStr} · ${roomsStr}`;
 }
 
@@ -38,6 +41,8 @@ export default function GuestRoomPicker({
   align = 'right',
   className = '',
 }: GuestRoomPickerProps) {
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -103,7 +108,7 @@ export default function GuestRoomPicker({
         }`}
       >
         <span className="font-bold text-xs truncate">
-          {formatGuestSummary(value)}
+          {formatGuestSummary(value, locale)}
         </span>
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-400' : ''}`} />
       </button>
@@ -124,10 +129,10 @@ export default function GuestRoomPicker({
             <div>
               <h4 className="font-black text-sm tracking-tight flex items-center gap-2">
                 <Users className="w-4 h-4 text-amber-500" />
-                <span>Rooms &amp; Guests</span>
+                <span>{isNo ? 'Rom og gjester' : 'Rooms & Guests'}</span>
               </h4>
               <p className={`text-[11px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Specify exact party to ensure hotel bedbank availability
+                {isNo ? 'Angi antall for korrekte grossistpriser og ledige rom' : 'Specify exact party to ensure hotel bedbank availability'}
               </p>
             </div>
             <button
@@ -146,9 +151,9 @@ export default function GuestRoomPicker({
             {/* 1. Rooms Stepper */}
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-bold text-xs">Rooms</div>
+                <div className="font-bold text-xs">{isNo ? 'Rom' : 'Rooms'}</div>
                 <div className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Standard max 4 guests per room
+                  {isNo ? 'Vanligvis maks 4 gjester per rom' : 'Standard max 4 guests per room'}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -185,9 +190,9 @@ export default function GuestRoomPicker({
             {/* 2. Adults Stepper */}
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-bold text-xs">Adults</div>
+                <div className="font-bold text-xs">{isNo ? 'Voksne' : 'Adults'}</div>
                 <div className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Ages 18 and older
+                  {isNo ? 'Fra 18 år' : 'Ages 18 and older'}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -224,9 +229,9 @@ export default function GuestRoomPicker({
             {/* 3. Children Stepper */}
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-bold text-xs">Children</div>
+                <div className="font-bold text-xs">{isNo ? 'Barn' : 'Children'}</div>
                 <div className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Ages 0 to 17 at check-in
+                  {isNo ? '0 til 17 år ved innsjekk' : 'Ages 0 to 17 at check-in'}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -267,10 +272,10 @@ export default function GuestRoomPicker({
               }`}>
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-black uppercase tracking-wider text-amber-500">
-                    Child Ages at Check-in
+                    {isNo ? 'Barnas alder ved innsjekk' : 'Child Ages at Check-in'}
                   </span>
                   <span className={`text-[10px] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Required for beds &amp; taxes
+                    {isNo ? 'Påkrevd for senger og avgifter' : 'Required for beds & taxes'}
                   </span>
                 </div>
 
@@ -278,7 +283,7 @@ export default function GuestRoomPicker({
                   {value.childrenAges.map((age, idx) => (
                     <div key={idx} className="space-y-1">
                       <label className={`block text-[10px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                        Child {idx + 1}
+                        {isNo ? `Barn ${idx + 1}` : `Child ${idx + 1}`}
                       </label>
                       <select
                         value={age}
@@ -289,24 +294,24 @@ export default function GuestRoomPicker({
                             : 'bg-white border-slate-300 text-slate-900 focus:border-amber-600'
                         }`}
                       >
-                        <option value={0}>Under 1 yr (Infant)</option>
-                        <option value={1}>1 yr old</option>
-                        <option value={2}>2 yrs old (Crib/Cot)</option>
-                        <option value={3}>3 yrs old</option>
-                        <option value={4}>4 yrs old</option>
-                        <option value={5}>5 yrs old</option>
-                        <option value={6}>6 yrs old</option>
-                        <option value={7}>7 yrs old</option>
-                        <option value={8}>8 yrs old</option>
-                        <option value={9}>9 yrs old</option>
-                        <option value={10}>10 yrs old</option>
-                        <option value={11}>11 yrs old</option>
-                        <option value={12}>12 yrs old (Teen)</option>
-                        <option value={13}>13 yrs old</option>
-                        <option value={14}>14 yrs old</option>
-                        <option value={15}>15 yrs old</option>
-                        <option value={16}>16 yrs old</option>
-                        <option value={17}>17 yrs old</option>
+                        <option value={0}>{isNo ? 'Under 1 år (spedbarn)' : 'Under 1 yr (Infant)'}</option>
+                        <option value={1}>{isNo ? '1 år' : '1 yr old'}</option>
+                        <option value={2}>{isNo ? '2 år (barneseng)' : '2 yrs old (Crib/Cot)'}</option>
+                        <option value={3}>{isNo ? '3 år' : '3 yrs old'}</option>
+                        <option value={4}>{isNo ? '4 år' : '4 yrs old'}</option>
+                        <option value={5}>{isNo ? '5 år' : '5 yrs old'}</option>
+                        <option value={6}>{isNo ? '6 år' : '6 yrs old'}</option>
+                        <option value={7}>{isNo ? '7 år' : '7 yrs old'}</option>
+                        <option value={8}>{isNo ? '8 år' : '8 yrs old'}</option>
+                        <option value={9}>{isNo ? '9 år' : '9 yrs old'}</option>
+                        <option value={10}>{isNo ? '10 år' : '10 yrs old'}</option>
+                        <option value={11}>{isNo ? '11 år' : '11 yrs old'}</option>
+                        <option value={12}>{isNo ? '12 år (ungdom)' : '12 yrs old (Teen)'}</option>
+                        <option value={13}>{isNo ? '13 år' : '13 yrs old'}</option>
+                        <option value={14}>{isNo ? '14 år' : '14 yrs old'}</option>
+                        <option value={15}>{isNo ? '15 år' : '15 yrs old'}</option>
+                        <option value={16}>{isNo ? '16 år' : '16 yrs old'}</option>
+                        <option value={17}>{isNo ? '17 år' : '17 yrs old'}</option>
                       </select>
                     </div>
                   ))}
@@ -316,7 +321,9 @@ export default function GuestRoomPicker({
                 <div className="flex items-start gap-2 pt-1 text-[10px] text-slate-400">
                   <Info className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                   <span>
-                    Infants (0–2) stay free in cribs at most hotels. Children 12+ may require adult bedding depending on hotel regulations.
+                    {isNo
+                      ? 'Spedbarn (0–2 år) bor som regel gratis i barneseng. Barn fra 12 år kan kreve ordinær seng etter hotellets regler.'
+                      : 'Infants (0–2) stay free in cribs at most hotels. Children 12+ may require adult bedding depending on hotel regulations.'}
                   </span>
                 </div>
               </div>
@@ -326,7 +333,9 @@ export default function GuestRoomPicker({
           {/* Pinned Footer */}
           <div className="shrink-0 mt-3 pt-3 border-t border-slate-800/60 flex items-center justify-between gap-3">
             <span className={`text-[11px] font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Total: {value.adults + value.childrenAges.length} {value.adults + value.childrenAges.length === 1 ? 'Guest' : 'Guests'}
+              {isNo
+                ? `Totalt: ${value.adults + value.childrenAges.length} ${value.adults + value.childrenAges.length === 1 ? 'gjest' : 'gjester'}`
+                : `Total: ${value.adults + value.childrenAges.length} ${value.adults + value.childrenAges.length === 1 ? 'Guest' : 'Guests'}`}
             </span>
             <button
               type="button"
@@ -334,7 +343,7 @@ export default function GuestRoomPicker({
               className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-amber-400/20 cursor-pointer active:scale-95"
             >
               <Check className="w-3.5 h-3.5 text-slate-950" />
-              <span>Apply</span>
+              <span>{isNo ? 'Bruk' : 'Apply'}</span>
             </button>
           </div>
         </div>

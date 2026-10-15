@@ -47,31 +47,29 @@ export default function Navbar() {
             {/* Right: Language Toggle + Currency Selector + Trial Membership CTA */}
             <div className="flex items-center gap-2.5 sm:gap-3 ml-auto">
               
-              {/* Language Toggle Pill: [ 🇳🇴 NO | 🇬🇧 EN ] */}
+              {/* Language Toggle Pill: [ NO | EN ] */}
               <div className="inline-flex items-center p-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold shadow-2xs">
                 <button
                   onClick={() => setLocale('no')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                  className={`flex items-center px-3 py-1 rounded-full transition-all cursor-pointer ${
                     locale === 'no'
                       ? 'bg-white text-slate-950 shadow-xs font-black'
-                      : 'text-slate-500 hover:text-slate-800'
+                      : 'text-slate-500 hover:text-slate-800 font-semibold'
                   }`}
                   title="Norsk versjon"
                 >
-                  <span className="text-xs">🇳🇴</span>
-                  <span className="text-[11px]">NO</span>
+                  <span className="text-xs tracking-wider">NO</span>
                 </button>
                 <button
                   onClick={() => setLocale('en')}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                  className={`flex items-center px-3 py-1 rounded-full transition-all cursor-pointer ${
                     locale === 'en'
                       ? 'bg-white text-slate-950 shadow-xs font-black'
-                      : 'text-slate-500 hover:text-slate-800'
+                      : 'text-slate-500 hover:text-slate-800 font-semibold'
                   }`}
                   title="English version"
                 >
-                  <span className="text-xs">🇬🇧</span>
-                  <span className="text-[11px]">EN</span>
+                  <span className="text-xs tracking-wider">EN</span>
                 </button>
               </div>
 

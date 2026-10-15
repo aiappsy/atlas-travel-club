@@ -120,17 +120,19 @@ export default function LiveHotelSearch({
     return `/hotels/${hotelId}?${params.toString()}`;
   };
 
+  const isNo = locale === 'no';
+
   const popularCities = [
-    { name: 'All Destinations', query: '' },
+    { name: isNo ? 'Alle reisemål' : 'All Destinations', query: '' },
     { name: 'Paris', query: 'Paris' },
     { name: 'London', query: 'London' },
     { name: 'New York', query: 'New York' },
     { name: 'Dubai', query: 'Dubai' },
     { name: 'Las Vegas', query: 'Las Vegas' },
-    { name: 'Rome', query: 'Rome' },
+    { name: isNo ? 'Roma' : 'Rome', query: 'Rome' },
     { name: 'Tokyo', query: 'Tokyo' },
-    { name: 'Maldives', query: 'Maldives' },
-    { name: 'Zermatt (Alps)', query: 'Zermatt' },
+    { name: isNo ? 'Maldivene' : 'Maldives', query: 'Maldives' },
+    { name: 'Zermatt', query: 'Zermatt' },
     { name: 'Monaco', query: 'Monaco' },
     { name: 'Santorini', query: 'Santorini' },
     { name: 'Bali', query: 'Bali' },
@@ -140,11 +142,11 @@ export default function LiveHotelSearch({
   ];
 
   const categories = [
-    { id: 'all', label: 'All Price Tiers' },
-    { id: 'ultra-luxury', label: '👑 Ultra-Luxury (5★)' },
-    { id: 'luxury-resort', label: '💎 Luxury Resorts & Palaces' },
-    { id: 'upscale-boutique', label: '✨ Upscale & Boutique (4★)' },
-    { id: 'smart-value', label: '🏷️ Smart Value (3-4★)' },
+    { id: 'all', label: isNo ? 'Alle kategorier' : 'All Price Tiers' },
+    { id: 'ultra-luxury', label: isNo ? '👑 Ultraluksus (5★)' : '👑 Ultra-Luxury (5★)' },
+    { id: 'luxury-resort', label: isNo ? '💎 Resorts & slott' : '💎 Luxury Resorts & Palaces' },
+    { id: 'upscale-boutique', label: isNo ? '✨ Førsteklasses & boutique (4★)' : '✨ Upscale & Boutique (4★)' },
+    { id: 'smart-value', label: isNo ? '🏷️ Prisgunstig kvalitet (3-4★)' : '🏷️ Smart Value (3-4★)' },
   ];
 
   const handleCheckInChange = (newCheckIn: string) => {
@@ -432,11 +434,11 @@ export default function LiveHotelSearch({
             <div className="flex items-center gap-2.5">
               <RefreshCw className="w-5 h-5 text-amber-600 animate-spin" />
               <h4 className="text-base font-bold text-slate-900">
-                Pinging Global Bedbank Gateways & Live Rates...
+                {isNo ? 'Søker globale grossister og henter innhentede priser...' : 'Pinging Global Bedbank Gateways & Live Rates...'}
               </h4>
             </div>
             <span className="text-xs font-mono text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-semibold">
-              Wholesale Bedbank Clearing
+              {isNo ? 'Grossist-oppslag' : 'Wholesale Bedbank Clearing'}
             </span>
           </div>
 
@@ -447,15 +449,15 @@ export default function LiveHotelSearch({
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 2 ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-medium' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Hotels.com Benchmark</span>
+              <span>{isNo ? 'Hotels.com referanse' : 'Hotels.com Benchmark'}</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 3 ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-medium' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Booking.com Live Inventory</span>
+              <span>{isNo ? 'Booking.com sanntidsrom' : 'Booking.com Live Inventory'}</span>
             </div>
             <div className={`p-3 rounded-xl border flex items-center gap-2 transition-all ${scanStep >= 4 ? 'bg-amber-50 border-amber-300 text-amber-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-400'}`}>
               <Zap className="w-4 h-4 text-amber-600" />
-              <span>ATLAS B2B Net Clearing</span>
+              <span>{isNo ? 'ATLAS B2B nettopris' : 'ATLAS B2B Net Clearing'}</span>
             </div>
           </div>
         </div>
@@ -469,21 +471,23 @@ export default function LiveHotelSearch({
             <div>
               <div className="flex items-center gap-2.5">
                 <h3 className="text-xl sm:text-2xl font-bold text-slate-900">
-                  {destination ? `Hotels in ${destination}` : 'Curated Luxury Portfolio'}
+                  {destination ? (isNo ? `Hoteller i ${destination}` : `Hotels in ${destination}`) : (isNo ? 'Utvalgte kvalitetshoteller' : 'Curated Luxury Portfolio')}
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-mono font-bold border border-slate-200">
-                  {filteredHotels.length} Properties
+                  {isNo ? `${filteredHotels.length} hoteller` : `${filteredHotels.length} Properties`}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Rates for {nights} night stay ({checkIn} to {checkOut}) • 0% Hotel Markup • Direct Bedbank Rates
+                {isNo
+                  ? `Priser for ${nights} ${nights === 1 ? 'natt' : 'netter'} (${checkIn} til ${checkOut}) • 0 kr i hotellpåslag • Direkte grossistpriser`
+                  : `Rates for ${nights} night stay (${checkIn} to ${checkOut}) • 0% Hotel Markup • Direct Bedbank Rates`}
               </p>
             </div>
 
             <div className="flex items-center gap-2">
               <span className="px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border border-emerald-200">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                Rate Parity Exemption Certified
+                {isNo ? 'Sertifisert CUG-prisparitet' : 'Rate Parity Exemption Certified'}
               </span>
             </div>
           </div>
@@ -496,7 +500,7 @@ export default function LiveHotelSearch({
               <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 shrink-0 mr-1">
                   <SlidersHorizontal className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Tier:</span>
+                  <span>{isNo ? 'Kategori:' : 'Tier:'}</span>
                 </div>
                 {categories.map((cat) => (
                   <button
@@ -527,7 +531,7 @@ export default function LiveHotelSearch({
                     }`}
                   >
                     <List className="w-3.5 h-3.5" />
-                    <span>List</span>
+                    <span>{isNo ? 'Liste' : 'List'}</span>
                   </button>
                   <button
                     type="button"
@@ -539,7 +543,7 @@ export default function LiveHotelSearch({
                     }`}
                   >
                     <Map className="w-3.5 h-3.5" />
-                    <span>Interactive Map</span>
+                    <span>{isNo ? 'Kartvisning' : 'Interactive Map'}</span>
                   </button>
                 </div>
               </div>
@@ -559,7 +563,7 @@ export default function LiveHotelSearch({
                   }`}
                 >
                   <Coffee className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Breakfast Included</span>
+                  <span>{isNo ? 'Inkl. frokost' : 'Breakfast Included'}</span>
                   {filterBreakfast && <Check className="w-3 h-3 text-amber-600 ml-0.5" />}
                 </button>
 
@@ -573,17 +577,17 @@ export default function LiveHotelSearch({
                   }`}
                 >
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Free Cancellation</span>
+                  <span>{isNo ? 'Gratis avbestilling' : 'Free Cancellation'}</span>
                   {filterFreeCancel && <Check className="w-3 h-3 text-emerald-600 ml-0.5" />}
                 </button>
 
                 {/* Star Filter Pills */}
                 <div className="inline-flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-xs">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5">Stars:</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5">{isNo ? 'Stjerner:' : 'Stars:'}</span>
                   {[
-                    { stars: 0, label: 'All' },
+                    { stars: 0, label: isNo ? 'Alle' : 'All' },
                     { stars: 4, label: '4★+' },
-                    { stars: 5, label: '5★ Only' },
+                    { stars: 5, label: isNo ? 'Kun 5★' : '5★ Only' },
                   ].map((s) => (
                     <button
                       key={s.stars}
@@ -611,7 +615,7 @@ export default function LiveHotelSearch({
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    Taxes Included
+                    {isNo ? 'Inkl. skatter' : 'Taxes Included'}
                   </button>
                   <button
                     type="button"
@@ -622,7 +626,7 @@ export default function LiveHotelSearch({
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    Base Rate
+                    {isNo ? 'Netto grunnpris' : 'Base Rate'}
                   </button>
                 </div>
 
@@ -636,7 +640,7 @@ export default function LiveHotelSearch({
                     }}
                     className="text-[11px] font-bold text-rose-600 hover:text-rose-700 underline ml-1 cursor-pointer"
                   >
-                    Clear filters
+                    {isNo ? 'Nullstill filtre' : 'Clear filters'}
                   </button>
                 )}
               </div>
@@ -645,12 +649,12 @@ export default function LiveHotelSearch({
               <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0 self-start md:self-auto">
                 <span className="text-xs font-bold text-slate-500 flex items-center gap-1 mr-1">
                   <ArrowUpDown className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Sort:</span>
+                  <span>{isNo ? 'Sorter:' : 'Sort:'}</span>
                 </span>
                 {[
-                  { id: 'savings', label: '💰 Max Savings' },
-                  { id: 'price-asc', label: '🏷️ Lowest Price' },
-                  { id: 'rating', label: '⭐ Top Rated' },
+                  { id: 'savings', label: isNo ? '💰 Størst besparelse' : '💰 Max Savings' },
+                  { id: 'price-asc', label: isNo ? '🏷️ Laveste pris' : '🏷️ Lowest Price' },
+                  { id: 'rating', label: isNo ? '⭐ Beste vurdering' : '⭐ Top Rated' },
                 ].map((s) => (
                   <button
                     key={s.id}
@@ -935,7 +939,9 @@ export default function LiveHotelSearch({
                           <span className="text-slate-400">•</span>
                           <span className="text-slate-600">{hotel.city}, {hotel.country}</span>
                           <span className="text-slate-400">•</span>
-                          <span className="text-emerald-700 font-medium">B2B Wholesale Inventory</span>
+                          <span className="text-emerald-700 font-medium">
+                            {isNo ? 'B2B-engrosrom' : 'B2B Wholesale Inventory'}
+                          </span>
                         </div>
                       </div>
 
@@ -946,7 +952,7 @@ export default function LiveHotelSearch({
                         title={`Open Live Market Audit for ${hotel.name}`}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Google Verified</span>
+                        <span>{isNo ? 'Verifisert via Google' : 'Google Verified'}</span>
                       </button>
                     </div>
 
@@ -965,7 +971,9 @@ export default function LiveHotelSearch({
                     {/* Clean Multi-OTA Comparison Strip */}
                     <div className="pt-2">
                       <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                        Public Retail Benchmark ({showAllInclusive ? 'Taxes Included' : 'Base Rate'})
+                        {isNo
+                          ? `Offentlige markedspriser (${showAllInclusive ? 'Inkl. skatter' : 'Netto grunnpris'})`
+                          : `Public Retail Benchmark (${showAllInclusive ? 'Taxes Included' : 'Base Rate'})`}
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                         <div
@@ -1016,19 +1024,19 @@ export default function LiveHotelSearch({
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                          {locale === 'no' ? 'Atlas Engros' : 'Atlas Wholesale'}
+                          {isNo ? 'Atlas-klubbpris' : 'Atlas Wholesale'}
                         </span>
                         <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
-                          {t.common.save} {formatPrice(savingsPerNight)}/{locale === 'no' ? 'nt' : 'nt'} ({savingsPercent}% {locale === 'no' ? 'rabatt' : 'Off'})
+                          {t.common.save} {formatPrice(savingsPerNight)}/{isNo ? 'natt' : 'nt'} ({savingsPercent}% {isNo ? 'rabatt' : 'Off'})
                         </span>
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-mono">
                           {formatPrice(wholesalePerNight)}
                         </span>
-                        <span className="text-xs text-slate-500">{locale === 'no' ? '/ natt' : '/ night'}</span>
+                        <span className="text-xs text-slate-500">{isNo ? '/ natt' : '/ night'}</span>
                         <span className="text-xs text-slate-400 ml-2">
-                          • {formatPrice(wholesaleTotal)} total ({nights} {nights === 1 ? (locale === 'no' ? 'natt' : 'night') : (locale === 'no' ? 'netter' : 'nights')})
+                          • {formatPrice(wholesaleTotal)} total ({nights} {nights === 1 ? (isNo ? 'natt' : 'night') : (isNo ? 'netter' : 'nights')})
                         </span>
                       </div>
                     </div>
@@ -1038,9 +1046,9 @@ export default function LiveHotelSearch({
                         type="button"
                         onClick={() => setAuditingHotel(hotel)}
                         className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors cursor-pointer"
-                        title={locale === 'no' ? 'Verifiser markedspris i sanntid' : 'Audit live market rate'}
+                        title={isNo ? 'Verifiser markedspris i sanntid' : 'Audit live market rate'}
                       >
-                        {locale === 'no' ? 'Verifiser' : 'Audit'}
+                        {isNo ? 'Verifiser' : 'Audit'}
                       </button>
 
                       <Link
@@ -1072,11 +1080,17 @@ export default function LiveHotelSearch({
                 className="px-8 py-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md flex items-center gap-2.5 transition-all cursor-pointer"
               >
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>Load More Properties ({filteredHotels.length - visibleCount} More)</span>
+                <span>
+                  {isNo
+                    ? `Vis flere hoteller (${filteredHotels.length - visibleCount} til)`
+                    : `Load More Properties (${filteredHotels.length - visibleCount} More)`}
+                </span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </button>
               <span className="text-xs text-slate-500 font-mono">
-                Showing {Math.min(visibleCount, filteredHotels.length)} of {filteredHotels.length} Properties
+                {isNo
+                  ? `Viser ${Math.min(visibleCount, filteredHotels.length)} av ${filteredHotels.length} hoteller`
+                  : `Showing ${Math.min(visibleCount, filteredHotels.length)} of ${filteredHotels.length} Properties`}
               </span>
             </div>
           )}
@@ -1089,9 +1103,13 @@ export default function LiveHotelSearch({
           <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto">
             <MapPin className="w-6 h-6 text-amber-600" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900">No Properties Found for &quot;{destination}&quot;</h3>
+          <h3 className="text-xl font-bold text-slate-900">
+            {isNo ? `Ingen hoteller funnet for «${destination}»` : `No Properties Found for "${destination}"`}
+          </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Try searching for one of our top luxury destinations with active member wholesale rates:
+            {isNo
+              ? 'Prøv å søke etter en av våre mest populære destinasjoner med aktive medlemspriser:'
+              : 'Try searching for one of our top luxury destinations with active member wholesale rates:'}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
             {['Oslo', 'Paris', 'Las Vegas', 'New York', 'London', 'Dubai'].map((city) => (
@@ -1104,7 +1122,7 @@ export default function LiveHotelSearch({
                 }}
                 className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-800 font-semibold text-xs transition-colors cursor-pointer"
               >
-                Search {city}
+                {isNo ? `Søk ${city}` : `Search ${city}`}
               </button>
             ))}
           </div>
@@ -1119,7 +1137,7 @@ export default function LiveHotelSearch({
         checkIn={checkIn}
         checkOut={checkOut}
         nights={nights}
-        guestSummary={formatGuestSummary(guestConfig)}
+        guestSummary={formatGuestSummary(guestConfig, locale)}
       />
     </div>
   );

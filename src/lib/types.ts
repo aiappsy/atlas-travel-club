@@ -334,6 +334,25 @@ export interface VisaCardAccount {
   autoReloadAmount: number;
 }
 
+export interface MemberTravelProfile {
+  legalFirstName?: string;
+  legalLastName?: string;
+  passportNumber?: string;
+  passportExpiry?: string;
+  nationality?: string;
+  dateOfBirth?: string;
+  homeAirport?: string; // e.g. "OSL", "LHR", "JFK"
+  preferredCabinClass?: 'economy' | 'premium_economy' | 'business' | 'first';
+  cabinPreference?: string; // Backwards compatibility alias
+  seatPreference?: 'window' | 'aisle' | 'any';
+  bedPreference?: 'king' | 'twin' | 'any';
+  dietaryRestrictions?: 'none' | 'vegetarian' | 'vegan' | 'halal' | 'kosher' | 'gluten_free';
+  hotelStylePreference?: 'ultra_luxury' | 'boutique' | 'modern_resort' | 'historic';
+  loyaltyPrograms?: { program: string; memberNumber: string }[];
+  autoFillBookings?: boolean;
+  proactiveRemindersEnabled?: boolean;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -351,6 +370,7 @@ export interface UserProfile {
   physicalCardStatus?: 'ordered' | 'printing' | 'shipped' | 'delivered';
   physicalCardTracking?: string;
   visaCard?: VisaCardAccount;
+  travelProfile?: MemberTravelProfile;
   activeGapAlerts?: TripGapAlert[];
   priceDropRefundsTotal?: number;
   travelVault?: TravelVaultAccount;
@@ -494,18 +514,19 @@ export interface PerkDeal {
 
 export interface BookingRecord {
   id: string;
-  userId: string;
+  userId?: string;
   hotelId: string;
   hotelName: string;
   hotelImage: string;
   hotelCity: string;
-  roomId: string;
+  roomId?: string;
   roomName: string;
   checkInDate: string;
   checkOutDate: string;
   nights: number;
-  guests: number;
-  totalPublicPrice: number;
+  guests?: number;
+  dates?: string;
+  totalPublicPrice?: number;
   totalMemberPaid: number;
   totalSaved: number;
   status: 'confirmed' | 'completed' | 'cancelled';

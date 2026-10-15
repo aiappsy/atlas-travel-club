@@ -318,22 +318,22 @@ export default function FlightsPage() {
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
               <div className="text-amber-600 font-black text-xs flex items-center gap-1.5">
                 <DollarSign className="w-3.5 h-3.5" />
-                {locale === 'no' ? '0% Bestillingsgebyr' : '0% Middleman Booking Fee'}
+                {locale === 'no' ? '0 kr i bestillingsgebyr' : '0% Middleman Booking Fee'}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 {locale === 'no'
-                  ? 'Netto flyselskapspris + flyplassavgifter. Ingen skjulte Atlas-gebyrer.'
+                  ? 'Netto flypris og flyplassavgifter. Ingen skjulte gebyrer eller påslag fra Atlas.'
                   : 'Net airline clearing rate + exact airport taxes. Zero junk fees added by Atlas.'}
               </p>
             </div>
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
               <div className="text-sky-600 font-black text-xs flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5" />
-                {locale === 'no' ? 'Direkte Avregning mot Flyselskap' : 'Direct Carrier Pass-Through'}
+                {locale === 'no' ? 'Direkte oppgjør mot flyselskapet' : 'Direct Carrier Pass-Through'}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 {locale === 'no'
-                  ? 'Kortet belastes direkte via flyselskapets oppgjør. 0% kortpåslag.'
+                  ? 'Kortet belastes direkte av flyselskapet. 0 kr i kortpåslag.'
                   : 'Card charged directly via carrier settlement. 0% credit card processing markup.'}
               </p>
             </div>
@@ -341,13 +341,13 @@ export default function FlightsPage() {
               <div className="text-emerald-700 font-black text-xs flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  {locale === 'no' ? 'EU261 €600 Forsinkelsesovervåking' : 'EU261 €600 Delay Sentinel'}
+                  {locale === 'no' ? 'EU261-kompensasjon ved forsinkelse' : 'EU261 €600 Delay Sentinel'}
                 </span>
                 <ArrowRight className="w-3 h-3 text-emerald-600 group-hover:translate-x-0.5 transition-transform" />
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 {locale === 'no'
-                  ? 'Døgnkontinuerlig overvåking krever inn inntil €600 per passasjer uten provisjonstrekk.'
+                  ? 'Automatisk overvåking sikrer opptil 600 € per passasjer dersom flyet blir forsinket.'
                   : '24/7 automated disruption sentinel recovers up to €600 cash per passenger with 0% legal deduction.'}
               </p>
             </Link>
@@ -618,7 +618,7 @@ export default function FlightsPage() {
                           <span className="text-xs font-bold text-slate-500">{t.flights.allInAtCost}</span>
                         </div>
                         <p className="text-[10px] text-slate-500 font-mono">
-                          {locale === 'no' ? '0% Klubbprovisjon • Direkte Oppgjør' : '0% Retail Commission • Exact Carrier Ancillaries'}
+                          {locale === 'no' ? '0 kr i provisjon • Direkte oppgjør' : '0% Retail Commission • Exact Carrier Ancillaries'}
                         </p>
                       </div>
 
@@ -639,7 +639,7 @@ export default function FlightsPage() {
                           </span>
                         </div>
                         <p className="text-[10px] text-emerald-700 font-bold">
-                          {locale === 'no' ? '✓ Alle valgte bager og seter inkludert' : '✓ All requested bags & seats included'}
+                          {locale === 'no' ? '✓ All valgt bagasje og sitteplass inkludert' : '✓ All requested bags & seats included'}
                         </p>
                       </div>
                     </div>
@@ -694,7 +694,7 @@ export default function FlightsPage() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                         <div>
                           <div className="text-amber-400 text-[10px] font-black uppercase tracking-wider">
-                            {locale === 'no' ? 'Trinnvis Gebyr-Avsløring' : 'Transparent Step-by-Step Fee Audit'}
+                            {locale === 'no' ? 'Prissammenligning og gebyrsjekk' : 'Transparent Step-by-Step Fee Audit'}
                           </div>
                           <h4 className="text-sm font-black text-white">
                             {t.flights.feeAuditTitle}
@@ -737,11 +737,11 @@ export default function FlightsPage() {
                         <div className="grid grid-cols-12 pt-3 items-center border-t border-slate-700 font-bold text-sm">
                           <div className="col-span-6">
                             <span className="text-white block">
-                              {locale === 'no' ? 'Totalpris ferdig oppgjort (Alt inkludert):' : 'Final All-In Cost (Everything Included):'}
+                              {locale === 'no' ? 'Totalpris (alt inkludert):' : 'Final All-In Cost (Everything Included):'}
                             </span>
                             <span className="text-[10px] text-emerald-400 font-normal">
                               {locale === 'no'
-                                ? 'Garantert medlemspris uten overraskelser i kassen.'
+                                ? 'Garantert medlemspris uten skjulte gebyrer i kassen.'
                                 : 'Atlas member price guaranteed with 0% hidden checkout fees.'}
                             </span>
                           </div>

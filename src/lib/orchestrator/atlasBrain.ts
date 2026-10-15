@@ -6,7 +6,7 @@
  * 2. Flight Subagent (Duffel NDC)
  * 3. Lounge Subagent (DragonPass)
  * 4. Cruise Subagent (Traveltek CruiseConnect)
- * 5. Finance Guardian (0% Markup Enforcement, 4.9% Clearing Fee, Stripe Atomic Settlement)
+ * 5. Finance Guardian (0% Markup Enforcement, 0 kr Booking Fee, Stripe Atomic Settlement)
  */
 
 import { travelRouter } from '@/lib/providers/router';
@@ -46,8 +46,8 @@ export interface MasterTripItinerary {
     wholesaleNetTotal: number;
     retailOtaMarketEstimate: number;
     memberTotalSavings: number;
-    serviceFee: number; // Standard 4.9% clearing fee
-    serviceFeePercentage: number;
+    serviceFee: number; // 0 kr booking fee (pure subscription model)
+    serviceFeePercentage: number; // 0.0%
     finalMemberPrice: number;
     currency: string;
   };
@@ -81,7 +81,7 @@ export interface AtomicBookingResult {
 }
 
 export class AtlasCentralBrain {
-  private readonly SERVICE_FEE_RATE = 0.049; // 4.9% standard fulfillment & clearing fee
+  private readonly SERVICE_FEE_RATE = 0.0; // 0 kr / 0.00% fee - 100% ren abonnementsmodell (1 290 NOK/år)
 
   /**
    * Domain Subagent 1: Hotel Navigator
@@ -171,16 +171,16 @@ export class AtlasCentralBrain {
       retailEstimate += components.cruise.lowestLeadRetailGbp;
     }
 
-    const serviceFee = Math.round(wholesaleNet * this.SERVICE_FEE_RATE * 100) / 100;
-    const finalMemberPrice = Math.round((wholesaleNet + serviceFee) * 100) / 100;
+    const serviceFee = 0;
+    const finalMemberPrice = Math.round(wholesaleNet * 100) / 100;
     const memberTotalSavings = Math.max(0, Math.round((retailEstimate - finalMemberPrice) * 100) / 100);
 
     return {
       wholesaleNetTotal: wholesaleNet,
       retailOtaMarketEstimate: retailEstimate,
       memberTotalSavings,
-      serviceFee,
-      serviceFeePercentage: 4.9,
+      serviceFee: 0,
+      serviceFeePercentage: 0.0,
       finalMemberPrice,
       currency: 'GBP',
     };

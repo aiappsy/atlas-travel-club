@@ -50,7 +50,7 @@ export default function SavingsProofPage() {
   const totalCruiseSavings = cruiseSailings * cruiseSavingsPerSailing;
 
   const grossAnnualSavings = totalHotelSavings + totalFlightSavings + totalLoungeSavings + totalCruiseSavings;
-  const membershipFee = 179; // Atlas Club Annual Membership
+  const membershipFee = 120; // Atlas Club Flat Annual Membership (1 290 NOK / yr ~ $120 USD)
   const netProfit = grossAnnualSavings - membershipFee;
   const roiMultiplier = Math.round((grossAnnualSavings / membershipFee) * 10);
   const roiPercent = Math.round((grossAnnualSavings / membershipFee) * 100);
@@ -62,14 +62,14 @@ export default function SavingsProofPage() {
         <div className="max-w-4xl mx-auto text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-200">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            {locale === 'no' ? 'Omfattende ROI- og Prisbevis-kalkulator' : 'Comprehensive Multi-Vertical Savings Engine'}
+            {locale === 'no' ? 'Beregn dine besparelser' : 'Comprehensive Multi-Vertical Savings Engine'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-            {locale === 'no' ? 'Hvor mye sparer du med ATLAS?' : 'How Much Will You Save with ATLAS?'}
+            {locale === 'no' ? 'Hvor mye sparer du med Atlas?' : 'How Much Will You Save with ATLAS?'}
           </h1>
           <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
             {locale === 'no'
-              ? 'Beregn din personlige avkastning (ROI) på luksushoteller, direkte NDC-flyvninger, VIP-lounger og cruiseskip til 0% påslag.'
+              ? 'Beregn dine årlige besparelser på luksushoteller, direkte flybilletter, VIP-lounger og cruise – helt uten påslag.'
               : 'Simulate your personal cash ROI across luxury hotels, direct NDC commercial flights, VIP airport lounges, and ocean cruises with 0% retail markups.'}
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function SavingsProofPage() {
               <div className="border-b border-slate-100 pb-4">
                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                   <Sliders className="w-5 h-5 text-amber-600" />
-                  {locale === 'no' ? 'Din Reiseprofil' : 'Your Travel Profile'}
+                  {locale === 'no' ? 'Din reiseprofil' : 'Your Travel Profile'}
                 </h2>
                 <p className="text-xs text-slate-500 mt-1">
                   {locale === 'no'
@@ -104,10 +104,10 @@ export default function SavingsProofPage() {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-900">
-                        {locale === 'no' ? 'Hotellnetter / år' : 'Hotel Nights / Year'}
+                        {locale === 'no' ? 'Hotellnetter per år' : 'Hotel Nights / Year'}
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        {locale === 'no' ? 'Snitt engrosbesparelse: ~$165/natt' : 'Average wholesale saving: ~$165/night'}
+                        {locale === 'no' ? `Gjennomsnittlig besparelse: ca. ${formatPrice(hotelSavingsPerNight)}/natt` : 'Average wholesale saving: ~$165/night'}
                       </div>
                     </div>
                   </div>
@@ -146,10 +146,10 @@ export default function SavingsProofPage() {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-900">
-                        {locale === 'no' ? 'Flyreiser tur/retur / år' : 'Roundtrip Flights / Year'}
+                        {locale === 'no' ? 'Flyreiser tur/retur per år' : 'Roundtrip Flights / Year'}
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        {locale === 'no' ? 'Direkte NDC-nettobesparelse + EU261: ~$180/billett' : 'Direct NDC net fare savings + EU261 alerts: ~$180/ticket'}
+                        {locale === 'no' ? `Direkte nettopris + EU261: ca. ${formatPrice(flightSavingsPerTicket)}/reise` : 'Direct NDC net fare savings + EU261 alerts: ~$180/ticket'}
                       </div>
                     </div>
                   </div>
@@ -188,10 +188,10 @@ export default function SavingsProofPage() {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-900">
-                        {locale === 'no' ? 'VIP Lounge-besøk / år' : 'Airport Lounge Visits / Year'}
+                        {locale === 'no' ? 'VIP-loungebesøk per år' : 'Airport Lounge Visits / Year'}
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        {locale === 'no' ? '$32 medlemspris vs $65 dørpris (Spar $33/besøk)' : '$32 Member digital pass vs $65 walk-in rate (Save $33/visit)'}
+                        {locale === 'no' ? '330 kr medlemspris mot ca. 700 kr dørpris' : '$32 Member digital pass vs $65 walk-in rate (Save $33/visit)'}
                       </div>
                     </div>
                   </div>
@@ -230,10 +230,10 @@ export default function SavingsProofPage() {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-900">
-                        {locale === 'no' ? 'Cruisereiser / år' : 'Cruise Sailings / Year'}
+                        {locale === 'no' ? 'Cruisereiser per år' : 'Cruise Sailings / Year'}
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        {locale === 'no' ? 'Engrosrabatt på lugar + fri kreditt om bord: ~$650/seiling' : 'Net wholesale stateroom + free onboard credit: ~$650/sailing'}
+                        {locale === 'no' ? `Engrospris på lugar + kreditt om bord: ca. ${formatPrice(cruiseSavingsPerSailing)}/reise` : 'Net wholesale stateroom + free onboard credit: ~$650/sailing'}
                       </div>
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function SavingsProofPage() {
               <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white shadow-xl space-y-6 border border-slate-800">
                 <div>
                   <span className="text-[11px] font-black uppercase text-amber-400 tracking-wider">
-                    {locale === 'no' ? 'Estimert Årlig Totalbesparelse' : 'Total Estimated Annual Savings'}
+                    {locale === 'no' ? 'Estimert årlig totalbesparelse' : 'Total Estimated Annual Savings'}
                   </span>
                   <div className="text-4xl sm:text-5xl font-black font-mono text-emerald-400 mt-1">
                     {formatPrice(grossAnnualSavings)}
@@ -300,7 +300,7 @@ export default function SavingsProofPage() {
                   <div className="flex justify-between items-center text-slate-300">
                     <span className="flex items-center gap-1.5">
                       <Coffee className="w-3.5 h-3.5 text-amber-400" />
-                      {locale === 'no' ? `VIP Lounger (${loungeVisits} pass)` : `Airport Lounges (${loungeVisits} passes)`}
+                      {locale === 'no' ? `VIP-lounger (${loungeVisits} pass)` : `Airport Lounges (${loungeVisits} passes)`}
                     </span>
                     <span className="font-mono font-bold text-white">+{formatPrice(totalLoungeSavings)}</span>
                   </div>
@@ -314,7 +314,7 @@ export default function SavingsProofPage() {
                   </div>
 
                   <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-slate-400">
-                    <span>{locale === 'no' ? 'Atlas Klubb Medlemskontingent:' : 'Atlas Club Membership Cost:'}</span>
+                    <span>{locale === 'no' ? 'Atlas-medlemskap (årspris):' : 'Atlas Club Membership Cost:'}</span>
                     <span className="font-mono text-rose-400">-{formatPrice(membershipFee)}/{locale === 'no' ? 'år' : 'yr'}</span>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function SavingsProofPage() {
                 <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/60 space-y-1">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-emerald-300">
-                      {locale === 'no' ? 'Din netto årlige gevinst:' : 'Your Net Annual Profit:'}
+                      {locale === 'no' ? 'Din netto årlige besparelse:' : 'Your Net Annual Profit:'}
                     </span>
                     <span className="text-lg font-black font-mono text-emerald-400">
                       +{formatPrice(netProfit)}
@@ -333,7 +333,7 @@ export default function SavingsProofPage() {
                     <span className="text-slate-400">
                       {locale === 'no' ? 'Estimert avkastning på medlemskap:' : 'Estimated Return on Investment:'}
                     </span>
-                    <span className="font-mono font-bold text-amber-300">{roiPercent}% ({Math.round(roiMultiplier / 10)}x ROI)</span>
+                    <span className="font-mono font-bold text-amber-300">{roiPercent}% ({Math.round(roiMultiplier / 10)}x)</span>
                   </div>
                 </div>
 
@@ -347,7 +347,7 @@ export default function SavingsProofPage() {
 
                 <div className="text-[11px] text-center text-slate-400">
                   {locale === 'no'
-                    ? '🔒 0 kr å betale i dag • Beskyttet av 30 dagers prisgaranti'
+                    ? '🔒 0 kr i dag • 14 dager gratis prøveperiode'
                     : '🔒 $0 due today • Protected by 30-day rate parity guarantee'}
                 </div>
               </div>
@@ -356,11 +356,11 @@ export default function SavingsProofPage() {
               <div className="p-4 rounded-2xl bg-white border border-slate-200 text-xs text-slate-600 space-y-2 shadow-xs">
                 <div className="font-bold text-slate-900 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>{locale === 'no' ? 'Slik leverer ATLAS disse besparelsene' : 'How ATLAS Delivers These Savings'}</span>
+                  <span>{locale === 'no' ? 'Slik gir Atlas deg disse besparelsene' : 'How ATLAS Delivers These Savings'}</span>
                 </div>
                 <p className="text-[11px] leading-relaxed text-slate-500">
                   {locale === 'no'
-                    ? 'Offentlige nettsider legger til 20% til 45% påslag for å betale for milliarder i søkeannonser. Fordi ATLAS opererer som en lukket privat klubb, videresender vi rene engrospriser direkte til deg med 0% kommisjon.'
+                    ? 'Offentlige bestillingssider legger på 15–35 % for å dekke markedsføring og profitt. Fordi Atlas er en lukket medlemsklubb, får du tilgang til rene B2B-engrospriser helt uten provisjon eller påslag.'
                     : 'Public sites add 20% to 45% markups to pay for search advertising. Because ATLAS operates as a gated private club, we pass raw wholesale rates directly to you with 0% retail markup.'}
                 </p>
               </div>
@@ -380,8 +380,8 @@ export default function SavingsProofPage() {
             </h4>
             <p className="text-xs text-slate-500">
               {locale === 'no'
-                ? 'Et enkelt 2-netters hotellopphold eller én flyreise tur/retur sparer normalt inn hele årsavgiften.'
-                : 'A single 2-night stay or one roundtrip flight typically recovers the entire annual $179 fee.'}
+                ? 'Et opphold på to netter eller én flyreise tur/retur sparer som regel inn hele årskontingenten på 1 290 kr.'
+                : 'A single 2-night stay or one roundtrip flight typically recovers the entire 1 290 NOK (~$120) annual fee.'}
             </p>
           </div>
 
@@ -390,11 +390,11 @@ export default function SavingsProofPage() {
               <Lock className="w-4 h-4" />
             </div>
             <h4 className="font-bold text-sm text-slate-900">
-              {locale === 'no' ? 'Ekte Engrosavregning' : 'True Wholesale Clearing'}
+              {locale === 'no' ? 'Ekte engrospriser' : 'True Wholesale Clearing'}
             </h4>
             <p className="text-xs text-slate-500">
               {locale === 'no'
-                ? 'Direkte kobling til B2B Bedbanks og IATA/NDC-linjer med 100% åpenhet rundt nettopriser.'
+                ? 'Direkte kobling til globale B2B-grossister og flyselskaper, med full åpenhet om nettopriser.'
                 : 'Direct connection to B2B Bedbanks and airline NDC pipelines with 100% price transparency.'}
             </p>
           </div>
@@ -404,11 +404,11 @@ export default function SavingsProofPage() {
               <CreditCard className="w-4 h-4" />
             </div>
             <h4 className="font-bold text-sm text-slate-900">
-              {locale === 'no' ? 'Risikofri Prøveperiode' : 'Zero Risk Free Trial'}
+              {locale === 'no' ? 'Uforpliktende prøveperiode' : 'Zero Risk Free Trial'}
             </h4>
             <p className="text-xs text-slate-500">
               {locale === 'no'
-                ? 'Prøv klubben gratis i 14 dager. Verifiser alle livepriser før medlemskapet trer i kraft.'
+                ? 'Prøv klubben gratis i 14 dager. Se og sammenlign alle priser før du bestemmer deg.'
                 : 'Try the club free for 14 days. Inspect all live rates before your membership begins.'}
             </p>
           </div>

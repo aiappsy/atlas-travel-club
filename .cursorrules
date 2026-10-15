@@ -1,5 +1,12 @@
 # ATLAS Travel Club — Immutable Agent Engineering Rules
 
+## 0. Operating Legal Entity & Governance (GROUND TRUTH)
+* Operating Entity: **HARD ROCK CAPITAL LTD** (UK Company #16833237, 71-75 Shelton Street, Covent Garden, London, WC2H 9JQ, United Kingdom).
+* Founder & Managing Director: **Pål Juritzen** (paljuritzen@gmail.com, +47 40059493).
+* Business Model: Subscription-only revenue. 0 kr wholesale markup. 100% commission rebate to members as Rewards Vault credits.
+* Points Liquidity Rule: Points earned from travel bookings are Pending (In Escrow) until cash physically settles in company bank account (30-60 days). Only cleared points can be spent.
+* STRICTLY FORBIDDEN: Never use "Atlas Global AS" or "ATLAS VIP Platform Inc."
+
 ## 1. User Flow & Modal-First Navigation
 * In the search feed (`LiveHotelSearch.tsx`), clicking ANY hotel card or OTA rate card (Booking.com, Expedia, Hotels.com, Agoda) MUST always open the Audit Modal (`setAuditingHotel(hotel)`).
 * Never redirect the user off-site from the search feed. All external comparisons occur ONLY inside the Audit Modal.

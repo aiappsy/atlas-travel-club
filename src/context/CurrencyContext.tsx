@@ -125,22 +125,30 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
     // Auto-detect visitor currency based on IP and locale if not explicitly selected
     if (!hasCustomCurrency) {
-      const fastDetect = detectBrowserCurrency();
-      if (fastDetect && DEFAULT_CURRENCIES[fastDetect]) {
-        setCurrencyState(fastDetect);
-      }
+      const savedLocale = typeof window !== 'undefined' ? localStorage.getItem('atlas_locale') : null;
+      const browserLang = typeof navigator !== 'undefined' ? navigator.language.toLowerCase() : '';
+      const isNorwegian = savedLocale === 'no' || browserLang.startsWith('nb') || browserLang.startsWith('nn') || browserLang.startsWith('no');
 
-      fetch('/api/geo')
-        .then((r) => r.json())
-        .then((data) => {
-          const currentSaved = localStorage.getItem('atlas_currency');
-          if (!currentSaved && data?.currency && DEFAULT_CURRENCIES[data.currency as CurrencyCode]) {
-            setCurrencyState(data.currency as CurrencyCode);
-          }
-        })
-        .catch(() => {
-          // ignore network failure
-        });
+      if (isNorwegian) {
+        setCurrencyState('NOK');
+      } else {
+        const fastDetect = detectBrowserCurrency();
+        if (fastDetect && DEFAULT_CURRENCIES[fastDetect]) {
+          setCurrencyState(fastDetect);
+        }
+
+        fetch('/api/geo')
+          .then((r) => r.json())
+          .then((data) => {
+            const currentSaved = localStorage.getItem('atlas_currency');
+            if (!currentSaved && data?.currency && DEFAULT_CURRENCIES[data.currency as CurrencyCode]) {
+              setCurrencyState(data.currency as CurrencyCode);
+            }
+          })
+          .catch(() => {
+            // ignore network failure
+          });
+      }
     }
 
     // Fetch live ECB rates from our internal /api/fx endpoint

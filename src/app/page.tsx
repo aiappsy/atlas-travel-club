@@ -102,7 +102,7 @@ export default function LuxuryHomePage() {
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>
               {locale === 'no'
-                ? 'Lukket Medlemsbasert Engrosklubb • B2B Netto Klubbpriser'
+                ? 'Eksklusiv medlemsklubb • B2B-engrospriser'
                 : 'Private Wholesale Travel Club • Closed-Loop Member Rates'}
             </span>
           </div>
@@ -112,9 +112,9 @@ export default function LuxuryHomePage() {
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
               {locale === 'no' ? (
                 <>
-                  Reis til Netto Engrospris. <br />
+                  Reis til ekte engrospriser. <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-700 via-amber-600 to-amber-800">
-                    Betal aldri fullpris igjen.
+                    Hvorfor betale overpris?
                   </span>
                 </>
               ) : (
@@ -129,7 +129,7 @@ export default function LuxuryHomePage() {
 
             <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
               {locale === 'no'
-                ? 'Direkte tilgang til hemmelige B2B-engrospriser på over 1 000 000 luksushoteller, kommersielle flybilletter (NDC), VIP-lounger og cruiseskip med 0% kommersielt påslag.'
+                ? 'Få direkte tilgang til lukkede B2B-engrospriser på over 1 000 000 kvalitetshoteller, flybilletter, VIP-lounger og luksuscruise – med 0 kr i påslag og 0 kr i bookinggebyr.'
                 : 'Direct access to raw B2B bedbank rates across 1,000,000+ luxury hotels, NDC commercial flights, airport lounges, and ocean cruises with 0% retail markup.'}
             </p>
 
@@ -150,7 +150,7 @@ export default function LuxuryHomePage() {
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>
                     {locale === 'no'
-                      ? `Gratis ${trialDays}-dagers prøveperiode • Avslutt når som helst • 0% påslag`
+                      ? `Gratis ${trialDays}-dagers prøveperiode • Ingen bindingstid • 0 kr i påslag`
                       : `Free ${trialDays}-day trial • Cancel anytime • 0% retail markups`}
                   </span>
                 </div>
@@ -203,6 +203,153 @@ export default function LuxuryHomePage() {
         <LiveHotelSearch initialDestination="Paris" />
       </section>
 
+      {/* EXCLUSIVE DISTRESSED INVENTORY SHOWCASE: RESORTS & GOURMET SPA */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold uppercase tracking-wider mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+              <span>{locale === 'no' ? 'Eksklusive Medlemsfordeler' : 'Member-Exclusive Liquidation Deals'}</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              {locale === 'no' ? 'Spesialavtaler for ferieleiligheter og spa' : 'Curated Condo Weeks & Spa Escapes'}
+            </h2>
+            <p className="text-sm text-slate-600 mt-1 max-w-2xl">
+              {locale === 'no'
+                ? 'Gjennom lukkede overskuddsavtaler med RCI og Connex gir vi medlemmene tilgang til hele ferieleiligheter til fast lavpris og gratis hotellopphold.'
+                : 'Through closed liquidation agreements with RCI and Connex, members access 7-night whole-condo stays and complimentary hotel room lodging.'}
+            </p>
+          </div>
+          <div className="text-xs text-slate-500 font-medium">
+            {locale === 'no' ? '✓ 14 dagers angrefrist • Ingen pakkereisetvang' : '✓ 14-day money-back guarantee • Self-directed travel'}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Card 1: Atlas Signature Resorts */}
+          <div className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+            <div className="relative h-56 sm:h-64 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80"
+                alt="Atlas Signature Resorts"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-amber-500/90 backdrop-blur-md text-slate-950 text-[11px] font-black uppercase tracking-wider">
+                {locale === 'no' ? '7 Netters Ukesopphold' : '7-Night Condo Stays'}
+              </div>
+              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold border border-white/20">
+                {locale === 'no' ? 'RCI / Panorama Allotment' : 'RCI Surplus Allotment'}
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">Atlas Signature Resorts</div>
+                <div className="text-2xl font-black">
+                  {locale === 'no' ? 'Hele leiligheten fra kun 2 890 kr' : 'Whole Condo from just 2,890 NOK ($269 USD)'}
+                </div>
+                <div className="text-xs text-slate-300 mt-0.5">
+                  {locale === 'no' ? 'Fast totalpris for 7 netter • Opptil 4–6 personer • Fullt kjøkken' : 'Flat rate for 7 nights • Sleeps 4–6 guests • Full kitchen'}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {locale === 'no'
+                    ? 'Lei en romslig ferieleilighet på 4-stjerners resorter i Marbella, Tenerife, Algarve, Kreta eller Toscana. Ingen rompriser per natt eller persongebyrer – kun faste forhåndsbetalte uker fra 2 890 kr (Last-Minute) eller 4 490 kr (Helår).'
+                    : 'Stay in spacious 1-2 bedroom condo suites across Costa del Sol, Canary Islands, Algarve, or Tuscany. No daily rate, no per-person surcharge—just 2,890 NOK ($269) for Last-Minute or 4,490 NOK ($420) for 365-day advance bookings.'}
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">{locale === 'no' ? 'Sparer over 12 000 kr' : 'Save $1,100+ vs OTAs'}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">{locale === 'no' ? '14 dagers angrefrist' : '14-Day Money Back'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+                <div className="text-xs text-slate-500">
+                  <span className="font-bold text-slate-900">{locale === 'no' ? 'Fra 2 890 kr' : 'From 2,890 NOK'}</span> / uke
+                </div>
+                <Link
+                  href="/resorts"
+                  className="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <span>{locale === 'no' ? 'Utforsk ferieleiligheter' : 'Explore Condos'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Atlas Gourmet & Spa Escapes */}
+          <div className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+            <div className="relative h-56 sm:h-64 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80"
+                alt="Atlas Gourmet & Spa Escapes"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-rose-500/90 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-wider">
+                {locale === 'no' ? '0 kr Rompris' : '$0 Room Rate'}
+              </div>
+              <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold border border-white/20">
+                {locale === 'no' ? 'Connex / Holiday Plus' : 'Connex Hotel Network'}
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 text-white">
+                <div className="text-xs font-bold text-rose-300 uppercase tracking-wider">Atlas Gourmet &amp; Spa Escapes</div>
+                <div className="text-2xl font-black">
+                  {locale === 'no' ? 'Gratis hotellopphold for 2 personer' : 'Complimentary Hotel Stay for 2'}
+                </div>
+                <div className="text-xs text-slate-300 mt-0.5">
+                  {locale === 'no' ? 'Betal kun hotellets faste halvpensjon (€35–€60/pers/dag) ved utsjekk' : 'Pay only fixed half-board (€35–€60/guest/day) at checkout'}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {locale === 'no'
+                    ? 'Nyt 2–4 netter på håndplukkede 3–4* boutique- og velværerhoteller i Dolomittene, Schwarzwald, Provence eller Toscana. Rommet er 0 kr på hotellregningen – du betaler kun for lokal gourmetfrokost og middag.'
+                    : 'Experience 2–4 nights at handpicked boutique retreats in the Alps, Black Forest, or Tuscany. Room charge is 0 kr—you only pay the mandatory half-board meal package directly to the hotel.'}
+                </p>
+
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">{locale === 'no' ? 'Sparer over 6 700 kr' : 'Save $650+ vs Booking'}</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span className="font-semibold text-slate-800">{locale === 'no' ? 'Umiddelbar verdikupong' : 'Instant Digital Voucher'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+                <div className="text-xs text-slate-500">
+                  <span className="font-bold text-slate-900">0 kr</span> / rom (500 poeng)
+                </div>
+                <Link
+                  href="/spa-breaks"
+                  className="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
+                >
+                  <span>{locale === 'no' ? 'Hent 0 kr verdikupong' : 'Claim $0 Voucher'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* OFFICIAL ATLAS TRAVEL CARD — COMING SOON SHOWCASE */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border border-amber-500/30 shadow-2xl p-8 sm:p-12 lg:p-16">
@@ -228,7 +375,7 @@ export default function LuxuryHomePage() {
                     <>
                       ATLAS Sovereign Metal Card <br />
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100">
-                        Visa® Prestige i Massivt Metall
+                        Visa® Prestige i massivt metall
                       </span>
                     </>
                   ) : (
@@ -243,7 +390,7 @@ export default function LuxuryHomePage() {
 
                 <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
                   {locale === 'no'
-                    ? 'Det ultimate betalingsmiddelet for luksusreisende. Utviklet for suveren global mobilitet med 0 % valutapåslag, DragonPass VIP-loungetilgang og direkte integrasjon med ATLAS Rewards Vault.'
+                    ? 'Det eksklusive betalingskortet for kvalitetsbevisste reisende. 0 % valutapåslag ved betaling i utlandet, adgang til over 1 300 VIP-flyplasslounger og direkte opptjening av reisekreditter.'
                     : 'The definitive physical card for discerning global travelers. Engineered for sovereign mobility featuring 0% FX interbank spread, 1,300+ DragonPass lounges, and seamless Rewards Vault redemption.'}
                 </p>
               </div>
@@ -252,44 +399,44 @@ export default function LuxuryHomePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
                   <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
-                    {locale === 'no' ? '0 % Valutapåslag' : '0% Foreign FX Fees'}
+                    {locale === 'no' ? '0 % valutapåslag' : '0% Foreign FX Fees'}
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed">
                     {locale === 'no'
-                      ? 'Rene interbank-kurser i over 150 valutaer uten skjulte bankmarginer.'
+                      ? 'Offisielle interbank-kurser i over 150 valutaer – helt uten skjulte bankpåslag.'
                       : 'True mid-market interbank exchange rates worldwide with zero retail spread.'}
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
                   <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
-                    {locale === 'no' ? '1 300+ Flyplasslounger' : '1,300+ Airport Lounges'}
+                    {locale === 'no' ? 'Over 1 300 VIP-lounger' : '1,300+ Airport Lounges'}
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed">
                     {locale === 'no'
-                      ? 'Integrert DragonPass-adgang og prioritert sikkerhetskontroll (Fast-Track).'
+                      ? 'Inkludert DragonPass-tilgang og prioritert sikkerhetskontroll (Fast Track).'
                       : 'Built-in DragonPass VIP privileges and fast-track airport security escort.'}
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
                   <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
-                    {locale === 'no' ? 'Club Credits Integrasjon' : 'Club Credits Redemption'}
+                    {locale === 'no' ? 'Reisekreditter og poeng' : 'Club Credits Redemption'}
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed">
                     {locale === 'no'
-                      ? 'Bruk dine Club Credits direkte (100p = $1) med 50 % samfinansieringstak.'
+                      ? 'Bruk opptjente poeng direkte som delbetaling på dine neste hotell- og reisebestillinger.'
                       : 'Direct 100 pts = $1 spending with automated 50% liquidity safeguard.'}
                   </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm space-y-1">
                   <div className="text-amber-400 text-xs font-black uppercase tracking-wider">
-                    {locale === 'no' ? 'Massivt Metall & Sikkerhet' : 'Solid Metal & Apple Pay'}
+                    {locale === 'no' ? 'Massivt metall & Apple Pay' : 'Solid Metal & Apple Pay'}
                   </div>
                   <div className="text-xs text-slate-300 leading-relaxed">
                     {locale === 'no'
-                      ? 'Lasergravert 18g stål, biometrisk chip og umiddelbar Apple & Google Wallet.'
+                      ? 'Lasergravert 18 grams stål med kontaktløs chip, støtte for Apple Pay og Google Pay.'
                       : '18g laser-etched metal, contactless chip, and instant mobile wallet provisioning.'}
                   </div>
                 </div>
@@ -302,14 +449,14 @@ export default function LuxuryHomePage() {
                   className="px-6 py-3.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-xs sm:text-sm tracking-wide uppercase transition-all shadow-lg hover:shadow-amber-500/25 flex items-center gap-2 transform hover:scale-[1.02]"
                 >
                   <CreditCard className="w-4 h-4 text-slate-950" />
-                  <span>{locale === 'no' ? 'Utforsk Kortfordeler →' : 'Explore Card Privileges →'}</span>
+                  <span>{locale === 'no' ? 'Utforsk kortfordelene →' : 'Explore Card Privileges →'}</span>
                 </Link>
 
                 <Link
                   href="/membership"
                   className="px-6 py-3.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/20 text-white font-bold text-xs sm:text-sm transition-all"
                 >
-                  <span>{locale === 'no' ? 'Se Medlemskap' : 'View Memberships'}</span>
+                  <span>{locale === 'no' ? 'Se medlemskap' : 'View Memberships'}</span>
                 </Link>
               </div>
 
@@ -340,10 +487,10 @@ export default function LuxuryHomePage() {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center space-y-2 mb-8">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-700">
-            Forretningsområder &amp; Tjenester
+            {locale === 'no' ? 'Tjenester og fordeler' : 'Business Areas & Services'}
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Utforsk Hele Atlas-Økosystemet
+            {locale === 'no' ? 'Utforsk hele Atlas-økosystemet' : 'Explore The Entire Atlas Ecosystem'}
           </h2>
         </div>
 
@@ -357,11 +504,13 @@ export default function LuxuryHomePage() {
               <Briefcase className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-slate-900 text-sm group-hover:text-amber-800 transition-colors flex items-center justify-between">
-              B2B Bedriftsflåte
+              {locale === 'no' ? 'Bedriftsavtaler (B2B)' : 'B2B Corporate'}
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </h3>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              Gruppelisenser for bedrifter og organisasjoner med egne co-brandede portaler.
+              {locale === 'no'
+                ? 'Gruppelisenser for bedrifter og organisasjoner med egne skreddersydde portaler.'
+                : 'Group licenses for companies and organizations with co-branded portals.'}
             </p>
           </Link>
 
@@ -374,11 +523,13 @@ export default function LuxuryHomePage() {
               <Share2 className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-slate-900 text-sm group-hover:text-emerald-800 transition-colors flex items-center justify-between">
-              Partnere &amp; Affiliates
+              {locale === 'no' ? 'Partnere & affiliate' : 'Partners & Affiliates'}
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </h3>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              270 kr direkte provisjon + squad-override utbetalt ukentlig via Wise.
+              {locale === 'no'
+                ? '270 kr i direkte provisjon for hvert nye medlem, med ukentlige utbetalinger via Wise.'
+                : '270 NOK direct referral commission + squad overrides paid weekly via Wise.'}
             </p>
           </Link>
 
@@ -391,11 +542,13 @@ export default function LuxuryHomePage() {
               <Plane className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-slate-900 text-sm group-hover:text-sky-800 transition-colors flex items-center justify-between">
-              Kommersielle Fly
+              {locale === 'no' ? 'Flybilletter' : 'Commercial Flights'}
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </h3>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              Duffel NDC-flymotor med 0% påslag og innebygget EU261 forsinkelsesvern.
+              {locale === 'no'
+                ? 'Direkte flybooking til nettopris (NDC) med 0 kr i billettpåslag og EU261-passasjervern.'
+                : 'Duffel NDC flight engine with 0% markup and built-in EU261 delay protection.'}
             </p>
           </Link>
 
@@ -408,11 +561,13 @@ export default function LuxuryHomePage() {
               <Lock className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-slate-900 text-sm group-hover:text-purple-800 transition-colors flex items-center justify-between">
-              Lukket Medlemsklubb
+              {locale === 'no' ? 'Lukket medlemsklubb' : 'Private Member Club'}
               <ArrowRight className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </h3>
             <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-              Sikret CUG Rate Parity-unntak, Stripe-integrert innlogging og eksklusiv adgang.
+              {locale === 'no'
+                ? 'Eksklusiv tilgang til lukkede engrospriser beskyttet bak personlig medlemsinnlogging.'
+                : 'Secured CUG Rate Parity exemption, Stripe-integrated access, and exclusive perks.'}
             </p>
           </Link>
         </div>
@@ -422,10 +577,10 @@ export default function LuxuryHomePage() {
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
         <div className="text-center space-y-2">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-700">
-            Transparens &amp; Sikkerhet
+            {locale === 'no' ? 'Trygghet og transparens' : 'Transparency & Security'}
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Slik Leverer Atlas Ekte Engrospriser Lovlig
+            {locale === 'no' ? 'Slik leverer Atlas ekte engrospriser' : 'How Atlas Delivers True Wholesale Rates'}
           </h2>
         </div>
 
@@ -434,9 +589,13 @@ export default function LuxuryHomePage() {
             <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
               <Building2 className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Direkte Bedbank-Kobling</h3>
+            <h3 className="font-bold text-slate-900 text-base">
+              {locale === 'no' ? 'Direkte engrosavtaler' : 'Direct Bedbank Integration'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Koblet direkte til store B2B bedbanker (WebBeds, RateHawk, Hotelbeds) for ekte innkjøpspriser uten OTA-reklametillegg.
+              {locale === 'no'
+                ? 'Koblet direkte til store grossister (WebBeds, RateHawk, Hotelbeds) for ekte innkjøpspriser uten fordyrende OTA-påslag.'
+                : 'Direct connection to major B2B bedbanks (WebBeds, RateHawk, Hotelbeds) for raw wholesale rates without OTA advertising markup.'}
             </p>
           </div>
 
@@ -444,9 +603,13 @@ export default function LuxuryHomePage() {
             <div className="w-10 h-10 rounded-2xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold">
               <Plane className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">IATA/NDC Flyklarering</h3>
+            <h3 className="font-bold text-slate-900 text-base">
+              {locale === 'no' ? 'Offisielle IATA/NDC-flypriser' : 'IATA/NDC Flight Ticketing'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Ekte NDC-flyintegrasjon via Duffel med 0% billettpåslag og automatisk EU261 €600 forsinkelseskrav-overvåking.
+              {locale === 'no'
+                ? 'Direkte tilgang til flyselskapenes egne nettopriser uten provisjonspåslag eller skjulte billettgebyrer.'
+                : 'Direct access to official airline net fares via Duffel NDC with 0% retail markup and automated EU261 flight protection.'}
             </p>
           </div>
 
@@ -454,9 +617,13 @@ export default function LuxuryHomePage() {
             <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
               <ShieldCheck className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-900 text-base">Rate Parity Overholdelse</h3>
+            <h3 className="font-bold text-slate-900 text-base">
+              {locale === 'no' ? 'Garantert prisparitet' : 'Rate Parity Compliance'}
+            </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Prisene er låst bak lukket medlemsinnlogging (Closed User Group), som oppfyller alle krav fra hotellkjedene og antitrust-lovgivning.
+              {locale === 'no'
+                ? 'Gjennom vår lukkede medlemsmodell (CUG) kan vi tilby rabatter som ellers ikke er lov å vise åpent på nett.'
+                : 'Rates are protected behind private member authentication (Closed User Group), complying fully with hotel chain parity requirements.'}
             </p>
           </div>
         </div>

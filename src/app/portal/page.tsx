@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
-import { Lock, KeyRound, ShieldAlert, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Lock, KeyRound, ShieldAlert, CheckCircle2, ArrowRight, Wallet, Clock, ShieldCheck, Download, Sparkles } from 'lucide-react';
 
 const PORTAL_AUTH_KEY = 'atlas_mission_control_auth';
 const CORRECT_PIN = 'atlas2026';
@@ -121,6 +121,30 @@ export default function PortalPage() {
             url: 'https://atlasclub.web.app/hotels',
             path: '/hotels',
             icon: '🏨',
+          },
+          {
+            title: isNo ? 'Atlas Signature Resorts' : 'Atlas Signature Resorts',
+            badge: isNo ? 'Fra 2 890 kr / 7 Netter' : 'From 2,890 NOK / 7 Nts',
+            badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
+            desc: isNo
+              ? 'Likvidering av overskuddskapasitet fra RCI: 7 netters ferieleilighet (1–2 soverom, fullt kjøkken, opptil 4–6 personer) fra 2 890 kr (Last-Minute) eller 4 490 kr (Helår).'
+              : 'RCI surplus condo liquidation: 7-night whole condo stays (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy from 2,890 NOK ($269 USD).',
+            url: 'https://atlasclub.web.app/resorts',
+            path: '/resorts',
+            icon: '🏖️',
+            primary: true,
+          },
+          {
+            title: isNo ? 'Atlas Gourmet & Spa Escapes' : 'Atlas Gourmet & Spa Escapes',
+            badge: isNo ? '0 kr Rompris / Halvpensjon' : '$0 Room Rate / Half-Board',
+            badgeClass: 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
+            desc: isNo
+              ? 'Connex/Holiday Plus-partnerskap: Gratis romopphold for 2 personer på boutique- og velværerhoteller i Alpene og Sør-Europa. Betal kun for hotellets faste halvpensjon.'
+              : 'Connex/Holiday Plus partnership: $0 complimentary lodging for 2 guests across alpine and Mediterranean wellness retreats. Guests pay only published half-board at checkout.',
+            url: 'https://atlasclub.web.app/spa-breaks',
+            path: '/spa-breaks',
+            icon: '🍷',
+            primary: true,
           },
           {
             title: isNo ? 'Fly & Ruter' : 'Flights & Air Mobility',
@@ -248,6 +272,78 @@ export default function PortalPage() {
             url: 'https://atlasclub.web.app/legal',
             path: '/legal',
             icon: '⚖️',
+          },
+        ],
+      },
+      {
+        title: isNo ? '🏢 Institusjonelt Salg, B2B & Bedriftsavtaler' : '🏢 Institutional Sales, B2B & Enterprise Portals',
+        cards: [
+          {
+            title: isNo ? 'B2B Hovedportal & Bedriftsfordeler' : 'Institutional Sales Hub & Enterprise B2B',
+            badge: isNo ? '30–50 % Reisebesparelser' : '30–50% Corporate Savings',
+            badgeClass: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+            desc: isNo
+              ? 'Hovedsiden for bedriftsavtaler: Interaktiv ansattkalkulator, engrosavtaler, MVA-fradrag og forespørselsskjema.'
+              : 'Enterprise portal with corporate headcount savings calculator, zero-markup NDC flights, and lead acquisition.',
+            url: 'https://atlasclub.web.app/b2b',
+            path: '/b2b',
+            icon: '🏢',
+            primary: true,
+          },
+          {
+            title: isNo ? 'Agenturer.no B2B Medlemsportal' : 'Agenturer.no Co-Branded Portal',
+            badge: isNo ? 'Live Partner-Portal' : 'Live Partner Environment',
+            badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+            desc: isNo
+              ? 'Aktiv partnerportal for Agenturer.no med e-postvalidering (@agenturer.no), 35 % rabatt og digitalt Agent-pass.'
+              : 'Live co-branded partner portal for Agenturer.no with automated domain verification and member benefits.',
+            url: 'https://atlasclub.web.app/b2b/portal/agenturer-no',
+            path: '/b2b/portal/agenturer-no',
+            icon: '🤝',
+          },
+          {
+            title: isNo ? 'Tekna B2B Organisasjonsportal' : 'Tekna Organization Portal',
+            badge: isNo ? '105 000 Medlemmer' : '105,000 Engineers',
+            badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            desc: isNo
+              ? 'Eksempel på storskala foreningsfordel for Tekna-ingeniører med 40 % engrosrabatt og EU261-passasjersikring.'
+              : 'Large-scale union and association benefit model with 40% wholesale hotel discounts and EU261 flight protection.',
+            url: 'https://atlasclub.web.app/b2b/portal/tekna',
+            path: '/b2b/portal/tekna',
+            icon: '🎓',
+          },
+          {
+            title: isNo ? 'Enterprise Case Study' : 'Enterprise ROI Case Study',
+            badge: isNo ? 'Finansiell Analyse' : 'Financial Case Study',
+            badgeClass: 'bg-purple-50 text-purple-700 border-purple-200',
+            desc: isNo
+              ? 'Konkret analyse av hvordan en bedrift kutter 30–50 % på forretningsreiser mot tradisjonelle reisebyråer.'
+              : 'Detailed institutional case study detailing net corporate yield, OTA margin elimination, and automated receipting.',
+            url: 'https://atlasclub.web.app/case-study',
+            path: '/case-study',
+            icon: '📊',
+          },
+          {
+            title: isNo ? 'Pris- og Revisjonsbevis (Proof)' : 'Audit & Rate Proof Hub',
+            badge: isNo ? 'Verifiserte Reiser' : 'Audited Bookings',
+            badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            desc: isNo
+              ? 'Reelle prissammenligninger og revisjonsbevis for bedriftskunder og CFO som dokumenterer besparelsene.'
+              : 'Direct pricing audit logs and supplier confirmations proving tangible savings over public booking channels.',
+            url: 'https://atlasclub.web.app/proof',
+            path: '/proof',
+            icon: '🧾',
+          },
+          {
+            title: isNo ? 'Strategiske B2B Partnere' : 'Strategic Supplier Network',
+            badge: isNo ? 'Leverandørøkosystem' : 'Wholesale Consortium',
+            badgeClass: 'bg-amber-50 text-amber-800 border-amber-200',
+            desc: isNo
+              ? 'Oversikt over våre leverandører og integrasjoner: WebBeds, Duffel NDC, DragonPass og Stripe Enterprise.'
+              : 'Comprehensive directory of direct bedbanks, airline aggregators, and global lounge infrastructure partners.',
+            url: 'https://atlasclub.web.app/partners',
+            path: '/partners',
+            icon: '🌐',
           },
         ],
       },
@@ -416,18 +512,112 @@ export default function PortalPage() {
             {content.subtitle}
           </p>
 
-          {/* OFFICIAL CARD SHOWCASE */}
-          <div className="max-w-2xl mx-auto bg-slate-900 text-white p-6 md:p-8 rounded-3xl border border-amber-500/30 shadow-2xl">
-            <div className="inline-block px-3.5 py-1 bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
-              {content.cardShowcaseTitle}
+          {/* OFFICIAL CARD & APPLE WALLET SHOWCASE */}
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="bg-slate-900 text-white p-6 md:p-8 rounded-3xl border border-amber-500/30 shadow-2xl">
+              <div className="inline-block px-3.5 py-1 bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-widest rounded-full mb-3">
+                {content.cardShowcaseTitle}
+              </div>
+              <p className="text-slate-400 text-xs md:text-sm mb-6">{content.cardShowcaseSub}</p>
+              <div className="overflow-hidden rounded-2xl border border-amber-500/30 shadow-2xl max-w-2xl mx-auto">
+                <img 
+                  src="/atlas-final-card.jpg" 
+                  alt="ATLAS Travel Card" 
+                  className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-300"
+                />
+              </div>
             </div>
-            <p className="text-slate-400 text-xs md:text-sm mb-6">{content.cardShowcaseSub}</p>
-            <div className="overflow-hidden rounded-2xl border border-amber-500/30 shadow-2xl">
-              <img 
-                src="/atlas-final-card.jpg" 
-                alt="ATLAS Travel Card" 
-                className="w-full h-auto object-cover transform hover:scale-[1.02] transition-transform duration-300"
-              />
+
+            {/* DIGITAL APPLE WALLET PASS & LIQUIDITY GUARD */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm text-left">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+                    <Wallet className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider mb-1">
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      {isNo ? 'Digitalt Medlemskort' : 'Digital Member Pass'}
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900">
+                      {isNo ? 'Apple Wallet & Rewards Vault Pass' : 'Apple Wallet & Rewards Vault Pass'}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <a
+                    href="/api/cards/wallet-pass/download?memberId=ATLAS-FOUNDER-001&availablePoints=42500&pendingPoints=79000"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm hover:shadow"
+                  >
+                    <Download className="w-4 h-4 text-amber-400" />
+                    <span>{isNo ? 'Last ned Apple Wallet Pass (.pkpass)' : 'Download Apple Wallet Pass'}</span>
+                  </a>
+                  <Link
+                    href="/rewards"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition-all"
+                  >
+                    <span>{isNo ? 'Åpne Hvelv →' : 'Open Vault →'}</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* LIVE BALANCES WITH LIQUIDITY STATUS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-emerald-800 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      {isNo ? 'Disponibel Saldo (Klar til bruk)' : 'Available to Spend'}
+                    </span>
+                    <span className="text-[10px] bg-emerald-200/60 px-2 py-0.5 rounded text-emerald-900">100% Likvid</span>
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 tracking-tight">
+                    42 500 <span className="text-sm font-bold text-slate-500">PTS</span>
+                    <span className="text-xs font-bold text-emerald-700 ml-2">≈ 4 250 NOK</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-2">
+                    {isNo 
+                      ? 'Motregnes automatisk din 1 290 kr årsfaktura i Stripe, eller kan overføres til bankkonto ved overskudd.'
+                      : 'Automatically offsets your 1 290 NOK annual renewal in Stripe, or withdrawable upon surplus.'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-amber-800 mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-amber-600" />
+                      {isNo ? 'Venter på oppgjør (In Escrow)' : 'Pending Clearance (In Escrow)'}
+                    </span>
+                    <span className="text-[10px] bg-amber-200/60 px-2 py-0.5 rounded text-amber-900">30–60 Dager</span>
+                  </div>
+                  <div className="text-2xl font-black text-slate-900 tracking-tight">
+                    79 000 <span className="text-sm font-bold text-slate-500">PTS</span>
+                    <span className="text-xs font-bold text-amber-800 ml-2">≈ 7 900 NOK</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 mt-2">
+                    {isNo 
+                      ? 'Opptjent fra Regent Seven Seas Cruise. Fristilles når provisjonen er fysisk innbetalt til HARD ROCK CAPITAL LTD.'
+                      : 'Earned on Regent Cruise voyage. Matures once commission has physically settled into HARD ROCK CAPITAL LTD.'}
+                  </p>
+                </div>
+              </div>
+
+              {/* STRICT LIQUIDITY BANNER */}
+              <div className="mt-4 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3 text-xs text-slate-600">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-slate-900">
+                    {isNo ? 'Ufravikelig Likviditetsregel: ' : 'Immutable Solvency Protocol: '}
+                  </span>
+                  <span>
+                    {isNo
+                      ? 'Medlemmer kan aldri bruke poeng før provisjonene eller betalingen er fysisk mottatt på selskapets bankkonto. Dette eliminerer likviditetsrisiko for HARD ROCK CAPITAL LTD.'
+                      : 'Points can strictly never be spent before supplier commissions are physically collected into the corporate treasury of HARD ROCK CAPITAL LTD.'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </header>

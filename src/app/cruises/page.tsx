@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
+import CruiseAudioDeepDive from '@/components/CruiseAudioDeepDive';
 
 export default function CruisesPage() {
   const { locale } = useLanguage();
@@ -12,25 +13,25 @@ export default function CruisesPage() {
   const [activeDestination, setActiveDestination] = useState('ALL');
 
   const content = {
-    badge: isNo ? 'Eksklusive Cruise & Seilinger' : 'Exclusive Ocean & River Voyages',
-    title: isNo ? 'ATLAS Prestige Cruise Kolleksjon' : 'ATLAS Prestige Cruise Collection',
+    badge: isNo ? 'Eksklusive cruise og seilinger' : 'Exclusive Ocean & River Voyages',
+    title: isNo ? 'Luksuscruise med Atlas' : 'ATLAS Prestige Cruise Collection',
     subtitle: isNo
-      ? 'Få tilgang til verdens fremste luksusrederier med opptil 10 % tilbakebetalt i ATLAS Club Credits, garantert prisparitet og eksklusivt lommepengekreditt om bord.'
+      ? 'Få tilgang til verdens ledende luksusrederier med opptil 10 % tilbakebetalt som Atlas Kickback, garanterte priser og kreditt om bord.'
       : 'Access the world’s premier ocean and river lines with up to 10% back in ATLAS Club Credits, rate parity guarantee, and exclusive onboard spending credit.',
-    pointsCalloutTitle: isNo ? '🏛️ ATLAS Rewards Cruisefordel' : '🏛️ ATLAS Rewards Cruise Advantage',
+    pointsCalloutTitle: isNo ? '🏛️ Atlas Travel Kickback: Slik fungerer det' : '🏛️ Atlas Travel Kickback: How It Works',
     pointsCalloutBody: isNo
-      ? 'Hver lugerreservering gir opptil 10 % i opptjente Club Credits. Opptjeningen krediteres din Rewards Vault og kan benyttes til fremtidige hotell-, fly- eller leiebilbookinger.'
-      : 'Every stateroom booking earns up to 10% back in Club Credits. Rewards are credited directly to your Vault and can be redeemed for future hotels, flights, or car rentals.',
+      ? 'Rederiene krever offisielle katalogpriser ved bestilling. Til gjengjeld deler Atlas provisjonen 50/50 direkte tilbake til din medlemskonto etter endt seilas. Beløpet kan motregnes neste årskontingent (1 290 kr) eller utbetales direkte.'
+      : 'Cruise lines require published public rates at checkout (MAP). In return, Atlas shares the B2B supplier commission 50/50 straight back into your Rewards Vault post-voyage. Your balance automatically offsets your next annual renewal (1 290 NOK) in Stripe, or can be cashed out on surplus!',
     searchPlaceholder: isNo ? 'Søk etter reisemål, skip eller rederi...' : 'Search destination, ship, or cruise line...',
-    allFilter: isNo ? 'Alle Rederier' : 'All Cruise Lines',
-    destFilter: isNo ? 'Alle Reisemål' : 'All Destinations',
-    viewItinerary: isNo ? 'Se Seilingsplan & Lugarer' : 'View Itinerary & Cabins',
-    onboardCreditLabel: isNo ? 'Inkludert om bord' : 'Onboard Credit',
-    pointsEarnLabel: isNo ? 'Opptjen i Club Credits' : 'Earn Club Credits',
-    perPerson: isNo ? 'per person (del i dobbeltlugar)' : 'per person (double occupancy)',
-    verifiedPartner: isNo ? 'Automatisert B2B Cruise-Partner' : 'Automated B2B Cruise Partner',
+    allFilter: isNo ? 'Alle rederier' : 'All Cruise Lines',
+    destFilter: isNo ? 'Alle reisemål' : 'All Destinations',
+    viewItinerary: isNo ? 'Se seilingsplan og lugarer' : 'View Itinerary & Cabins',
+    onboardCreditLabel: isNo ? 'inkludert om bord' : 'Onboard Credit',
+    pointsEarnLabel: isNo ? 'Atlas Kickback' : 'Earn Club Credits',
+    perPerson: isNo ? 'per person i dobbeltlugar' : 'per person (double occupancy)',
+    verifiedPartner: isNo ? 'Verifiserte B2B-rederier' : 'Automated B2B Cruise Partner',
     partnerNote: isNo
-      ? 'Sanntids lugartilgjengelighet, dekkplaner og direkte bestilling med 100 % prisbeskyttelse og 24/7 rederisupport.'
+      ? 'Sanntids tilgjengelighet, dekkplaner og direkte bestilling med 100 % prisbeskyttelse og døgnåpen support.'
       : 'Real-time cabin availability, live deck plans, and instant automated booking with 100% price protection and 24/7 operator support.',
   };
 
@@ -48,7 +49,7 @@ export default function CruisesPage() {
     { id: 'ALL', name: content.destFilter },
     { id: 'MED', name: isNo ? 'Middelhavet' : 'Mediterranean' },
     { id: 'CARIB', name: isNo ? 'Karibia' : 'Caribbean' },
-    { id: 'NORWAY', name: isNo ? 'Norske Fjorder & Nordkapp' : 'Norwegian Fjords' },
+    { id: 'NORWAY', name: isNo ? 'Norske fjorder & Nordkapp' : 'Norwegian Fjords' },
     { id: 'ASIA', name: isNo ? 'Asia & Japan' : 'Asia & Japan' },
   ];
 
@@ -58,9 +59,9 @@ export default function CruisesPage() {
       line: 'SILVERSEA',
       lineName: 'Silversea',
       ship: 'Silver Dawn',
-      title: isNo ? 'Klassisk Middelhav & Den Franske Riviera' : 'Grand Mediterranean & French Riviera',
+      title: isNo ? 'Klassisk Middelhav & Den franske riviera' : 'Grand Mediterranean & French Riviera',
       route: isNo ? 'Barcelona • Cannes • Portofino • Roma (Civitavecchia)' : 'Barcelona • Cannes • Portofino • Rome (Civitavecchia)',
-      duration: isNo ? '7 Netter' : '7 Nights',
+      duration: isNo ? '7 netter' : '7 Nights',
       destination: 'MED',
       departure: 'Mai – Oktober 2027',
       priceUsd: 4850,
@@ -68,16 +69,16 @@ export default function CruisesPage() {
       onboardCredit: '$400 USD',
       pointsEarn: 48500, // $485 USD value
       image: 'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&w=1200&q=80',
-      tag: isNo ? 'All-Inclusive Luksus' : 'All-Inclusive Ultra-Luxury',
+      tag: isNo ? 'All-inclusive luksus' : 'All-Inclusive Ultra-Luxury',
     },
     {
       id: 'cr-2',
       line: 'REGENT',
       lineName: 'Regent Seven Seas',
       ship: 'Seven Seas Grandeur',
-      title: isNo ? 'Norske Fjorder & Nordlysets Rike' : 'Norwegian Fjords & Midnight Sun',
+      title: isNo ? 'Norske fjorder og midnattssol' : 'Norwegian Fjords & Midnight Sun',
       route: isNo ? 'Southampton • Stavanger • Geiranger • Flåm • Bergen' : 'Southampton • Stavanger • Geiranger • Flåm • Bergen',
-      duration: isNo ? '10 Netter' : '10 Nights',
+      duration: isNo ? '10 netter' : '10 Nights',
       destination: 'NORWAY',
       departure: 'Juni – August 2027',
       priceUsd: 7900,
@@ -85,16 +86,16 @@ export default function CruisesPage() {
       onboardCredit: '$600 USD',
       pointsEarn: 79000, // $790 USD value
       image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-      tag: isNo ? 'Inkluderer Ubegrensede Utflukter' : 'Unlimited Free Excursions',
+      tag: isNo ? 'Inkluderer ubegrensede utflukter' : 'Unlimited Free Excursions',
     },
     {
       id: 'cr-3',
       line: 'CELEBRITY',
       lineName: 'Celebrity Cruises',
       ship: 'Celebrity Beyond',
-      title: isNo ? 'Østlige Karibias Skjulte Øyer' : 'Eastern Caribbean Retreat',
+      title: isNo ? 'Det østlige Karibia' : 'Eastern Caribbean Retreat',
       route: isNo ? 'Miami • St. Thomas • St. Maarten • Puerto Plata' : 'Miami • St. Thomas • St. Maarten • Puerto Plata',
-      duration: isNo ? '7 Netter' : '7 Nights',
+      duration: isNo ? '7 netter' : '7 Nights',
       destination: 'CARIB',
       departure: 'November 2026 – Mars 2027',
       priceUsd: 2450,
@@ -109,9 +110,9 @@ export default function CruisesPage() {
       line: 'RITZ',
       lineName: 'Ritz-Carlton Yacht Collection',
       ship: 'Ilma (Superyacht)',
-      title: isNo ? 'Kykladene & Det Egeiske Hav' : 'Cyclades & The Aegean Splendor',
+      title: isNo ? 'Kykladene og Det egeiske hav' : 'Cyclades & The Aegean Splendor',
       route: isNo ? 'Athen • Mykonos • Santorini • Bodrum • Rhodos' : 'Athens • Mykonos • Santorini • Bodrum • Rhodes',
-      duration: isNo ? '7 Netter' : '7 Nights',
+      duration: isNo ? '7 netter' : '7 Nights',
       destination: 'MED',
       departure: 'Juli – September 2027',
       priceUsd: 8900,
@@ -158,11 +159,14 @@ export default function CruisesPage() {
               href="/rewards"
               className="px-4 py-2 rounded-xl bg-slate-900 text-amber-300 hover:bg-slate-800 text-xs font-bold tracking-wider uppercase transition-all shrink-0"
             >
-              {isNo ? 'Se Min Vault' : 'View Rewards Vault'}
+              {isNo ? 'Se mine fordeler' : 'View Rewards Vault'}
             </Link>
           </div>
         </div>
       </div>
+
+      {/* VERIFIED AUDIO DEEP DIVE PODCAST & BRIEFING */}
+      <CruiseAudioDeepDive />
 
       {/* FILTER BAR */}
       <div className="max-w-6xl mx-auto px-4 mt-8">

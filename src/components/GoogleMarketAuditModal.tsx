@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import type { ComparedHotel, GoogleMarketProvider } from '@/app/api/hotels/compare/route';
 import { useCurrency } from '@/context/CurrencyContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { buildGoogleHotelsDirectUrl } from '@/lib/googleTravel';
 
 export interface GoogleMarketAuditModalProps {
@@ -48,6 +49,8 @@ export default function GoogleMarketAuditModal({
   onBookNow,
 }: GoogleMarketAuditModalProps) {
   const { formatHotelPrice, currency } = useCurrency();
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
 
   const effectiveCheckIn  = checkIn  || (hotel?.checkInDate)  || '';
   const effectiveCheckOut = checkOut || (hotel?.checkOutDate) || '';
@@ -224,12 +227,12 @@ export default function GoogleMarketAuditModal({
         <div className="flex items-center gap-2 min-w-0">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live Wholesale Audit
+            {isNo ? 'Prisverifisering i sanntid' : 'Live Wholesale Audit'}
           </span>
           {isFetchingLive && (
             <span className="text-[11px] text-sky-700 flex items-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin" />
-              Checking live rates…
+              {isNo ? 'Henter innhentede priser…' : 'Checking live rates…'}
             </span>
           )}
         </div>
@@ -243,14 +246,14 @@ export default function GoogleMarketAuditModal({
             title="Inspect verified rates across all OTAs on Google Travel"
           >
             <Globe className="w-3.5 h-3.5 text-sky-600" />
-            <span className="hidden sm:inline">Open on Google Travel ↗</span>
+            <span className="hidden sm:inline">{isNo ? 'Åpne i Google Travel ↗' : 'Open on Google Travel ↗'}</span>
             <span className="sm:hidden">Google Travel ↗</span>
           </a>
 
           <button
             onClick={onClose}
             className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors border border-slate-200 cursor-pointer"
-            title="Close (Esc)"
+            title={isNo ? 'Lukk (Esc)' : 'Close (Esc)'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -275,14 +278,14 @@ export default function GoogleMarketAuditModal({
             )}
             <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md text-[11px] font-medium border border-slate-200">
               <Users className="w-3 h-3 text-slate-500" />
-              <span>{guestSummary || hotel.guestSummary || '2 Adults · 1 Room'}</span>
+              <span>{guestSummary || hotel.guestSummary || (isNo ? '2 voksne · 1 rom' : '2 Adults · 1 Room')}</span>
             </span>
           </div>
         </div>
 
         {/* Intuitive Stay Duration Stepper */}
         <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 self-start sm:self-auto shadow-xs">
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">Stay Duration:</span>
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">{isNo ? 'Varighet:' : 'Stay Duration:'}</span>
           <button
             type="button"
             onClick={() => setStayNights(prev => Math.max(1, prev - 1))}
@@ -292,7 +295,7 @@ export default function GoogleMarketAuditModal({
             <Minus className="w-3.5 h-3.5" />
           </button>
           <span className="text-sm font-bold text-slate-900 font-mono min-w-[70px] text-center">
-            {stayNights} {stayNights === 1 ? 'Night' : 'Nights'}
+            {stayNights} {stayNights === 1 ? (isNo ? 'natt' : 'Night') : (isNo ? 'netter' : 'Nights')}
           </span>
           <button
             type="button"
@@ -316,10 +319,10 @@ export default function GoogleMarketAuditModal({
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Public Retail ({bookingProvider.name})
+                  {isNo ? `Offentlig markedspris (${bookingProvider.name})` : `Public Retail (${bookingProvider.name})`}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200">
-                  Open Web Price
+                  {isNo ? 'Offentlig nettpris' : 'Open Web Price'}
                 </span>
               </div>
 
@@ -327,10 +330,14 @@ export default function GoogleMarketAuditModal({
                 {fmt(publicAllInTotal)}
               </div>
               <div className="text-xs text-slate-500 mt-2 font-medium">
-                Total for {stayNights} {stayNights === 1 ? 'night' : 'nights'} stay (all-inclusive)
+                {isNo
+                  ? `Totalpris for ${stayNights} ${stayNights === 1 ? 'natt' : 'netter'} (inkl. skatter)`
+                  : `Total for ${stayNights} ${stayNights === 1 ? 'night' : 'nights'} stay (all-inclusive)`}
               </div>
               <div className="text-[11px] text-slate-400 mt-1">
-                {fmt(publicBaseTotal)} base room + {fmt(publicTaxTotal)} taxes ({fmt(publicAllInPerNight)}/night)
+                {isNo
+                  ? `${fmt(publicBaseTotal)} rompris + ${fmt(publicTaxTotal)} skatter (${fmt(publicAllInPerNight)}/natt)`
+                  : `${fmt(publicBaseTotal)} base room + ${fmt(publicTaxTotal)} taxes (${fmt(publicAllInPerNight)}/night)`}
               </div>
             </div>
 
@@ -341,11 +348,13 @@ export default function GoogleMarketAuditModal({
                 rel="noopener noreferrer"
                 className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-2 group shadow-xs"
               >
-                <span>Verify Live on {bookingProvider.name}</span>
+                <span>{isNo ? `Verifiser direkte hos ${bookingProvider.name}` : `Verify Live on ${bookingProvider.name}`}</span>
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-800 transition-colors" />
               </a>
               <div className="text-[10px] text-slate-400 text-center mt-2">
-                Pre-selected for {stayNights} {stayNights === 1 ? 'night' : 'nights'} · opens directly on {bookingProvider.name}
+                {isNo
+                  ? `Forhåndsvalgt for ${stayNights} ${stayNights === 1 ? 'natt' : 'netter'} · åpnes hos ${bookingProvider.name}`
+                  : `Pre-selected for ${stayNights} ${stayNights === 1 ? 'night' : 'nights'} · opens directly on ${bookingProvider.name}`}
               </div>
             </div>
           </div>
@@ -356,7 +365,7 @@ export default function GoogleMarketAuditModal({
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                   <Lock className="w-3.5 h-3.5" />
-                  ATLAS Member Rate
+                  {isNo ? 'Atlas medlemspris' : 'ATLAS Member Rate'}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase">
                   0% Markup
@@ -368,10 +377,12 @@ export default function GoogleMarketAuditModal({
               </div>
               <div className="text-xs text-emerald-300 mt-2 font-semibold flex items-center gap-1">
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>All mandatory taxes, fees &amp; resort charges included</span>
+                <span>{isNo ? 'Alle obligatoriske skatter og avgifter er inkludert' : 'All mandatory taxes, fees & resort charges included'}</span>
               </div>
               <div className="text-[11px] text-slate-400 mt-1 font-mono">
-                {fmt(atlasPerNight)} / nt all-in · {fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} base room
+                {isNo
+                  ? `${fmt(atlasPerNight)} / natt inkl. alt · ${fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} netto rompris`
+                  : `${fmt(atlasPerNight)} / nt all-in · ${fmt(Math.round(atlasTotal / (1 + taxPct / 100)))} base room`}
               </div>
             </div>
 
@@ -382,7 +393,7 @@ export default function GoogleMarketAuditModal({
                   className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>Lock In Wholesale Rate</span>
+                  <span>{isNo ? 'Lås inn engrospris' : 'Lock In Wholesale Rate'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
@@ -392,12 +403,12 @@ export default function GoogleMarketAuditModal({
                   className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-700 text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-md"
                 >
                   <Lock className="w-4 h-4" />
-                  <span>Lock In Wholesale Rate</span>
+                  <span>{isNo ? 'Lås inn engrospris' : 'Lock In Wholesale Rate'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
               <div className="text-[10px] text-slate-400 text-center mt-2 font-medium">
-                Immediate confirmation · Instant hotel voucher
+                {isNo ? 'Umiddelbar bekreftelse · Offisiell hotell-voucher' : 'Immediate confirmation · Instant hotel voucher'}
               </div>
             </div>
           </div>
@@ -407,17 +418,23 @@ export default function GoogleMarketAuditModal({
         {/* ── THE CASH SAVINGS BANNER ── */}
         <div className="max-w-4xl mx-auto p-5 rounded-3xl bg-emerald-50 border border-emerald-200 text-center shadow-xs">
           <div className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-            Instant Member Profit
+            {isNo ? 'Direkte medlemsbesparelse' : 'Instant Member Profit'}
           </div>
           <div className="text-3xl sm:text-4xl font-black text-emerald-700 font-mono mt-1">
-            YOU SAVE {fmt(totalSavings)} CASH
+            {isNo ? `DU SPARER ${fmt(totalSavings)} KONTANT` : `YOU SAVE ${fmt(totalSavings)} CASH`}
           </div>
           <div className="text-xs font-semibold text-slate-700 mt-1">
-            {savingsPct}% less than public retail for this {stayNights}-night stay
+            {isNo
+              ? `${savingsPct} % lavere enn offentlig nettpris for dette ${stayNights}-netters oppholdet`
+              : `${savingsPct}% less than public retail for this ${stayNights}-night stay`}
           </div>
           <div className="flex items-center justify-center gap-2 mt-2 text-[11px] text-emerald-800 font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>100% Rate Parity Exemption Certified · Guaranteed lower than public retail</span>
+            <span>
+              {isNo
+                ? '100 % sertifisert unntak for prisparitet · Garantert lavere enn offentlig nettpris'
+                : '100% Rate Parity Exemption Certified · Guaranteed lower than public retail'}
+            </span>
           </div>
         </div>
 
@@ -428,7 +445,11 @@ export default function GoogleMarketAuditModal({
             onClick={() => setShowAllProviders(!showAllProviders)}
             className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center justify-between transition-colors cursor-pointer shadow-xs"
           >
-            <span>{showAllProviders ? 'Hide' : 'Inspect'} verified public OTA rates ({providers.length})</span>
+            <span>
+              {isNo
+                ? `${showAllProviders ? 'Skjul' : 'Se'} verifiserte offentlige priser (${providers.length})`
+                : `${showAllProviders ? 'Hide' : 'Inspect'} verified public OTA rates (${providers.length})`}
+            </span>
             <div className="flex items-center gap-1.5 text-slate-500">
               <span className="text-[11px]">Booking.com, Expedia, Hotels.com, Agoda</span>
               {showAllProviders ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -446,13 +467,13 @@ export default function GoogleMarketAuditModal({
                     <div className="flex items-center gap-3">
                       <span className="font-bold text-xs text-slate-900">{p.name}</span>
                       <span className="text-[11px] text-slate-500 font-mono">
-                        {fmt(p.perNight)}/nt · {fmt(pTotal)} total ({stayNights} nts)
+                        {fmt(p.perNight)}/{isNo ? 'nt' : 'nt'} · {fmt(pTotal)} {isNo ? 'totalt' : 'total'} ({stayNights} {stayNights === 1 ? (isNo ? 'natt' : 'nt') : (isNo ? 'netter' : 'nts')})
                       </span>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <span className="text-xs font-bold text-emerald-700 font-mono">
-                        Save {fmt(pSavings)} with Atlas
+                        {isNo ? `Spar ${fmt(pSavings)} med Atlas` : `Save ${fmt(pSavings)} with Atlas`}
                       </span>
                       <a
                         href={p.verifyUrl}
@@ -460,7 +481,7 @@ export default function GoogleMarketAuditModal({
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 text-[11px] font-semibold transition-all flex items-center gap-1"
                       >
-                        <span>Check {p.name}</span>
+                        <span>{isNo ? `Sjekk ${p.name}` : `Check ${p.name}`}</span>
                         <ExternalLink className="w-3 h-3 text-slate-400" />
                       </a>
                     </div>
@@ -476,11 +497,12 @@ export default function GoogleMarketAuditModal({
           <div className="flex-1">
             <div className="flex items-center gap-2 text-slate-900 font-bold mb-1">
               <Info className="w-4 h-4 text-amber-600 shrink-0" />
-              Why do prices vary between public travel sites?
+              {isNo ? 'Hvorfor varierer hotellprisene på nettet?' : 'Why do prices vary between public travel sites?'}
             </div>
             <p className="text-[11px] leading-relaxed">
-              Public travel sites add 20–45% markups to cover search advertising and credit card points.
-              ATLAS Wholesale operates through closed-loop Bedbanks passing net rates with <strong className="text-slate-900">0% retail markup</strong>.
+              {isNo
+                ? 'Offentlige reisesider legger på 20–45 % i marginer for å dekke søkeannonser og bonusprogrammer. Atlas opererer gjennom lukkede grossister (bedbanks) og leverer nettopriser med 0 kr i påslag.'
+                : 'Public travel sites add 20–45% markups to cover search advertising and credit card points. ATLAS Wholesale operates through closed-loop Bedbanks passing net rates with 0% retail markup.'}
             </p>
           </div>
           <button
@@ -489,7 +511,9 @@ export default function GoogleMarketAuditModal({
               window.dispatchEvent(
                 new CustomEvent('open-concierge', {
                   detail: {
-                    prompt: `Explain why OTA prices on Booking.com or Expedia might differ from the Google Hotels lowest rate for ${hotel.name} in ${hotel.city}.`,
+                    prompt: isNo
+                      ? `Forklar hvorfor prisene på Booking.com eller Expedia kan avvike fra grossistprisen for ${hotel.name} i ${hotel.city}.`
+                      : `Explain why OTA prices on Booking.com or Expedia might differ from the Google Hotels lowest rate for ${hotel.name} in ${hotel.city}.`,
                     hotelContext: {
                       id: hotel.id,
                       name: hotel.name,
@@ -516,10 +540,10 @@ export default function GoogleMarketAuditModal({
               );
             }}
             className="shrink-0 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
-            title="Ask AI Concierge for an instant explanation of this rate"
+            title={isNo ? 'Spør AI Concierge for en umiddelbar forklaring av denne prisen' : 'Ask AI Concierge for an instant explanation of this rate'}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            <span>Ask AI Concierge</span>
+            <span>{isNo ? 'Spør AI Concierge' : 'Ask AI Concierge'}</span>
           </button>
         </div>
 
@@ -529,14 +553,18 @@ export default function GoogleMarketAuditModal({
       <div className="shrink-0 px-5 py-4 sm:px-8 border-t border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="text-[11px] text-slate-500 uppercase tracking-wider">
-            All-Inclusive Wholesale Rate ({stayNights} {stayNights === 1 ? 'Night' : 'Nights'}):
+            {isNo
+              ? `Total engrospris (${stayNights} ${stayNights === 1 ? 'natt' : 'netter'}):`
+              : `All-Inclusive Wholesale Rate (${stayNights} ${stayNights === 1 ? 'Night' : 'Nights'}):`}
           </div>
           <div className="flex items-baseline gap-2 mt-0.5">
             <span className="text-2xl sm:text-3xl font-bold text-slate-900 font-mono">
               {fmt(atlasTotal)}
             </span>
             <span className="text-xs text-slate-500 font-semibold">
-              ({fmt(atlasPerNight)} / night · all taxes included)
+              {isNo
+                ? `(${fmt(atlasPerNight)} / natt · alle skatter inkludert)`
+                : `(${fmt(atlasPerNight)} / night · all taxes included)`}
             </span>
           </div>
         </div>
@@ -584,7 +612,7 @@ export default function GoogleMarketAuditModal({
             onClick={onClose}
             className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer border border-slate-200"
           >
-            Close Audit
+            {isNo ? 'Lukk' : 'Close Audit'}
           </button>
 
           {onBookNow ? (
@@ -593,7 +621,7 @@ export default function GoogleMarketAuditModal({
               className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-md cursor-pointer"
             >
               <Lock className="w-4 h-4 text-amber-400" />
-              <span>Lock In Wholesale Rate</span>
+              <span>{isNo ? 'Lås inn engrospris' : 'Lock In Wholesale Rate'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
@@ -617,7 +645,7 @@ export default function GoogleMarketAuditModal({
               className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-md"
             >
               <Lock className="w-4 h-4 text-amber-400" />
-              <span>Lock In Wholesale Rate</span>
+              <span>{isNo ? 'Lås inn engrospris' : 'Lock In Wholesale Rate'}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           )}

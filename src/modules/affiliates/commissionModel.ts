@@ -1,12 +1,12 @@
 import { PartnerIncomeSimulation } from './types';
 
 export const PARTNER_RULES = {
-  annualMembershipFeeNok: 990,
+  annualMembershipFeeNok: 1290,
   threeAndFreeThreshold: 3,
-  directMemberCommissionNok: 270, // 270 NOK per year per active direct recruit (recruit 4+)
-  tier2OverrideCommissionNok: 90, // 90 NOK per year per active squad recruit
+  directMemberCommissionNok: 350, // 350 NOK per year per active direct recruit (recruit 4+)
+  tier2OverrideCommissionNok: 120, // 120 NOK per year per active squad recruit
   b2bCorporateCommissionPercent: 0.20, // 20% recurring on corporate contracts
-  avgB2BSeatPriceNok: 490, // Average enterprise seat price (50-200 seats)
+  avgB2BSeatPriceNok: 590, // Average enterprise seat price (50-200 seats)
 };
 
 export function calculatePartnerEarnings(params: {
@@ -21,13 +21,13 @@ export function calculatePartnerEarnings(params: {
   const seatsPerDeal = params.avgSeatsPerDeal || 50;
 
   // 1. B2C Direct:
-  // Recruits 1-3 waive the 990 kr fee (valuable perk). Recruits 4+ pay 270 NOK each.
+  // Recruits 1-3 waive the 1 290 kr fee (valuable perk). Recruits 4+ pay 350 NOK each.
   const isMembershipFree = direct >= PARTNER_RULES.threeAndFreeThreshold;
   const payingDirectRecruits = Math.max(0, direct - PARTNER_RULES.threeAndFreeThreshold);
   const b2cDirectIncome = payingDirectRecruits * PARTNER_RULES.directMemberCommissionNok;
 
   // 2. B2C Tier 2 Squad Override:
-  // 90 NOK per active squad member
+  // 120 NOK per active squad member
   const b2cTier2Income = tier2 * PARTNER_RULES.tier2OverrideCommissionNok;
 
   // 3. B2B Corporate Fleet Income:

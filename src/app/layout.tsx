@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlatformProvider } from '@/context/PlatformContext';
@@ -7,8 +6,6 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 import AppLayout from '@/components/AppLayout';
-
-const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'ATLAS | The Private Wholesale Travel & Banking Club',
@@ -22,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="no" className="scroll-smooth">
-      <body className={`${inter.className} antialiased min-h-screen bg-slate-50`}>
+      <body className="font-sans antialiased min-h-screen bg-slate-50">
         <PlatformProvider>
           <AuthProvider>
             <LanguageProvider>

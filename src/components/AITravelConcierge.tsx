@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { usePlatform } from '@/context/PlatformContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { resolveActiveGeminiModel, formatGeminiEngineBadge } from '@/lib/geminiModels';
 import { HotelConciergeContext } from '@/app/api/concierge/route';
 import {
@@ -25,10 +26,14 @@ import {
   BedDouble,
   Calendar,
   Coffee,
+  User,
+  BellRing,
 } from 'lucide-react';
 import Link from 'next/link';
 
 import { MasterTripItinerary } from '@/lib/orchestrator/atlasBrain';
+import MemberProfileModal, { getStoredTravelProfile } from './MemberProfileModal';
+import { MemberTravelProfile } from '@/lib/types';
 
 interface BookingCardAction {
   hotelId: string;
@@ -52,8 +57,10 @@ interface Message {
 }
 
 export default function AITravelConcierge() {
-  const { user, isMember } = useAuth();
+  const { user, isMember, bookings } = useAuth();
   const { features } = usePlatform();
+  const { locale } = useLanguage();
+  const isNo = locale === 'no';
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,6 +70,52 @@ export default function AITravelConcierge() {
   const [showProactiveHint, setShowProactiveHint] = useState(true);
   const [hotelContext, setHotelContext] = useState<HotelConciergeContext | null>(null);
 
+  // Member personalization & travel DNA state
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [travelProfile, setTravelProfile] = useState<MemberTravelProfile>({});
+  const [dismissedGap, setDismissedGap] = useState(false);
+
+  useEffect(() => {
+    setTravelProfile(getStoredTravelProfile());
+    const handleProfileUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<MemberTravelProfile>;
+      setTravelProfile(customEvent.detail || getStoredTravelProfile());
+    };
+    window.addEventListener('atlas-profile-updated', handleProfileUpdate);
+    return () => window.removeEventListener('atlas-profile-updated', handleProfileUpdate);
+  }, []);
+
+  // Compute active trip gap for proactive reminder
+  const activeTripGap = useMemo(() => {
+    if (dismissedGap || travelProfile.proactiveRemindersEnabled === false) return null;
+    const hotelBooking = bookings?.find((b) => b.hotelName && b.hotelCity);
+    const homeAirport = travelProfile.homeAirport || 'OSL';
+    if (hotelBooking) {
+      const city = hotelBooking.hotelCity || 'Barcelona';
+      const dates = hotelBooking.dates || '14. mai – 18. mai';
+      return {
+        destination: city,
+        message: isNo
+          ? `Du har bekreftet opphold på ${hotelBooking.hotelName} i ${city} (${dates}), men ingen ankomstfly fra ${homeAirport} er registrert!`
+          : `You have confirmed hotel at ${hotelBooking.hotelName} in ${city} (${dates}), but no flight from ${homeAirport} is recorded!`,
+        suggestedActionText: isNo ? `✈️ Finn fly fra ${homeAirport}` : `✈️ Find flights from ${homeAirport}`,
+        suggestedActionPrompt: isNo
+          ? `Finn beste engros flybilletter fra ${homeAirport} til ${city} for datoene ${dates} (${travelProfile.preferredCabinClass || 'business'})`
+          : `Find best wholesale flight tickets from ${homeAirport} to ${city} for dates ${dates} (${travelProfile.preferredCabinClass || 'business'})`,
+      };
+    }
+    return {
+      destination: 'Barcelona / Paris',
+      message: isNo
+        ? `Reise-Sentinel aktiv: Husker du å sjekke fly før hotellprisene stiger for sommerturer fra ${homeAirport}?`
+        : `Travel Sentinel active: Remember to check flights before prices climb for trips from ${homeAirport}?`,
+      suggestedActionText: isNo ? `✈️ Sjekk fly fra ${homeAirport}` : `✈️ Check flights from ${homeAirport}`,
+      suggestedActionPrompt: isNo
+        ? `Hva koster direktefly fra ${homeAirport} til Barcelona med 0% OTA-påslag?`
+        : `What are direct flights from ${homeAirport} to Barcelona with 0% OTA markup?`,
+    };
+  }, [bookings, dismissedGap, travelProfile, isNo]);
+
   const userName = useMemo(() => {
     if (user?.displayName) {
       return user.displayName.split(' ')[0];
@@ -71,8 +124,8 @@ export default function AITravelConcierge() {
       const namePart = user.email.split('@')[0];
       return namePart.charAt(0).toUpperCase() + namePart.slice(1);
     }
-    return 'VIP Guest';
-  }, [user]);
+    return isNo ? 'Kjære medlem' : 'VIP Guest';
+  }, [user, isNo]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -91,15 +144,19 @@ export default function AITravelConcierge() {
     if (hc && hc.name) {
       return {
         sender: 'ai',
-        text: `👋 Welcome ${name}! I am **Aura**, your dedicated Atlas Travel Club Concierge.\n\nI see you are viewing **${hc.name}** in ${hc.city || 'your destination'} for **${hc.dates || `${hc.checkIn} to ${hc.checkOut}`}** (${hc.nights || 3} nights).\n\n✨ **Live Rate Intelligence**:\n• **Public Benchmark**: $${hc.publicLowestPerNight || 0}/nt on ${hc.lowestOtaProvider || 'Booking.com'}\n• **Atlas Wholesale Member Net**: **$${hc.wholesalePerNight || 0}/nt**\n• **Your Instant Savings**: **Save $${hc.savingsTotal || 0} (${hc.savingsPercent || 0}% Off)**\n\nAll rates include 100% transparent wholesale clearing with 0% retail markup. How may I assist you with reservations or custom itineraries today?`,
-        time: 'Just now',
+        text: isNo
+          ? `👋 Velkommen ${name}! Jeg er **Aura**, din dedikerte Atlas VIP-concierge.\n\nJeg ser at du ser på **${hc.name}** i ${hc.city || 'din destinasjon'} for **${hc.dates || `${hc.checkIn} til ${hc.checkOut}`}** (${hc.nights || 3} netter).\n\n✨ **Sanntids prissjekk**:\n• **Offentlig markedspris**: $${hc.publicLowestPerNight || 0}/natt på ${hc.lowestOtaProvider || 'Booking.com'}\n• **Atlas medlemspris (netto)**: **$${hc.wholesalePerNight || 0}/natt**\n• **Din besparelse**: **Spar $${hc.savingsTotal || 0} (${hc.savingsPercent || 0} % rabatt)**\n\nAlle priser er 100 % åpne B2B-engrospriser med 0 kr i påslag. Hva kan jeg hjelpe deg med i dag?`
+          : `👋 Welcome ${name}! I am **Aura**, your dedicated Atlas Travel Club Concierge.\n\nI see you are viewing **${hc.name}** in ${hc.city || 'your destination'} for **${hc.dates || `${hc.checkIn} to ${hc.checkOut}`}** (${hc.nights || 3} nights).\n\n✨ **Live Rate Intelligence**:\n• **Public Benchmark**: $${hc.publicLowestPerNight || 0}/nt on ${hc.lowestOtaProvider || 'Booking.com'}\n• **Atlas Wholesale Member Net**: **$${hc.wholesalePerNight || 0}/nt**\n• **Your Instant Savings**: **Save $${hc.savingsTotal || 0} (${hc.savingsPercent || 0}% Off)**\n\nAll rates include 100% transparent wholesale clearing with 0% retail markup. How may I assist you with reservations or custom itineraries today?`,
+        time: isNo ? 'Akkurat nå' : 'Just now',
       };
     }
 
     return {
       sender: 'ai',
-      text: `👋 Welcome to Atlas Travel Club, ${name}! I am **Aura**, your private 24/7 Travel Concierge.\n\nI monitor confidential wholesale bedbanks, direct airline NDC networks, and VIP airport lounges worldwide to ensure you never pay retail markup.\n\nHow may I assist with your reservations, confidential wholesale bookings, or travel itineraries today?`,
-      time: 'Just now',
+      text: isNo
+        ? `👋 Velkommen til Atlas Travel Club, ${name}! Jeg er **Aura**, din døgnåpne reiseconcierge.\n\nJeg overvåker lukkede grossistdatabaser, direkte NDC-flynettverk og eksklusive medlemsfordeler over hele verden:\n\n• **Hoteller & suiter**: Ekte B2B-engrospriser med 0 kr i påslag\n• **🏖️ Atlas Signature Resorts**: 7 netter ferieleilighet til fastpris **3 490 NOK** (eller 3 500 poeng) for hele familien\n• **🍷 Gourmet & Spa Escapes**: **0 kr i rompris** på 3–4* boutique- og velværerhoteller i Alpene og Sør-Europa (betal kun lokal halvpensjon)\n\nHva kan jeg hjelpe deg med av reiseråd, ferieleiligheter eller hotellbestillinger i dag?`
+        : `👋 Welcome to Atlas Travel Club, ${name}! I am **Aura**, your private 24/7 Travel Concierge.\n\nI monitor confidential wholesale bedbanks, direct airline NDC networks, and member-exclusive distressed inventory worldwide:\n\n• **Hotels & Suites**: Raw B2B wholesale rates with 0% retail markup\n• **🏖️ Atlas Signature Resorts**: 7-night full condo stays for a flat **3,490 NOK** ($320 USD / 3,500 pts) for up to 6 guests\n• **🍷 Gourmet & Spa Escapes**: **$0 room rates** at curated European wellness retreats (guests only pay published half-board)\n\nHow may I assist with your reservations, condo weeks, or travel itineraries today?`,
+      time: isNo ? 'Akkurat nå' : 'Just now',
     };
   };
 
@@ -115,7 +172,7 @@ export default function AITravelConcierge() {
       }
       return prev;
     });
-  }, [userName]);
+  }, [userName, locale]);
 
   // Listen for external trigger to open concierge with custom prompt or hotel context
   useEffect(() => {
@@ -145,7 +202,7 @@ export default function AITravelConcierge() {
 
     window.addEventListener('open-concierge', handleOpenConcierge);
     return () => window.removeEventListener('open-concierge', handleOpenConcierge);
-  }, [userName]);
+  }, [userName, locale]);
 
   // If Admin completely disables the AI Concierge, do not render
   if (!features.enableAiConcierge) {
@@ -154,6 +211,25 @@ export default function AITravelConcierge() {
 
   // Dynamic quick prompts adapted to the active hotel or general platform
   const quickPrompts = useMemo(() => {
+    if (isNo) {
+      if (hotelContext && hotelContext.name) {
+        return [
+          `Hvorfor er ${hotelContext.name.split(' ')[0]} rimeligere enn ${hotelContext.lowestOtaProvider || 'Booking.com'}?`,
+          `Er skatter og avgifter inkludert for ${hotelContext.name.split(' ')[0]}?`,
+          'Hvorfor varierer hotellprisene på nett?',
+          'Hvordan sjekker jeg inn med Atlas-voucher?',
+          `Lås inn engrospris for ${hotelContext.name.split(' ')[0]}`,
+        ];
+      }
+      return [
+        'Hvorfor varierer hotellpriser etter romtype?',
+        'Hvorfor er prisene hos Booking og Expedia ofte like?',
+        'Forklar skatter og resort-gebyrer',
+        'Hvordan fungerer Atlas sine engrospriser?',
+        'Forklar EU261-erstatning ved flyforsinkelse',
+        'Hvor mange dager har jeg igjen i Schengen?',
+      ];
+    }
     if (hotelContext && hotelContext.name) {
       return [
         `Why is ${hotelContext.name.split(' ')[0]} cheaper than ${hotelContext.lowestOtaProvider || 'Booking.com'}?`,
@@ -176,7 +252,7 @@ export default function AITravelConcierge() {
       ...(features.enableNomadHub ? ['Find Lisbon coliving with 500 Mbps Wi-Fi'] : []),
       ...(features.enablePrivateJets ? ['Check Private Jet Empty Legs'] : []),
     ];
-  }, [hotelContext, features]);
+  }, [hotelContext, features, isNo]);
 
   const handleSend = async (textToSend?: string, contextOverride?: HotelConciergeContext) => {
     const query = textToSend || input;
@@ -203,6 +279,7 @@ export default function AITravelConcierge() {
           prompt: query,
           hotelContext: activeHc,
           userContext: { name: userName, isMember },
+          travelProfile,
           features,
           history,
         }),
@@ -295,8 +372,12 @@ export default function AITravelConcierge() {
             <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>
               {hotelContext?.name
-                ? `Auditing ${hotelContext.name}? Ask Aura why it's cheaper`
-                : 'Comparing rates? Ask Aura about room tiers & taxes'}
+                ? (isNo
+                    ? `Ser du på ${hotelContext.name}? Spør Aura om engrosprisen`
+                    : `Auditing ${hotelContext.name}? Ask Aura why it's cheaper`)
+                : (isNo
+                    ? 'Sammenligner du priser? Spør Aura om romtyper og skatter'
+                    : 'Comparing rates? Ask Aura about room tiers & taxes')}
             </span>
             <button
               onClick={(e) => {
@@ -304,7 +385,7 @@ export default function AITravelConcierge() {
                 setShowProactiveHint(false);
               }}
               className="text-slate-500 hover:text-white ml-1 p-0.5"
-              title="Dismiss tip"
+              title={isNo ? 'Lukk tips' : 'Dismiss tip'}
             >
               <X className="w-3 h-3" />
             </button>
@@ -351,6 +432,16 @@ export default function AITravelConcierge() {
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/* Member Travel DNA Button */}
+              <button
+                onClick={() => setShowProfileModal(true)}
+                title="Personalize Member Travel DNA"
+                className="px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-400/40 text-amber-300 hover:bg-amber-400/30 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <User className="w-3 h-3 text-amber-400" />
+                <span className="hidden sm:inline">Travel DNA</span>
+              </button>
+
               {features.enableElevenLabsVoice && (
                 <button
                   onClick={() => setVoiceEnabled(!voiceEnabled)}
@@ -393,6 +484,46 @@ export default function AITravelConcierge() {
               <span>{isMarketScanning ? 'Scanning...' : 'Rescan Market'}</span>
             </button>
           </div>
+
+          {/* Proactive Trip Gap Sentinel Banner */}
+          {activeTripGap && (
+            <div className="bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-b border-amber-500/30 px-3.5 py-2.5 text-xs text-slate-800">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-sm leading-none mt-0.5">🚨</span>
+                  <div>
+                    <div className="text-[10px] font-black uppercase tracking-wider text-amber-700 flex items-center gap-1">
+                      <span>Reise-Sentinel • Proaktivt Varsel</span>
+                    </div>
+                    <p className="text-slate-800 font-medium text-[11px] leading-tight mt-0.5">
+                      {activeTripGap.message}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setDismissedGap(true)}
+                  className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  title="Lukk varsel"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => handleSend(activeTripGap.suggestedActionPrompt)}
+                  className="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-wider hover:bg-amber-400 transition-all cursor-pointer"
+                >
+                  {activeTripGap.suggestedActionText}
+                </button>
+                <button
+                  onClick={() => handleSend(`Lag en komplett 4-dagers reiseplan med topp utflukter og aktiviteter for ${activeTripGap.destination}`)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-300 font-bold text-[10px] hover:bg-slate-800 transition-all cursor-pointer"
+                >
+                  🗺️ Lag reiseplan & utflukter
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Active Hotel Context Indicator Bar (if hotel is active) */}
           {hotelContext && hotelContext.name && (
@@ -630,15 +761,15 @@ export default function AITravelConcierge() {
                       )}
                     </div>
 
-                    {/* Consolidated Pricing & 4.9% Clearing Settlement */}
+                    {/* Consolidated Pricing & 0 kr Member Pass-Through */}
                     <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-xs">
                       <div className="flex justify-between text-slate-400">
                         <span>Combined Bedbank Net Wholesale:</span>
                         <span className="font-mono text-white">${m.tripItinerary.pricing.wholesaleNetTotal}</span>
                       </div>
                       <div className="flex justify-between text-slate-400">
-                        <span>Merchant Settlement &amp; Clearing Fee (4.9%):</span>
-                        <span className="font-mono text-amber-300">+${m.tripItinerary.pricing.serviceFee}</span>
+                        <span>Atlas Bookinggebyr &amp; Påslag:</span>
+                        <span className="font-mono text-emerald-400 font-bold">$0 (0.00% Gebyr)</span>
                       </div>
                       <div className="flex justify-between text-slate-400 line-through text-[11px]">
                         <span>Public Retail Price (OTAs):</span>
@@ -681,6 +812,22 @@ export default function AITravelConcierge() {
           <div className="p-3 bg-white border-t border-slate-200 space-y-2">
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
               <Link
+                href="/resorts"
+                onClick={() => setIsOpen(false)}
+                className="shrink-0 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 rounded-xl text-[10px] font-bold text-amber-900 flex items-center gap-1 transition-colors border border-amber-200 cursor-pointer"
+              >
+                <span>🏖️</span>
+                <span>{isNo ? 'Feriesuiter (3 490 kr / 7 netter)' : 'Condos (3,490 NOK / 7 Nts)'}</span>
+              </Link>
+              <Link
+                href="/spa-breaks"
+                onClick={() => setIsOpen(false)}
+                className="shrink-0 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 rounded-xl text-[10px] font-bold text-rose-900 flex items-center gap-1 transition-colors border border-rose-200 cursor-pointer"
+              >
+                <span>🍷</span>
+                <span>{isNo ? 'Gourmet & Spa (0 kr rom)' : 'Gourmet & Spa ($0 Room)'}</span>
+              </Link>
+              <Link
                 href="/nomads"
                 onClick={() => setIsOpen(false)}
                 className="shrink-0 px-2.5 py-1.5 bg-teal-50 hover:bg-teal-100 rounded-xl text-[10px] font-bold text-teal-900 flex items-center gap-1 transition-colors border border-teal-200 cursor-pointer"
@@ -721,8 +868,12 @@ export default function AITravelConcierge() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   hotelContext?.name
-                    ? `Ask Aura about ${hotelContext.name.split(' ')[0]}, rate parity, or taxes...`
-                    : 'Ask Aura about wholesale rates, rate parity, or visas...'
+                    ? (isNo
+                        ? `Spør Aura om ${hotelContext.name.split(' ')[0]}, prisgaranti eller skatter...`
+                        : `Ask Aura about ${hotelContext.name.split(' ')[0]}, rate parity, or taxes...`)
+                    : (isNo
+                        ? 'Spør Aura om engrospriser, prisparitet, fly eller visum...'
+                        : 'Ask Aura about wholesale rates, rate parity, or visas...')
                 }
                 className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
@@ -737,6 +888,12 @@ export default function AITravelConcierge() {
           </div>
         </div>
       )}
+
+      {/* Member Travel DNA Profile Modal */}
+      <MemberProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
     </>
   );
 }

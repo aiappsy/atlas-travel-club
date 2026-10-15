@@ -1,10 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { MemberTravelProfile } from '@/lib/types';
+import MemberProfileModal from '@/components/MemberProfileModal';
 import {
   Calendar,
   Building2,
@@ -13,12 +15,43 @@ import {
   CheckCircle2,
   ArrowRight,
   Compass,
+  User,
+  Sparkles,
+  Plane,
+  AlertTriangle,
+  MapPin,
+  Bot,
 } from 'lucide-react';
 
 export default function MyTripsPage() {
   const { user, isMember, bookings } = useAuth();
   const { formatPrice } = useCurrency();
   const { t, locale } = useLanguage();
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [travelProfile, setTravelProfile] = useState<MemberTravelProfile | null>(null);
+
+  useEffect(() => {
+    const loadProfile = () => {
+      try {
+        const stored = localStorage.getItem('atlas_member_travel_profile');
+        if (stored) {
+          setTravelProfile(JSON.parse(stored));
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadProfile();
+    window.addEventListener('atlas-profile-updated', loadProfile);
+    return () => window.removeEventListener('atlas-profile-updated', loadProfile);
+  }, []);
+
+  const triggerAuraItinerary = (hotelCity: string, hotelName: string) => {
+    const prompt = locale === 'no'
+      ? `Skriv en fullstendig reiseplan og foreslå eksklusive utflukter, restauranter og severdigheter før og etter innsjekking for mitt opphold på ${hotelName} i ${hotelCity}.`
+      : `Write a complete day-by-day travel plan and suggest curated luxury outings, dining, and activities before and after check-in for my stay at ${hotelName} in ${hotelCity}.`;
+    window.dispatchEvent(new CustomEvent('open-concierge', { detail: { prompt } }));
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 text-slate-900 font-sans">
@@ -28,33 +61,57 @@ export default function MyTripsPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold uppercase tracking-wider mb-2 border border-amber-200">
               <Compass className="w-3.5 h-3.5 text-amber-600" />
-              {locale === 'no' ? 'Mine Konfidensielle Reservasjoner' : 'My Confidential Reservations'}
+              {locale === 'no' ? 'Medlemsoversikt' : 'My Confidential Reservations'}
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
-              {locale === 'no' ? 'Mine Reiser & Reiseruter' : 'My Bookings & Itineraries'}
+              {locale === 'no' ? 'Mine reiser og bestillinger' : 'My Bookings & Itineraries'}
             </h1>
             <p className="text-slate-600 text-xs sm:text-sm mt-1">
               {locale === 'no'
-                ? 'Bekreftede hotellkuponger til engrospris, NDC-flybilletter og aktive bestillinger.'
+                ? 'Bekreftede hotellopphold, flybilletter og aktive reservasjoner.'
                 : 'Confirmed wholesale hotel check-in vouchers, NDC flight records, and active travel bookings.'}
             </p>
           </div>
 
-          {/* Quick stats banner */}
-          <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-xs">
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-bold">
-                {locale === 'no' ? 'Bekreftede reiser' : 'Total Confirmed'}
+          {/* Quick stats and Travel DNA Action */}
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              onClick={() => setShowProfileModal(true)}
+              className="flex items-center gap-2.5 px-4 py-3 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:to-indigo-900 text-white rounded-2xl border border-amber-500/30 shadow-sm transition-all cursor-pointer group"
+            >
+              <div className="w-8 h-8 rounded-xl bg-amber-400/20 flex items-center justify-center text-amber-300">
+                <User className="w-4 h-4 text-amber-400" />
               </div>
-              <div className="text-2xl font-black text-slate-900 font-mono">{bookings?.length || 0}</div>
-            </div>
-            <div className="h-8 w-px bg-slate-200"></div>
-            <div>
-              <div className="text-[10px] text-slate-500 uppercase font-bold">
-                {locale === 'no' ? 'Totalt spart' : 'Lifetime Savings'}
+              <div className="text-left">
+                <div className="text-[10px] uppercase font-black tracking-wider text-amber-400 flex items-center gap-1">
+                  <span>{locale === 'no' ? 'Reiseprofil og pass' : 'Travel DNA & Profile'}</span>
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                </div>
+                <div className="text-xs font-bold text-slate-200">
+                  {travelProfile?.homeAirport
+                    ? `${travelProfile.homeAirport} • ${travelProfile.cabinPreference || 'Business'}`
+                    : locale === 'no'
+                    ? 'Fyll ut for raskere bestilling'
+                    : 'Configure for instant 1-click'}
+                </div>
               </div>
-              <div className="text-2xl font-black text-emerald-600 font-mono">
-                {formatPrice(user?.lifetimeSavings || 1480)}
+            </button>
+
+            <div className="flex items-center gap-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+              <div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">
+                  {locale === 'no' ? 'Bekreftet' : 'Confirmed'}
+                </div>
+                <div className="text-2xl font-black text-slate-900 font-mono">{bookings?.length || 0}</div>
+              </div>
+              <div className="h-8 w-px bg-slate-200"></div>
+              <div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold">
+                  {locale === 'no' ? 'Totalt spart' : 'Saved'}
+                </div>
+                <div className="text-2xl font-black text-emerald-600 font-mono">
+                  {formatPrice(user?.lifetimeSavings || 1480)}
+                </div>
               </div>
             </div>
           </div>
@@ -62,6 +119,49 @@ export default function MyTripsPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+        {/* Proactive Trip Gap Sentinel Banner */}
+        {bookings && bookings.length > 0 && (
+          <div className="mb-8 p-5 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
+                <Bot className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase font-black tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-800 border border-amber-500/30">
+                    Aura Autonomous Sentinel
+                  </span>
+                  <span className="text-xs font-black text-slate-900">
+                    {locale === 'no' ? 'Mangler tilknyttet flyreise' : 'Missing Inbound Flight Detected'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+                  {locale === 'no'
+                    ? `Du har reservert ${bookings[0].hotelName} i ${bookings[0].hotelCity} (${bookings[0].checkInDate} - ${bookings[0].checkOutDate}), men ingen flyreise fra ${travelProfile?.homeAirport || 'din hjemby'} er registrert. Aura kan finne First/Business-ruter eller skreddersy en dag-for-dag reiserute med utflukter.`
+                    : `You have confirmed ${bookings[0].hotelName} in ${bookings[0].hotelCity} (${bookings[0].checkInDate} - ${bookings[0].checkOutDate}), but no flight from ${travelProfile?.homeAirport || 'your home airport'} is recorded. Aura can find wholesale First/Business routes or build a complete day-by-day travel plan with outings.`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 self-start md:self-center shrink-0">
+              <Link
+                href={`/flights?destination=${encodeURIComponent(bookings[0].hotelCity)}`}
+                className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black rounded-xl transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <Plane className="w-3.5 h-3.5 text-amber-400" />
+                <span>{locale === 'no' ? `Finn fly til ${bookings[0].hotelCity}` : `Find Flights to ${bookings[0].hotelCity}`}</span>
+              </Link>
+              <button
+                onClick={() => triggerAuraItinerary(bookings[0].hotelCity, bookings[0].hotelName)}
+                className="px-3.5 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-xl transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+                <span>{locale === 'no' ? 'Lag reiseplan & utflukter' : 'Generate Outings & Itinerary'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {bookings && bookings.length > 0 ? (
           <div className="space-y-6">
             {bookings.map((booking) => (
@@ -118,13 +218,13 @@ export default function MyTripsPage() {
                       {formatPrice(booking.totalMemberPaid)}
                     </div>
                     <div className="text-[11px] text-emerald-600 font-bold mt-0.5">
-                      {locale === 'no' ? '0% kommersielt påslag' : '0% Retail Markup Applied'}
+                      {locale === 'no' ? '0 kr i påslag' : '0% Retail Markup Applied'}
                     </div>
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80">
                     <div className="text-[10px] uppercase font-bold text-emerald-700">
-                      {locale === 'no' ? 'Klubbrabatt spart' : 'Member Cash Saved'}
+                      {locale === 'no' ? 'Spart medlemsrabatt' : 'Member Cash Saved'}
                     </div>
                     <div className="font-mono text-base font-black text-emerald-700 mt-1">
                       +{formatPrice(booking.totalSaved)}
@@ -133,16 +233,24 @@ export default function MyTripsPage() {
                   </div>
                 </div>
 
-                {/* Voucher download action */}
+                {/* Voucher download action & Aura Itinerary Assistant */}
                 <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <span className="text-slate-500 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>
-                      {locale === 'no'
-                        ? 'Prisparitets-kupong. Vis i resepsjonen ved innsjekking.'
-                        : 'Rate Parity Non-Disclosure Voucher. Present to front desk upon check-in.'}
-                    </span>
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => triggerAuraItinerary(booking.hotelCity, booking.hotelName)}
+                      className="py-2.5 px-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-xs border border-amber-300 transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{locale === 'no' ? 'Planlegg reiserute med Aura' : 'Plan Outings & Itinerary with Aura'}</span>
+                    </button>
+                    <Link
+                      href={`/flights?destination=${encodeURIComponent(booking.hotelCity)}`}
+                      className="py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plane className="w-3.5 h-3.5 text-slate-600" />
+                      <span>{locale === 'no' ? 'Legg til flyreise' : 'Connect Flight'}</span>
+                    </Link>
+                  </div>
 
                   <a
                     href={`/api/vouchers/${booking.confirmationCode}?format=pdf`}
@@ -151,7 +259,7 @@ export default function MyTripsPage() {
                     className="py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{locale === 'no' ? 'Last ned innsjekkingskupong (PDF)' : 'Download Check-In Voucher (PDF)'}</span>
+                    <span>{locale === 'no' ? 'Last ned bekreftelse (PDF)' : 'Download Check-In Voucher (PDF)'}</span>
                   </a>
                 </div>
               </div>
@@ -167,21 +275,34 @@ export default function MyTripsPage() {
             </h3>
             <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
               {locale === 'no'
-                ? 'Du har ikke bestilt noen hoteller, flyvninger eller VIP-loungepass ennå. Utforsk over 1 000 000 luksushoteller til 0% påslag.'
+                ? 'Du har ingen aktive reservasjoner ennå. Utforsk over 1 million hoteller til ekte nettopriser.'
                 : 'You haven\'t booked any wholesale hotels, flights, or VIP lounge passes yet. Browse 1,000,000+ luxury stays with 0% retail markup.'}
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/hotels"
                 className="inline-flex items-center gap-2 py-3 px-6 bg-slate-950 hover:bg-slate-800 text-white font-black text-xs rounded-full shadow-md transition-all cursor-pointer transform hover:scale-105"
               >
-                <span>{locale === 'no' ? 'Søk engroshoteller' : 'Search Wholesale Hotels'}</span>
+                <span>{locale === 'no' ? 'Søk hoteller' : 'Search Wholesale Hotels'}</span>
                 <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
               </Link>
+              <button
+                onClick={() => setShowProfileModal(true)}
+                className="inline-flex items-center gap-2 py-3 px-6 bg-amber-50 hover:bg-amber-100 text-amber-900 font-black text-xs rounded-full border border-amber-300 shadow-sm transition-all cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-amber-600" />
+                <span>{locale === 'no' ? 'Oppdater reiseprofil' : 'Pre-fill Travel DNA'}</span>
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Member Travel DNA Profile Modal */}
+      <MemberProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function OrganizationPortalPage({
   const [workEmail, setWorkEmail] = useState('');
   const [authStatus, setAuthStatus] = useState<'idle' | 'verified' | 'invalid'>('idle');
   const [feedbackMsg, setFeedbackMsg] = useState('');
-  const [activeTab, setActiveTab] = useState<'hotels' | 'flights'>('hotels');
+  const [activeTab, setActiveTab] = useState<'hotels' | 'flights' | 'leisure'>('hotels');
 
   if (!org) {
     return (
@@ -251,6 +251,17 @@ export default function OrganizationPortalPage({
               <Plane className="w-3.5 h-3.5" />
               <span>{isNo ? 'Fly (Duffel NDC + EU261 Sentinel)' : 'Flights (Duffel NDC + EU261 Sentinel)'}</span>
             </button>
+            <button
+              onClick={() => setActiveTab('leisure')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'leisure'
+                  ? 'bg-amber-400 text-slate-950 shadow-md'
+                  : 'bg-slate-900 text-slate-400 hover:text-white'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{isNo ? 'Feriesuiter & Spa (Fritid)' : 'Condos & Spa (Leisure)'}</span>
+            </button>
           </div>
 
           <span className="text-[11px] text-slate-400 hidden sm:inline">
@@ -258,11 +269,13 @@ export default function OrganizationPortalPage({
           </span>
         </div>
 
-        {activeTab === 'hotels' ? (
+        {activeTab === 'hotels' && (
           <div className="bg-slate-900/60 p-4 rounded-3xl border border-slate-800">
             <LiveHotelSearch initialDestination="Oslo" />
           </div>
-        ) : (
+        )}
+
+        {activeTab === 'flights' && (
           <div className="bg-slate-900/60 p-8 rounded-3xl border border-slate-800 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 mx-auto flex items-center justify-center">
               <Plane className="w-6 h-6" />
@@ -282,6 +295,80 @@ export default function OrganizationPortalPage({
               <span>{isNo ? 'Åpne Fullstendig Flyhub' : 'Open Flight Hub'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
+          </div>
+        )}
+
+        {activeTab === 'leisure' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* 1. Signature Resorts */}
+            <div className="bg-slate-900/80 border border-amber-500/30 rounded-3xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[10px] font-mono font-bold uppercase border border-amber-400/30">
+                  {isNo ? '7 Netters Ukesopphold' : '7-Night Condo Stays'}
+                </span>
+                <span className="text-sm font-mono font-black text-amber-300">
+                  {isNo ? '3 490 kr / uke' : '3,490 NOK / week'}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>🏖️</span>
+                  <span>Atlas Signature Resorts</span>
+                </h4>
+                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                  {isNo
+                    ? 'Romslige ferieleiligheter (1–2 soverom med fullt kjøkken) for opptil 4–6 personer i Marbella, Tenerife, Algarve, Kreta og Toscana. Fastpris 3 490 kr for hele uken uten per-person tillegg.'
+                    : 'Spacious vacation condos (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy for a flat 3,490 NOK for the entire 7 nights.'}
+                </p>
+              </div>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[11px] text-emerald-400 font-semibold">
+                  {isNo ? '✓ 14 dagers angrefrist' : '✓ 14-day guarantee'}
+                </span>
+                <Link
+                  href="/resorts"
+                  className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-all flex items-center gap-1"
+                >
+                  <span>{isNo ? 'Utforsk leiligheter' : 'Explore Condos'}</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 2. Gourmet & Spa */}
+            <div className="bg-slate-900/80 border border-rose-500/30 rounded-3xl p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 rounded-full bg-rose-400/20 text-rose-300 text-[10px] font-mono font-bold uppercase border border-rose-400/30">
+                  {isNo ? '0 kr Rompris' : '$0 Room Rate'}
+                </span>
+                <span className="text-sm font-mono font-black text-rose-300">
+                  {isNo ? '0 kr rom (500 pts)' : '$0 room (500 pts)'}
+                </span>
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>🍷</span>
+                  <span>Atlas Gourmet &amp; Spa Escapes</span>
+                </h4>
+                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                  {isNo
+                    ? 'Gratis hotellopphold for 2 personer på boutique- og velværerhoteller i Dolomittene, Schwarzwald og Toscana. Betal kun hotellets faste halvpensjonspris (€35–€60/pers/dag) ved utsjekk.'
+                    : 'Complimentary lodging for 2 guests at European wellness and boutique retreats. Pay only published fixed half-board (€35–€60/guest/day) at checkout.'}
+                </p>
+              </div>
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <span className="text-[11px] text-emerald-400 font-semibold">
+                  {isNo ? '✓ Spar 6 700+ kr' : '✓ Save $650+ vs Booking'}
+                </span>
+                <Link
+                  href="/spa-breaks"
+                  className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition-all flex items-center gap-1"
+                >
+                  <span>{isNo ? 'Hent verdikupong' : 'Claim Voucher'}</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            </div>
           </div>
         )}
       </section>

@@ -908,9 +908,9 @@ export default function HotelDetailPage() {
                 </div>
                 <div className="flex justify-between text-slate-600">
                   <span className="flex items-center gap-1.5 text-slate-700 font-medium">
-                    <span>Transaction Settlement Fee (4.9%)</span>
+                    <span>Atlas Bookinggebyr &amp; Påslag</span>
                   </span>
-                  <span className="font-mono text-slate-900 font-bold">+{formatPrice(Math.round(rawWholesaleTotal * 0.049))}</span>
+                  <span className="font-mono text-emerald-700 font-bold">0 kr (0.00% gebyr)</span>
                 </div>
                 <div className="text-[10px] text-slate-500 pt-0.5 space-y-1">
                   <div className="flex items-center gap-1">
@@ -921,8 +921,8 @@ export default function HotelDetailPage() {
                         : `Excludes ~${taxPercent}% lodging taxes paid at property.`}
                     </span>
                   </div>
-                  <div className="text-[10px] text-slate-400 leading-tight">
-                    * 0% hotel room markup. Standard transaction fee covers payment processing at cost.
+                  <div className="text-[10px] text-emerald-700 font-semibold leading-tight">
+                    * 100% ren abonnementsmodell: 0 kr i bookinggebyr på alle opphold for aktive medlemmer.
                   </div>
                 </div>
                 {appliedVoucher && (
@@ -1026,7 +1026,7 @@ export default function HotelDetailPage() {
                     <span>Member Wholesale Pass-Through</span>
                   </div>
                   <p className="text-slate-500 leading-relaxed">
-                    0% hotel room markup. Wholesale bedbank rates are passed directly to active members with a discreet 4.9% transaction settlement fee.
+                    100% ren abonnementsmodell. Engrospriser fra B2B Bedbanks føres direkte videre til aktive medlemmer med 0 kr i bookinggebyr og 0% kommersielt påslag.
                   </p>
                 </div>
               </div>

@@ -24,21 +24,18 @@ export async function POST(req: NextRequest) {
       discountCode,
     } = body;
 
-    const tier = MEMBERSHIP_TIERS.find((t) => t.id === tierId) || MEMBERSHIP_TIERS[2]; // Default Gold VIP
+    const tier = MEMBERSHIP_TIERS.find((t) => t.id === tierId) || MEMBERSHIP_TIERS[0];
 
-    // Pricing: Founding Membership default £79 (~$99 / 990 NOK) or tier annual/monthly
-    let unitAmount = tier.priceAnnual * 100; // in cents
-    let currency = 'gbp';
+    // Pricing: 1 290 NOK flat annual membership (107.50 NOK/mo) or 129 NOK monthly
+    let unitAmount = 129000; // 1 290 NOK in øre
+    let currency = 'nok';
 
-    if (tierId === 'founding') {
-      unitAmount = 7900; // £79.00
-      currency = 'gbp';
+    if (tierId === 'sovereign' || tierId === 'business') {
+      unitAmount = billingCycle === 'monthly' ? 24900 : 249000; // 2 490 NOK / år
     } else if (billingCycle === 'monthly') {
-      unitAmount = Math.round(tier.priceMonthly * 100);
-      currency = 'usd';
+      unitAmount = 12900; // 129 NOK / mnd
     } else {
-      unitAmount = Math.round(tier.priceAnnual * 100);
-      currency = 'usd';
+      unitAmount = 129000; // 1 290 NOK / år
     }
 
     const origin = req.headers.get('origin') || 'https://atlastravelclub.com';
@@ -52,7 +49,7 @@ export async function POST(req: NextRequest) {
             currency,
             product_data: {
               name: `ATLAS Travel Club - ${tier.name}`,
-              description: `Private Wholesale Access • 0% Retail Markup • Bedbank CUG Parity Exemption (${billingCycle === 'annual' ? 'Annual Pass' : 'Monthly'})`,
+              description: `Ren B2B Nettomodell • 0 kr i bookinggebyr • Bedbank CUG Paritetsfritak (${billingCycle === 'annual' ? 'Årskort 1 290 kr' : 'Månedlig 129 kr'})`,
               images: ['https://atlastravelclub.com/atlas-logo.svg'],
             },
             unit_amount: unitAmount,
