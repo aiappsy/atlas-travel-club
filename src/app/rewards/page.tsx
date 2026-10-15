@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { REWARDS_CONFIG } from '@/lib/rewards/rules';
 import { Palmtree, Coffee, ArrowRight, Sparkles, ShieldCheck, Wine } from 'lucide-react';
+import RewardsPodcastDeepDive from '@/components/RewardsPodcastDeepDive';
 
 export default function RewardsPage() {
   const { locale } = useLanguage();
@@ -184,6 +185,9 @@ export default function RewardsPage() {
             </div>
           </div>
         </div>
+
+        {/* PODCAST DEEP DIVE & INSTITUTIONAL RESEARCH HUB */}
+        <RewardsPodcastDeepDive />
 
         {/* REDEMPTION SPENDING OPTIONS */}
         <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">

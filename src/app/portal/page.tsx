@@ -222,8 +222,8 @@ export default function PortalPage() {
             badge: isNo ? '100p = $1 USD' : '100 pts = $1 USD',
             badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
             desc: isNo
-              ? 'Oversikt over opptjente Club Credits, opptjeningsstatus, 50 % samfinansieringstak og VCC-oppgjørsregler.'
-              : 'Real-time ledger of earned and redeemed credits, 50% co-pay cap, and treasury liquidity guards.',
+              ? 'Oversikt over opptjente Club Credits, disponibel saldo vs. in escrow, 100 % provisjons-kickback, samt 24 min audio deep dive & PDF-rapport.'
+              : 'Real-time ledger of earned credits, available vs escrow liquidity, 100% cruise kickbacks, plus 24-min audio deep dive & PDF brief.',
             url: 'https://atlasclub.web.app/rewards',
             path: '/rewards',
             icon: '💎',
