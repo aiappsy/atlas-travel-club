@@ -546,19 +546,26 @@ export default function PortalPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <a
-                    href="/api/cards/wallet-pass/download?memberId=ATLAS-FOUNDER-001&availablePoints=42500&pendingPoints=79000"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm hover:shadow"
+                    href="/api/cards/wallet-pass/download?platform=apple&memberId=ATLAS-FOUNDER-001&availablePoints=42500&pendingPoints=79000"
+                    className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm hover:shadow"
                   >
-                    <Download className="w-4 h-4 text-amber-400" />
-                    <span>{isNo ? 'Last ned Apple Wallet Pass (.pkpass)' : 'Download Apple Wallet Pass'}</span>
+                    <span></span>
+                    <span>{isNo ? 'Apple Wallet (.pkpass)' : 'Apple Wallet (.pkpass)'}</span>
+                  </a>
+                  <a
+                    href="/api/cards/wallet-pass/download?platform=google&memberId=ATLAS-FOUNDER-001&availablePoints=42500&pendingPoints=79000"
+                    className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-sm hover:shadow"
+                  >
+                    <span className="text-amber-400">G</span>
+                    <span>{isNo ? 'Google Wallet (JWT)' : 'Google Wallet (JWT)'}</span>
                   </a>
                   <Link
                     href="/rewards"
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition-all"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold transition-all"
                   >
-                    <span>{isNo ? 'Åpne Hvelv →' : 'Open Vault →'}</span>
+                    <span>{isNo ? 'Hvelv →' : 'Vault →'}</span>
                   </Link>
                 </div>
               </div>

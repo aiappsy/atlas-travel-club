@@ -118,3 +118,109 @@ export function generatePassPayload(params: WalletPassParams) {
     },
   };
 }
+
+export function generateGoogleWalletPassPayload(params: WalletPassParams) {
+  const {
+    memberId = 'ATLAS-VIP-8841',
+    name = 'Pål Juritzen',
+    tier = 'Founder',
+    validUntil = '12/2028',
+    availablePoints = 42500,
+    pendingPoints = 79000,
+    currency = 'PTS',
+  } = params;
+
+  const numAvailable = Number(availablePoints) || 0;
+  const numPending = Number(pendingPoints) || 0;
+  const nokAvailable = Math.round(numAvailable * 0.10);
+  const nokPending = Math.round(numPending * 0.10);
+
+  const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID || '3388000000022314567';
+
+  return {
+    iss: 'atlas-wallet@bizmaster-abfed.iam.gserviceaccount.com',
+    aud: 'google',
+    typ: 'savetowallet',
+    origins: ['https://atlasclub.web.app'],
+    payload: {
+      genericObjects: [
+        {
+          id: `${issuerId}.${memberId}`,
+          classId: `${issuerId}.atlas_vip_membership_tier`,
+          logo: {
+            sourceUri: {
+              uri: 'https://atlasclub.web.app/atlas-final-card.jpg',
+            },
+            contentDescription: {
+              defaultValue: {
+                language: 'en-US',
+                value: 'ATLAS VIP Club Card',
+              },
+            },
+          },
+          cardTitle: {
+            defaultValue: {
+              language: 'en-US',
+              value: 'ATLAS TRAVEL CLUB',
+            },
+          },
+          subheader: {
+            defaultValue: {
+              language: 'en-US',
+              value: 'KORTHOLDER',
+            },
+          },
+          header: {
+            defaultValue: {
+              language: 'en-US',
+              value: (name || 'PÅL JURITZEN').toUpperCase(),
+            },
+          },
+          hexBackgroundColor: '#0a0f1e',
+          textModulesData: [
+            {
+              id: 'tier',
+              header: 'MEDLEMSKAPSNIVÅ',
+              body: `${(tier || 'FOUNDER').toUpperCase()} VIP PASS`,
+            },
+            {
+              id: 'available_balance',
+              header: 'DISPONIBEL SALDO (KLAR)',
+              body: `🟢 ${numAvailable.toLocaleString()} ${currency} (≈ ${nokAvailable.toLocaleString()} NOK)`,
+            },
+            {
+              id: 'pending_escrow',
+              header: 'VENTER PÅ OPPGJØR (IN ESCROW)',
+              body: `🟡 ${numPending.toLocaleString()} ${currency} (≈ ${nokPending.toLocaleString()} NOK)`,
+            },
+            {
+              id: 'wholesale_rate',
+              header: 'WHOLESALE PRIS',
+              body: '0 kr PÅSLAG (NETTO ENGROS)',
+            },
+            {
+              id: 'valid_until',
+              header: 'GYLDIG TIL',
+              body: validUntil || '12/2028',
+            },
+            {
+              id: 'liquidity_guard',
+              header: 'LIKVIDITETSSIKRING & CASH LAG',
+              body: 'Provisjoner utbetales 30–60 dager etter reise. Kun oppgjorte midler kan innløses.',
+            },
+            {
+              id: 'legal_entity',
+              header: 'UTSTEDER',
+              body: 'HARD ROCK CAPITAL LTD (UK Reg #16833237), 71-75 Shelton Street, London, UK.',
+            },
+          ],
+          barcode: {
+            type: 'QR_CODE',
+            value: `ATLAS://${memberId}/VERIFIED`,
+            alternateText: memberId,
+          },
+        },
+      ],
+    },
+  };
+}
