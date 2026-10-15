@@ -204,8 +204,8 @@ export default function Footer() {
         <div className="border-t border-slate-200 mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-3">
           <p>
             {locale === 'no'
-              ? '© 2026 ATLAS VIP Platform Inc. Alle rettigheter reservert. Registrert lukket engrosklubb for reiser.'
-              : '© 2026 ATLAS VIP Platform Inc. All rights reserved. Registered closed-loop wholesale travel club.'}
+              ? '© 2026 HARD ROCK CAPITAL LTD (Org.nr. 16833237, England & Wales) under varemerket ATLAS Travel Club. Alle rettigheter reservert. Registrert lukket engrosklubb for reiser.'
+              : '© 2026 HARD ROCK CAPITAL LTD (Company No. 16833237, England & Wales) trading as ATLAS Travel Club. All rights reserved. Registered closed-loop wholesale travel club.'}
           </p>
           <div className="flex items-center gap-4 text-slate-500">
             <Link href="/terms" className="hover:underline">{t.footer.terms}</Link>

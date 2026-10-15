@@ -41,8 +41,8 @@ export default function PrivacyPolicyPage() {
             </h2>
             <p>
               {locale === 'no'
-                ? 'Hos ATLAS VIP Platform Inc. («ATLAS») er personvern en arkitektonisk grunnpilar. Vi selger, leier aldri ut eller deler dine personlige reisedata, passopplysninger eller betalingstelemetri til tredjeparts annonsenettverk.'
-                : 'At ATLAS VIP Platform Inc. ("ATLAS"), privacy is not an afterthought; it is an architectural foundation. We do not sell, rent, monetize, or broker your personal travel data, passport information, or payment telemetry to third-party advertising networks.'}
+                ? 'Hos HARD ROCK CAPITAL LTD (Org.nr. 16833237 i England & Wales, under varemerket «ATLAS») er personvern en arkitektonisk grunnpilar. Vi selger, leier aldri ut eller deler dine personlige reisedata, passopplysninger eller betalingstelemetri til tredjeparts annonsenettverk.'
+                : 'At HARD ROCK CAPITAL LTD (Company No. 16833237 in England & Wales, trading as "ATLAS"), privacy is not an afterthought; it is an architectural foundation. We do not sell, rent, monetize, or broker your personal travel data, passport information, or payment telemetry to third-party advertising networks.'}
             </p>
             <p>
               {locale === 'no'

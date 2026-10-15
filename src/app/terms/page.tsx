@@ -41,8 +41,8 @@ export default function TermsOfServicePage() {
             </h2>
             <p>
               {locale === 'no'
-                ? 'Ved å bruke, registrere deg for eller bestille via ATLAS-plattformen (drevet av ATLAS VIP Platform Inc., heretter referert til som «ATLAS», «vi» eller «oss»), bekrefter du («Medlemmet» eller «Brukeren») at du aksepterer disse vilkårene og retningslinjene.'
-                : 'By accessing, browsing, registering for, or utilizing the ATLAS platform (operated by ATLAS VIP Platform Inc., hereinafter referred to as "ATLAS", "we", "us", or "our"), you ("Member", "User", or "Customer") agree to be bound by these Terms of Service and all incorporated policies.'}
+                ? 'Ved å bruke, registrere deg for eller bestille via ATLAS-plattformen (drevet av HARD ROCK CAPITAL LTD, Org.nr. 16833237 i England & Wales, under varemerket «ATLAS», heretter referert til som «ATLAS», «vi» eller «oss»), bekrefter du («Medlemmet» eller «Brukeren») at du aksepterer disse vilkårene og retningslinjene.'
+                : 'By accessing, browsing, registering for, or utilizing the ATLAS platform (operated by HARD ROCK CAPITAL LTD, Company No. 16833237 in England & Wales, trading as "ATLAS", hereinafter referred to as "ATLAS", "we", "us", or "our"), you ("Member", "User", or "Customer") agree to be bound by these Terms of Service and all incorporated policies.'}
             </p>
             <p>
               <strong>{locale === 'no' ? 'Lukket medlemsklubb:' : 'Closed-Loop Club Status:'}</strong>{' '}

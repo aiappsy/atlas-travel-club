@@ -31,7 +31,7 @@ export default function TravelDisclaimerPage() {
             hotel voucher check-in protocols, and limitations of liability.
           </p>
           <div className="text-[11px] text-slate-400 font-mono">
-            Platform: ATLAS Travel Club LLC • Standard Hospitality & Carrier Terms • September 2026
+            Platform: HARD ROCK CAPITAL LTD (Trading as ATLAS Travel Club) • Company No. 16833237 • September 2026
           </div>
         </div>
       </section>
@@ -44,7 +44,7 @@ export default function TravelDisclaimerPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-black text-slate-900">1. Independent Third-Party Supplier Relationship</h2>
             <p>
-              ATLAS Travel Club LLC ("ATLAS") acts solely as an intermediary technology collective facilitating bookings between authenticated club members and independent third-party travel suppliers—including B2B bedbanks (Hotelbeds, RateHawk, WebBeds), commercial airlines (via Duffel NDC), private jet charter operators, luxury villa managers, and car rental agencies (each, a "Travel Supplier").
+              HARD ROCK CAPITAL LTD ("ATLAS", trading as ATLAS Travel Club) acts solely as an intermediary technology collective facilitating bookings between authenticated club members and independent third-party travel suppliers—including B2B bedbanks (Hotelbeds, RateHawk, WebBeds), commercial airlines (via Duffel NDC), private jet charter operators, luxury villa managers, and car rental agencies (each, a "Travel Supplier").
             </p>
             <p>
               <strong>Travel Suppliers are independent contractors and are NOT agents, employees, joint venturers, or partners of ATLAS.</strong> ATLAS does not own, manage, inspect, or operate any hotel, aircraft, yacht, or vehicle featured on the platform.
@@ -71,7 +71,7 @@ export default function TravelDisclaimerPage() {
           <section className="space-y-3">
             <h2 className="text-lg font-black text-slate-900">3. Limitation of Liability & Force Majeure</h2>
             <p>
-              To the maximum extent permitted by applicable law, ATLAS Travel Club LLC shall not be liable for any personal injury, illness, property damage, accident, delay, irregularity, cancellation, or expense arising out of:
+              To the maximum extent permitted by applicable law, HARD ROCK CAPITAL LTD shall not be liable for any personal injury, illness, property damage, accident, delay, irregularity, cancellation, or expense arising out of:
             </p>
             <ul className="list-disc pl-5 space-y-1 text-xs text-slate-700">
               <li>Any act, error, omission, negligence, insolvency, or default of any Travel Supplier, airline carrier, or villa host;</li>
