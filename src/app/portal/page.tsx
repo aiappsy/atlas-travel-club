@@ -65,8 +65,8 @@ export default function PortalPage() {
       : 'Central administrative gateway with direct access and live status across all platform modules.',
     openButton: isNo ? 'Åpne Siden →' : 'Launch Module →',
     footer: isNo
-      ? 'ATLAS Travel Club • Privat Intern Hub • Konfidensiell'
-      : 'ATLAS Travel Club • Private Internal Directory • Confidential',
+      ? 'ATLAS Travel Club • Operert av HARD ROCK CAPITAL LTD (UK Reg. #16833237) • 71-75 Shelton Street, London • Privat Intern Hub'
+      : 'ATLAS Travel Club • Operated by HARD ROCK CAPITAL LTD (UK Reg. #16833237) • 71-75 Shelton Street, London • Private Internal Hub',
     sections: [
       {
         title: isNo ? '⭐ Primære Miljøer & Produksjon' : '⭐ Primary Environments & Live Deployments',
@@ -124,11 +124,11 @@ export default function PortalPage() {
           },
           {
             title: isNo ? 'Atlas Signature Resorts' : 'Atlas Signature Resorts',
-            badge: isNo ? 'Fra 2 890 kr / 7 Netter' : 'From 2,890 NOK / 7 Nts',
+            badge: isNo ? 'Fastpris 3 490 kr / 7 Netter' : 'Flat 3,490 NOK / 7 Nts',
             badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
             desc: isNo
-              ? 'Likvidering av overskuddskapasitet fra RCI: 7 netters ferieleilighet (1–2 soverom, fullt kjøkken, opptil 4–6 personer) fra 2 890 kr (Last-Minute) eller 4 490 kr (Helår).'
-              : 'RCI surplus condo liquidation: 7-night whole condo stays (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy from 2,890 NOK ($269 USD).',
+              ? '7 netters ferieleilighet for hele familien (1–2 soverom, fullt kjøkken, opptil 4–6 personer) til fastpris 3 490 kr for hele uken i Marbella, Tenerife, Algarve, Kreta og Toscana. 100% On-site reservasjon via Atlas Concierge.'
+              : '7-night whole vacation condo stays (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy for a flat 3,490 NOK ($325 USD) without per-person fees. 100% on-site concierge booking.',
             url: 'https://atlasclub.web.app/resorts',
             path: '/resorts',
             icon: '🏖️',
@@ -136,11 +136,11 @@ export default function PortalPage() {
           },
           {
             title: isNo ? 'Atlas Gourmet & Spa Escapes' : 'Atlas Gourmet & Spa Escapes',
-            badge: isNo ? '0 kr Rompris / Halvpensjon' : '$0 Room Rate / Half-Board',
+            badge: isNo ? '0 kr Rompris / On-Site Booking' : '$0 Room Rate / On-Site Booking',
             badgeClass: 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
             desc: isNo
-              ? 'Connex/Holiday Plus-partnerskap: Gratis romopphold for 2 personer på boutique- og velværerhoteller i Alpene og Sør-Europa. Betal kun for hotellets faste halvpensjon.'
-              : 'Connex/Holiday Plus partnership: $0 complimentary lodging for 2 guests across alpine and Mediterranean wellness retreats. Guests pay only published half-board at checkout.',
+              ? 'Atlas Gourmet & Spa-Pass: 0 kr rompris for 2 personer på 1 500 boutique- og spahoteller i Alpene, Italia, Tyskland og Frankrike. Betal kun hotellets faste halvpensjon ved utsjekk. Fullverdig on-site reservasjonsmodal.'
+              : 'Atlas Gourmet & Spa Pass: $0 complimentary double room lodging for 2 guests across 1,500 boutique and thermal wellness retreats. Guests pay only published half-board dining at checkout. Fully on-site.',
             url: 'https://atlasclub.web.app/spa-breaks',
             path: '/spa-breaks',
             icon: '🍷',
