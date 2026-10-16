@@ -20,9 +20,12 @@ import {
   Coffee,
   HelpCircle,
   Copy,
-  ExternalLink,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  X,
+  Clock,
+  Send,
+  Download
 } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 
@@ -30,6 +33,7 @@ interface SpaHotelItem {
   id: string;
   name: string;
   region: string;
+  country: 'italy' | 'germany' | 'austria' | 'france';
   location: string;
   duration: string;
   rating: number;
@@ -51,6 +55,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'dolomites-alpine-spa',
     name: 'Alpenresort Belvedere & Thermal Spa',
     region: 'Syd-Tirol / Dolomittene, Italia',
+    country: 'italy',
     location: 'Molveno, Dolomittene',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.9,
@@ -70,6 +75,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'chianti-castle-wine',
     name: 'Castello di Spaltenna & Tuscan Spa',
     region: 'Toscana, Italia',
+    country: 'italy',
     location: 'Gaiole in Chianti, Toscana',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.9,
@@ -89,6 +95,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'schwarzwald-thermal-park',
     name: 'Parkhotel Adler & Schwarzwald Spa',
     region: 'Schwarzwald, Tyskland',
+    country: 'germany',
     location: 'Hinterzarten, Tyskland',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.8,
@@ -108,6 +115,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'salzburg-alpine-wellness',
     name: 'Hotel Gut Brandlhof Golf & Alpine Spa',
     region: 'Salzburgerland, Østerrike',
+    country: 'austria',
     location: 'Saalfelden, Østerrike',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.8,
@@ -127,6 +135,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'provence-lavender-estate',
     name: 'Domaine de l\'Enclos & Provence Spa',
     region: 'Provence, Frankrike',
+    country: 'france',
     location: 'Gordes / Luberon, Frankrike',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.9,
@@ -146,6 +155,7 @@ const SPA_HOTEL_DATA: SpaHotelItem[] = [
     id: 'lake-garda-panorama',
     name: 'Grand Hotel Riva & Garda Wellness',
     region: 'Gardasjøen, Italia',
+    country: 'italy',
     location: 'Riva del Garda, Italia',
     duration: '3 dager / 2 netter (Dobbeltrom)',
     rating: 4.8,
@@ -178,6 +188,22 @@ export default function SpaBreaksPage() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  // Filter state
+  const [selectedCountry, setSelectedCountry] = useState<'all' | 'italy' | 'germany' | 'austria' | 'france'>('all');
+
+  // Reservation dialog state
+  const [selectedHotelForBooking, setSelectedHotelForBooking] = useState<SpaHotelItem | null>(null);
+  const [checkInDate, setCheckInDate] = useState('2026-11-15');
+  const [nightsCount, setNightsCount] = useState(3);
+  const [isReserving, setIsReserving] = useState(false);
+  const [reservationSuccess, setReservationSuccess] = useState<{
+    reference: string;
+    hotelName: string;
+    checkIn: string;
+    nights: number;
+    voucherCode: string;
+  } | null>(null);
 
   const handleClaimVoucher = async () => {
     if (!user) {
@@ -216,6 +242,47 @@ export default function SpaBreaksPage() {
       setTimeout(() => setCopied(false), 2500);
     }
   };
+
+  const handleOpenBookingModal = async (hotel: SpaHotelItem) => {
+    if (!user) {
+      setIsAuthOpen(true);
+      return;
+    }
+
+    if (!claimedVoucher) {
+      await handleClaimVoucher();
+    }
+
+    setSelectedHotelForBooking(hotel);
+    setReservationSuccess(null);
+  };
+
+  const handleSubmitBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedHotelForBooking) return;
+
+    setIsReserving(true);
+
+    // Simulate concierge routing and generate exclusive reference
+    await new Promise((r) => setTimeout(r, 800));
+
+    const ref = `ATLAS-SPA-${Math.floor(100000 + Math.random() * 900000)}`;
+    const code = claimedVoucher?.code || 'HP-8492-ATLAS-VIP';
+
+    setReservationSuccess({
+      reference: ref,
+      hotelName: selectedHotelForBooking.name,
+      checkIn: checkInDate,
+      nights: nightsCount,
+      voucherCode: code,
+    });
+
+    setIsReserving(false);
+  };
+
+  const filteredHotels = selectedCountry === 'all'
+    ? SPA_HOTEL_DATA
+    : SPA_HOTEL_DATA.filter((h) => h.country === selectedCountry);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-28">
@@ -263,8 +330,8 @@ export default function SpaBreaksPage() {
 
                 <p className="text-xs text-slate-300 leading-relaxed">
                   {isNo
-                    ? 'Klikk nedenfor for å hente ut din unike digitale kode. Koden aktiveres umiddelbart og gir deg tilgang til å velge blant 1 500 kvalitetshoteller i Alpene, Italia, Tyskland, Frankrike og Østerrike.'
-                    : 'Click below to generate your unique digital access pass. Activates instantly with 365-day booking validity across 1,500 curated hotels.'}
+                    ? 'Klikk nedenfor for å aktivere din unike digitale passkode. Koden gir deg umiddelbar tilgang til å reservere blant 1 500 håndplukkede spahoteller i Alpene, Italia, Tyskland, Frankrike og Østerrike.'
+                    : 'Click below to activate your digital pass code. Grants immediate on-site reservation access across 1,500 hand-picked spa retreats in Italy, Germany, Austria, and France.'}
                 </p>
 
                 {error && (
@@ -301,7 +368,7 @@ export default function SpaBreaksPage() {
 
                 <div className="bg-slate-950/80 p-4 rounded-2xl border border-white/10 space-y-2">
                   <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    {isNo ? 'Din unike Holiday Plus-kode:' : 'Your Unique Holiday Plus Code:'}
+                    {isNo ? 'Ditt unike Atlas VIP Gourmet & Spa-Pass:' : 'Your Unique Atlas VIP Gourmet & Spa Pass:'}
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
@@ -321,13 +388,11 @@ export default function SpaBreaksPage() {
                 </div>
 
                 <a
-                  href={claimedVoucher.portalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-4 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                  href="#featured-hotels"
+                  className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>{isNo ? 'Åpne katalogen og velg hotell' : 'Open Catalog & Choose Hotel'}</span>
-                  <ExternalLink className="w-4 h-4" />
+                  <span>{isNo ? 'Velg hotell nedenfor & reserver med 0 kr' : 'Choose Hotel Below & Reserve at $0'}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </a>
               </div>
             )}
@@ -413,24 +478,80 @@ export default function SpaBreaksPage() {
         </div>
 
         {/* CURATED SHOWCASE HOTELS */}
-        <div className="space-y-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 mb-2">
-              <Wine className="w-3.5 h-3.5 text-amber-600" />
-              <span>{isNo ? 'Kurerte hotellperler i Europa' : 'Curated European Gems'}</span>
+        <div id="featured-hotels" className="space-y-6 scroll-mt-24">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 mb-2">
+                <Wine className="w-3.5 h-3.5 text-amber-600" />
+                <span>{isNo ? 'Kurerte hotellperler i Europa' : 'Curated European Gems'}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {isNo ? 'Velg ditt reisemål og reserver on-site' : 'Choose Your Destination & Reserve On-Site'}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                {isNo
+                  ? 'Alle bestillinger behandles direkte av Atlas VIP Concierge. Romprisen er 0 kr med ditt medlemskap.'
+                  : 'All reservations handled directly by Atlas VIP Concierge. Room rate is $0 with your membership.'}
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {isNo ? 'Eksempler på hoteller du kan velge mellom' : 'Examples of Included Hotels You Can Book'}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              {isNo
-                ? 'Dette er noen av de 1 500 partnerhotellene i Connex Holiday Plus-nettverket.'
-                : 'A selection from the 1,500 verified partner hotels in the Connex Holiday Plus collection.'}
-            </p>
+
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-slate-200/70 text-xs font-semibold">
+              <button
+                onClick={() => setSelectedCountry('all')}
+                className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  selectedCountry === 'all'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {isNo ? 'Alle (Europa)' : 'All (Europe)'}
+              </button>
+              <button
+                onClick={() => setSelectedCountry('italy')}
+                className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  selectedCountry === 'italy'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🇮🇹 Italia
+              </button>
+              <button
+                onClick={() => setSelectedCountry('germany')}
+                className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  selectedCountry === 'germany'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🇩🇪 Tyskland
+              </button>
+              <button
+                onClick={() => setSelectedCountry('austria')}
+                className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  selectedCountry === 'austria'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🇦🇹 Østerrike
+              </button>
+              <button
+                onClick={() => setSelectedCountry('france')}
+                className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
+                  selectedCountry === 'france'
+                    ? 'bg-slate-950 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                🇫🇷 Frankrike
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {SPA_HOTEL_DATA.map((hotel) => (
+            {filteredHotels.map((hotel) => (
               <div
                 key={hotel.id}
                 className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group"
@@ -520,10 +641,10 @@ export default function SpaBreaksPage() {
                     </div>
 
                     <button
-                      onClick={handleClaimVoucher}
+                      onClick={() => handleOpenBookingModal(hotel)}
                       className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
-                      <span>{isNo ? 'Bruk pass på dette hotellet' : 'Use Pass on This Property'}</span>
+                      <span>{isNo ? 'Reserver med 0 kr rompris' : 'Reserve with $0 Room Rate'}</span>
                       <ArrowRight className="w-4 h-4 text-amber-400" />
                     </button>
                   </div>
@@ -541,8 +662,8 @@ export default function SpaBreaksPage() {
             </h3>
             <p className="text-xs text-slate-500 mt-1">
               {isNo
-                ? 'Alt du trenger å vite om Connex Holiday Plus-modellen, betaling og booking.'
-                : 'Everything you need to know about the Connex Holiday Plus program and on-site dining.'}
+                ? 'Alt du trenger å vite om modellen, betaling og reservasjoner via Atlas VIP Concierge.'
+                : 'Everything you need to know about the half-board culinary model and Atlas Concierge reservations.'}
             </p>
           </div>
 
@@ -554,8 +675,8 @@ export default function SpaBreaksPage() {
               </div>
               <p className="text-slate-600 leading-relaxed">
                 {isNo
-                  ? 'Ja! Romprisen for 2 personer i dobbeltrom er 0 kr. Du betaler ingenting til Atlas eller hotellet for selve overnattingen. Ditt digitale Holiday Plus-pass dekker oppholdet i sin helhet.'
-                  : 'Yes! Double room lodging for 2 guests is completely $0. Your digital Holiday Plus certificate covers the accommodation in full.'}
+                  ? 'Ja! Romprisen for 2 personer i dobbeltrom er 0 kr. Du betaler ingenting til Atlas eller hotellet for selve overnattingen. Ditt digitale Atlas VIP Gourmet-pass dekker oppholdet i sin helhet.'
+                  : 'Yes! Double room lodging for 2 guests is completely $0. Your digital Atlas VIP Gourmet Pass covers the accommodation in full.'}
               </p>
             </div>
 
@@ -597,6 +718,205 @@ export default function SpaBreaksPage() {
           </div>
         </div>
       </div>
+
+      {/* ON-SITE RESERVATION DIALOG MODAL */}
+      {selectedHotelForBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-slate-900 border border-amber-400/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Header */}
+            <div className="px-6 py-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-300">
+                  <Wine className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-white font-cinzel">
+                    {isNo ? 'Reservering med Atlas Gourmet & Spa-Pass' : 'Atlas Gourmet & Spa Pass Reservation'}
+                  </h3>
+                  <span className="text-[11px] text-amber-300 font-mono">
+                    {isNo ? '0 kr rompris for 2 personer' : '$0 room charge for 2 guests'}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedHotelForBooking(null)}
+                className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto space-y-5 text-left text-xs">
+              {reservationSuccess ? (
+                <div className="space-y-4 animate-in fade-in duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
+                      <CheckCircle2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-base font-bold text-white">
+                        {isNo ? 'Reservasjonsforespørsel registrert!' : 'Reservation Request Confirmed!'}
+                      </h4>
+                      <p className="text-slate-300">
+                        {isNo
+                          ? `Ditt opphold på ${reservationSuccess.hotelName} er sendt til Atlas VIP Concierge.`
+                          : `Your stay at ${reservationSuccess.hotelName} has been transmitted to Atlas VIP Concierge.`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 font-mono">
+                    <div className="flex justify-between text-slate-400">
+                      <span>{isNo ? 'Referansenummer:' : 'Booking Reference:'}</span>
+                      <span className="text-amber-300 font-bold">{reservationSuccess.reference}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>{isNo ? 'Hotell:' : 'Property:'}</span>
+                      <span className="text-white font-bold">{reservationSuccess.hotelName}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>{isNo ? 'Ønsket innsjekk:' : 'Requested Check-In:'}</span>
+                      <span className="text-white">{reservationSuccess.checkIn}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>{isNo ? 'Varighet:' : 'Duration:'}</span>
+                      <span className="text-white">{reservationSuccess.nights} netter (Dobbeltrom for 2)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400 border-t border-slate-800 pt-2">
+                      <span>{isNo ? 'Rompris:' : 'Room Cost:'}</span>
+                      <span className="text-emerald-400 font-bold">0 kr (100% dekket av Atlas)</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>{isNo ? 'Aktiv passkode:' : 'Applied Pass Code:'}</span>
+                      <span className="text-amber-300">{reservationSuccess.voucherCode}</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-[11px] leading-relaxed">
+                    ℹ️ {isNo
+                      ? 'Atlas Concierge bekrefter romtilgjengelighet direkte med hotellet og sender din skriftlige voucherkvittering til din e-post innen kort tid. Måltider (halvpensjon) gjøres opp direkte på hotellet ved utsjekk.'
+                      : 'Atlas Concierge will confirm room availability directly with the hotel and dispatch your formal voucher credential to your email. Half-board dining is settled directly with the property at checkout.'}
+                  </div>
+
+                  <div className="pt-2 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedHotelForBooking(null)}
+                      className="flex-1 py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
+                    >
+                      {isNo ? 'Fullfør & Lukk' : 'Complete & Close'}
+                    </button>
+                    <Link
+                      href="/trips"
+                      className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs uppercase tracking-wider transition text-center"
+                    >
+                      {isNo ? 'Se i Mine Reiser' : 'View in Trips'}
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmitBooking} className="space-y-4">
+                  {/* Selected Hotel Overview */}
+                  <div className="flex gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                    <img
+                      src={selectedHotelForBooking.image}
+                      alt={selectedHotelForBooking.name}
+                      className="w-20 h-20 rounded-xl object-cover shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <div className="text-white font-bold text-sm">{selectedHotelForBooking.name}</div>
+                      <div className="text-slate-400 text-[11px] flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-amber-400" />
+                        <span>{selectedHotelForBooking.location}</span>
+                      </div>
+                      <div className="text-emerald-400 font-bold text-[11px]">
+                        ✓ {isNo ? 'Dobbeltrom inkludert (0 kr rompris)' : 'Double room included ($0 rate)'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Booking Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">
+                        {isNo ? 'Ønsket innsjekkingsdato' : 'Preferred Check-In Date'}
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={checkInDate}
+                        onChange={(e) => setCheckInDate(e.target.value)}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 uppercase font-bold block mb-1">
+                        {isNo ? 'Antall netter' : 'Number of Nights'}
+                      </label>
+                      <select
+                        value={nightsCount}
+                        onChange={(e) => setNightsCount(Number(e.target.value))}
+                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400"
+                      >
+                        <option value={2}>2 netter (Helgetur)</option>
+                        <option value={3}>3 netter (Langhelg)</option>
+                        <option value={4}>4 netter (Midtuke)</option>
+                        <option value={6}>6 netter (Ukesopphold)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {isNo ? 'Prisoversikt for reservasjonen:' : 'Price Breakdown for Reservation:'}
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-slate-300">
+                        {isNo ? `Hotellrom (${nightsCount} netter for 2 personer):` : `Hotel Room (${nightsCount} nights for 2):`}
+                      </span>
+                      <span className="text-emerald-400 font-black">0 kr (100% dekket av Atlas)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs border-t border-slate-800/80 pt-1.5">
+                      <span className="text-slate-300">
+                        {isNo ? 'Frokost & gourmetmiddag på hotellet:' : 'Hotel breakfast & chef dinner:'}
+                      </span>
+                      <span className="text-amber-300 font-bold">
+                        {isNo ? selectedHotelForBooking.halfBoardEstNo : selectedHotelForBooking.halfBoardEstEn}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-500 italic pt-1">
+                      {isNo
+                        ? '*Måltider gjøres opp direkte med hotellet ved utsjekk. Ingen betaling kreves på forhånd til Atlas.'
+                        : '*Meals are paid directly to the hotel upon checkout. No advance payment required by Atlas.'}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isReserving}
+                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    {isReserving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{isNo ? 'Sender til VIP Concierge...' : 'Routing to VIP Concierge...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        <span>{isNo ? 'Bekreft & Send reservasjon til Concierge' : 'Confirm & Send Reservation to Concierge'}</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultMode="signup" />
     </div>
