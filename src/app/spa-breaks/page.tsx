@@ -800,13 +800,26 @@ export default function SpaBreaksPage() {
                       : 'Atlas Concierge will confirm room availability directly with the hotel and dispatch your formal voucher credential to your email. Half-board dining is settled directly with the property at checkout.'}
                   </div>
 
+                  {/* Direct PDF Certificate Download */}
+                  <div className="pt-1">
+                    <a
+                      href={`/api/vouchers/certificate?reference=${encodeURIComponent(reservationSuccess.reference)}&hotelName=${encodeURIComponent(reservationSuccess.hotelName)}&guestName=${encodeURIComponent(user?.displayName || user?.email || 'ATLAS VIP Medlem')}&checkIn=${encodeURIComponent(reservationSuccess.checkIn)}&nights=${reservationSuccess.nights}&voucherCode=${encodeURIComponent(reservationSuccess.voucherCode)}&location=${encodeURIComponent(selectedHotelForBooking?.location || 'Europa')}&halfBoard=${encodeURIComponent(isNo ? selectedHotelForBooking?.halfBoardEstNo || 'Oppgjøres ved utsjekk' : selectedHotelForBooking?.halfBoardEstEn || 'Settled upon checkout')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>{isNo ? 'Last ned offisielt innsjekkingssertifikat (PDF)' : 'Download Official Check-In Certificate (PDF)'}</span>
+                    </a>
+                  </div>
+
                   <div className="pt-2 flex gap-2">
                     <button
                       type="button"
                       onClick={() => setSelectedHotelForBooking(null)}
-                      className="flex-1 py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
+                      className="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs uppercase tracking-wider transition cursor-pointer"
                     >
-                      {isNo ? 'Fullfør & Lukk' : 'Complete & Close'}
+                      {isNo ? 'Lukk' : 'Close'}
                     </button>
                     <Link
                       href="/trips"
