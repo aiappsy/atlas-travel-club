@@ -199,9 +199,9 @@ CORE ATLAS PLATFORM KNOWLEDGE:
 13. Atlas Signature Resorts (/resorts):
    - Whole-condo accommodations (1–2 bedroom suites with full kitchen, living area, sleeping up to 4–6 guests) liquidated via RCI / Resort Vacation Certificates distressed timeshare allotments.
    - 3 Transparent Tiers (100% prepaid, 0 kr online booking fees):
-     * Last-Minute (7 nights, book within 30 days): 2 890 NOK ($269 USD / 2 900 points). Wholesale promo is $219.
-     * Standard 365-Day (7 nights, book up to 365 days ahead): 4 490 NOK ($420 USD / 4 500 points). Wholesale promo is $379.
-     * Short Stay (2–6 nights, book up to 365 days ahead): 2 490 NOK ($230 USD / 2 500 points). Wholesale promo is $199.
+     * Last-Minute (7 nights, book within 30 days): 3 890 NOK ($359 USD / 3 900 points). Wholesale promo is $219.
+     * Standard 365-Day (7 nights, book up to 365 days ahead): 5 890 NOK ($549 USD / 5 900 points). Wholesale promo is $379.
+     * Short Stay (2–6 nights, book up to 365 days ahead): 3 290 NOK ($299 USD / 3 300 points). Wholesale promo is $199.
    - Local on-site fee transparency: Explain clearly that online booking is 0 kr, but some European resorts charge a modest local utility/eco fee (e.g. 20–40 € per week) directly at the front desk for electricity/cleaning.
    - Rejection of $69 buy-up certificate traps: Atlas strictly rejects certificates that slap members with mandatory $299+ co-pays at booking.
    - 14-day 100% money-back guarantee if no suitable dates/destination are found.
@@ -220,7 +220,7 @@ ${profileSection}
 Instructions:
 - Provide authoritative, concise, elegant, VIP concierge responses in Markdown.
 - If the user is asking about the active hotel being audited, directly reference the real hotel name, dates, public price, wholesale price, and exact savings!
-- If the user asks about B2B corporate agreements, cruises, loyalty points, Signature Resorts (ferieleiligheter fra 2 890 kr), or Gourmet & Spa Escapes (0 kr rooms), provide accurate, confident domain guidance.
+- If the user asks about B2B corporate agreements, cruises, loyalty points, Signature Resorts (ferieleiligheter fra 3 890 kr), or Gourmet & Spa Escapes (0 kr rooms), provide accurate, confident domain guidance.
 - If member profile DNA is provided, naturally tailor travel plans, home hub departure airports, cabin classes, and dietary outing suggestions to them!
 - Highlight key numbers in bold.`;
 }
@@ -550,14 +550,14 @@ function generateDomainConciergeResponse(
     }
   }
 
-  // 20. ATLAS SIGNATURE RESORTS (FERIELEILIGHETER FRA 2 890 NOK)
+  // 20. ATLAS SIGNATURE RESORTS (FERIELEILIGHETER FRA 3 890 NOK)
   else if (
     q.includes('resort') || q.includes('ferieleilighet') || q.includes('leilighet') ||
     q.includes('condo') || q.includes('7 netter') || q.includes('rci') ||
     q.includes('tenerife') || q.includes('marbella') || q.includes('familieferie') ||
     q.includes('ukesopphold') || q.includes('feriesuiter') || q.includes('sertifikat')
   ) {
-    reply = `🏖️ **Atlas Signature Resorts — Ferieleiligheter fra 2 890 kr (/resorts):**\n\nVi likviderer overskuddskapasitet fra førsteklasses ferieresorter (RCI/Panorama-nettverket) til faste engrospriser uten påslag:\n\n• **3 fleksible nivåer** (100% forhåndsbetalt, 0 kr bookinggebyr på nett):\n  - **Last-Minute (7 netter innen 30 dager)**: Kun **2 890 NOK** (eller 2 900 poeng / $269 USD).\n  - **Standard Helår (7 netter opptil 365 dager frem)**: **4 490 NOK** (eller 4 500 poeng / $420 USD).\n  - **Short Stay (2–6 netter opptil 365 dager frem)**: **2 490 NOK** (eller 2 500 poeng / $230 USD).\n• **Full plass for familien**: 1–2 soveromssuiter med fullt utstyrt kjøkken og stue – plass til **opptil 4–6 personer** uten ekstra persongebyrer.\n• **Transparent om lokale gebyrer**: Enkelte europeiske resorter har en obligatorisk lokal energi-/renholdsavgift (utility surcharge på ca. 20–40 € per uke) som betales direkte i resepsjonen ved utsjekking.\n• **Utvalgte destinasjoner**: Marbella (Costa del Sol), Tenerife (Kanariøyene), Algarve (Portugal), Kreta (Hellas), Toscana (Italia) og Mallorca.\n• **100% Trygghet**: 14 dagers ubetinget angrefrist med pengene tilbake dersom du ikke finner ønsket uke eller reisemål.\n\nUtforsk tilgjengelige resorter og bestill ditt ukesopphold direkte på [Feriesuiter](/resorts)!`;
+    reply = `🏖️ **Atlas Signature Resorts — Ferieleiligheter fra 3 890 kr (/resorts):**\n\nVi likviderer overskuddskapasitet fra førsteklasses ferieresorter (RCI/Panorama-nettverket) til faste engrospriser uten påslag:\n\n• **3 fleksible nivåer** (100% forhåndsbetalt, 0 kr bookinggebyr på nett):\n  - **Last-Minute (7 netter innen 30 dager)**: Kun **3 890 NOK** (eller 3 900 poeng / $359 USD).\n  - **Standard Helår (7 netter opptil 365 dager frem)**: **5 890 NOK** (eller 5 900 poeng / $549 USD).\n  - **Short Stay (2–6 netter opptil 365 dager frem)**: **3 290 NOK** (eller 3 300 poeng / $299 USD).\n• **Full plass for familien**: 1–2 soveromssuiter med fullt utstyrt kjøkken og stue – plass til **opptil 4–6 personer** uten ekstra persongebyrer.\n• **Transparent om lokale gebyrer**: Enkelte europeiske resorter har en obligatorisk lokal energi-/renholdsavgift (utility surcharge på ca. 20–40 € per uke) som betales direkte i resepsjonen ved utsjekking.\n• **Utvalgte destinasjoner**: Marbella (Costa del Sol), Tenerife (Kanariøyene), Algarve (Portugal), Kreta (Hellas), Toscana (Italia) og Mallorca.\n• **100% Trygghet**: 14 dagers ubetinget angrefrist med pengene tilbake dersom du ikke finner ønsket uke eller reisemål.\n\nUtforsk tilgjengelige resorter og bestill ditt ukesopphold direkte på [Feriesuiter](/resorts)!`;
   }
 
   // 21. ATLAS GOURMET & SPA ESCAPES (0 KR ROMPRIS / HALVPENSJON)
@@ -624,7 +624,7 @@ function generateDomainConciergeResponse(
     };
   } else {
     if (isNorwegian) {
-      reply = `✨ Jeg er **Aura**, din personlige VIP Travel Concierge for ATLAS.\n\nAngående ditt spørsmål om **"${query}"**:\n\nATLAS gir deg direkte tilgang til over 1 000 000 luksushoteller via institusjonelle B2B Bedbanks (Hotelbeds, WebBeds) og flygrossister med 0 kr påslag. Du betaler nøyaktig leverandørens engrospris.\n\n**Hva ønsker du at jeg skal hjelpe deg med?**\n1. Sjekke engrosprisen på et bestemt hotell eller reisemål?\n2. Forklare hvorfor ATLAS er fritatt Rate Parity?\n3. Vise hvordan du bruker poeng og Rewards Vault?\n4. Guide deg gjennom våre eksklusive feriesuiter (fra 2 890 kr for 7 netter)?\n\nFortell meg hvilket hotell eller reisemål du har i tankene!`;
+      reply = `✨ Jeg er **Aura**, din personlige VIP Travel Concierge for ATLAS.\n\nAngående ditt spørsmål om **"${query}"**:\n\nATLAS gir deg direkte tilgang til over 1 000 000 luksushoteller via institusjonelle B2B Bedbanks (Hotelbeds, WebBeds) og flygrossister med 0 kr påslag. Du betaler nøyaktig leverandørens engrospris.\n\n**Hva ønsker du at jeg skal hjelpe deg med?**\n1. Sjekke engrosprisen på et bestemt hotell eller reisemål?\n2. Forklare hvorfor ATLAS er fritatt Rate Parity?\n3. Vise hvordan du bruker poeng og Rewards Vault?\n4. Guide deg gjennom våre eksklusive feriesuiter (fra 3 890 kr for 7 netter)?\n\nFortell meg hvilket hotell eller reisemål du har i tankene!`;
     } else {
       reply = `✨ I am **Aura**, your proactive VIP Travel Concierge.\n\nRegarding your question about **"${query}"**:\n\nATLAS operates directly on institutional B2B Bedbanks (Hotelbeds, WebBeds) across 1,000,000+ luxury hotels worldwide. By eliminating public retail ad costs (the 20%–45% markup charged by Booking.com and Expedia), our members access net wholesale pass-through pricing with zero retail markup.\n\n**Would you like me to:**\n1. Run a live wholesale rate audit for a specific hotel or city?\n2. Explain rate parity and the legal closed-loop exemption?\n3. Show how taxes and resort fees are prepaid upfront?\n4. Guide you through B2B check-in voucher guarantees?\n\nTell me which hotel or city you are considering!`;
     }

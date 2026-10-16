@@ -194,9 +194,9 @@ const CERTIFICATE_TIERS: CertificateTier[] = [
     nameEn: 'Last-Minute 7-Night Stay',
     bookingWindowNo: 'Bestill opptil 30 dager før avreise',
     bookingWindowEn: 'Reserve up to 30 days in advance',
-    priceNok: 2890,
-    priceUsd: 269,
-    points: 2900,
+    priceNok: 3890,
+    priceUsd: 359,
+    points: 3900,
     officialRetailUsd: 249,
     promoWholesaleUsd: 219,
     durationNo: '7 sammenhengende netter',
@@ -212,9 +212,9 @@ const CERTIFICATE_TIERS: CertificateTier[] = [
     nameEn: 'Standard 365-Day 7-Night Stay',
     bookingWindowNo: 'Bestill opptil 365 dager i forveien',
     bookingWindowEn: 'Reserve up to 365 days in advance',
-    priceNok: 4490,
-    priceUsd: 420,
-    points: 4500,
+    priceNok: 5890,
+    priceUsd: 549,
+    points: 5900,
     officialRetailUsd: 499,
     promoWholesaleUsd: 379,
     durationNo: '7 sammenhengende netter',
@@ -230,9 +230,9 @@ const CERTIFICATE_TIERS: CertificateTier[] = [
     nameEn: 'Short Stay Get-Away (2–6 Nights)',
     bookingWindowNo: 'Bestill opptil 365 dager i forveien',
     bookingWindowEn: 'Reserve up to 365 days in advance',
-    priceNok: 2490,
-    priceUsd: 230,
-    points: 2500,
+    priceNok: 3290,
+    priceUsd: 299,
+    points: 3300,
     officialRetailUsd: 219,
     promoWholesaleUsd: 199,
     durationNo: '2 til 6 netter',
@@ -285,9 +285,9 @@ export default function ResortsPage() {
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
             {isNo ? (
-              <>En hel uke i ferieleilighet i Europa fra kun <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">2 890 kr</span></>
+              <>En hel uke i ferieleilighet i Europa fra kun <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">3 890 kr</span></>
             ) : (
-              <>A full week in a luxury European resort condo from just <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">$269</span></>
+              <>A full week in a luxury European resort condo from just <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">$359</span></>
             )}
           </h1>
 
@@ -484,7 +484,7 @@ export default function ResortsPage() {
                 12 000 – 25 000 kr
               </div>
               <div className="text-sm font-black text-amber-400 mt-0.5">
-                {isNo ? 'ATLAS fra 2 890 kr / uke' : 'ATLAS from 2,890 NOK / wk'}
+                {isNo ? 'ATLAS fra 3 890 kr / uke' : 'ATLAS from 3,890 NOK / wk'}
               </div>
             </div>
           </div>
@@ -717,8 +717,8 @@ export default function ResortsPage() {
               </div>
               <p className="text-slate-600 leading-relaxed">
                 {isNo
-                  ? 'Prisen starter på 2 890 kr for Last-Minute (7 netter innen 30 dager), 4 490 kr for Standard Helår (7 netter opptil 365 dager frem), og 2 490 kr for Short Stay (2–6 netter). Prisen dekker hele leiligheten for inntil 4–6 personer. 0 kr i ekstra bookinggebyr på nett.'
-                  : 'Rates start at $269 (2,890 NOK) for Last-Minute (7 nights booked within 30 days), $420 (4,490 NOK) for Standard 365-Day (7 nights booked up to 1 year ahead), and $230 (2,490 NOK) for Short Stay (2–6 nights). Covers the entire condo for up to 4–6 guests with zero online booking fees.'}
+                  ? 'Prisen starter på 3 890 kr for Last-Minute (7 netter innen 30 dager), 5 890 kr for Standard Helår (7 netter opptil 365 dager frem), og 3 290 kr for Short Stay (2–6 netter). Prisen dekker hele leiligheten for inntil 4–6 personer. 0 kr i ekstra bookinggebyr på nett.'
+                  : 'Rates start at $359 (3,890 NOK) for Last-Minute (7 nights booked within 30 days), $549 (5,890 NOK) for Standard 365-Day (7 nights booked up to 1 year ahead), and $299 (3,290 NOK) for Short Stay (2–6 nights). Covers the entire condo for up to 4–6 guests with zero online booking fees.'}
               </p>
             </div>
 

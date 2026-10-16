@@ -307,7 +307,7 @@ export default function OrganizationPortalPage({
                   {isNo ? '7 Netters Ukesopphold' : '7-Night Condo Stays'}
                 </span>
                 <span className="text-sm font-mono font-black text-amber-300">
-                  {isNo ? '3 490 kr / uke' : '3,490 NOK / week'}
+                  {isNo ? 'Fra 3 890 kr / uke' : 'From 3,890 NOK / week'}
                 </span>
               </div>
               <div>
@@ -317,8 +317,8 @@ export default function OrganizationPortalPage({
                 </h4>
                 <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
                   {isNo
-                    ? 'Romslige ferieleiligheter (1–2 soverom med fullt kjøkken) for opptil 4–6 personer i Marbella, Tenerife, Algarve, Kreta og Toscana. Fastpris 3 490 kr for hele uken uten per-person tillegg.'
-                    : 'Spacious vacation condos (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy for a flat 3,490 NOK for the entire 7 nights.'}
+                    ? 'Romslige ferieleiligheter (1–2 soverom med fullt kjøkken) for opptil 4–6 personer i Marbella, Tenerife, Algarve, Kreta og Toscana. Fra 3 890 kr for hele uken uten per-person tillegg.'
+                    : 'Spacious vacation condos (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy from 3,890 NOK for the entire 7 nights.'}
                 </p>
               </div>
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between">

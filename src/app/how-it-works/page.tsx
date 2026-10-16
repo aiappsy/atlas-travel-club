@@ -199,9 +199,9 @@ export default function HowItWorksPage() {
                     </span>
                   </td>
                   <td className="py-4 px-4 line-through text-slate-400">15 900 kr</td>
-                  <td className="py-4 px-4 font-black text-amber-700 text-sm">Fra 2 890 kr</td>
+                  <td className="py-4 px-4 font-black text-amber-700 text-sm">Fra 3 890 kr</td>
                   <td className="py-4 px-4 font-black text-emerald-600">
-                    {locale === 'no' ? 'Du sparer inntil 13 010 kr (82 %)' : 'SAVE up to 13,010 NOK (82% Off)'}
+                    {locale === 'no' ? 'Du sparer inntil 12 010 kr (76 %)' : 'SAVE up to 12,010 NOK (76% Off)'}
                   </td>
                 </tr>
                 <tr className="hover:bg-slate-50 bg-rose-50/40">
@@ -231,8 +231,8 @@ export default function HowItWorksPage() {
             </div>
             <h3 className="text-xl sm:text-2xl font-black">
               {locale === 'no'
-                ? 'Hvorfor kan vi tilby leilighetsuker fra 2 890 kr og 0 kr i rompris?'
-                : 'Why Can Atlas Offer 7-Night Condos from 2,890 NOK and $0 Hotel Rooms?'}
+                ? 'Hvorfor kan vi tilby leilighetsuker fra 3 890 kr og 0 kr i rompris?'
+                : 'Why Can Atlas Offer 7-Night Condos from 3,890 NOK and $0 Hotel Rooms?'}
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
               {locale === 'no'
@@ -249,8 +249,8 @@ export default function HowItWorksPage() {
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 {locale === 'no'
-                  ? 'Store ferieanlegg har ledige uker i skuldersesonger. De frigir disse som forhåndsbetalte sertifikater til lukkede klubber til ren engrospris (fra 2 890 kr for 7 netter) i stedet for å la dem stå tomme. Du får full leilighet med kjøkken til en brøkdel av vanlig hotellpris.'
-                  : 'Major vacation resorts allocate empty shoulder-season weeks to private closed clubs at wholesale clearance rates (from 2,890 NOK / week) to cover maintenance rather than sit vacant. You get a full apartment with kitchen for the cost of a single motel night.'}
+                  ? 'Store ferieanlegg har ledige uker i skuldersesonger. De frigir disse som forhåndsbetalte sertifikater til lukkede klubber til ren engrospris (fra 3 890 kr for 7 netter) i stedet for å la dem stå tomme. Du får full leilighet med kjøkken til en brøkdel av vanlig hotellpris.'
+                  : 'Major vacation resorts allocate empty shoulder-season weeks to private closed clubs at wholesale clearance rates (from 3,890 NOK / week) to cover maintenance rather than sit vacant. You get a full apartment with kitchen for the cost of a single motel night.'}
               </p>
             </div>
 

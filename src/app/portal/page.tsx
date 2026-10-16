@@ -124,11 +124,11 @@ export default function PortalPage() {
           },
           {
             title: isNo ? 'Atlas Signature Resorts' : 'Atlas Signature Resorts',
-            badge: isNo ? 'Fastpris 3 490 kr / 7 Netter' : 'Flat 3,490 NOK / 7 Nts',
+            badge: isNo ? 'Fra 3 890 kr / 7 Netter' : 'From 3,890 NOK / 7 Nts',
             badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
             desc: isNo
-              ? '7 netters ferieleilighet for hele familien (1–2 soverom, fullt kjøkken, opptil 4–6 personer) til fastpris 3 490 kr for hele uken i Marbella, Tenerife, Algarve, Kreta og Toscana. 100% On-site reservasjon via Atlas Concierge.'
-              : '7-night whole vacation condo stays (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy for a flat 3,490 NOK ($325 USD) without per-person fees. 100% on-site concierge booking.',
+              ? '7 netters ferieleilighet for hele familien (1–2 soverom, fullt kjøkken, opptil 4–6 personer) fra 3 890 kr (Last-Minute) eller 5 890 kr (Helår) i Marbella, Tenerife, Algarve, Kreta og Toscana. 100% On-site reservasjon via Atlas Concierge.'
+              : '7-night whole vacation condo stays (sleeps 4–6, full kitchen) across Spain, Portugal, Greece, and Italy from 3,890 NOK ($359) to 5,890 NOK ($549) without per-person fees. 100% on-site concierge booking.',
             url: 'https://atlasclub.web.app/resorts',
             path: '/resorts',
             icon: '🏖️',

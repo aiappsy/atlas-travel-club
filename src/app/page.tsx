@@ -244,7 +244,7 @@ export default function LuxuryHomePage() {
               <div className="absolute bottom-4 left-4 right-4 text-white">
                 <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">Atlas Signature Resorts</div>
                 <div className="text-2xl font-black">
-                  {locale === 'no' ? 'Hele leiligheten fra kun 2 890 kr' : 'Whole Condo from just 2,890 NOK ($269 USD)'}
+                  {locale === 'no' ? 'Hele leiligheten fra kun 3 890 kr' : 'Whole Condo from just 3,890 NOK ($359 USD)'}
                 </div>
                 <div className="text-xs text-slate-300 mt-0.5">
                   {locale === 'no' ? 'Fast totalpris for 7 netter • Opptil 4–6 personer • Fullt kjøkken' : 'Flat rate for 7 nights • Sleeps 4–6 guests • Full kitchen'}
@@ -256,8 +256,8 @@ export default function LuxuryHomePage() {
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {locale === 'no'
-                    ? 'Lei en romslig ferieleilighet på 4-stjerners resorter i Marbella, Tenerife, Algarve, Kreta eller Toscana. Ingen rompriser per natt eller persongebyrer – kun faste forhåndsbetalte uker fra 2 890 kr (Last-Minute) eller 4 490 kr (Helår).'
-                    : 'Stay in spacious 1-2 bedroom condo suites across Costa del Sol, Canary Islands, Algarve, or Tuscany. No daily rate, no per-person surcharge—just 2,890 NOK ($269) for Last-Minute or 4,490 NOK ($420) for 365-day advance bookings.'}
+                    ? 'Lei en romslig ferieleilighet på 4-stjerners resorter i Marbella, Tenerife, Algarve, Kreta eller Toscana. Ingen rompriser per natt eller persongebyrer – kun faste forhåndsbetalte uker fra 3 890 kr (Last-Minute) eller 5 890 kr (Helår).'
+                    : 'Stay in spacious 1-2 bedroom condo suites across Costa del Sol, Canary Islands, Algarve, or Tuscany. No daily rate, no per-person surcharge—just 3,890 NOK ($359) for Last-Minute or 5,890 NOK ($549) for 365-day advance bookings.'}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
@@ -274,7 +274,7 @@ export default function LuxuryHomePage() {
 
               <div className="pt-2 flex items-center justify-between border-t border-slate-100">
                 <div className="text-xs text-slate-500">
-                  <span className="font-bold text-slate-900">{locale === 'no' ? 'Fra 2 890 kr' : 'From 2,890 NOK'}</span> / uke
+                  <span className="font-bold text-slate-900">{locale === 'no' ? 'Fra 3 890 kr' : 'From 3,890 NOK'}</span> / uke
                 </div>
                 <Link
                   href="/resorts"

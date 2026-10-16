@@ -61,7 +61,7 @@ export default function Sidebar() {
       name: locale === 'no' ? 'Feriesuiter' : 'Resorts',
       href: '/resorts',
       icon: Palmtree,
-      badge: locale === 'no' ? '3 490 kr' : '$340',
+      badge: locale === 'no' ? '3 890 kr' : '$359',
       badgeColor: 'bg-emerald-100 text-emerald-800',
     },
     {
