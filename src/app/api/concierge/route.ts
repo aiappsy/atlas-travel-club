@@ -214,6 +214,42 @@ CORE ATLAS PLATFORM KNOWLEDGE:
    - Transparent Economics: The guest pays only the hotel's published fixed half-board rate (€35–€60/person/day for breakfast and multi-course dinner) directly at hotel checkout.
    - Proves verified savings of 6 700+ NOK per getaway compared to Booking.com. Instant on-site booking and official check-in certificate generated at /hotel-breaks.
 
+15. Airport-to-Hotel Ground Transit & European Route Intelligence (/hotel-breaks, /cars, /lounges):
+   - Ground transport is a critical service for ATLAS Hotel Breaks because European countryside, alpine, and wellness hotels are located in scenic resort areas outside major city hubs.
+   - 4 Core Alternatives:
+     1) Private Chauffeur & VIP Airport Transfer (Door-to-Door): Fixed-rate meet & greet by driver in arrivals hall with baggage assist, Mercedes E-Class or V-Class directly to hotel lobby. 0 stress, ideal for couples, late flights, or traveling with luggage. Integrated via ATLAS DragonPass/wholesale transfer rails.
+     2) Wholesale Airport Car Rental (0 kr markup / Net Club Rates via /cars): Direct pick-up at airport terminal (Hertz, Avis, Europcar, Sixt) with ATLAS wholesale rates (saving 30-50%). Complete freedom to explore scenic wine regions, mountain passes, and lakes.
+     3) Scenic European Express Rail & Mountain Transit: Europe's premier train networks (Trenitalia/Frecciarossa, SBB, ÖBB, DB, SNCF TGV) offer eco-friendly, fast, scenic travel directly to regional stations, followed by hotel courtesy shuttles or local resort buses.
+     4) Hotel Courtesy Shuttle & Resort Express: Many partner hotels operate scheduled shuttle vans to/from the nearest train station or regional airport for guests.
+   - Specific Destination Routing Knowledge:
+     * Dolomites / Molveno (Alpenresort Belvedere):
+       - Primary: Verona Villafranca (VRN) - 1h 25m drive (125 km) north via A22 Brenner Autostrada (exit San Michele all'Adige / Mezzocorona).
+       - Alternates: Milan Bergamo (BGY) - 2h 10m (180 km); Venice Marco Polo (VCE) - 2h 20m.
+       - Rail: Trenitalia / Frecciarossa to Mezzocorona or Trento, then local Trentino Trasporti B611 bus or hotel shuttle (25m).
+       - Car Rental: Highly recommended for Dolomites mountain touring.
+     * Tuscany / Chianti (Castello di Spaltenna):
+       - Primary: Florence Amerigo Vespucci (FLR) - 55m drive (65 km) via SR222 Chiantigiana wine road.
+       - Alternates: Pisa Galileo Galilei (PSA) - 1h 30m; Bologna (BLQ) - 1h 45m.
+       - Rail: Regionale Veloce from Firenze SMN to Montevarchi-Terranuova (35m) + 15 min taxi/hotel car to Gaiole.
+       - Car Rental: Essential for visiting medieval Tuscan hamlets and wineries.
+     * Black Forest / Hinterzarten (Parkhotel Adler):
+       - Primary: EuroAirport Basel-Mulhouse-Freiburg (BSL/MLH) - 55m drive (75 km).
+       - Alternates: Zurich Airport (ZRH) - 1h 15m (85 km); Stuttgart (STR) - 1h 35m.
+       - Rail (Höllentalbahn): One of Germany's most scenic steep-grade railway lines! DB regional train from Freiburg Hbf directly to Hinterzarten Station (30 min). The hotel is 300 meters from the station.
+     * Austrian Alps / Saalfelden (Gut Brandlhof):
+       - Primary: Salzburg W.A. Mozart (SZG) - 55m drive (65 km) via Bad Reichenhall (Kleines Deutsches Eck).
+       - Alternates: Innsbruck (INN) - 1h 35m; Munich (MUC) - 2h 00m.
+       - Rail: ÖBB direct scenic train to Saalfelden station. Hotel provides complimentary private van pickup from Saalfelden station.
+       - Vignette: Austrian highway toll vignette required if driving on Autobahn (~€11.50 for 10 days).
+     * Provence / Gordes (Domaine de l'Enclos):
+       - Primary: Marseille Provence (MRS) - 55m drive (75 km) via A7.
+       - Alternates: Avignon (AVN) - 35m; Nice (NCE) - 2h 15m; or TGV from Paris to Avignon TGV station (2h 40m).
+       - Car Rental: Crucial for touring Luberon hilltop villages (Gordes, Roussillon, Ménerbes).
+     * Lake Garda / Riva del Garda (Grand Hotel Riva):
+       - Primary: Verona Villafranca (VRN) - 1h 05m drive (85 km) via A22 exit Rovereto Sud.
+       - Alternates: Milan Bergamo (BGY) - 1h 40m; Venice (VCE) - 2h 05m.
+       - Rail & Ferry: Train to Desenzano del Garda, then take the panoramic public passenger ferry across the full length of Lake Garda directly into Riva del Garda harbor!
+
 ${contextSection}
 ${profileSection}
 
@@ -569,6 +605,71 @@ function generateDomainConciergeResponse(
     q.includes('frokost') || q.includes('middag')
   ) {
     reply = `🏨 **Atlas Hotel Breaks — 0 kr i Rompris (/hotel-breaks):**\n\nGjennom vårt partnerskap med Holiday Plus (Connex) fyller utvalgte 3–5* kvalitetshoteller i Europa ledig kapasitet med en genial modell:\n\n• **Rompris**: **0 NOK** (gratis opphold for 2 personer i 2–6 netter).\n• **100% Transparent Økonomi**: Du betaler kun hotellets offisielle, faste halvpensjonspris (**€35–€60 per person/dag**) for rikholdig frokost og fleretters middag direkte ved utsjekk på hotellet.\n• **Dokumentert besparelse**: Sparer typisk **over 6 700 NOK** per helg eller miniferie sammenlignet med Booking.com og Expedia.\n• **Håndplukkede destinasjoner**: Dolomittene (Sør-Tyrol), Chianti (Toscana), Schwarzwald (Tyskland), Salzburg (Østerrike), Gardasjøen og Provence.\n• **Offisielt innsjekkingssertifikat**: Generer og last ned ditt offisielle A4-sertifikat for enkel innsjekk på hotellet.\n\nUtforsk og reserver ditt opphold på [Atlas Hotel Breaks](/hotel-breaks)!`;
+  }
+
+  // 21b. AIRPORT-TO-HOTEL GROUND TRANSIT & ROUTE ASSISTANT
+  else if (
+    q.includes('transfer') || q.includes('transit') || q.includes('flyplass') ||
+    q.includes('airport') || q.includes('hvordan komme') || q.includes('hvordan reise') ||
+    q.includes('how to get') || q.includes('get there') || q.includes('leiebil') ||
+    q.includes('car rental') || q.includes('sjåfør') || q.includes('chauffeur') ||
+    q.includes('tog') || q.includes('train') || q.includes('shuttle') ||
+    q.includes('hvilken flyplass') || q.includes('which airport') || q.includes('transport')
+  ) {
+    if (isNorwegian) {
+      if (hasHotel && (hotelName.toLowerCase().includes('belvedere') || city.toLowerCase().includes('molveno') || q.includes('molveno') || q.includes('dolomitt'))) {
+        reply = `🚗 **Reiserute fra Flyplass til Alpenresort Belvedere (Molveno, Dolomittene):**\n\n` +
+          `• ✈️ **Beste ankomstflyplasser:**\n` +
+          `  1. **Verona Villafranca (VRN)**: **1t 25m** (125 km) — *Sterkt anbefalt! Raskest og enklest direkte nordover på A22 Brenner-motorveien.*\n` +
+          `  2. **Milano Bergamo (BGY)**: **2t 10m** (180 km) — *Godt alternativ for direkte lavprisfly/SAS.*\n` +
+          `  3. **Venezia Marco Polo (VCE)**: **2t 20m** (190 km).\n\n` +
+          `• 🚖 **Alternativ 1: Privat VIP Sjåfør (Door-to-Door)**\n` +
+          `  - Privatsjåfør møter deg i ankomsthallen med navneskilt og bagasjehjelp.\n` +
+          `  - Fast engrospris: **ca. 1 650 kr (€145)** for Mercedes E/V-klasse direkte til hotellet.\n\n` +
+          `• 🚙 **Alternativ 2: Leiebil fra flyplass (ATLAS Engrospris)**\n` +
+          `  - Hent på VRN eller BGY terminal fra **320 kr/dag (€28)** via [ATLAS Billeie](/cars).\n` +
+          `  - Rute: A22 mot Brennero, ta avkjøring **San Michele all'Adige / Mezzocorona**, følg deretter SS43/SP64 direkte til Molvenosjøen. Perfekt for å utforske Dolomittene!\n\n` +
+          `• 🚆 **Alternativ 3: Panoramatog + Hotellshuttle**\n` +
+          `  - Ta Frecciarossa / Trenitalia-tog til **Mezzocorona Stasjon** (eller Trento).\n` +
+          `  - Derfra går lokalbuss B611 eller hotellets forhåndsbestilte henting (25 minutter) opp til Molveno.`;
+      } else if (hasHotel && (hotelName.toLowerCase().includes('spaltenna') || city.toLowerCase().includes('chianti') || q.includes('chianti') || q.includes('toscana'))) {
+        reply = `🚗 **Reiserute fra Flyplass til Castello di Spaltenna (Gaiole in Chianti, Toscana):**\n\n` +
+          `• ✈️ **Beste ankomstflyplasser:**\n` +
+          `  1. **Firenze Amerigo Vespucci (FLR)**: **55m** (65 km) — *Nærmeste flyplass! Enkel kjøring rett inn på SR222 Chiantigiana.*\n` +
+          `  2. **Pisa Galileo Galilei (PSA)**: **1t 30m** (110 km) — *Mange direktefly fra Norge.*\n` +
+          `  3. **Bologna (BLQ)**: **1t 45m** (145 km).\n\n` +
+          `• 🚙 **Alternativ 1: Leiebil (Sterkt anbefalt for Chianti)**\n` +
+          `  - Hent på FLR eller PSA fra **290 kr/dag (€26)** via [ATLAS Billeie](/cars).\n` +
+          `  - Kjøring gjennom Chianti Classico-vinåsene er en opplevelse i seg selv. Gir full frihet til å besøke middelalderborger, vingårder og Siena.\n\n` +
+          `• 🚖 **Alternativ 2: Privat Sjåfør**\n` +
+          `  - Mercedes E-Klasse fra FLR ankomst direkte til slottsporten for **ca. 1 350 kr (€120)**.\n\n` +
+          `• 🚆 **Alternativ 3: Tog + Lokalbil**\n` +
+          `  - 35 min med Regionale Veloce fra Firenze SMN til **Montevarchi-Terranuova**, deretter 20 min taxi/slottstransfer opp til Gaiole.`;
+      } else if (hasHotel && (hotelName.toLowerCase().includes('adler') || city.toLowerCase().includes('hinterzarten') || q.includes('schwarzwald') || q.includes('svartskogen'))) {
+        reply = `🚗 **Reiserute fra Flyplass til Parkhotel Adler (Hinterzarten, Schwarzwald):**\n\n` +
+          `• ✈️ **Beste ankomstflyplasser:**\n` +
+          `  1. **EuroAirport Basel-Mulhouse-Freiburg (BSL)**: **55m** (75 km) — *Raskeste rute via A5.*\n` +
+          `  2. **Zürich Airport (ZRH)**: **1t 15m** (85 km) — *Utmerket for direkteruter fra Oslo/Bergen.*\n` +
+          `  3. **Stuttgart (STR)**: **1t 35m** (135 km).\n\n` +
+          `• 🚆 **Alternativ 1: Legendariske Höllentalbahn (Anbefalt tog!)**\n` +
+          `  - En av Europas mest spektakulære fjellbaner. Tog fra Freiburg Hbf tar kun 30 minutter direkte til **Hinterzarten Stasjon**.\n` +
+          `  - Hotellet ligger en behagelig **3-minutters spasertur (300 meter)** fra stasjonen, med bagasjeservice!\n\n` +
+          `• 🚙 **Alternativ 2: Leiebil fra flyplass**\n` +
+          `  - Fra **310 kr/dag** på BSL eller ZRH. Nydelig kjøretur gjennom Schwarzwald på B31.\n\n` +
+          `• 🚖 **Alternativ 3: Privat Sjåfør**\n` +
+          `  - Fast transfer fra Basel eller Zürich flyplass direkte til resepsjonen for **ca. 1 500 kr (€130)**.`;
+      } else {
+        reply = `🚗 **ATLAS Flyplass- og Transportassistent for Hotellopphold:**\n\nNår du benytter deg av våre **0 kr Hotel Breaks** på europeiske luksus- og velværesteder, har du 3 smidige alternativer fra flyplassen:\n\n` +
+          `1. 🚖 **Privat VIP Sjåfør (Door-to-Door)**: Sjåfør med navneskilt i ankomsthallen, bagasjeassistanse og direkte kjøring til hotellobbyen. Fast klubb-engrospris (ca. €110–€145).\n` +
+          `2. 🚙 **Leiebil med medlemsrabatt (0 kr påslag)**: Hent bil direkte i flyplassterminalen via [ATLAS Billeie](/cars) fra ca. 290–340 kr/dag. Perfekt for frihet til å oppleve vingårder, fjellpass og innsjøer.\n` +
+          `3. 🚆 **Panoramatog & Hotellshuttle**: Europeisk jernbane (Trenitalia, DB, ÖBB, SBB, TGV) tar deg naturskjønt og rimelig (€15–€30) til nærmeste dalstasjon, hvor mange av våre partnerhoteller tilbyr gratis stasjonshenting.\n\n*Hvilket hotell eller destinasjon vil du ha nøyaktig reiserute og flyplassanbefaling for?*`;
+      }
+    } else {
+      reply = `🚗 **ATLAS Airport-to-Hotel Ground Transit & Transfer Copilot:**\n\nWhen claiming your **$0 Hotel Breaks** at our curated European countryside and alpine sanctuaries, you have 3 seamless transit alternatives from the arrival terminal:\n\n` +
+        `1. 🚖 **Private VIP Chauffeur (Door-to-Door)**: Driver meets you in the arrival hall with a personalized name card and luggage assistance. Mercedes E/V-Class direct to the hotel lobby at wholesale pass-through rates (~€110–€145).\n` +
+        `2. 🚙 **Wholesale Airport Car Rental (0% Markup)**: Terminal pick-up via [ATLAS Cars](/cars) from ~$28–$34/day. Total autonomy to explore alpine passes, vineyards, and lakes.\n` +
+        `3. 🚆 **Scenic European Express Rail & Shuttle**: Europe's premier rail lines (Trenitalia, DB, ÖBB, SBB, TGV) bring you comfortably to regional stations, where partner hotels provide courtesy shuttle pickups.\n\n*Which hotel or destination would you like exact route times and airport recommendations for?*`;
+    }
   }
 
   // 22. BESPOKE TRAVEL PLAN, ITINERARY & OUTINGS GENERATOR

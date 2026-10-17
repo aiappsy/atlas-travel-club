@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
@@ -586,6 +587,28 @@ export async function GET(req: NextRequest) {
         </p>
       </div>
 
+      <!-- Airport Arrival & Ground Transit Copilot Banner -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 36px; height: 36px; border-radius: 10px; background: #fef3c7; border: 1px solid #fde68a; display: flex; align-items: center; justify-content: center; font-size: 16px; shrink: 0;">
+            ✈️
+          </div>
+          <div>
+            <div id="txt-transit-title" style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">
+              ${initialLang === 'no' ? 'Flyplass & Transport (AI Ruteassistent)' : 'Airport Arrival & Transit Copilot'}
+            </div>
+            <div id="txt-transit-sub" style="font-size: 10px; color: #64748b; line-height: 1.4;">
+              ${initialLang === 'no' 
+                ? 'Trenger du privatsjåfør, leiebil eller tog til hotellet? Se dine 3 alternativer og spør AI Ruteassistenten.' 
+                : 'Need a private chauffeur, wholesale car rental, or scenic train to the property? Access your route plan in Atlas.'}
+            </div>
+          </div>
+        </div>
+        <a href="/hotel-breaks" class="action-btn" id="txt-transit-btn" style="text-decoration: none; padding: 7px 14px; font-size: 10px; font-weight: 700; background: #0f172a; color: #ffffff; border-radius: 8px; shrink: 0; white-space: nowrap;">
+          ${initialLang === 'no' ? 'Åpne Ruteassistent →' : 'Open Transit Copilot →'}
+        </a>
+      </div>
+
       <!-- Footer & Legal Disclosures -->
       <div class="cert-footer">
         <div class="legal-notice" id="txt-legal">
@@ -629,6 +652,9 @@ export async function GET(req: NextRequest) {
         valMeals: '${halfBoard} (settled directly at hotel checkout)',
         clearingTitle: 'Official Clearing Key (Holiday Plus / Connex Clearing Network)',
         clearingSub: 'This authorized voucher code clears the room rate in full through the European Hotel Allotment Clearing Network.',
+        transitTitle: 'Airport Arrival & Transit Copilot',
+        transitSub: 'Need a private chauffeur, wholesale car rental, or scenic train to the property? Access your route plan in Atlas.',
+        transitBtn: 'Open Transit Copilot →',
         legal: '<strong>Legal Notice:</strong> This credential is an accommodation certificate issued by <strong>HARD ROCK CAPITAL LTD</strong> exclusively to authorized ATLAS VIP club members. Valid for lodging and agreed half-board arrangements at participating partner hotels. Non-transferable. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Phone: +47 40059493.'
       },
       no: {
@@ -655,6 +681,9 @@ export async function GET(req: NextRequest) {
         valMeals: '${halfBoard} (oppgjøres direkte på hotellet ved utsjekk)',
         clearingTitle: 'Offisiell Oppgjørsnøkkel (Holiday Plus / Connex Clearing Network)',
         clearingSub: 'Denne autoriserte koden bekrefter at romprisen er fullt oppgjort gjennom det europeiske hotellkvotenettverket.',
+        transitTitle: 'Flyplass & Transport (AI Ruteassistent)',
+        transitSub: 'Trenger du privatsjåfør, leiebil eller tog til hotellet? Se dine 3 alternativer og spør AI Ruteassistenten.',
+        transitBtn: 'Åpne Ruteassistent →',
         legal: '<strong>Juridisk Merknad:</strong> Dette sertifikatet er utstedt av <strong>HARD ROCK CAPITAL LTD</strong> eksklusivt for verifiserte medlemmer av ATLAS Travel Club. Gjelder kun losji og avtalt halvpensjon på deltagende partnerhoteller. Ikke overdragelig. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Tlf: +47 40059493.'
       }
     };
@@ -686,6 +715,9 @@ export async function GET(req: NextRequest) {
       document.getElementById('txt-val-meals').innerText = d.valMeals;
       document.getElementById('txt-clearing-title').innerText = d.clearingTitle;
       document.getElementById('txt-clearing-sub').innerText = d.clearingSub;
+      if (document.getElementById('txt-transit-title')) document.getElementById('txt-transit-title').innerText = d.transitTitle;
+      if (document.getElementById('txt-transit-sub')) document.getElementById('txt-transit-sub').innerText = d.transitSub;
+      if (document.getElementById('txt-transit-btn')) document.getElementById('txt-transit-btn').innerText = d.transitBtn;
       document.getElementById('txt-legal').innerHTML = d.legal;
 
       const btnEn = document.getElementById('btn-lang-en');

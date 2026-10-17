@@ -27,9 +27,53 @@ import {
   Send,
   Download,
   Building2,
-  Hotel
+  Hotel,
+  Car,
+  Train,
+  Bot,
+  Navigation
 } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import AirportTransitCopilotModal from '@/components/AirportTransitCopilotModal';
+
+export interface HotelTransitOption {
+  primaryAirport: {
+    code: string;
+    name: string;
+    driveTime: string;
+    distanceKm: number;
+    descriptionNo: string;
+    descriptionEn: string;
+  };
+  alternateAirports: Array<{
+    code: string;
+    name: string;
+    driveTime: string;
+    distanceKm: number;
+  }>;
+  chauffeur: {
+    priceEstNo: string;
+    priceEstEn: string;
+    duration: string;
+    highlightsNo: string;
+    highlightsEn: string;
+  };
+  carRental: {
+    dailyEstNo: string;
+    dailyEstEn: string;
+    recommendedHub: string;
+    routeAdviceNo: string;
+    routeAdviceEn: string;
+  };
+  trainTransit: {
+    railLine: string;
+    nearestStation: string;
+    stationToHotelMin: number;
+    shuttleAvailable: boolean;
+    routeAdviceNo: string;
+    routeAdviceEn: string;
+  };
+}
 
 export interface HotelBreakItem {
   id: string;
@@ -50,6 +94,7 @@ export interface HotelBreakItem {
   descriptionEn: string;
   highlightsNo: string[];
   highlightsEn: string[];
+  transit: HotelTransitOption;
 }
 
 export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
@@ -72,6 +117,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Panoramic alpine views of the Dolomites and Lake Molveno. Award-winning thermal wellness and traditional gourmet dining.',
     highlightsNo: ['Frokostbuffé med lokale råvarer', '4-retters kveldsmeny inkludert', 'Fri adgang til 1 200 kvm velværeavdeling'],
     highlightsEn: ['Alpine breakfast buffet', '4-course daily gourmet dinner', 'Complimentary 1,200 sqm wellness access'],
+    transit: {
+      primaryAirport: {
+        code: 'VRN',
+        name: 'Verona Villafranca Airport',
+        driveTime: '1t 25m',
+        distanceKm: 125,
+        descriptionNo: 'Nærmeste og mest direkte flyplass. Rask kjøring nordover på A22 Brenner-motorveien.',
+        descriptionEn: 'Optimal direct hub with rapid northbound connection via A22 Brenner autostrada.'
+      },
+      alternateAirports: [
+        { code: 'BGY', name: 'Milano Bergamo Airport', driveTime: '2t 10m', distanceKm: 180 },
+        { code: 'VCE', name: 'Venezia Marco Polo Airport', driveTime: '2t 20m', distanceKm: 190 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 650 kr (€145)',
+        priceEstEn: 'approx. $155 (€145)',
+        duration: '1t 25m',
+        highlightsNo: 'Privatsjåfør møter deg i ankomsthallen med navneskilt. Mercedes E/V-klasse direkte til hotellet.',
+        highlightsEn: 'Private driver meet & greet in arrivals hall. Executive Mercedes direct to hotel.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 320 kr/dag (€28)',
+        dailyEstEn: 'from $30/day (€28)',
+        recommendedHub: 'VRN eller BGY flyplassterminal',
+        routeAdviceNo: 'Kjør A22 mot Brennero, ta avkjøring San Michele all\'Adige / Mezzocorona, følg SS43/SP64 til Molveno.',
+        routeAdviceEn: 'Drive A22 north towards Brenner, exit at San Michele all\'Adige, follow SS43/SP64 up to Lake Molveno.'
+      },
+      trainTransit: {
+        railLine: 'Frecciarossa / Trenitalia + Trentino Trasporti B611',
+        nearestStation: 'Mezzocorona Stasjon (eller Trento)',
+        stationToHotelMin: 25,
+        shuttleAvailable: true,
+        routeAdviceNo: 'Høyhastighetstog til Mezzocorona, deretter lokalbuss B611 eller hotellets forhåndsbestilte henting.',
+        routeAdviceEn: 'High-speed rail to Mezzocorona, then local scenic bus B611 or pre-arranged hotel shuttle.'
+      }
+    }
   },
   {
     id: 'chianti-castle-wine',
@@ -92,6 +173,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Authentic 10th-century castle and monastery amidst rolling Chianti vineyards. Private wine cellars and peaceful grounds.',
     highlightsNo: ['Toskansk frokost og kveldens gourmetmiddag', 'Innendørs oppvarmet basseng & badstuer', 'Mulighet for vinsmaking på slottet'],
     highlightsEn: ['Tuscan breakfast & chef evening dining', 'Indoor heated pool & saunas', 'On-site estate wine cellar tours'],
+    transit: {
+      primaryAirport: {
+        code: 'FLR',
+        name: 'Firenze Amerigo Vespucci Airport',
+        driveTime: '55m',
+        distanceKm: 65,
+        descriptionNo: 'Korteste kjøretid til Chianti langs den vakre SR222 Chiantigiana vinveien.',
+        descriptionEn: 'Shortest drive to Chianti along the panoramic SR222 Chiantigiana wine road.'
+      },
+      alternateAirports: [
+        { code: 'PSA', name: 'Pisa Galileo Galilei Airport', driveTime: '1t 30m', distanceKm: 110 },
+        { code: 'BLQ', name: 'Bologna Guglielmo Marconi', driveTime: '1t 45m', distanceKm: 145 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 350 kr (€120)',
+        priceEstEn: 'approx. $130 (€120)',
+        duration: '55m',
+        highlightsNo: 'Mercedes E-Klasse fra Firenze flyplass direkte til slottets port.',
+        highlightsEn: 'Mercedes sedan from Florence terminal direct to the castle gates.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 290 kr/dag (€26)',
+        dailyEstEn: 'from $28/day (€26)',
+        recommendedHub: 'FLR eller PSA flyplassterminal',
+        routeAdviceNo: 'Sterkt anbefalt for Toscana! Gir full fleksibilitet til å besøke vingårder, middelalderborger og Siena.',
+        routeAdviceEn: 'Strongly recommended for Tuscany! Unlocks freedom to explore wineries, castles, and Siena.'
+      },
+      trainTransit: {
+        railLine: 'Regionale Veloce (Firenze SMN – Chiusi)',
+        nearestStation: 'Montevarchi-Terranuova Stasjon',
+        stationToHotelMin: 20,
+        shuttleAvailable: true,
+        routeAdviceNo: '35 min med tog fra Firenze Santa Maria Novella til Montevarchi, deretter 20 min med taxi/hotellbil opp til Gaiole.',
+        routeAdviceEn: '35-min train ride from Florence SMN to Montevarchi, then 20-min taxi or castle shuttle up to Gaiole.'
+      }
+    }
   },
   {
     id: 'schwarzwald-thermal-park',
@@ -112,6 +229,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Historic Black Forest sanctuary set in a private 4-hectare park. Restorative spa suites and regional gastronomy.',
     highlightsNo: ['Svartskog-frokost med ferske delikatesser', 'Kveldens 4-retters meny fra sjefskokken', 'Fri adgang til badeland og bassenger'],
     highlightsEn: ['Artisanal Black Forest breakfast', '4-course gourmet dinner', 'Complimentary access to pool pavilions'],
+    transit: {
+      primaryAirport: {
+        code: 'BSL',
+        name: 'EuroAirport Basel-Mulhouse-Freiburg',
+        driveTime: '55m',
+        distanceKm: 75,
+        descriptionNo: 'Fransk-sveitsisk grenseflyplass med direkte motorvei A5 til Svartskogen.',
+        descriptionEn: 'Direct access via French-Swiss border hub and A5 highway to Black Forest.'
+      },
+      alternateAirports: [
+        { code: 'ZRH', name: 'Zürich Airport', driveTime: '1t 15m', distanceKm: 85 },
+        { code: 'STR', name: 'Stuttgart Airport', driveTime: '1t 35m', distanceKm: 135 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 500 kr (€130)',
+        priceEstEn: 'approx. $140 (€130)',
+        duration: '55m',
+        highlightsNo: 'Direkte sjåfør fra Basel EuroAirport eller Zürich flyplass til resepsjonen.',
+        highlightsEn: 'Executive chauffeur transfer from Basel EuroAirport or Zurich terminal.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 310 kr/dag (€27)',
+        dailyEstEn: 'from $29/day (€27)',
+        recommendedHub: 'BSL eller ZRH terminal',
+        routeAdviceNo: 'Kjør A5 mot Freiburg, deretter naturskjønne B31 gjennom Höllental til Hinterzarten.',
+        routeAdviceEn: 'Drive A5 to Freiburg, then take scenic mountain highway B31 through Höllental.'
+      },
+      trainTransit: {
+        railLine: 'Legendariske Höllentalbahn (DB Regio)',
+        nearestStation: 'Hinterzarten Stasjon',
+        stationToHotelMin: 3,
+        shuttleAvailable: true,
+        routeAdviceNo: 'Tysklands bratteste og mest berømte fjellbane! 30 min tog fra Freiburg Hbf til Hinterzarten. Hotellet er 300m gange unna.',
+        routeAdviceEn: 'Germany\'s premier mountain railway! 30 min direct train from Freiburg Hbf to Hinterzarten. Hotel is 300m walk.'
+      }
+    }
   },
   {
     id: 'salzburg-alpine-wellness',
@@ -132,6 +285,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Nestled beneath dramatic alpine crags in Salzburg province. Extensive indoor/outdoor pools and Austrian culinary excellence.',
     highlightsNo: ['Østerriksk frokost med eggestasjon', 'Kveldens 4-retters gourmetmeny', 'Fri bruk av Vividus Spa & saunalandskap'],
     highlightsEn: ['Artisanal breakfast & egg station', 'Evening 4-course alpine dinner', 'Complimentary Vividus wellness access'],
+    transit: {
+      primaryAirport: {
+        code: 'SZG',
+        name: 'Salzburg Airport W.A. Mozart',
+        driveTime: '55m',
+        distanceKm: 65,
+        descriptionNo: 'Raskeste adkomst via det vakre Kleines Deutsches Eck.',
+        descriptionEn: 'Quickest alpine route via scenic Little German Corner.'
+      },
+      alternateAirports: [
+        { code: 'INN', name: 'Innsbruck Airport', driveTime: '1t 35m', distanceKm: 130 },
+        { code: 'MUC', name: 'München Airport', driveTime: '2t 00m', distanceKm: 185 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 450 kr (€125)',
+        priceEstEn: 'approx. $135 (€125)',
+        duration: '55m',
+        highlightsNo: 'Privat sjåfør fra Salzburg flyplass direkte til resortet.',
+        highlightsEn: 'Private executive transfer from Salzburg terminal direct to resort.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 340 kr/dag (€30)',
+        dailyEstEn: 'from $32/day (€30)',
+        recommendedHub: 'SZG eller MUC flyplass',
+        routeAdviceNo: 'Kjør B21/B178 via Lofer. Husk østerriksk motorveivignett dersom du benytter Autobahn.',
+        routeAdviceEn: 'Scenic drive on B21/B178 via Lofer. Note: Austrian vignette required if using Autobahn.'
+      },
+      trainTransit: {
+        railLine: 'ÖBB Alpe-Express (Salzburg – Wörgl)',
+        nearestStation: 'Saalfelden am Steinernen Meer',
+        stationToHotelMin: 7,
+        shuttleAvailable: true,
+        routeAdviceNo: 'Direkte tog fra Salzburg Hbf til Saalfelden stasjon. Hotellet tilbyr gratis hentebuss fra stasjonen!',
+        routeAdviceEn: 'Direct mountain rail from Salzburg Hbf to Saalfelden. Hotel provides complimentary guest van pickup!'
+      }
+    }
   },
   {
     id: 'provence-lavender-estate',
@@ -152,6 +341,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Romantic Provençal stone estate nestled among lavender and olive groves. Authentic French culinary distinction.',
     highlightsNo: ['Fransk bakerfrokost med ferske croissanter', 'Kveldens provencalske gourmetmåltid', 'Stille svømmebasseng i olivenhagen'],
     highlightsEn: ['French bakery breakfast', 'Provençal evening gourmet dinner', 'Quiet pool set in the olive orchard'],
+    transit: {
+      primaryAirport: {
+        code: 'MRS',
+        name: 'Marseille Provence Airport',
+        driveTime: '55m',
+        distanceKm: 75,
+        descriptionNo: 'Hovedflyplass for Provence med motorvei A7 direkte mot Luberon.',
+        descriptionEn: 'Main international hub for Provence with direct A7 expressway access.'
+      },
+      alternateAirports: [
+        { code: 'AVN', name: 'Avignon Airport / TGV', driveTime: '35m', distanceKm: 38 },
+        { code: 'NCE', name: 'Nice Côte d\'Azur Airport', driveTime: '2t 15m', distanceKm: 210 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 600 kr (€140)',
+        priceEstEn: 'approx. $150 (€140)',
+        duration: '55m',
+        highlightsNo: 'Privat sjåfør fra Marseille flyplass eller Avignon TGV-stasjon.',
+        highlightsEn: 'Private chauffeur meet & greet from Marseille Airport or Avignon TGV.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 330 kr/dag (€29)',
+        dailyEstEn: 'from $31/day (€29)',
+        recommendedHub: 'MRS flyplass eller Avignon TGV',
+        routeAdviceNo: 'Leiebil er uunnværlig i Luberon for å oppleve klippebyene Gordes, Roussillon og lavendelmarkene.',
+        routeAdviceEn: 'Rental car is essential in Luberon to tour clifftop villages, lavender fields, and olive groves.'
+      },
+      trainTransit: {
+        railLine: 'SNCF TGV Méditerranée',
+        nearestStation: 'Avignon TGV Stasjon',
+        stationToHotelMin: 35,
+        shuttleAvailable: true,
+        routeAdviceNo: 'Høyhastighetstog (TGV) tar kun 2t 40m fra Paris til Avignon TGV, deretter 35 min med leiebil eller hotelltransfer.',
+        routeAdviceEn: 'High-speed TGV is just 2h 40m from Paris to Avignon TGV, followed by 35m drive or hotel transfer.'
+      }
+    }
   },
   {
     id: 'lake-garda-panorama',
@@ -172,6 +397,42 @@ export const HOTEL_BREAKS_DATA: HotelBreakItem[] = [
     descriptionEn: 'Breathtaking setting on the northern shores of Lake Garda. Panoramic rooftop dining and lakeside relaxation pavilion.',
     highlightsNo: ['Rikholdig italiensk frokostbuffé', 'Italiensk 4-retters kveldsmeny', 'Fri inngang til wellness- og badstueavdeling'],
     highlightsEn: ['Italian breakfast buffet', '4-course lakeside evening dinner', 'Full access to sauna and relaxation zone'],
+    transit: {
+      primaryAirport: {
+        code: 'VRN',
+        name: 'Verona Villafranca Airport',
+        driveTime: '1t 05m',
+        distanceKm: 85,
+        descriptionNo: 'Beste flyplass med motorvei A22 direkte til Rovereto Sud.',
+        descriptionEn: 'Closest airport with rapid A22 motorway transit to Rovereto Sud.'
+      },
+      alternateAirports: [
+        { code: 'BGY', name: 'Milano Bergamo Airport', driveTime: '1t 40m', distanceKm: 130 },
+        { code: 'VCE', name: 'Venezia Marco Polo Airport', driveTime: '2t 05m', distanceKm: 180 }
+      ],
+      chauffeur: {
+        priceEstNo: 'ca. 1 300 kr (€115)',
+        priceEstEn: 'approx. $125 (€115)',
+        duration: '1t 05m',
+        highlightsNo: 'Privat sjåfør langs Gardasjøens østre bredd direkte til hotellet.',
+        highlightsEn: 'Executive chauffeur along scenic shores of Lake Garda direct to hotel.'
+      },
+      carRental: {
+        dailyEstNo: 'fra 290 kr/dag (€26)',
+        dailyEstEn: 'from $28/day (€26)',
+        recommendedHub: 'VRN eller BGY flyplass',
+        routeAdviceNo: 'Nydelig kjøretur langs sjøen. Fleksibelt for turer til Monte Baldo og Limone sul Garda.',
+        routeAdviceEn: 'Panoramic lakeside drive. Ideal for day trips to Monte Baldo cableway and Limone.'
+      },
+      trainTransit: {
+        railLine: 'Frecciarossa til Desenzano + Panoramasjøferge',
+        nearestStation: 'Rovereto Stasjon (eller Desenzano del Garda)',
+        stationToHotelMin: 20,
+        shuttleAvailable: true,
+        routeAdviceNo: 'Ta tog til Desenzano del Garda, deretter passasjerferge over hele Gardasjøen direkte til kaien i Riva (50m fra hotellet)!',
+        routeAdviceEn: 'Train to Desenzano, followed by a scenic ferry ride across the entire lake right into Riva harbor dock (50m from hotel)!'
+      }
+    }
   },
 ];
 
@@ -197,6 +458,7 @@ export default function HotelBreaksPage() {
 
   // Reservation dialog state
   const [selectedHotelForBooking, setSelectedHotelForBooking] = useState<HotelBreakItem | null>(null);
+  const [selectedHotelForTransit, setSelectedHotelForTransit] = useState<HotelBreakItem | null>(null);
   const [checkInDate, setCheckInDate] = useState<string>(() => {
     const d = new Date();
     d.setDate(d.getDate() + 21);
@@ -615,6 +877,31 @@ export default function HotelBreaksPage() {
                         {isNo ? 'Gjort opp direkte på hotellet ved utsjekk' : 'Settled directly with hotel on checkout'}
                       </div>
                     </div>
+
+                    {/* Airport Transit & Route Copilot Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedHotelForTransit(hotel)}
+                      className="w-full py-2 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-between transition cursor-pointer border border-slate-800 hover:border-amber-400/50 group/transit shadow-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+                          <Plane className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="text-left">
+                          <div className="text-[11px] font-bold text-slate-200 group-hover/transit:text-white">
+                            {hotel.transit.primaryAirport.code} ({hotel.transit.primaryAirport.driveTime})
+                          </div>
+                          <div className="text-[10px] text-slate-400 line-clamp-1">
+                            {isNo ? 'Sjåfør • Leiebil • Tog & AI' : 'Chauffeur • Car • Rail & AI'}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 group-hover/transit:translate-x-0.5 transition-transform">
+                        <span>{isNo ? 'Reiserute' : 'Transit'}</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </div>
+                    </button>
                   </div>
 
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -858,6 +1145,20 @@ export default function HotelBreaksPage() {
                     </a>
                   </div>
 
+                  {/* Airport Transit & Route Options */}
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedHotelForTransit(selectedHotelForBooking);
+                      }}
+                      className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-400/50 hover:border-amber-400 text-amber-300 hover:text-amber-200 font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Car className="w-4 h-4 text-amber-400" />
+                      <span>{isNo ? 'Transport fra flyplass (Sjåfør, Leiebil, Tog & AI)' : 'Airport Transit (Chauffeur, Car, Rail & AI)'}</span>
+                    </button>
+                  </div>
+
                   <div className="pt-2 flex gap-2">
                     <button
                       type="button"
@@ -975,6 +1276,12 @@ export default function HotelBreaksPage() {
           </div>
         </div>
       )}
+
+      <AirportTransitCopilotModal
+        hotel={selectedHotelForTransit}
+        isOpen={!!selectedHotelForTransit}
+        onClose={() => setSelectedHotelForTransit(null)}
+      />
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} defaultMode="signup" />
     </div>
