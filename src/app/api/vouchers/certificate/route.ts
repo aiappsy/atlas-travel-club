@@ -14,7 +14,15 @@ export async function GET(req: NextRequest) {
     const nights = searchParams.get('nights') || '3';
     const voucherCode = searchParams.get('voucherCode') || 'HP-8492-ATLAS-VIP';
     const halfBoard = searchParams.get('halfBoard') || 'Settled upon hotel checkout';
-    const issueDate = new Date().toLocaleDateString('no-NO', {
+    const initialLang = (searchParams.get('lang') || 'en').toLowerCase();
+
+    const now = new Date();
+    const issueDateEn = now.toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const issueDateNo = now.toLocaleDateString('no-NO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -25,7 +33,7 @@ export async function GET(req: NextRequest) {
     )}`;
 
     const html = `<!DOCTYPE html>
-<html lang="no">
+<html lang="${initialLang === 'no' ? 'no' : 'en'}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,25 +60,69 @@ export async function GET(req: NextRequest) {
 
     .action-bar {
       width: 100%;
-      max-width: 820px;
+      max-width: 840px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
       margin-bottom: 20px;
-      padding: 12px 20px;
+      padding: 14px 20px;
       background: #1e293b;
       border: 1px solid #334155;
       border-radius: 16px;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
     }
 
+    .bar-title {
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lang-switcher {
+      display: inline-flex;
+      background: #0f172a;
+      padding: 3px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: #d97706;
+      color: #0b1120;
+      font-weight: 800;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 18px;
+      padding: 9px 16px;
       border-radius: 10px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
@@ -101,7 +153,7 @@ export async function GET(req: NextRequest) {
     /* A4 Printable Certificate Container */
     .certificate {
       width: 100%;
-      max-width: 820px;
+      max-width: 840px;
       background: #ffffff;
       border-radius: 20px;
       overflow: hidden;
@@ -150,8 +202,8 @@ export async function GET(req: NextRequest) {
     }
 
     .issuer-seal {
-      width: 80px;
-      height: 80px;
+      width: 84px;
+      height: 84px;
       border-radius: 50%;
       border: 2px dashed #f59e0b;
       display: flex;
@@ -169,7 +221,7 @@ export async function GET(req: NextRequest) {
       font-weight: 800;
       color: #fbbf24;
       text-transform: uppercase;
-      line-height: 1.1;
+      line-height: 1.15;
     }
 
     .cert-body {
@@ -410,15 +462,24 @@ export async function GET(req: NextRequest) {
 
   <!-- Top Action Toolbar -->
   <div class="action-bar">
-    <div style="color: #cbd5e1; font-size: 13px; font-weight: 600;">
-      🏨 ATLAS Hotel Breaks — Offisielt Innsjekkingsbevis
+    <div class="bar-title">
+      <span>🏨</span>
+      <span id="txt-bar-title">${initialLang === 'no' ? 'ATLAS Hotel Breaks — Offisielt Innsjekkingsbevis' : 'ATLAS Hotel Breaks — Official Check-In Certificate'}</span>
     </div>
-    <div style="display: flex; gap: 10px;">
+    
+    <div class="controls-group">
+      <!-- Language Switcher -->
+      <div class="lang-switcher">
+        <button id="btn-lang-en" onclick="setLanguage('en')" class="lang-btn ${initialLang !== 'no' ? 'active' : ''}">🇬🇧 English</button>
+        <button id="btn-lang-no" onclick="setLanguage('no')" class="lang-btn ${initialLang === 'no' ? 'active' : ''}">🇳🇴 Norsk</button>
+      </div>
+
       <button onclick="window.print()" class="btn btn-gold">
-        🖨️ Skriv ut / Lagre som PDF
+        <span id="txt-print-btn">${initialLang === 'no' ? '🖨️ Skriv ut / Lagre som PDF' : '🖨️ Print / Save as PDF'}</span>
       </button>
+
       <a href="/hotel-breaks" class="btn btn-ghost">
-        ← Tilbake til ATLAS
+        <span id="txt-back-btn">${initialLang === 'no' ? '← Tilbake' : '← Back to ATLAS'}</span>
       </a>
     </div>
   </div>
@@ -430,14 +491,14 @@ export async function GET(req: NextRequest) {
     <!-- Header -->
     <div class="cert-header">
       <div class="cert-title-area">
-        <h2>ATLAS TRAVEL CLUB • PRIVATE MEMBER CREDENTIAL</h2>
-        <h1>OFFICIAL HOTEL CHECK-IN CERTIFICATE</h1>
+        <h2 id="txt-cert-pre">ATLAS TRAVEL CLUB • PRIVATE MEMBER CREDENTIAL</h2>
+        <h1 id="txt-cert-title">OFFICIAL HOTEL CHECK-IN CERTIFICATE</h1>
         <p>ISSUED BY HARD ROCK CAPITAL LTD (UK REG. #16833237) • 71-75 SHELTON ST, LONDON WC2H 9JQ</p>
       </div>
       <div class="issuer-seal">
         <span>★ ATLAS ★</span>
         <span>VIP PASS</span>
-        <span>CLEARED</span>
+        <span id="txt-seal-status">CLEARED</span>
       </div>
     </div>
 
@@ -446,61 +507,67 @@ export async function GET(req: NextRequest) {
       <!-- Reference Bar -->
       <div class="ref-bar">
         <div class="ref-item">
-          <span class="label">Bookingreferanse</span>
+          <span class="label" id="txt-label-ref">${initialLang === 'no' ? 'Bookingreferanse' : 'Booking Reference'}</span>
           <span class="value">${reference}</span>
         </div>
         <div class="ref-item">
-          <span class="label">Utstedt Dato</span>
-          <span class="value" style="font-size: 13px;">${issueDate}</span>
+          <span class="label" id="txt-label-issued">${initialLang === 'no' ? 'Utstedt Dato' : 'Issue Date'}</span>
+          <span class="value" id="txt-val-issued" style="font-size: 13px;">${initialLang === 'no' ? issueDateNo : issueDateEn}</span>
         </div>
         <div class="ref-item" style="text-align: right;">
-          <span class="label">Sikkerhetsstatus</span>
-          <span class="status-badge">● 100% BEKREFTET</span>
+          <span class="label" id="txt-label-status">${initialLang === 'no' ? 'Sikkerhetsstatus' : 'Verification Status'}</span>
+          <span class="status-badge" id="txt-val-status">${initialLang === 'no' ? '● 100% BEKREFTET' : '● 100% VERIFIED & CLEARED'}</span>
         </div>
       </div>
 
       <!-- Property & Reservation Table -->
-      <div class="section-title">Hotell- og Reservasjonsdetaljer</div>
+      <div class="section-title" id="txt-table-title">${initialLang === 'no' ? 'Hotell- og Reservasjonsdetaljer' : 'Reservation & Property Details'}</div>
       <table class="details-table">
         <tr>
-          <td class="label">Registrert Medlem (Gjest):</td>
+          <td class="label" id="txt-row-guest">${initialLang === 'no' ? 'Registrert Medlem (Gjest):' : 'Registered Guest (Member):'}</td>
           <td class="value">${guestName}</td>
         </tr>
         <tr>
-          <td class="label">Hotelleiendom:</td>
+          <td class="label" id="txt-row-hotel">${initialLang === 'no' ? 'Hotelleiendom:' : 'Hotel Property:'}</td>
           <td class="value">${hotelName}</td>
         </tr>
         <tr>
-          <td class="label">Destinasjon / Område:</td>
+          <td class="label" id="txt-row-loc">${initialLang === 'no' ? 'Destinasjon / Område:' : 'Destination / Region:'}</td>
           <td class="value">${location}</td>
         </tr>
         <tr>
-          <td class="label">Ønsket Innsjekkingsdato:</td>
+          <td class="label" id="txt-row-date">${initialLang === 'no' ? 'Ønsket Innsjekkingsdato:' : 'Requested Check-In Date:'}</td>
           <td class="value">${checkIn}</td>
         </tr>
         <tr>
-          <td class="label">Oppholdets Varighet:</td>
-          <td class="value">${nights} Netter (Dobbeltrom for 2 voksne)</td>
+          <td class="label" id="txt-row-nights">${initialLang === 'no' ? 'Oppholdets Varighet:' : 'Length of Stay:'}</td>
+          <td class="value" id="txt-val-nights">${nights} ${initialLang === 'no' ? 'Netter (Dobbeltrom for 2 voksne)' : 'Nights (Double Room for 2 Adults)'}</td>
         </tr>
         <tr>
-          <td class="label">Rompris (Losji):</td>
+          <td class="label" id="txt-row-roomcost">${initialLang === 'no' ? 'Rompris (Losji):' : 'Room Accommodation Rate:'}</td>
           <td class="value">
-            <span class="rate-free">0 kr / 0.00 EUR — 100% Dekket av ATLAS VIP-Pass</span>
+            <span class="rate-free" id="txt-val-roomcost">
+              ${initialLang === 'no' ? '0 kr / 0.00 EUR — 100% Dekket av ATLAS VIP-Pass' : '0.00 EUR / $0.00 — 100% Cleared by ATLAS VIP Pass'}
+            </span>
           </td>
         </tr>
         <tr>
-          <td class="label">Måltidsordning (Halvpensjon):</td>
-          <td class="value">${halfBoard} (gjort opp direkte på hotellet ved utsjekk)</td>
+          <td class="label" id="txt-row-meals">${initialLang === 'no' ? 'Måltidsordning (Halvpensjon):' : 'Mandatory Meal Plan at Hotel:'}</td>
+          <td class="value" id="txt-val-meals">${halfBoard} (${initialLang === 'no' ? 'oppgjøres direkte på hotellet ved utsjekk' : 'settled directly at hotel checkout'})</td>
         </tr>
       </table>
 
       <!-- Clearing Key Box -->
       <div class="clearing-box">
         <div class="clearing-info">
-          <div class="label">Offisiell Oppgjørsnøkkel (Holiday Plus / Connex Clearing Network)</div>
+          <div class="label" id="txt-clearing-title">
+            ${initialLang === 'no' ? 'Offisiell Oppgjørsnøkkel (Holiday Plus / Connex Clearing Network)' : 'Official Clearing Key (Holiday Plus / Connex Clearing Network)'}
+          </div>
           <div class="code">${voucherCode}</div>
-          <div class="subtext">
-            Denne autoriserte koden bekrefter at romprisen er fullt oppgjort gjennom det europeiske hotellkvotenettverket.
+          <div class="subtext" id="txt-clearing-sub">
+            ${initialLang === 'no'
+              ? 'Denne autoriserte koden bekrefter at romprisen er fullt oppgjort gjennom det europeiske hotellkvotenettverket.'
+              : 'This authorized voucher code clears the room rate in full through the European Hotel Allotment Clearing Network.'}
           </div>
         </div>
         <div class="qr-container">
@@ -510,7 +577,7 @@ export async function GET(req: NextRequest) {
 
       <!-- Hotel Front Desk Instructions -->
       <div class="hotel-instructions">
-        <h4>Resepsjonsinstruksjoner / Front Desk Instructions</h4>
+        <h4 id="txt-inst-title">Front Desk Instructions / Rezeptionshinweise</h4>
         <p>
           <strong>English:</strong> Please present this credential upon check-in. The lodging charge is covered in full via the Europe Hotel Allotment Clearing Network (Connex / Holiday Plus). Only published hotel half-board dining is to be billed directly to the guest upon checkout.
         </p>
@@ -521,8 +588,10 @@ export async function GET(req: NextRequest) {
 
       <!-- Footer & Legal Disclosures -->
       <div class="cert-footer">
-        <div class="legal-notice">
-          <strong>Juridisk Merknad:</strong> Dette sertifikatet er utstedt av <strong>HARD ROCK CAPITAL LTD</strong> eksklusivt for verifiserte medlemmer av ATLAS Travel Club. Gjelder kun losji og avtalt halvpensjon på deltagende partnerhoteller. Ikke overdragelig. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Tlf: +47 40059493.
+        <div class="legal-notice" id="txt-legal">
+          ${initialLang === 'no'
+            ? '<strong>Juridisk Merknad:</strong> Dette sertifikatet er utstedt av <strong>HARD ROCK CAPITAL LTD</strong> eksklusivt for verifiserte medlemmer av ATLAS Travel Club. Gjelder kun losji og avtalt halvpensjon på deltagende partnerhoteller. Ikke overdragelig. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Tlf: +47 40059493.'
+            : '<strong>Legal Notice:</strong> This credential is an accommodation certificate issued by <strong>HARD ROCK CAPITAL LTD</strong> exclusively to authorized ATLAS VIP club members. Valid for lodging and agreed half-board arrangements at participating partner hotels. Non-transferable. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Phone: +47 40059493.'}
         </div>
         <div style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 9px;">
           ATLAS-SEC-VAL: OK<br>
@@ -534,6 +603,102 @@ export async function GET(req: NextRequest) {
     <div class="gold-trim-bottom"></div>
   </div>
 
+  <script>
+    const DICTIONARY = {
+      en: {
+        barTitle: 'ATLAS Hotel Breaks — Official Check-In Certificate',
+        printBtn: '🖨️ Print / Save as PDF',
+        backBtn: '← Back to ATLAS',
+        certTitle: 'OFFICIAL HOTEL CHECK-IN CERTIFICATE',
+        sealStatus: 'CLEARED',
+        labelRef: 'Booking Reference',
+        labelIssued: 'Issue Date',
+        valIssued: '${issueDateEn}',
+        labelStatus: 'Verification Status',
+        valStatus: '● 100% VERIFIED & CLEARED',
+        tableTitle: 'Reservation & Property Details',
+        rowGuest: 'Registered Guest (Member):',
+        rowHotel: 'Hotel Property:',
+        rowLoc: 'Destination / Region:',
+        rowDate: 'Requested Check-In Date:',
+        rowNights: 'Length of Stay:',
+        valNights: '${nights} Nights (Double Room for 2 Adults)',
+        rowRoomCost: 'Room Accommodation Rate:',
+        valRoomCost: '0.00 EUR / $0.00 — 100% Cleared by ATLAS VIP Pass',
+        rowMeals: 'Mandatory Meal Plan at Hotel:',
+        valMeals: '${halfBoard} (settled directly at hotel checkout)',
+        clearingTitle: 'Official Clearing Key (Holiday Plus / Connex Clearing Network)',
+        clearingSub: 'This authorized voucher code clears the room rate in full through the European Hotel Allotment Clearing Network.',
+        legal: '<strong>Legal Notice:</strong> This credential is an accommodation certificate issued by <strong>HARD ROCK CAPITAL LTD</strong> exclusively to authorized ATLAS VIP club members. Valid for lodging and agreed half-board arrangements at participating partner hotels. Non-transferable. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Phone: +47 40059493.'
+      },
+      no: {
+        barTitle: 'ATLAS Hotel Breaks — Offisielt Innsjekkingsbevis',
+        printBtn: '🖨️ Skriv ut / Lagre som PDF',
+        backBtn: '← Tilbake',
+        certTitle: 'OFFISIELT HOTELL-INNSJEKKINGSBEVIS',
+        sealStatus: 'BEKREFTET',
+        labelRef: 'Bookingreferanse',
+        labelIssued: 'Utstedt Dato',
+        valIssued: '${issueDateNo}',
+        labelStatus: 'Sikkerhetsstatus',
+        valStatus: '● 100% BEKREFTET',
+        tableTitle: 'Hotell- og Reservasjonsdetaljer',
+        rowGuest: 'Registrert Medlem (Gjest):',
+        rowHotel: 'Hotelleiendom:',
+        rowLoc: 'Destinasjon / Område:',
+        rowDate: 'Ønsket Innsjekkingsdato:',
+        rowNights: 'Oppholdets Varighet:',
+        valNights: '${nights} Netter (Dobbeltrom for 2 voksne)',
+        rowRoomCost: 'Rompris (Losji):',
+        valRoomCost: '0 kr / 0.00 EUR — 100% Dekket av ATLAS VIP-Pass',
+        rowMeals: 'Måltidsordning (Halvpensjon):',
+        valMeals: '${halfBoard} (oppgjøres direkte på hotellet ved utsjekk)',
+        clearingTitle: 'Offisiell Oppgjørsnøkkel (Holiday Plus / Connex Clearing Network)',
+        clearingSub: 'Denne autoriserte koden bekrefter at romprisen er fullt oppgjort gjennom det europeiske hotellkvotenettverket.',
+        legal: '<strong>Juridisk Merknad:</strong> Dette sertifikatet er utstedt av <strong>HARD ROCK CAPITAL LTD</strong> eksklusivt for verifiserte medlemmer av ATLAS Travel Club. Gjelder kun losji og avtalt halvpensjon på deltagende partnerhoteller. Ikke overdragelig. Support: <span style="color:#0284c7;">vip@atlasclub.web.app</span> | Tlf: +47 40059493.'
+      }
+    };
+
+    function setLanguage(lang) {
+      const d = DICTIONARY[lang];
+      if (!d) return;
+
+      document.getElementById('txt-bar-title').innerText = d.barTitle;
+      document.getElementById('txt-print-btn').innerText = d.printBtn;
+      document.getElementById('txt-back-btn').innerText = d.backBtn;
+      document.getElementById('txt-cert-title').innerText = d.certTitle;
+      document.getElementById('txt-seal-status').innerText = d.sealStatus;
+      document.getElementById('txt-label-ref').innerText = d.labelRef;
+      document.getElementById('txt-label-issued').innerText = d.labelIssued;
+      document.getElementById('txt-val-issued').innerText = d.valIssued;
+      document.getElementById('txt-label-status').innerText = d.labelStatus;
+      document.getElementById('txt-val-status').innerText = d.valStatus;
+      document.getElementById('txt-table-title').innerText = d.tableTitle;
+      document.getElementById('txt-row-guest').innerText = d.rowGuest;
+      document.getElementById('txt-row-hotel').innerText = d.rowHotel;
+      document.getElementById('txt-row-loc').innerText = d.rowLoc;
+      document.getElementById('txt-row-date').innerText = d.rowDate;
+      document.getElementById('txt-row-nights').innerText = d.rowNights;
+      document.getElementById('txt-val-nights').innerText = d.valNights;
+      document.getElementById('txt-row-roomcost').innerText = d.rowRoomCost;
+      document.getElementById('txt-val-roomcost').innerText = d.valRoomCost;
+      document.getElementById('txt-row-meals').innerText = d.rowMeals;
+      document.getElementById('txt-val-meals').innerText = d.valMeals;
+      document.getElementById('txt-clearing-title').innerText = d.clearingTitle;
+      document.getElementById('txt-clearing-sub').innerText = d.clearingSub;
+      document.getElementById('txt-legal').innerHTML = d.legal;
+
+      const btnEn = document.getElementById('btn-lang-en');
+      const btnNo = document.getElementById('btn-lang-no');
+      if (lang === 'en') {
+        btnEn.classList.add('active');
+        btnNo.classList.remove('active');
+      } else {
+        btnNo.classList.add('active');
+        btnEn.classList.remove('active');
+      }
+    }
+  </script>
 </body>
 </html>`;
 
