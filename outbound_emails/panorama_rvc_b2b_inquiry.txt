@@ -1,0 +1,43 @@
+To: RVCInquiries@rci.com
+Cc: paljuritzen@gmail.com
+Subject: Strategic B2B Partnership & Headless API Inquiry – Automated Certificate Allocation for ATLAS Private Travel Club (HARD ROCK CAPITAL LTD)
+
+Dear Panorama Travel Solutions / Resort Vacation Certificates B2B Team,
+
+I am writing to you on behalf of HARD ROCK CAPITAL LTD (Company No. 16833237, registered in England & Wales), the operating parent entity of ATLAS Travel Club (https://atlasclub.web.app).
+
+ATLAS is an invite-only, private subscription travel club (Closed User Group / CUG) serving European and Scandinavian high-intent travelers. Our platform operates on a Costco-style membership model where travel products—including NDC wholesale flights and premium resort stays—are provided to our vetted members with zero markups (0 kr added margin), fully prepaid or redeemed through club reward points.
+
+We currently promote and distribute Resort Vacation Certificates (RVC) across our European and worldwide resort catalog (such as Costa del Sol, Canary Islands, Algarve, Crete, and Tuscany). However, we are seeking to significantly elevate and scale this relationship for our 2026/2027 member allocations.
+
+1. The Current Challenge with Consumer Portal Redirection:
+Our club members expect an end-to-end, seamless booking experience within the ATLAS environment. Redirecting members to the consumer-facing resortcerts.com portal creates unnecessary friction, confusion regarding unbundled resort fee disclosures and upgrade fees, and inconsistent brand trust. 
+
+2. Our Proposed Automated Solution:
+We want to integrate Panorama's inventory and certificate redemption directly into the ATLAS booking pipeline via server-to-server (S2S) APIs or programmatic batch allocation:
+- ATLAS members select verified resort accommodations directly on our platform.
+- ATLAS handles all wholesale payments and all-inclusive fee reconciliations upfront with 100% price transparency.
+- ATLAS automatically consumes/allocates an active certificate from our prepaid B2B wholesale allotment and executes the booking reservation behind the scenes.
+- The member receives an instant confirmed booking voucher with zero external redirects.
+
+3. Inquiries & Next Steps:
+To advance this integration, we would appreciate information regarding:
+a) Panorama Partner Services / RVC Developer API: Do you provide REST/JSON or SOAP API endpoints, inventory feeds, or automated booking webhooks for enterprise partners to verify live availability and programmatically redeem certificates?
+b) Enterprise Bulk Allotment Tiers: Volume tier pricing and contract terms for 2026/2027 inventory batches across Last-Minute (30-day), Standard (365-day), and Short-Stay certificates.
+c) Technical & Commercial Onboarding: The standard procedure and technical prerequisites for establishing a direct automated corporate partnership.
+
+Could we schedule a brief 20-minute introductory call next week (Tuesday or Thursday afternoon CET / EST) with your B2B Partnerships & Technical Integration team?
+
+Thank you for your time and consideration. We look forward to building a high-volume, automated partnership with Panorama Travel Solutions.
+
+Yours sincerely,
+
+Pål Juritzen
+Founder & Managing Director
+HARD ROCK CAPITAL LTD (Reg. #16833237)
+Trading as ATLAS / ATLAS Travel Club
+71-75 Shelton Street, Covent Garden
+London, WC2H 9JQ, United Kingdom
+Direct Tel: +47 40059493
+Email: paljuritzen@gmail.com
+Platform URL: https://atlasclub.web.app

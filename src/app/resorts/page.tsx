@@ -255,6 +255,12 @@ export default function ResortsPage() {
   const [selectedResort, setSelectedResort] = useState<ResortItem | null>(null);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isSuccessModal, setIsSuccessModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmedBooking, setConfirmedBooking] = useState<any>(null);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [preferredTimeframe, setPreferredTimeframe] = useState('Vår 2026 (Mars – Mai)');
+  const [guestCount, setGuestCount] = useState(2);
 
   const currentTier = CERTIFICATE_TIERS.find((t) => t.id === selectedTierId) || CERTIFICATE_TIERS[1];
 
@@ -264,11 +270,47 @@ export default function ResortsPage() {
 
   const handleBookClick = (resort: ResortItem) => {
     setSelectedResort(resort);
+    if (user?.email && !guestEmail) setGuestEmail(user.email);
+    if (user?.displayName && !guestName) setGuestName(user.displayName);
   };
 
-  const handleConfirmReservation = (e: React.FormEvent) => {
+  const handleConfirmReservation = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSuccessModal(true);
+    if (!selectedResort) return;
+
+    setIsSubmitting(true);
+    try {
+      const emailToUse = guestEmail || user?.email || 'medlem@atlasclub.vip';
+      const nameToUse = guestName || user?.displayName || user?.email?.split('@')[0] || 'Atlas Medlem';
+
+      const res = await fetch('/api/resorts/auto-redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId: selectedTierId,
+          resortId: selectedResort.id,
+          resortName: selectedResort.name,
+          resortLocation: selectedResort.location,
+          preferredTimeframe,
+          memberName: nameToUse,
+          memberEmail: emailToUse,
+          guestsCount: guestCount,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.booking) {
+        setConfirmedBooking(data.booking);
+        setIsSuccessModal(true);
+      } else {
+        alert(data.error || 'Kunne ikke fullføre automatisert reservasjon. Vennligst prøv igjen.');
+      }
+    } catch (err: any) {
+      console.error('Reservation error:', err);
+      alert('En feil oppsto under kontakt med reservasjonsvaultet. Ta kontakt med concierge.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -782,6 +824,28 @@ export default function ResortsPage() {
                 {isNo ? 'Reserver ferieleilighet' : 'Reserve Resort Condo'}
               </h3>
 
+              {/* LIVE RETAIL COMPARISON CALLOUT */}
+              <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between text-xs">
+                <div>
+                  <div className="text-[10px] uppercase font-bold text-slate-500">
+                    {isNo ? 'Offisiell Booking.com / Retail' : 'Public Booking.com / Retail'}
+                  </div>
+                  <div className="line-through font-bold text-slate-500 text-sm">
+                    {isNo ? `${selectedResort.normalWeeklyRetailNo.toLocaleString()} kr` : `$${selectedResort.normalWeeklyRetailEn.toLocaleString()}`}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-[10px] uppercase font-bold text-emerald-800">
+                    {isNo ? 'Atlas Medlemsbesparelse' : 'Atlas Member Savings'}
+                  </div>
+                  <div className="font-black text-emerald-700 text-sm">
+                    {isNo
+                      ? `Spar ${(selectedResort.normalWeeklyRetailNo - currentTier.priceNok).toLocaleString()} kr`
+                      : `Save $${(selectedResort.normalWeeklyRetailEn - currentTier.priceUsd).toLocaleString()}`}
+                  </div>
+                </div>
+              </div>
+
               {/* TIER PICKER IN MODAL */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
@@ -836,17 +900,41 @@ export default function ResortsPage() {
               </div>
 
               <form onSubmit={handleConfirmReservation} className="space-y-4 pt-1">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {isNo ? 'Ønsket reisemåned / tidsrom' : 'Preferred Travel Month / Timeframe'}
-                  </label>
-                  <select className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-hidden bg-white">
-                    <option>{isNo ? 'Vår 2026 (Mars – Mai)' : 'Spring 2026 (March – May)'}</option>
-                    <option>{isNo ? 'Sommer 2026 (Juni – August)' : 'Summer 2026 (June – August)'}</option>
-                    <option>{isNo ? 'Høst 2026 (September – November)' : 'Autumn 2026 (September – November)'}</option>
-                    <option>{isNo ? 'Vinter 2026/2027 (Desember – Februar)' : 'Winter 2026/2027 (December – February)'}</option>
-                    <option>{isNo ? 'Fleksibel (Søker etter beste tilgjengelighet)' : 'Flexible (Best Availability Search)'}</option>
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {isNo ? 'Ønsket tidsrom' : 'Preferred Timeframe'}
+                    </label>
+                    <select
+                      value={preferredTimeframe}
+                      onChange={(e) => setPreferredTimeframe(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-hidden bg-white"
+                    >
+                      <option>{isNo ? 'Vår 2026 (Mars – Mai)' : 'Spring 2026 (March – May)'}</option>
+                      <option>{isNo ? 'Sommer 2026 (Juni – August)' : 'Summer 2026 (June – August)'}</option>
+                      <option>{isNo ? 'Høst 2026 (September – November)' : 'Autumn 2026 (September – November)'}</option>
+                      <option>{isNo ? 'Vinter 2026/2027 (Desember – Februar)' : 'Winter 2026/2027 (December – February)'}</option>
+                      <option>{isNo ? 'Fleksibel (Søker etter beste tilgjengelighet)' : 'Flexible (Best Availability Search)'}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {isNo ? 'Antall reisende' : 'Guests Count'}
+                    </label>
+                    <select
+                      value={guestCount}
+                      onChange={(e) => setGuestCount(Number(e.target.value))}
+                      className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-hidden bg-white"
+                    >
+                      <option value={1}>1 person</option>
+                      <option value={2}>2 personer</option>
+                      <option value={3}>3 personer</option>
+                      <option value={4}>4 personer</option>
+                      <option value={5}>5 personer</option>
+                      <option value={6}>6 personer</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -857,20 +945,21 @@ export default function ResortsPage() {
                     type="text"
                     required
                     placeholder={user?.email || 'ola.nordmann@example.com'}
-                    defaultValue={user?.email || ''}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-hidden bg-white"
+                    value={guestEmail || (user?.email || '')}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-900 outline-hidden bg-white"
                   />
                 </div>
 
                 <div className="p-3 bg-amber-50/70 border border-amber-200/60 rounded-xl text-[11px] text-amber-900 space-y-1">
                   <div className="font-bold flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    <span>{isNo ? 'Full transparens om lokale gebyrer' : 'Full Transparency on Local Fees'}</span>
+                    <span>{isNo ? '100% Automatisert & Skjermet for RVC' : '100% Automated & Shielded from RVC'}</span>
                   </div>
                   <p className="text-amber-800 leading-normal">
                     {isNo
-                      ? 'Når du løser inn sertifikatet på nett er det 0 kr i ekstra gebyr. Enkelte resorter krever et lokalt energi-/renholdsgebyr (ca. 20–40 € per opphold) som betales direkte i resepsjonen ved innsjekking.'
-                      : '0 kr extra online booking fees with your certificate. Some resorts charge a modest local utility surcharge (approx 20–40 € per stay) payable at the front desk.'}
+                      ? 'Atlas allokerer og løser inn sertifikatet direkte fra vårt engros-vault i bakgrunnen. Du slipper å gå inn på tredjepartsportaler eller håndtere kompliserte gebyrstrukturer. 0 kr ekstra nettgebyr.'
+                      : 'Atlas allocates and redeems certificates directly through our backend wholesale vault. You never deal with confusing third-party portals or hidden fees. 0 kr extra online fees.'}
                   </p>
                 </div>
 
@@ -885,9 +974,19 @@ export default function ResortsPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {isNo ? `Bekreft reservasjon (${currentTier.priceNok.toLocaleString()} kr)` : `Confirm Reservation ($${currentTier.priceUsd})`}
+                  {isSubmitting ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>{isNo ? 'Allokerer sertifikat og reserverer...' : 'Allocating certificate & confirming...'}</span>
+                    </>
+                  ) : (
+                    <span>
+                      {isNo ? `Bekreft reservasjon (${currentTier.priceNok.toLocaleString()} kr)` : `Confirm Reservation ($${currentTier.priceUsd})`}
+                    </span>
+                  )}
                 </button>
               </form>
             </div>
@@ -898,39 +997,100 @@ export default function ResortsPage() {
       {/* SUCCESS CONFIRMATION MODAL */}
       {isSuccessModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl text-center space-y-5 border border-slate-100">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl text-center space-y-5 border border-slate-100 max-h-[92vh] overflow-y-auto">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8" />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{isNo ? '100% Bekreftet & Reservert' : '100% Confirmed & Reserved'}</span>
+              </div>
               <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                {isNo ? 'Reservasjon registrert!' : 'Reservation Registered!'}
+                {isNo ? 'Din ferieleilighet er sikret!' : 'Your Resort Condo is Locked!'}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed max-w-md mx-auto">
                 {isNo
-                  ? 'Ditt ønske om ferieuke er registrert. Du mottar en bekreftelse og direkte tilgang til bookingkatalogen på din e-post innen kort tid.'
-                  : 'Your resort week request has been logged. You will receive booking catalog access and confirmation shortly via email.'}
+                  ? 'Kupongen er automatisk allokert og tilknyttet ditt medlemskap. Du slipper å gjøre noe mer på eksterne nettsider.'
+                  : 'Your certificate has been automatically allocated and attached to your membership.'}
               </p>
             </div>
 
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-left text-xs space-y-1.5">
-              <div className="font-bold text-slate-900">{selectedResort?.name}</div>
-              <div className="text-slate-500">{selectedResort?.location} • 7 netter</div>
-              <div className="text-emerald-700 font-bold pt-1">
-                {isNo ? `Garantikode: ATLAS-RESORT-${Date.now().toString().slice(-6)}` : `Guarantee Code: ATLAS-RESORT-${Date.now().toString().slice(-6)}`}
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-left text-xs space-y-2.5">
+              <div className="flex justify-between items-center pb-2 border-b border-slate-200">
+                <span className="text-slate-500">{isNo ? 'Reservasjonskode:' : 'Reservation Code:'}</span>
+                <span className="font-mono font-bold text-slate-900 text-sm">
+                  {confirmedBooking?.confirmationCode || `ATLAS-RVC-${Date.now().toString().slice(-6)}`}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">{isNo ? 'Sertifikatnummer:' : 'Certificate Number:'}</span>
+                <span className="font-mono text-emerald-800 font-bold">
+                  {confirmedBooking?.certificateNumber || 'RVC-PAN-77829-EU'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">{isNo ? 'Resort:' : 'Resort:'}</span>
+                <span className="font-bold text-slate-900">{selectedResort?.name}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">{isNo ? 'Destinasjon:' : 'Destination:'}</span>
+                <span className="text-slate-800">{selectedResort?.location}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">{isNo ? 'Enhet:' : 'Unit:'}</span>
+                <span className="text-slate-800">{isNo ? 'Hel leilighet med kjøkken (7 netter)' : 'Full Apartment with Kitchen (7 nights)'}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+                <span className="font-bold text-slate-900">{isNo ? 'Total Klubbpris:' : 'Total Club Price:'}</span>
+                <span className="font-black text-emerald-700 text-base">
+                  {isNo ? `${currentTier.priceNok.toLocaleString()} kr` : `$${currentTier.priceUsd}`}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-500 italic pt-1">
+                {confirmedBooking?.pricing?.localUtilityNoteNo || (isNo ? '0 kr ekstra nettgebyr.' : '0 kr extra online booking fees.')}
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                setIsSuccessModal(false);
-                setSelectedResort(null);
-              }}
-              className="w-full py-3.5 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
-            >
-              {isNo ? 'Lukk og gå til oversikt' : 'Close and Return'}
-            </button>
+            {/* ACTION BUTTONS */}
+            <div className="space-y-2.5 pt-1">
+              <Link
+                href={`/api/vouchers/certificate?code=${encodeURIComponent(confirmedBooking?.confirmationCode || 'ATLAS-RVC-DEMO')}&resort=${encodeURIComponent(selectedResort?.name || '')}`}
+                target="_blank"
+                className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xs"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{isNo ? 'Vis & Skriv ut Atlas Garantikupong' : 'View & Print Atlas Voucher Pass'}</span>
+              </Link>
+
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/flights"
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Plane className="w-3.5 h-3.5 text-sky-600" />
+                  <span>{isNo ? 'Finn nettopris-fly' : 'Find Wholesale Flights'}</span>
+                </Link>
+                <Link
+                  href="/cars"
+                  className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-[11px] transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Compass className="w-3.5 h-3.5 text-amber-600" />
+                  <span>{isNo ? 'Leiebil / Transport' : 'Car Rental / Transit'}</span>
+                </Link>
+              </div>
+
+              <button
+                onClick={() => {
+                  setIsSuccessModal(false);
+                  setSelectedResort(null);
+                }}
+                className="w-full py-3 px-6 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer mt-1"
+              >
+                {isNo ? 'Lukk og gå til oversikt' : 'Close and Return'}
+              </button>
+            </div>
           </div>
         </div>
       )}
