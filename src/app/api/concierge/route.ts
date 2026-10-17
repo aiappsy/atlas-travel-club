@@ -208,11 +208,11 @@ CORE ATLAS PLATFORM KNOWLEDGE:
    - Curated destinations: Marbella (Costa del Sol), Tenerife (Canary Islands), Algarve (Portugal), Crete (Greece), Tuscany (Italy), Mallorca.
    - Legal: Accommodation only; members book their own wholesale flights separately. Exempt from Norwegian Package Travel Act (Pakkereiseloven).
 
-14. Atlas Gourmet & Spa Escapes (/spa-breaks):
-   - Handpicked 3–4* superior wellness & boutique hotels in the Alps, Dolomites, Black Forest, Tuscany, Lake Garda, Provence liquidated via Connex / Holiday Plus.
-   - Room Rate: 0 NOK (complimentary 2–4 night lodging for 2 adults).
-   - Transparent Economics: The guest pays only the hotel's published fixed half-board rate (€35–€60/person/day for gourmet breakfast and multi-course dinner) directly at hotel checkout.
-   - Proves verified savings of 6 700+ NOK per getaway compared to Booking.com. Instant digital vouchers with unique HP-xxxx-ATLAS codes generated at /spa-breaks.
+14. Atlas Hotel Breaks (/hotel-breaks):
+   - Handpicked 3–5* partner hotels across the Alps, Dolomites, Black Forest, Tuscany, Lake Garda, Provence liquidated via Holiday Plus / Connex.
+   - Room Rate: 0 NOK / $0 (complimentary 2–6 night lodging for 2 adults).
+   - Transparent Economics: The guest pays only the hotel's published fixed half-board rate (€35–€60/person/day for breakfast and multi-course dinner) directly at hotel checkout.
+   - Proves verified savings of 6 700+ NOK per getaway compared to Booking.com. Instant on-site booking and official check-in certificate generated at /hotel-breaks.
 
 ${contextSection}
 ${profileSection}
@@ -220,7 +220,7 @@ ${profileSection}
 Instructions:
 - Provide authoritative, concise, elegant, VIP concierge responses in Markdown.
 - If the user is asking about the active hotel being audited, directly reference the real hotel name, dates, public price, wholesale price, and exact savings!
-- If the user asks about B2B corporate agreements, cruises, loyalty points, Signature Resorts (ferieleiligheter fra 3 890 kr), or Gourmet & Spa Escapes (0 kr rooms), provide accurate, confident domain guidance.
+- If the user asks about B2B corporate agreements, cruises, loyalty points, Signature Resorts (ferieleiligheter fra 3 890 kr), or Hotel Breaks (0 kr rooms), provide accurate, confident domain guidance.
 - If member profile DNA is provided, naturally tailor travel plans, home hub departure airports, cabin classes, and dietary outing suggestions to them!
 - Highlight key numbers in bold.`;
 }
@@ -560,14 +560,15 @@ function generateDomainConciergeResponse(
     reply = `🏖️ **Atlas Signature Resorts — Ferieleiligheter fra 3 890 kr (/resorts):**\n\nVi likviderer overskuddskapasitet fra førsteklasses ferieresorter (RCI/Panorama-nettverket) til faste engrospriser uten påslag:\n\n• **3 fleksible nivåer** (100% forhåndsbetalt, 0 kr bookinggebyr på nett):\n  - **Last-Minute (7 netter innen 30 dager)**: Kun **3 890 NOK** (eller 3 900 poeng / $359 USD).\n  - **Standard Helår (7 netter opptil 365 dager frem)**: **5 890 NOK** (eller 5 900 poeng / $549 USD).\n  - **Short Stay (2–6 netter opptil 365 dager frem)**: **3 290 NOK** (eller 3 300 poeng / $299 USD).\n• **Full plass for familien**: 1–2 soveromssuiter med fullt utstyrt kjøkken og stue – plass til **opptil 4–6 personer** uten ekstra persongebyrer.\n• **Transparent om lokale gebyrer**: Enkelte europeiske resorter har en obligatorisk lokal energi-/renholdsavgift (utility surcharge på ca. 20–40 € per uke) som betales direkte i resepsjonen ved utsjekking.\n• **Utvalgte destinasjoner**: Marbella (Costa del Sol), Tenerife (Kanariøyene), Algarve (Portugal), Kreta (Hellas), Toscana (Italia) og Mallorca.\n• **100% Trygghet**: 14 dagers ubetinget angrefrist med pengene tilbake dersom du ikke finner ønsket uke eller reisemål.\n\nUtforsk tilgjengelige resorter og bestill ditt ukesopphold direkte på [Feriesuiter](/resorts)!`;
   }
 
-  // 21. ATLAS GOURMET & SPA ESCAPES (0 KR ROMPRIS / HALVPENSJON)
+  // 21. ATLAS HOTEL BREAKS (0 KR ROMPRIS / HALVPENSJON)
   else if (
-    q.includes('spa') || q.includes('gourmet') || q.includes('connex') ||
-    q.includes('holiday plus') || q.includes('0 kr') || q.includes('halvpensjon') ||
-    q.includes('dolomitt') || q.includes('velvære') || q.includes('alpeferie') ||
-    q.includes('rompris') || q.includes('frokost') || q.includes('middag')
+    q.includes('hotel break') || q.includes('hotellopphold') || q.includes('spa') ||
+    q.includes('gourmet') || q.includes('connex') || q.includes('holiday plus') ||
+    q.includes('0 kr') || q.includes('halvpensjon') || q.includes('dolomitt') ||
+    q.includes('velvære') || q.includes('alpeferie') || q.includes('rompris') ||
+    q.includes('frokost') || q.includes('middag')
   ) {
-    reply = `🍷 **Atlas Gourmet & Spa Escapes — 0 kr i Rompris (/spa-breaks):**\n\nGjennom vårt partnerskap med Connex (Holiday Plus) fyller utvalgte 3–4* superior velværerhoteller i Europa ledig kapasitet med en genial modell:\n\n• **Rompris**: **0 NOK** (gratis opphold for 2 personer i 2–4 netter).\n• **100% Transparent Økonomi**: Du betaler kun hotellets offisielle, faste halvpensjonspris (**€35–€60 per person/dag**) for rikholdig frokost og gourmet fleretters middag direkte ved utsjekk på hotellet.\n• **Dokumentert besparelse**: Sparer typisk **over 6 700 NOK** per helg eller miniferie sammenlignet med Booking.com og Expedia.\n• **Håndplukkede destinasjoner**: Dolomittene (Sør-Tyrol), Chianti (Toscana), Schwarzwald (Tyskland), Salzburg (Østerrike), Gardasjøen og Provence.\n• **Umiddelbar kupongutstedelse**: Aktiver din unike verdikupong (HP-xxxx-ATLAS) med ett klikk på vår portal.\n\nHent din 0 kr hotellkupong på [Gourmet & Spa Escapes](/spa-breaks)!`;
+    reply = `🏨 **Atlas Hotel Breaks — 0 kr i Rompris (/hotel-breaks):**\n\nGjennom vårt partnerskap med Holiday Plus (Connex) fyller utvalgte 3–5* kvalitetshoteller i Europa ledig kapasitet med en genial modell:\n\n• **Rompris**: **0 NOK** (gratis opphold for 2 personer i 2–6 netter).\n• **100% Transparent Økonomi**: Du betaler kun hotellets offisielle, faste halvpensjonspris (**€35–€60 per person/dag**) for rikholdig frokost og fleretters middag direkte ved utsjekk på hotellet.\n• **Dokumentert besparelse**: Sparer typisk **over 6 700 NOK** per helg eller miniferie sammenlignet med Booking.com og Expedia.\n• **Håndplukkede destinasjoner**: Dolomittene (Sør-Tyrol), Chianti (Toscana), Schwarzwald (Tyskland), Salzburg (Østerrike), Gardasjøen og Provence.\n• **Offisielt innsjekkingssertifikat**: Generer og last ned ditt offisielle A4-sertifikat for enkel innsjekk på hotellet.\n\nUtforsk og reserver ditt opphold på [Atlas Hotel Breaks](/hotel-breaks)!`;
   }
 
   // 22. BESPOKE TRAVEL PLAN, ITINERARY & OUTINGS GENERATOR

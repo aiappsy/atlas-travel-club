@@ -204,9 +204,9 @@ export default function HowItWorksPage() {
                     {locale === 'no' ? 'Du sparer inntil 12 010 kr (76 %)' : 'SAVE up to 12,010 NOK (76% Off)'}
                   </td>
                 </tr>
-                <tr className="hover:bg-slate-50 bg-rose-50/40">
+                <tr className="hover:bg-slate-50 bg-emerald-50/40">
                   <td className="py-4 px-4 font-bold text-slate-900">
-                    Atlas Gourmet &amp; Spa (Dolomittene / Sør-Tyrol) <br />
+                    Atlas Hotel Breaks (Dolomittene / Syd-Tirol) <br />
                     <span className="text-[10px] text-slate-500 font-normal">
                       {locale === 'no' ? '3 netter • 0 kr i rompris for 2 pers (betal kun lokal halvpensjon)' : '3 Nights • $0 Room Rate for 2 Guests (Pay Local Half-Board Only)'}
                     </span>
@@ -255,14 +255,14 @@ export default function HowItWorksPage() {
             </div>
 
             <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <div className="text-rose-400 font-bold text-sm flex items-center gap-2">
-                <span>🍷</span>
-                <span>{locale === 'no' ? 'Connex / Holiday Plus Halvpensjon' : 'Connex Complimentary Lodging'}</span>
+              <div className="text-emerald-400 font-bold text-sm flex items-center gap-2">
+                <span>🏨</span>
+                <span>{locale === 'no' ? 'Holiday Plus / Connex Hotellopphold' : 'Holiday Plus Hotel Breaks'}</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
                 {locale === 'no'
-                  ? 'Boutique- og velværerhoteller tilbyr gratis overnatting (0 kr rompris) for 2 personer fordi de vet at gjestene spiser i restauranten. Du betaler kun hotellets faste, rimelige halvpensjonspris ved utsjekk, og hotellet fyller kapasitet uten å bryte offentlige rompriser.'
-                  : 'Boutique and spa resorts offer complimentary rooms ($0 room rate) for 2 guests because they generate restaurant and wellness revenue. You pay only the published fixed half-board rate at checkout, filling empty capacity without triggering public rate parity alarms.'}
+                  ? 'Kvalitetshoteller og boutique-resorter tilbyr gratis overnatting (0 kr rompris) for 2 personer fordi de vet at gjestene spiser i restauranten. Du betaler kun hotellets faste, rimelige halvpensjonspris ved utsjekk, og hotellet fyller kapasitet uten å bryte offentlige rompriser.'
+                  : 'Curated partner hotels offer complimentary rooms ($0 room rate) for 2 guests because they generate restaurant and beverage revenue. You pay only the published fixed half-board rate at checkout, filling empty capacity without triggering public rate parity alarms.'}
               </p>
             </div>
           </div>

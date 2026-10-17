@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/LanguageContext';
 import { REWARDS_CONFIG } from '@/lib/rewards/rules';
-import { Palmtree, Coffee, ArrowRight, Sparkles, ShieldCheck, Wine } from 'lucide-react';
+import { Palmtree, Coffee, ArrowRight, Sparkles, ShieldCheck, Wine, Hotel } from 'lucide-react';
 import RewardsPodcastDeepDive from '@/components/RewardsPodcastDeepDive';
 
 export default function RewardsPage() {
@@ -234,20 +234,20 @@ export default function RewardsPage() {
               </div>
             </div>
 
-            {/* OPTION 2: GOURMET & SPA (CONNEX) */}
+            {/* OPTION 2: HOTEL BREAKS (CONNEX / HOLIDAY PLUS) */}
             <div className="p-5 rounded-2xl bg-gradient-to-b from-purple-50/40 to-slate-50 border border-purple-200/80 flex flex-col justify-between space-y-4">
               <div className="space-y-3">
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-400/20 flex items-center justify-center text-purple-600 font-bold">
-                  <Wine className="w-5 h-5" />
+                  <Hotel className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-sm font-bold text-slate-900">
-                    {isNo ? 'Gourmet & Spaturer' : 'Gourmet & Spa Escapes'}
+                    {isNo ? 'Atlas Hotellopphold' : 'Atlas Hotel Breaks'}
                   </div>
                   <div className="text-xs text-slate-500 mt-1">
                     {isNo
-                      ? 'Bo gratis på 1 500 boutique- og spahoteller for 2 personer. Dere betaler kun for maten på hotellet.'
-                      : 'Complimentary double room stays for 2 at 1,500 boutique hotels. Pay only for on-site dining.'}
+                      ? 'Bo gratis på 1 500 kvalitetshoteller for 2 personer. Dere betaler kun for maten på hotellet.'
+                      : 'Complimentary double room stays for 2 at 1,500 curated partner hotels. Pay only for on-site dining.'}
                   </div>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function RewardsPage() {
               <div className="pt-2 border-t border-purple-200/50 flex items-center justify-between">
                 <span className="text-xs font-black text-purple-900">0 kr rompris</span>
                 <Link
-                  href="/spa-breaks"
+                  href="/hotel-breaks"
                   className="inline-flex items-center gap-1 text-xs font-bold text-purple-700 hover:text-purple-900"
                 >
                   <span>{isNo ? 'Hent pass' : 'Claim'}</span>

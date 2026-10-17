@@ -29,7 +29,7 @@ export const INITIAL_B2B_ORGANIZATIONS: B2BOrganization[] = [
       'Automatisk EU261 €600 forsinkelsesovervåking',
       'Digitalt Atlas Agent-pass for Apple & Google Wallet',
       'Egne fakturaer med MVA-spesifikasjon for fradrag',
-      'Feriesuiter for hele familien (fra 3 890 kr/uke) & 0 kr spa-opphold',
+      'Feriesuiter for hele familien (fra 3 890 kr/uke) & 0 kr hotellopphold',
     ],
   },
   {
@@ -58,7 +58,7 @@ export const INITIAL_B2B_ORGANIZATIONS: B2BOrganization[] = [
       'Ingen kredittkortpåslag på flybilletter',
       'EU261 forsinkelsesrefusjon inntil €600 rett til medlemmets konto',
       'Familie-tillegg (dekker inntil 4 personer per husstand)',
-      'Eksklusive feriesuiter (fra 3 890 kr/uke) & Gourmet-spa (0 kr rompris)',
+      'Eksklusive feriesuiter (fra 3 890 kr/uke) & Hotel Breaks (0 kr rompris)',
     ],
   },
   {
@@ -87,7 +87,7 @@ export const INITIAL_B2B_ORGANIZATIONS: B2BOrganization[] = [
       'Prioritert 24/7 VIP Travel Desk & Disruption Rebooking',
       'Automatisk kravhåndtering ved forsinkelser via Atlas Sentinel',
       'Sentralisert samlefaktura per avdeling',
-      'Medarbeiderfordeler: 7-netters feriesuiter & gratis velværerom',
+      'Medarbeiderfordeler: 7-netters feriesuiter & gratis hotellopphold',
     ],
   },
 ];

@@ -154,8 +154,8 @@ export default function AITravelConcierge() {
     return {
       sender: 'ai',
       text: isNo
-        ? `👋 Velkommen til Atlas Travel Club, ${name}! Jeg er **Aura**, din døgnåpne reiseconcierge.\n\nJeg overvåker lukkede grossistdatabaser, direkte NDC-flynettverk og eksklusive medlemsfordeler over hele verden:\n\n• **Hoteller & suiter**: Ekte B2B-engrospriser med 0 kr i påslag\n• **🏖️ Atlas Signature Resorts**: 7 netter ferieleilighet fra **3 890 NOK** (eller 3 900 poeng) for hele familien\n• **🍷 Gourmet & Spa Escapes**: **0 kr i rompris** på 3–4* boutique- og velværerhoteller i Alpene og Sør-Europa (betal kun lokal halvpensjon)\n\nHva kan jeg hjelpe deg med av reiseråd, ferieleiligheter eller hotellbestillinger i dag?`
-        : `👋 Welcome to Atlas Travel Club, ${name}! I am **Aura**, your private 24/7 Travel Concierge.\n\nI monitor confidential wholesale bedbanks, direct airline NDC networks, and member-exclusive distressed inventory worldwide:\n\n• **Hotels & Suites**: Raw B2B wholesale rates with 0% retail markup\n• **🏖️ Atlas Signature Resorts**: 7-night full condo stays from **3,890 NOK** ($359 USD / 3,900 pts) for up to 6 guests\n• **🍷 Gourmet & Spa Escapes**: **$0 room rates** at curated European wellness retreats (guests only pay published half-board)\n\nHow may I assist with your reservations, condo weeks, or travel itineraries today?`,
+        ? `👋 Velkommen til Atlas Travel Club, ${name}! Jeg er **Aura**, din døgnåpne reiseconcierge.\n\nJeg overvåker lukkede grossistdatabaser, direkte NDC-flynettverk og eksklusive medlemsfordeler over hele verden:\n\n• **Hoteller & suiter**: Ekte B2B-engrospriser med 0 kr i påslag\n• **🏖️ Atlas Signature Resorts**: 7 netter ferieleilighet fra **3 890 NOK** (eller 3 900 poeng) for hele familien\n• **🏨 Atlas Hotel Breaks**: **0 kr i rompris** på 1 500 kvalitetshoteller i Alpene og Sør-Europa (betal kun lokal halvpensjon)\n\nHva kan jeg hjelpe deg med av reiseråd, ferieleiligheter eller hotellbestillinger i dag?`
+        : `👋 Welcome to Atlas Travel Club, ${name}! I am **Aura**, your private 24/7 Travel Concierge.\n\nI monitor confidential wholesale bedbanks, direct airline NDC networks, and member-exclusive distressed inventory worldwide:\n\n• **Hotels & Suites**: Raw B2B wholesale rates with 0% retail markup\n• **🏖️ Atlas Signature Resorts**: 7-night full condo stays from **3,890 NOK** ($359 USD / 3,900 pts) for up to 6 guests\n• **🏨 Atlas Hotel Breaks**: **$0 room rates** at 1,500 curated partner hotels across the Alps and Southern Europe (guests only pay published half-board)\n\nHow may I assist with your reservations, condo weeks, or travel itineraries today?`,
       time: isNo ? 'Akkurat nå' : 'Just now',
     };
   };
@@ -820,12 +820,12 @@ export default function AITravelConcierge() {
                 <span>{isNo ? 'Feriesuiter (fra 3 890 kr)' : 'Condos (from 3,890 NOK)'}</span>
               </Link>
               <Link
-                href="/spa-breaks"
+                href="/hotel-breaks"
                 onClick={() => setIsOpen(false)}
-                className="shrink-0 px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 rounded-xl text-[10px] font-bold text-rose-900 flex items-center gap-1 transition-colors border border-rose-200 cursor-pointer"
+                className="shrink-0 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 rounded-xl text-[10px] font-bold text-emerald-900 flex items-center gap-1 transition-colors border border-emerald-200 cursor-pointer"
               >
-                <span>🍷</span>
-                <span>{isNo ? 'Gourmet & Spa (0 kr rom)' : 'Gourmet & Spa ($0 Room)'}</span>
+                <span>🏨</span>
+                <span>{isNo ? 'Hotellopphold (0 kr rom)' : 'Hotel Breaks ($0 Room)'}</span>
               </Link>
               <Link
                 href="/nomads"

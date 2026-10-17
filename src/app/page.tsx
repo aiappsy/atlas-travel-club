@@ -287,23 +287,23 @@ export default function LuxuryHomePage() {
             </div>
           </div>
 
-          {/* Card 2: Atlas Gourmet & Spa Escapes */}
+          {/* Card 2: Atlas Hotel Breaks */}
           <div className="group relative rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
             <div className="relative h-56 sm:h-64 overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1200&q=80"
-                alt="Atlas Gourmet & Spa Escapes"
+                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
+                alt="Atlas Hotel Breaks"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-rose-500/90 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-wider">
+              <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-emerald-600/90 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-wider">
                 {locale === 'no' ? '0 kr Rompris' : '$0 Room Rate'}
               </div>
               <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold border border-white/20">
-                {locale === 'no' ? 'Connex / Holiday Plus' : 'Connex Hotel Network'}
+                {locale === 'no' ? 'Holiday Plus / Connex' : 'Holiday Plus Hotel Network'}
               </div>
               <div className="absolute bottom-4 left-4 right-4 text-white">
-                <div className="text-xs font-bold text-rose-300 uppercase tracking-wider">Atlas Gourmet &amp; Spa Escapes</div>
+                <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">Atlas Hotel Breaks</div>
                 <div className="text-2xl font-black">
                   {locale === 'no' ? 'Gratis hotellopphold for 2 personer' : 'Complimentary Hotel Stay for 2'}
                 </div>
@@ -317,8 +317,8 @@ export default function LuxuryHomePage() {
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {locale === 'no'
-                    ? 'Nyt 2–4 netter på håndplukkede 3–4* boutique- og velværerhoteller i Dolomittene, Schwarzwald, Provence eller Toscana. Rommet er 0 kr på hotellregningen – du betaler kun for lokal gourmetfrokost og middag.'
-                    : 'Experience 2–4 nights at handpicked boutique retreats in the Alps, Black Forest, or Tuscany. Room charge is 0 kr—you only pay the mandatory half-board meal package directly to the hotel.'}
+                    ? 'Nyt 2–4 netter på håndplukkede kvalitetshoteller i Alpene, Dolomittene, Schwarzwald, Provence eller Toscana. Rommet er 0 kr på hotellregningen – du betaler kun for lokal gourmetfrokost og middag ved utsjekk.'
+                    : 'Experience 2–4 nights at handpicked partner hotels across the Alps, Black Forest, Provence, or Tuscany. Room charge is $0—you only pay the published half-board dining package directly to the hotel.'}
                 </p>
 
                 <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
@@ -328,7 +328,7 @@ export default function LuxuryHomePage() {
                   </div>
                   <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-semibold text-slate-800">{locale === 'no' ? 'Umiddelbar verdikupong' : 'Instant Digital Voucher'}</span>
+                    <span className="font-semibold text-slate-800">{locale === 'no' ? 'Offisielt innsjekkingsbevis' : 'Official Check-In Certificate'}</span>
                   </div>
                 </div>
               </div>
@@ -338,10 +338,10 @@ export default function LuxuryHomePage() {
                   <span className="font-bold text-slate-900">0 kr</span> / rom (500 poeng)
                 </div>
                 <Link
-                  href="/spa-breaks"
-                  className="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
+                  href="/hotel-breaks"
+                  className="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shadow-sm transition-all flex items-center gap-1.5"
                 >
-                  <span>{locale === 'no' ? 'Hent 0 kr verdikupong' : 'Claim $0 Voucher'}</span>
+                  <span>{locale === 'no' ? 'Utforsk hotellopphold' : 'Explore Hotel Breaks'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>

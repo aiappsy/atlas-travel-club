@@ -347,13 +347,13 @@ export default function OrganizationPortalPage({
               </div>
               <div>
                 <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                  <span>🍷</span>
-                  <span>Atlas Gourmet &amp; Spa Escapes</span>
+                  <span>🏨</span>
+                  <span>Atlas Hotel Breaks (Hotellopphold)</span>
                 </h4>
                 <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
                   {isNo
-                    ? 'Gratis hotellopphold for 2 personer på boutique- og velværerhoteller i Dolomittene, Schwarzwald og Toscana. Betal kun hotellets faste halvpensjonspris (€35–€60/pers/dag) ved utsjekk.'
-                    : 'Complimentary lodging for 2 guests at European wellness and boutique retreats. Pay only published fixed half-board (€35–€60/guest/day) at checkout.'}
+                    ? 'Gratis hotellopphold for 2 personer på kvalitetshoteller i Alpene, Dolomittene, Schwarzwald og Toscana. Betal kun hotellets faste halvpensjonspris (€35–€60/pers/dag) ved utsjekk.'
+                    : 'Complimentary lodging for 2 guests at European partner hotels in the Alps, Black Forest, and Tuscany. Pay only published fixed half-board (€35–€60/guest/day) at checkout.'}
                 </p>
               </div>
               <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
@@ -361,10 +361,10 @@ export default function OrganizationPortalPage({
                   {isNo ? '✓ Spar 6 700+ kr' : '✓ Save $650+ vs Booking'}
                 </span>
                 <Link
-                  href="/spa-breaks"
-                  className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-black text-xs transition-all flex items-center gap-1"
+                  href="/hotel-breaks"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition-all flex items-center gap-1"
                 >
-                  <span>{isNo ? 'Hent verdikupong' : 'Claim Voucher'}</span>
+                  <span>{isNo ? 'Reserver hotell' : 'Reserve Hotel'}</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>

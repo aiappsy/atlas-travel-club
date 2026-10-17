@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BookmarkCheck,
+  Building2,
   X
 } from 'lucide-react';
 
@@ -65,9 +66,9 @@ export default function Sidebar() {
       badgeColor: 'bg-emerald-100 text-emerald-800',
     },
     {
-      name: locale === 'no' ? 'Gourmet & Spa' : 'Spa Escapes',
-      href: '/spa-breaks',
-      icon: Wine,
+      name: locale === 'no' ? 'Hotellopphold' : 'Hotel Breaks',
+      href: '/hotel-breaks',
+      icon: Building2,
       badge: locale === 'no' ? '0 kr rom' : '$0 Room',
       badgeColor: 'bg-amber-100 text-amber-800',
     },

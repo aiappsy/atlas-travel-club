@@ -135,15 +135,15 @@ export default function PortalPage() {
             primary: true,
           },
           {
-            title: isNo ? 'Atlas Gourmet & Spa Escapes' : 'Atlas Gourmet & Spa Escapes',
+            title: isNo ? 'Atlas Hotellopphold (Hotel Breaks)' : 'Atlas Hotel Breaks',
             badge: isNo ? '0 kr Rompris / On-Site Booking' : '$0 Room Rate / On-Site Booking',
-            badgeClass: 'bg-rose-100 text-rose-900 border-rose-300 font-bold',
+            badgeClass: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-bold',
             desc: isNo
-              ? 'Atlas Gourmet & Spa-Pass: 0 kr rompris for 2 personer på 1 500 boutique- og spahoteller i Alpene, Italia, Tyskland og Frankrike. Betal kun hotellets faste halvpensjon ved utsjekk. Fullverdig on-site reservasjonsmodal.'
-              : 'Atlas Gourmet & Spa Pass: $0 complimentary double room lodging for 2 guests across 1,500 boutique and thermal wellness retreats. Guests pay only published half-board dining at checkout. Fully on-site.',
-            url: 'https://atlasclub.web.app/spa-breaks',
-            path: '/spa-breaks',
-            icon: '🍷',
+              ? 'Atlas Hotel Breaks-Pass: 0 kr rompris for 2 personer på 1 500 kvalitetshoteller i Alpene, Italia, Tyskland og Frankrike. Betal kun hotellets faste halvpensjon ved utsjekk. Fullverdig on-site reservasjonsmodal og offisielt innsjekkingssertifikat.'
+              : 'Atlas Hotel Breaks Pass: $0 complimentary double room lodging for 2 guests across 1,500 curated partner hotels in the Alps, Italy, Germany, and France. Guests pay only published half-board dining at checkout. Fully on-site.',
+            url: 'https://atlasclub.web.app/hotel-breaks',
+            path: '/hotel-breaks',
+            icon: '🏨',
             primary: true,
           },
           {
